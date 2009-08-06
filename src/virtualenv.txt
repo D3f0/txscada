@@ -1,0 +1,37 @@
+class RestPublisher(resource):
+    '''
+    Clase encargada de
+    '''
+    def __init__(self):
+        self.registry = {}
+
+    def register(self, rest_sa_resource):
+        pass
+
+class RestSAResourceMetaclass(type):
+    pass
+
+class RestSAResource(object):
+    '''
+    Encargada de la generación de los nodos
+    '''
+    __metaclass__ = RestSAResourceMetaclass
+
+class CORestPublisher(RestSAResource):
+    '''
+    Publica un recurso...
+    '''
+    model = CO
+    url = 'co'
+    url_plural = 'cos'
+
+
+
+
+
+
+    
+    
+
+
+
