@@ -1,0 +1,9 @@
+#!/home/defo/workspace/python/restscada/pyenv/bin/python
+# EASY-INSTALL-ENTRY-SCRIPT: 'yolk==0.4.1','console_scripts','yolk'
+__requires__ = 'yolk==0.4.1'
+import sys
+from pkg_resources import load_entry_point
+
+sys.exit(
+   load_entry_point('yolk==0.4.1', 'console_scripts', 'yolk')()
+)
