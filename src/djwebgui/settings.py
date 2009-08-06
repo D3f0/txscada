@@ -1,4 +1,4 @@
-# Django settings for rscadaweb project.
+# Django settings for djwebgui project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -48,7 +48,7 @@ MEDIA_URL = ''
 ADMIN_MEDIA_PREFIX = '/media/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '8@$qtc^%&szkx@b7j(o@z^p7ep5$d6!kkdf5u&%_-t-_w=5_ds'
+SECRET_KEY = '50r+oltdz53j1*r$blb=wa8&nf9@um5!8gtou)wws9k5q7#2o%'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -63,7 +63,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
-ROOT_URLCONF = 'rscadaweb.urls'
+ROOT_URLCONF = 'djwebgui.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
