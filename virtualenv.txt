@@ -1,0 +1,5 @@
+Un virtualenv es un ambiente protegido donde se manitenen las versiones de paquetes de Python.
+
+Más información en:
+
+http://www.saltycrane.com/blog/2009/05/notes-using-pip-and-virtualenv-django/

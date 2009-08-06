@@ -1,0 +1,14 @@
+syntax: glob
+docs
+share/doc
+share/man
+*.pyc
+.svn
+.git
+# Los locales son pesados
+locale
+# Proyecto de eclipse
+.pydevproject
+.project
+django/contrib/gis/tests
+
