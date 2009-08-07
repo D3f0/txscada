@@ -11,4 +11,7 @@ from bitstring import BitString
 
 
 class PicnetProtocol(protocol.Protocol):
-    pass
+    def packageReceived(self, pkg):
+        pass
+    def dataDiscarded(self, data):
+        pass
