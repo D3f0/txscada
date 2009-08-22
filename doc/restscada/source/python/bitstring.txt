@@ -1,0 +1,31 @@
+
+======================================
+Manejo de entidades binarias en Python
+======================================
+
+
+Tipos de datos en Python
+========================
+
+Python trata a todos los tipos de datos como objetos. Es decir, que tanto una cadena
+como un entetro son entideades que poseen atributos y métodos.
+
+Los tipos de datos provistos por el lenguaje son cadenas, (**str**), enteros (**int**),
+booleanos (**bool**), flotantes **float**.
+Además el lenguaje posé una representación del vacío, que es diferente
+al 0 entero o al falso booleano, esta entidad es **None**.
+
+
+Tipos de datos orientados a byte
+================================
+
+Como el protocolo PicNet está orientado a bits, se utilizó inicialmente la librería
+expuesta en ASPN [*]_ `bitfield <http://code.activestate.com/recipes/113799>`_.
+
+Mediante bitfield se puede manejar enteros de una cantidad arbitraria de bytes con
+sintaxis de arreglos.
+
+ 
+
+.. [*] ASPN es un sitio de recetas.
+ 

@@ -11,4 +11,5 @@ locale
 .pydevproject
 .project
 django/contrib/gis/tests
-
+doc/restscada/build
+.*
