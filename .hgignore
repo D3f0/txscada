@@ -13,3 +13,6 @@ locale
 django/contrib/gis/tests
 doc/restscada/build
 .*
+*~
+#simulacion de recursos web
+src/restscada/rest/static
