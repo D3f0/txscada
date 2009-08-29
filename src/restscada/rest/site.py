@@ -47,6 +47,12 @@ class BaseResource(resource.Resource):
         static_res = static.File('static')
         self.putChild('static', static_res )
         self.putChild('', Redirector('/static/'))
+        self.putChild('scada', Scada() )
+        
+class Scada(RESTfulResource):
+    # TODO: Encender el scada
+    # TODO: Detener scada
+    pass
     
 base_resource = BaseResource()
 site = server.Site(base_resource)
