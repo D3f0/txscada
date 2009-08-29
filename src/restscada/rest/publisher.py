@@ -6,11 +6,11 @@ Mockup
 from twisted.web import resource, server
 import sys
 
-class RestRsourcePublisher(resource.Resource):
+class RestResourcePublisher(resource.Resource):
     def register(self, rest_class):
         pass
 
-class RestPubisherMetaclass(type):
+class RestPublisherMetaclass(type):
     def __new__(cls, name, bases, namespace):
         #print cls, name, largs, kwargs
         inst = type(name, bases, namespace)
@@ -18,7 +18,7 @@ class RestPubisherMetaclass(type):
         return inst
 
 class RestPublisherBase(object):
-    __metaclass__ = RestPubisherMetaclass
+    __metaclass__ = RestPublisherMetaclass
 
 
 class SARestPublisher( RestPublisherBase ):
@@ -37,7 +37,7 @@ class SARestPublisher( RestPublisherBase ):
 def main(argv = sys.argv):
     from twisted.internet import reactor
     
-    class MyRoot(RestRsourcePublisher):
+    class MyRoot(RestResourcePublisher):
         ''' Definimos un recurso de prueba'''
         pass
     puerto = 8003
