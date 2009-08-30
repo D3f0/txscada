@@ -12,6 +12,12 @@ class UserAgentDelegate(object):
         raise NotImplementedError("You must sublcass this method")
 
 #class HTMLDelegate():
+class ResponseWriter(object):
+    '''
+    Encargado de escribir la respuesta
+    '''
+    pass
+
 
 class RESTfulResource( resource.Resource ):
     
