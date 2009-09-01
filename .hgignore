@@ -16,3 +16,6 @@ doc/restscada/build
 *~
 #simulacion de recursos web
 src/restscada/rest/static
+doc/build/latex
+doc/build/doctrees
+

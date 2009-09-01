@@ -1,0 +1,17 @@
+CHANGES
+LICENSE
+MANIFEST.in
+README
+setup.cfg
+setup.py
+sphinxcontrib/__init__.py
+sphinxcontrib/aafig-pre-sphinx-trans.py
+sphinxcontrib/aafig-pre-transform.py
+sphinxcontrib/aafig.py
+sphinxcontrib_aafig.egg-info/PKG-INFO
+sphinxcontrib_aafig.egg-info/SOURCES.txt
+sphinxcontrib_aafig.egg-info/dependency_links.txt
+sphinxcontrib_aafig.egg-info/namespace_packages.txt
+sphinxcontrib_aafig.egg-info/not-zip-safe
+sphinxcontrib_aafig.egg-info/requires.txt
+sphinxcontrib_aafig.egg-info/top_level.txt

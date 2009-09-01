@@ -1,0 +1,39 @@
+
+=============
+Introducción
+=============
+
+
+Motivación
+----------
+
+Durante el años 2006 al 2009 se llevó a cabo el proyecto de investigación denominado
+*Microcontroladores e Internet* en el cual se presentó un protocolo de comunicaciones
+y una arquitectura para sistemas de control.
+
+.. aafig::
+    :aspect: 60
+    :scale: 150
+    :proportional:
+    :textual:
+    
+                                                                       +----------+
+                                                                       |   GPS    |		
+                                                                       |          | 	                               
+                                                                       +---+------+	
+    +--------------------+     Socket TCP      +--------------+            |   
+    | Centro de control  +-------------------->+ Concentrador |            |
+    |                    |                     |  (bridge)    +<-----------+
+    +--------------------+                     +-----+--------+
+                                                     |                           
+                                   RS-485            |      RS-485                
+                                 --------------------+-----------------+        
+                                /                    /                /          
+                           +----+-----+        +----+------+    +-----+------+
+                           | Unidad   |        | Unidad    |    | Unidad     |
+                           |   de     |        |   de      |    |   de       |
+                           | Control  |        | Control   |    | Control    |   
+                           +----------+        +-----------+    +------------+
+                                                                                  
+                                                                                  
+                                                                                  

@@ -1,0 +1,2 @@
+Sphinx>=0.6
+aafigure>=0.3
