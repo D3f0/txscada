@@ -2,16 +2,21 @@
 Base de datos
 =============
 
+Modelo de datos
+---------------
 
 .. aafig::
 
 
-	+--------------------+        
-	|     CO             |
-	+--------------------+
-	| + id               |
-	| + nombre           |
-	| +                  |
-	|                    |
-	|                    |
-	+--------------------+
+	+--------------------------+  
+	|     CO                   |
+	+--------------------------+
+	| + id: PK Integer         |
+	| + ip_address: Varchar    |
+	| + hab: Bool              |
+	| + t_out: Float           |
+	| + max_retry: SmallInt    |
+	| + poll_delay: Float      |
+	| + nombre: VarChar        |
+	|                          |
+	+--------------------------+

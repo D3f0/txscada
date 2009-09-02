@@ -1,0 +1,174 @@
+Representational State Transfer
+===============================
+
+Mediante REST se brinda el servicio de *configuracion*, *monitoreo* y *control* sobre la
+red **uCnet**. REST es una definición arquitectural sobre HTTP, más que un mecanismo
+de RPC, el término fue introducido por Roy Fielding [Fielding2000a]_ [Fielding2000b]_
+
+.. [Fielding2000a] El capítulo 5 de la disertación es "`Representational State Transfer (REST) <http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm>`_"
+
+.. [Fielding2000b] `Discución de Roy Fielding sobre el término REST <http://tech.groups.yahoo.com/group/rest-discuss/message/6735>`_
+
+
+
+The terms "representational state transfer" and "REST" were introduced and defined in 2000 by the doctoral dissertation of Roy Fielding,[1][2] one of the principal authors of the Hypertext Transfer Protocol (HTTP) specification versions 1.0 and 1.1.
+
+
+..
+
+    <S-Insert>
+
+
+Nombrado de recursos
+--------------------
+
+La gerarquía de recursos que se deben publicar son los siguientes.
+
+.. aafig::
+	
+	
+		/co/id ------------------>  /uc/id/
+
+	+----------+             +-------------+
+	|    CO    +------------>+     UC      |
+	+----------+             +------+------+
+                                    |
+                      +-------------+----------------+              
+                      |             |                | 
+                      V             V                V 
+                 +----+----+    +---+------+     +---+------+                   
+                 |   ST    |    |   AI     |     |    DI    |
+                 +---------+    +----------+     +----------+
+                     
+                     
+
+Semántica de los métodos *HTTP*
+-------------------------------                         
+ 
+
+
+    +-------------+------------------+-----------------+------------------+---------------------+
+    | Recursos    |   **GET**        |    **PUT**      |     **POST**     |     **DELETE**      |
+    +=============+==================+=================+==================+=====================+
+    | Colecciones | **Listar**       | **Reemplazar**  | **Crear**        | **Borrar**          |
+    | de recursos | todo los         | la colección    | un nuevo         | la colección        |
+    | como la     | los elementos    | completa de     | elemento en la   | completa de         |
+    | **URI**     | de la colección  | elementos       | coleccion cuyo   | elementos           |    
+    | /cosas/     |                  |                 | ID sera asignado |                     |
+    |             |                  |                 | automaticamente  |                     |
+    |             |                  |                 |                  |                     |
+    |             |                  |                 |                  |                     |
+    +-------------+------------------+-----------------+------------------+---------------------+
+    | Miembros de |                  |                 |                  |                     |
+    | una         | **Recuperar**    | **Actualizar**  | ??               | **Eliminar** e      |
+    | coleccion   | la representacion| el elemento     |                  | elemento            |
+    | como        | apropiada del    | identificado    |                  | identificado por    |
+    | /cosa/{id}  | recurso en el    | por el ID o     |                  | el **ID**           |
+    |             | tipo MIME        | actualizarlo    |                  |                     |
+    |             |                  |                 |                  |                     |
+    |             |                  |                 |                  |                     |
+    +-------------+------------------+-----------------+------------------+---------------------+
+
+
+
+                                   
+Entidades de la base de datos publicadas en mediante Representational State Transfer
+
+	* /cos/
+	
+		Todos los concentradores
+		
+	* /co/{id}
+	
+		Un concentrador dado su id
+	
+	* /co/{id}/ucs
+	
+		Todas las Unidades de Control de un Concentrador
+		
+	* /co/{id}/uc/{id}
+	
+		Unidad de control
+	
+	* /co/{id}/uc/{id}/ais
+		
+		Todas las entradas analógicas de una unidad de control
+	
+	* /co/{id}/uc/{id}/ai/{n}
+	
+		Entrada analógica de una unidad de control
+	
+	* /co/{id}/uc/{id}/dis
+		
+		Todas las entradas digitales de una unidad de control
+	
+	* /co/{id}/uc/{id}/di/{n}
+		
+		Entrada digital de un una unidad de control
+	
+	* /co/{id}/uc/{id}/evs
+		
+		Eventos de una unidad de control
+		
+		.. note::
+			Hay que ver porque el resultado puede ser bastante grande	
+	
+	
+	* /co/{id}/uc/{id}/sts
+		
+		Variables de estado de una unidad de control
+	
+	* /co/{id}/uc/{id}/st{n}
+	
+	* /co/{id}/uc/{id}/ev
+
+Formateo de datos
+-----------------
+
+Los formatos posibles para los datos son los siguientes:
+	
+	* HTML
+        Formato compatible con browsers, por ejemplo
+        
+.. code-block:: html
+
+            <html>
+                <head><title>Concentrador 1</title></head>
+                <body>
+                    <table>
+                        <tr>
+                        </tr>
+                        <tr>
+                        </tr>
+                        <tr>
+                        </tr>
+                    </table>
+
+                </body>
+            </html>
+        
+
+
+	* JSON
+        Formato adecuado para acceder mediante peticiones asincrónicas
+        en browsers, AJAX [*]_
+
+	* XML
+        Formato adecuado para aplicaciones
+
+.. [*] *Peticiones asincrónicas en navegadores web*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

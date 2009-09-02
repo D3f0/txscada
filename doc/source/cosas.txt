@@ -1,6 +1,0 @@
-
-Manejo de cadenas de bytes en Python
-====================================
-
-
-

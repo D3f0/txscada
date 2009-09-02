@@ -208,5 +208,5 @@ latex_documents = [
 intersphinx_mapping = {'http://docs.python.org/': None}
 
 
-aafig_format = dict(latex='pdf', html='svg', text=None)
-aafig_default_options = dict(scale=1.5, aspect=0.5, proportional=True)
+#aafig_format = dict(latex='pdf', html='svg', text=None)
+#aafig_default_options = dict(scale=1.5, aspect=0.5, proportional=True)

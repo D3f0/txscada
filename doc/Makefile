@@ -3,7 +3,8 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = ../pyenv/bin/sphinx-build
+# SPHINXBUILD   = ../pyenv/bin/sphinx-build
+SPHINXBUILD   = sphinx-build
 PAPER         =
 
 # Internal variables.

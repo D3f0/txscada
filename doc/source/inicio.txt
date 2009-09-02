@@ -14,12 +14,5 @@ Contents:
    
    
    intro
-   
-   python/bitstring
-   python/db
-   python/twisted
-   python/twisted-en-scada
-   
-   protocolo
    rest
    
