@@ -112,7 +112,8 @@ Entidades de la base de datos publicadas en mediante Representational State Tran
 		
 		.. note::
 			Hay que ver porque el resultado puede ser bastante grande	
-	
+		
+		
 	
 	* /co/{id}/uc/{id}/sts
 		
@@ -169,7 +170,10 @@ la respuesta. Su nombre surge en contraposición a Http Pull, o modo clásico, d
 de información es iniciada por el cliente.
 
 
+HTTP Push en los recursos REST
+------------------------------
 
+En cada 
 
 
 
