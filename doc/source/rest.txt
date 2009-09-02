@@ -128,30 +128,32 @@ Formateo de datos
 Los formatos posibles para los datos son los siguientes:
 	
 	* HTML
-        Formato compatible con browsers, por ejemplo
-        
-.. code-block:: html
+        Formato compatible con browsers, por ejemplo::
 
             <html>
                 <head><title>Concentrador 1</title></head>
                 <body>
                     <table>
                         <tr>
+                            <th>Dato interesante</th><td>1</td>
                         </tr>
                         <tr>
+                            <th>Dato interesante</th><td>2</td>
                         </tr>
                         <tr>
+                            <th>Dato interesante</th><td>3</td>
                         </tr>
-                    </table>
+
+                        </table>
 
                 </body>
             </html>
         
-
-
 	* JSON
         Formato adecuado para acceder mediante peticiones asincrónicas
-        en browsers, AJAX [*]_
+        en browsers, AJAX [*]_ ::
+            [ {'co_id':1, 'dato_interesante1': 1, 'dato_interesante2: 3}]
+    
 
 	* XML
         Formato adecuado para aplicaciones
@@ -159,6 +161,12 @@ Los formatos posibles para los datos son los siguientes:
 .. [*] *Peticiones asincrónicas en navegadores web*
 
 
+
+HTTP Push
+=========
+Http Push o Server Push, describe un tipo de conmunicación de internet donde el servidor inicia
+la respuesta. Su nombre surge en contraposición a Http Pull, o modo clásico, donde la transmición
+de información es iniciada por el cliente.
 
 
 

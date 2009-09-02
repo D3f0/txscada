@@ -16,6 +16,7 @@ ALLSPHINXOPTS   = -d build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 
 
 all: latex 
+	$(MAKE) -C build/latex
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
