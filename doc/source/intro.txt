@@ -36,4 +36,136 @@ y una arquitectura para sistemas de control.
                            +----------+        +-----------+    +------------+
                                                                                   
                                                                                   
-                                                                                  
+En cuanto a la arquitecura del software de alto nivel:
+
+.. aafig::
+    :aspect: 60
+    :scale: 150
+    :proportional:
+    :textual:
+
+
+       ALSVID                                           AVRAK
+     (twisted)                                         (PyQt.QtGui, PyQt.QtSql)
+    +-----------------+  Publicación de eventos    +-------------------+
+    |  Adquisición    |--------------------------->|  Interfase Vis.   |
+    +-------o-----o---+      (PyQt.QtCore)         +----o--------------+
+            |     |                                     |    
+            |      \                                    |
+            |       --------                            | 
+            |     (alchemy) \          (PyQt.QtSql)    /
+            v                |   +---------------------          
+    /----------------\       |   |
+    |  Red uCnet     |       |   |
+    \----------------/       |   |
+                             v   v
+                      /-------------\
+                      |     DB      |    (MySQL)
+                      |             |
+                      \-------------/ 
+
+El software de adquisición de estados y eventos se bautizó Alsvid, y la interfase
+visual montada sobre este motor (ejecutada en el mismo proceso), se denominó
+Avrak.
+Se utilizaron varias librerías de software:
+
+ + PyQt
+
+    PyQt es un binding para la librería de C++ Qt de Nokia.
+    Permite manipular la librería de C++ desde Python.
+    
+    + QtCore, propagación transversal de eventos
+    + QtSql, conexión con bases de datos con facilidades de CRUD en GUI
+    + QtGui, elementos gráficos.
+        + Graphics Framework
+
+ + sqlalchemy
+    Toolkit de acceso a base de datos, permite realizar el mapeo de
+    tablas sobre objetos de Python y envolver las consultas.
+
+ + Twisted
+    Framework de red orientado a eventos.
+
+Alsvid comenzó siendo una aplicación CLI [*]_ con configuración offline, 
+mientras que Avrak no solo se trata de la interfase visual, además 
+intercepta la recepción de paquetes válidos y emite una *señal*.
+Los elementos gráficos conectados a esa señal ('packageReceived(pkg)')
+actualizaban la interfase, siendo solo necesario recurrir a la base de
+datos para un listado acutalizado de eventos.
+
+                                         
+.. [*] http://es.wikipedia.org/wiki/L%C3%ADnea_de_comandos                                       
+
+Algunas de las falencias detectadas en el Avrak son las siguientes:
+
+    + Sistema de permisos débil y codificado en la GUI
+    
+    + Dos mecanimos de acceso a la base de datos diferentes
+      para un mismo fin, sqlalchemy en el motor y PyQt.QtSql en
+      la GUI.
+
+    + Sistema de propagación de eventos basado en una librería
+      grande (PyQt).
+
+    + El esquema de la base de datos de adquisición se modificaba
+      conforme se extendía el dominio de la aplicación.
+
+    + La web esta ausente en el estudio
+
+    + A pesar de los standars sobre los lenguajes SQL, las
+      bases de datos tienen sus características particulares
+      que las hacen inaprpiadas como un mecanismo "estandard"
+      de comunicación. Manejo del valor NULL, manejo del
+      tipo Datetime, etc.
+
+   
+
+.. note::
+    Donde digo, *se extendía el dominio de la aplicación* hablo
+    de la modificación de los requrimientos o revisiones de la 
+    GUI.
+
+Se require por lo tanto un mecanismo que reemplaze el esquema
+
+.. areglar el gráfico este
+
+::
+
+  +---------------+                       +-----------------+                
+  |  Motor de     |                       |  Aplicación     |
+  |  adquisición  |-----+         +-------+  Visual         |
+  +---------------+     |         |       |                 |
+                        |         |       +-----------------+
+                        |         |
+                        |         |       +-----------------+                 /-------------\
+                        |         +-------+ Servidor Web    | <-------------->| Browser     |
+                        |         |       | (página din.)   |                 \-------------/
+                        |         |       +-----------------+
+                        v         v
+                  /-------------------------\
+                  |  Base de Datos          |
+                  \-------------------------/
+
+
+Se propone genrer una interfase de acceso uniforme, universal y basada en
+estándares al motor que permita **configuracion** [*]_ , **monitorizacion** [*]_ y 
+**control** [*]_ del sistema.
+
+.. [*] Crear entidades en la base de datos
+.. [*] Recepción asincrónica de eventos en la GUI
+.. [*] Envio de comandos a las unidades de control
+
+::
+
+    +----------------------+-----------------+                +-----------------------+
+    |                      |                 |                |                       |
+    |    Motor de          |   Interfase     | <------------->|    Aplicacion         |
+    |    adquisición       |                 |        |       |    cliente            |
+    |                      |                 |        |       |                       |
+    +----------------------+-----------------+        |       +-----------------------+
+                                                      |
+                                                      +--- configuracion
+                                                      +--- monitorizacion
+                                                      +--- control
+
+

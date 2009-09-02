@@ -16,7 +16,7 @@ The terms "representational state transfer" and "REST" were introduced and defin
 
 ..
 
-    <S-Insert>
+
 
 
 Nombrado de recursos

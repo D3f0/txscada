@@ -14,5 +14,5 @@ Contents:
    
    
    intro
-   rest
+   python/rest
    
