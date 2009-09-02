@@ -1,4 +1,4 @@
-#!/home/defo/workspace/python/restscada/pyenv/bin/python
+#!/home/lautaro/proyectos/restscada/pyenv/bin/python
 
 # $Id: rst2latex.py 4564 2006-05-21 20:44:42Z wiemann $
 # Author: David Goodger <goodger@python.org>

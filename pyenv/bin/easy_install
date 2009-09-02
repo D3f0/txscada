@@ -1,4 +1,4 @@
-#!/home/defo/workspace/python/restscada/pyenv/bin/python
+#!/home/lautaro/proyectos/restscada/pyenv/bin/python
 # EASY-INSTALL-ENTRY-SCRIPT: 'setuptools==0.6c9','console_scripts','easy_install'
 __requires__ = 'setuptools==0.6c9'
 import sys

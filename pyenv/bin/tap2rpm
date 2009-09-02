@@ -1,4 +1,4 @@
-#!/home/defo/workspace/python/restscada/pyenv/bin/python
+#!/home/lautaro/proyectos/restscada/pyenv/bin/python
 
 #  based off the tap2deb code
 #  tap2rpm built by Sean Reifschneider, <jafo@tummy.com>

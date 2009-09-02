@@ -1,0 +1,101 @@
+
+
+========================
+REST
+========================
+
+
+------------------
+¿Qué es?
+------------------
+
+Es un estilo arquitectural. Un estilo arquitectural es un conjunto coordinado y nombrado de restricciones arquitecturales.
+En palabras de su creador:
+
+    Una arquitectura de software está definida por una configuración de elementos-componentes arquitecturales, cuyos datos están restringidos en sus relaciones, a fin de alcanzar el conjunto deseado de propiedades arquitecturales.
+    **Roy Fielding**
+
+REST describe un sistema en red en términos de:
+
+    * datos (recursos, identificadores de recursos, representaciones)
+    * conectores (clientes, servidores, caché, resolvedores, túneles)
+    * componentes (servidor origen, *gateway*, *proxy*, *user agent*)
+
+Los aspectos fundamentales de REST son:
+
+    * Los datos se acceden por una interface estandarizada, la URI.
+    * Los componentes se comunican transfiriendo representaciones de recursos a través de ésta interface, en vez de operar en el recurso mismo.
+    * Los conectores presentan una interface abstracta para la comunicación con componentes, escondiendo los detalles de implementación de los mecanismos de comunicación.
+    * Los componentes usan conectores para acceder, proveyendo o mediando acceso a los recursos.
+    * Todos los requerimientos realizados a los conectores, deben contener toda la información necesaria para la comprensión del requerimiento, independientemente de cualquier requerimiento previo.
+
+
+----------------------------
+Principios fundamentales
+----------------------------
+
+De la manera en que está diseñado REST, si uno se adhiere a éstos principios, obtendrá un sistema que explota la arquitectura web para beneficio propio. Los principios son:
+
+    + Darle a todo una identificación
+        Todo lo que podria ser identificable, debería llevar una clave unívoca que lo determine. En la Web, esto se representa mediante la URI. Las URIs definen espacios de nombres, y permiten determinar un recurso a nivel global. Una ventaja de ésto es que el esquema es estándar, está probado y está siendo utilizando ámpliamente. Se puede identificar tanto recursos, como conjuntos de recursos, objetos virtuales y resultados de cómputos. En fin, cualquier información susceptible de ser requerida específicamente por alguien.
+    
+    + Enlazar las cosas entre ellas
+        Usar enlaces a recursos e información relacionada siempre que sea posible. Esto aprovecha las capacidades de la *hypermedia*.
+    
+    + Usar métodos estándar
+        Para lograr una correcta interacción de los clientes con la aplicación se deberían usar adecuadamente los métodos provistos por el protocolo HTTP, ``GET``, ``PUT``, ``POST``, ``DELETE``. Lograr esto permite que una mayor cantidad de aplicaciones ya existentes puedan dialogar sin problemas con nuestro sistema, de una manera estándar y previsible.    
+    
+    + Recursos con múltiples representaciones
+        Se deberían proveer múltiples representaciones de cada uno de los recursos, de acuerdo a las necesidades del cliente. 
+    
+    + Comunicarse sin estado
+        REST establece que el estado de la aplicación debería ser encapsulado en un recurso, o en el cliente. En otras palabras, el servidor no debería retener algún tipo de información sobre el estado de la comunicación para ninguno de los clientes. De otra manera la aplicación no podría ser escalable ya que la carga aumentaría mientras más clientes se encuentren comunicándose con el servidor. Además, esto separa al cliente de los cambios que puedan suceder en el servidor, entre dos requerimientos consecutivos.
+
+
+----------------------------------------------
+Convención de URLs adoptada en el sistema
+----------------------------------------------
+
+Una URL modelo tendrá la siguiente forma
+
+``http://<dominio>/<entidad>[s]/{id_entidad}/<sub_entidad>[s]/{id_sub_entidad}/.../<entidad>[s]/<opcion_1>/.../<opcion_n>/``
+
+Lo que está entre corchetes es opcional.
+Lo que está entre llaves denota una clave de identificación.
+Lo que está entre corchetes rectos es un nombre de alguna entidad o dominio.
+
+En el ejemplo del sistema que estamos desarrollando ahora, esto se podría ver de 
+la siguiente manera:
+
+    + ``http://<dominio>/cos``    --->  Listado de de todos los concentradores    
+    
+    + ``http://<dominio>/co/1/ucs`` --->  Listado de todas las unidades de control del concentrador 1
+                                    
+    + ``http://<dominio>/co/1/uc/1/`` --->  Estado de la UC 1 del concentrador 1
+    
+    + ``http://<dominio>/co/1/uc/1/di/1`` --->  Estado de la entrada digital 1 de la UC 1 en el contentrador 1
+                                            
+    + ``http://<dominio>/co/1/uc/1/json/`` --->  Estado de la UC 1 del concentrador 1 en formato JSON (por defecto es HTML)
+
+En nuestra aplicación las entidades posibles serán
+
+    + *uc*    unidad de control
+    + *co*    concentrador
+    + *ev*    evento
+    + *di*    entrada digital
+    + *ai*    entrada analógica
+    
+Las opciones posibles serán
+
+    + json
+    + text
+    
+    
+    
+__________
+Fuentes
+__________
+
+http://bitworking.org/news/How_to_create_a_REST_Protocol
+http://www.infoq.com/articles/rest-introduction
+http://rest.blueoxen.net/

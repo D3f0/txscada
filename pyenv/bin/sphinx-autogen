@@ -1,4 +1,4 @@
-#!/home/defo/workspace/python/restscada/pyenv/bin/python
+#!/home/lautaro/proyectos/restscada/pyenv/bin/python
 # EASY-INSTALL-ENTRY-SCRIPT: 'Sphinx==0.6.2','console_scripts','sphinx-autogen'
 __requires__ = 'Sphinx==0.6.2'
 import sys

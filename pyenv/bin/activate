@@ -31,7 +31,7 @@ deactivate () {
 # unset irrelavent variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/home/defo/workspace/python/restscada/pyenv"
+VIRTUAL_ENV="/home/lautaro/proyectos/restscada/pyenv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

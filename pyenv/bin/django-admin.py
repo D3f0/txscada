@@ -1,4 +1,4 @@
-#!/home/defo/workspace/python/restscada/pyenv/bin/python
+#!/home/lautaro/proyectos/restscada/pyenv/bin/python
 from django.core import management
 
 if __name__ == "__main__":
