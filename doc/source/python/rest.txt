@@ -90,12 +90,30 @@ Las opciones posibles serán
     + json
     + text
     
-    
+
+De acuerdo a lo dicho anteriormente y al cuadro que se expone como ejemplo en Wikipedia, la semántica del sistema sería la siguiente:
+
++------------------------+------------------------+------------------------+----------------------------+------------------------+
+| Recurso                | GET                    | PUT                    | POST                       | DELETE                 |
++========================+========================+========================+============================+========================+
+| Conjunto de entidades  | Listar los miembros de | Reemplazar la          | Crear una nueva entrada    | Borrar toda la         |
+| como en                | la colección, junto    | colección con una      | en la colección, donde     | colección              |
+| ``http://<dom>/cos/``  | con los enlaces a cada | nueva.                 | el id es asignado          |                        |
+|                        | uno de los miembros    |                        | automáticamente            |                        |
++------------------------+------------------------+------------------------+----------------------------+------------------------+
+| Miembro de un          | Obtener una            | Actualizar los datos   | Trata al recurso como una  | Borrar el recurso de   |
+| conjunto, como en      | representación del     | del recurso o crear    | colección y le agrega un   | la colección.          |
+| ``http://<dom>/co/1``  | recurso.               | uno nuevo.             | nuevo subordinado          |                        |
++------------------------+------------------------+------------------------+----------------------------+------------------------+
     
 __________
 Fuentes
 __________
 
 http://bitworking.org/news/How_to_create_a_REST_Protocol
+
 http://www.infoq.com/articles/rest-introduction
+
 http://rest.blueoxen.net/
+
+http://en.wikipedia.org/wiki/Representational_State_Transfer
