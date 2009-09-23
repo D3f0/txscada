@@ -5,7 +5,8 @@ Created on 29/08/2009
 '''
 
 from twisted.web import server, resource, static
-
+from twisted.web.error import NoResource
+import rest_simulator
 
 class UserAgentDelegate(object):
     def render(self):
@@ -55,12 +56,43 @@ class BaseResource(resource.Resource):
         self.putChild('', Redirector('/static/'))
         self.putChild('scada', Scada() )
         
+        
+class TestResource(resource.Resource):    
+    isLeaf = True
+    
+    def __init__(self, an_object):
+        self.obj = an_object
+        
+    def render_GET(self, request):
+        return  rest_simulator.make_html(self.obj)
+        
+    render = render_GET
+        
+class TestBaseResource(resource.Resource):    
+    def add_child(self, a_resource, resource_name):
+        self.putChild(resource_name, a_resource)
+        
+    def getChild(self, name, request):
+        try:            
+            return(TestResource(rest_simulator.cos[0].ucs[1]))
+        except:
+            return NoResource() 
+
+        
+        
 class Scada(RESTfulResource):
     # TODO: Encender el scada
     # TODO: Detener scada
     pass
     
-base_resource = BaseResource()
+#base_resource = BaseResource()
+
+base_resource= TestBaseResource()
+for co in rest_simulator.cos:
+    base_resource.add_child(co, 'co/%d'%co.id)
+    for uc in co.ucs:
+        base_resource.add_child(uc, 'co/%d/uc/%d'%(co.id,uc.id))
+rest_simulator.simulate()
 site = server.Site(base_resource)
 
 

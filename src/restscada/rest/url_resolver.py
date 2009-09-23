@@ -47,8 +47,20 @@ if __name__ == "__main__":
     def create_co(request, *largs):
         print "Create CO"
         
+    def list_co(request, *largs):
+        print "List CO"        
+        
+    def create_uc(request, *largs):
+        print "Create UC"
+        
+    def list_uc(request, *largs):
+        print "List CO"
+
+        
     urls = build_urls(
-        (r'^/co/(?P<co_id>\d)/$', create_co),
-                      
+        (r'^\/cos\/$', list_co),
+        (r'^\/co\/(?P<co_id>\d+)\/$', create_co),
+        (r'^\/co\/(?P<co_id>\d+)\/ucs\/$', list_uc),
+        (r'^/co/(?P<co_id>\d)/uc/(?P<uc_id>\d)/$', create_uc),
     )
     
