@@ -4,7 +4,7 @@
 import sys
 import os
 import pprint
-import html
+import html_render
 import threading
 import random
 import time
@@ -40,7 +40,15 @@ class Concentrador(object):
             """
             ucs = pprint.pformat([str(uc) for uc in self.ucs])
             return 'Co %d - %s' %(self.id, ucs)
-    __repr__ = __str__
+    #__repr__ = __str__
+    
+    
+    def register(self):
+        s = '/co/%d' %self.id        
+        for uc in self.ucs:
+            for t, ref in uc.register():
+                yield (s + t, ref)
+        yield (s, self)
 
         
 class Unidad_de_Control(object):
@@ -77,8 +85,14 @@ class Unidad_de_Control(object):
         s1 = 'Uc %d' %self.id
         s2 = pprint.pformat(self.data)
         return '\n'.join([s1, s2])
+        
+    
 
-    __repr__ = __str__
+    #__repr__ = __str__
+    
+    def register(self):
+        s = '/uc/%d' %self.id
+        yield (s, self)
     
     
 
@@ -127,7 +141,10 @@ for i in xrange(10):
     uc.add_ai(1)
     uc.add_di(1)
     
-
+def get_paths():
+    for uc in ucs:
+        for s,ref in uc.register():
+            yield (s,ref)
 
 
 
@@ -148,6 +165,11 @@ if __name__ == '__main__':
         uc.add_ai(1)
         uc.add_di(1)
     
-    t = threading.Thread(target=bar, args=(cos,))
-    t.start()
-    
+####    t = threading.Thread(target=bar, args=(cos,))
+##    t.start()
+    d = {}
+    for a,b in get_paths():
+        d[a] = b
+    print d.keys()
+    print d.values()
+    print type(d.values()[0])

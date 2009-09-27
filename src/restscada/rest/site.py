@@ -4,9 +4,18 @@ Created on 29/08/2009
 @author: defo, lau
 '''
 
+import logging
+LOG_FILENAME = 'logging.out'
+logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG,)
+
+
+
 from twisted.web import server, resource, static
 from twisted.web.error import NoResource
 import rest_simulator
+import pprint
+import html_render
+
 
 class UserAgentDelegate(object):
     def render(self):
@@ -73,11 +82,29 @@ class TestBaseResource(resource.Resource):
         self.putChild(resource_name, a_resource)
         
     def getChild(self, name, request):
-        try:            
-            return(TestResource(rest_simulator.cos[0].ucs[1]))
+        try:
+            ref = resolve_url(request.uri)
+            if ref:
+                return(TestResource(ref))
+            else:
+                return()
         except:
             return NoResource() 
 
+
+
+paths = {}
+for path, ref in rest_simulator.get_paths():
+    paths[path] = ref
+
+logging.debug(pprint.pformat(paths))
+
+        
+def resolve_url(path):    
+    logging.debug(str(path))
+    ref = paths.get(path, None)
+    logging.debug(str(ref))
+    return ref
         
         
 class Scada(RESTfulResource):

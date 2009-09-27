@@ -14,6 +14,7 @@ django/contrib/gis/tests
 doc/restscada/build
 .*
 *~
+*logging.out
 #simulacion de recursos web
 src/restscada/rest/static
 doc/build/latex
