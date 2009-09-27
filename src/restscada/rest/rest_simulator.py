@@ -96,14 +96,8 @@ class Unidad_de_Control(object):
     
     
 
-def make_html(an_object):
-    h = html.HTML()
-    head = h.head()
-    head.title("testing! " + str(type(an_object)))
-    body = h.body()
-    body.h1(str(type(an_object)))
-    body.p(str(an_object))
-    return str(h)
+def make_html(an_object):    
+    return html_render.html_page(str(type(an_object)), str(an_object))
 
 
 def foo(un_co):
@@ -142,8 +136,8 @@ for i in xrange(10):
     uc.add_di(1)
     
 def get_paths():
-    for uc in ucs:
-        for s,ref in uc.register():
+    for co in cos:        
+        for s,ref in co.register():
             yield (s,ref)
 
 
@@ -170,6 +164,6 @@ if __name__ == '__main__':
     d = {}
     for a,b in get_paths():
         d[a] = b
-    print d.keys()
-    print d.values()
-    print type(d.values()[0])
+    pprint.pprint(d)
+
+

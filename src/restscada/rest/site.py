@@ -76,6 +76,19 @@ class TestResource(resource.Resource):
         return  rest_simulator.make_html(self.obj)
         
     render = render_GET
+    
+    
+class SimpleResource(resource.Resource):    
+    isLeaf = True
+    
+    def __init__(self, str):
+        self.data = str
+        
+    def render_GET(self, request):
+        return  self.data
+        
+    render = render_GET
+
         
 class TestBaseResource(resource.Resource):    
     def add_child(self, a_resource, resource_name):
@@ -87,7 +100,7 @@ class TestBaseResource(resource.Resource):
             if ref:
                 return(TestResource(ref))
             else:
-                return()
+                return SimpleResource(html_render.html_page('Hola Mundo!', 'Pagina inicial'))
         except:
             return NoResource() 
 

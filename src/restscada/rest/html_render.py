@@ -21,8 +21,16 @@ def list_to_html(iterable):
         
 def dict_to_html(dictionary):
     '''
-    No usar hasta no saber cómo arreglar la cuestión de orden en las keys 
-    de los diccionarios
+    Recibe un OrderedDict cuyas claves son la etiqueta a aplicar al valor.
+    Por ejemplo
+    from OrderedDict import OrderedDict
+    d = OrderedDict()
+    d['h1'] = 'Hola'
+    d['p'] = 'mundo'
+    str(dict_to_html(d)) # <h1>hola</h1>\n<p>mundo</p>
+    
+    En caso de recibir un diccionario común, no se puede asegurar el orden
+        en el que serán impresos los valores    
     '''
     h = html.HTML()    
     for k, v in dictionary.iteritems():
