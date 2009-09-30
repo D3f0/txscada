@@ -1,0 +1,61 @@
+Notificaciones
+==============
+
+Tras la definción de una interfase de configuracion, monitorización y control, aparece el 
+problema de la consitencia entre la base de datos y el software en ejecución.
+
+Imaginemos el siguiente escenario, dejando de lado temporalmente el problema de comunicación, 
+un cliente accede a la interfase y agrega un nuevo concentrador.
+
+::
+
+    *-------------------------*                                            *-----------------*
+	|                         |  <-------------------------------------    |  Interfase REST |
+	|  Motor de adquisición   |  ------------------------------------->    |                 |
+	|                         | -------------------+                       *-----------------*
+	*------------+------------*                    |
+	             |                                 |
+	             | Múltiples conexiones            v
+	             |                         /-------------\
+	 +-----------+-------------+           |     DB      |
+	 |           |             |           \-------------/
+   +----+      +----+       +-----+
+   | CO |      | CO |       | CO  |
+   +-+--+      +---++       +----++
+     |             |             |
+     |   +-----+   |   +-----+   |   +-----+   
+     +-->| UC  |   +-->| UC  |   +-->| UC  |
+     |   +-----+   |   +-----+   |   +-----+
+     |   +-----+   |   +-----+   |   +-----+
+     +-->| UC  |   +-->| UC  |   +-->| UC  |
+     |   +-----+   |   +-----+       +-----+
+     |   +-----+   |   +-----+
+     +-->| UC  |   +-->| UC  |
+         +-----+   |   +-----+
+                   |   +-----+
+                   +-->| UC  |
+                       +-----+
+                       
+Recursos no existentes en la DB
+-------------------------------
+
+Existen recursos que deben ser controlados a traves de la interfase que no
+tienen persistencia en la base de datos.
+Estos recursos son el motor de scada, para las funciones de inicio y detención, cada hilo
+de recolección de datos, para control local y estadísiticas (útil en depuración).
+
+
+::
+
+
+	+------------------+
+	|      CO          |
+	+------------------+
+	|                  |
+	|                  |
+	|                  |
+	|                  |
+	+------------------+
+	
+	
+	
