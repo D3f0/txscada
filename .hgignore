@@ -19,4 +19,4 @@ doc/restscada/build
 src/restscada/rest/static
 doc/build/latex
 doc/build/doctrees
-
+*.pickle

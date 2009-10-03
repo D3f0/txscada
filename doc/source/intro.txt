@@ -126,7 +126,7 @@ Algunas de las falencias detectadas en el Avrak son las siguientes:
     GUI.
 
 Se require por lo tanto un mecanismo que reemplaze el esquema
-
+de polling sobre la base de datos.
 .. areglar el gráfico este
 
 ::
@@ -167,5 +167,14 @@ estándares al motor que permita **configuracion** [*]_ , **monitorizacion** [*]
                                                       +--- configuracion
                                                       +--- monitorizacion
                                                       +--- control
+
+
+En un principio se pensó en comunicación mediante XMLRPC [*]_ , aunque con la aparición de
+soporte integrado de parseo de JSON por parte de los navegadores web, JSONRPC [*]_ se 
+presentó como alternativa.
+
+.. [*] XMLRPC http://www.xmlrpc.org
+.. [*] JSONRPC http://json-rpc.org/
+
 
 
