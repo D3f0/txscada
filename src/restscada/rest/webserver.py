@@ -30,6 +30,10 @@ class ResourceEntryWrapper(object):
     def __call__(self, request, *largs, **kwargs):
         log.msg('Calling %s with %s %s' %(self.callback, largs, kwargs))
         return self.callback(request, *largs, **kwargs)
+    
+    def render(self, request, *largs, **kwargs):
+        resp = self.callback(request, *largs, **kwargs)
+        return resp
 
 class Simple(resource.Resource):
     #isLeaf = True
