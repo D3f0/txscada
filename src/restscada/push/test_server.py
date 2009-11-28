@@ -23,13 +23,17 @@ import time
 from twisted import copyright
 
 class Root(resource.Resource):
-    def render_GET(self, request):
-        return "Probaste en <a href='data'>/data/?</data>?"
+    '''
+    Recurso base que se renderiza en /
+    '''
 
-class TestReource(resource.Resource):
+    def getChild(self, path, request):
+        if not path or path == '/':
+            return self
+        return resource.Resource.getChild(self, path, request)
+    
     def render_GET(self, request):
-        return "Hola"
-
+        return render_to_template(request, 'site.html', {})
 
 sys.path.append('../..')
 import restscada
@@ -37,6 +41,9 @@ path = os.path.join(os.path.abspath(restscada.__path__[0]), 'templates')
 env = Environment( loader = FileSystemLoader(path) ) 
 
 
+#===============================================================================
+# Deferreds para le manejo de templates
+#===============================================================================
 def get_template(template_name):
     #log.msg("Getting template", template_name)
     template = env.get_template(template_name)
@@ -48,25 +55,16 @@ def println_stop_reactor(e):
     reactor.stop()
 
 def do_response(processed_template, request):
-    #log.msg("Crear respuesta")
     request.setHeader("Content-type", 'text/html; charset=UTF-8')
     request.setHeader("Server", "RestScada Server based on Twisted %s" % copyright.version)
     request.write(processed_template)
     request.finish()
     request.transport.loseConnection()
-    #from ipdb import set_trace; set_trace()
-    #request.end()
     
 def render_to_template(request, template_name, data):
-    #d = threads.deferToThread(env.get_template)
-    
-    #d = defer.Deferred()
-    #d.addCallback(get_template).addErrback(println_stop_reactor)
     d = threads.deferToThread(get_template, template_name)
     d.addCallback(lambda t: t.render(data).encode('utf8'))
     d.addCallback(do_response, request)
-    # Fire the chain
-    #d.callback(template_name)
     return server.NOT_DONE_YET
     
 
@@ -88,8 +86,12 @@ class NotificationTestResource(resource.Resource):
         #title = u"Título de la cosa"
         
         #return template.render(locals()).encode('utf8')
-        render_to_template(request, 'index.html', {'title': "Probando Twisted", 'time': time.time(), 'time_time': time.time})
-        return server.NOT_DONE_YET
+        
+        return render_to_template(request, 'index.html', {
+                                                          'title': "Probando Twisted", 
+                                                          'time': time.time(), 
+                                                          'time_time': time.time,
+                                                          }) 
 
 
 class NotificationHub(resource.Resource):
@@ -101,12 +103,7 @@ class NotificationHub(resource.Resource):
         self.client_expiration_delay = 4000
     
     def render_GET(self, request):
-        #request.setHeader('Content-Type', 'text/plain')
         request.setHeader('Content-Type', 'text/plain')
-        #from ipdb import set_trace; set_trace()
-        #return  pformat(locals())
-        
-        
         def answer_later(request):
             #from ipdb import set_trace; set_trace()
             request.write(dumps(
@@ -128,7 +125,7 @@ def main(argv = sys.argv):
     log.startLogging(sys.stderr, setStdout = False)
     cfg = Config(open('config.cfg'))
     root = Root()
-    root.putChild( 'data', TestReource() )
+
     push = NotificationHub()
     root.putChild('static', File('static'))
     push.putChild('test', NotificationTestResource() )
