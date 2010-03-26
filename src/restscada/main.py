@@ -4,12 +4,7 @@
 Servidor Web que publica los recursos REST.
 '''
 import sys
-
-try:
-    import restscada
-except ImportError:
-    sys.path.append('..')
-
+from twisted.internet import reactor
 try:
     from config import Config
 except ImportError:
@@ -19,29 +14,29 @@ except ImportError:
     print "si posee pip (reemplazo sugerido de easy_install), realize pip install config"
     sys.exit(-2)
 
-
-from restscada.rest.site import site
-from twisted.internet import reactor, error
-
-
-def main(argv = sys.argv):
-    '''
-    Arrancar el server
-    '''
-    print "Arrancando el server"
-    try:
-        config = Config(open('config.cfg'))
-    except Exception, e:
-        print "No se puede leer la configuracion"
-        print "Obtenga una del repositorio"
-        sys.exit(3)
-
-    reactor.listenTCP(config.webserver.port, site )
-    reactor.run()
+class activate_on(object):
+    def __init__(self, message_name):
+        pass
     
+    def __call__(self, f):
+        def wrapped(*largs, **kwargs):
+            val = f(*largs, **kwargs)
+            return val
+        
+
+class PicnetPoller(object):
     
-if __name__ == "__main__":
-    # TODO: Paramtros de linea de comandos
-    # TODO: Cargar configuracion basada en objeto config.Config
-    main()
+    @activete_on('picnet.poll.start')
+    def start_timer(self):
+        reactor.callLater(cfg.picnet.poll_time, self.do_poll)
+        
+    
+    @activate_on('picnet.poll.stop')
+    def stop_timer(self):
+        pass
+    
+    def do_poll(self):
+        pass
+    
+print "hola"
     

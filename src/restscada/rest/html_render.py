@@ -61,7 +61,7 @@ def foo (iterable, h=html.HTML()):
         if tag == 'list':
             l = h.ul
             l.raw_text(list_to_html(data))
-        elif tag == 'table'
+        elif tag == 'table':
             t = h.table
             t.raw_text(table_to_html(data))
         else:

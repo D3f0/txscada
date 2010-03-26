@@ -20,3 +20,5 @@ src/restscada/rest/static
 doc/build/latex
 doc/build/doctrees
 *.pickle
+doc/*/build/latex
+doc/*/build/doctrees/
