@@ -10,13 +10,21 @@ Introducción
 El objetivo de la capa de alto nivel del proyecto "Microcontroladores e Internet"
 es la adquisición y persistencia de datos, además de proveer un mecanismo de 
 representación de la información adquirida permitiendo el nvío de ordenes (comandos)
-como lazo de realimentación humana sobre el sistema.
+como lazo de realimentación humana sobre el sistema. Estp se conoce como sistema
+SCADA (*Supervisory Control and Data Acquisition*).
 
 Se estableció también como objetivo la utilziación de *Software Libre*, para el 
 desarrollo integro del software, con el objeto de garantizar la independecia del 
 fabricante y bajo coste de implantación del la tecnología.
 
+El proyecto inicialmente se orientó en el desarrollo de una terminal de consulta
+y envío de comandos similar a ArquiCom utilizando el lenguaje Python y el toolkit
+gráfico Qt. Una vez superadas las pruebas iniciales, se plantaron los requerminetos
+genrales como visualización de eventos, ubicación de las terminales (RTU) en 
+mapa o esquema, y alarmas.
 
 
+
+ 
 
 
