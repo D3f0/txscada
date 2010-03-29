@@ -24,7 +24,80 @@ genrales como visualización de eventos, ubicación de las terminales (RTU) en
 mapa o esquema, y alarmas.
 
 
+Qué es REST
+----------------
 
- 
+*Representational State Transfer* (REST) es una arquitectura de software, introducida
+por Roy Fielding en el año 2000. Define un estilo arquitectural, basado en el diseño
+del protocolo HTTP. 
+
+Las aplicaciones REST poseen un estilo arquitectural en la manera que realizan las comunicaciones cliente-servidor.
+La idea es que, en vez de usar mecanismos como CORBA, RPC o SOAP, se utilize el protocolo HTTP para proveer todas las facilidades necesarias para las comunicaciones. Se puede ver a la World Wide Web como el ejemplo de Web Service REST más generalizado.
+
+Se utiliza el concepto de *Recurso*, el cual es unívocamente direccionado a través de una URL.
+Un recurso en REST es un conjunto de datos, de la cual por ejemplo, una página web puede ser una representación del mismo. Es decir que la misma información puede tener diferentes representaciones dependiendo del URI con el que es accedido. Es el cliente el que tiene la libertad de elegir la representación más adecuada en función de la aplicación.
+Los Recursos son el elemento clave en las arquitecturas REST, en contraste a los "métodos" o "servicios" utilizados en RPC o SOAP. El recurso engloba tanto el estado como la funcionalidad.
+
+Utilizando los métodos existentes en HTTP (POST, PUT, GET, DELETE), se puede realizar una interfase CRUD (Create, Read, Update, Delete) en el servidor que permita a los clientes trabajar sobre recursos accedidos mediante URLs. 
+
+No existe estado en la conexión, es decir que cada interacción entre cliente y servidor contiene toda la información necesaria por si misma, y no depende de interacciones anteriores.
+REST permite definir la validez de un recurso y la "cacheabilidad" del mismo. Esto es, que el protocolo permite definir explícitamente qué recursos pueden ser cacheados y por cuánto tiempo. Para este fin se utilizan las cabeceras de control de caché de HTTP. De la misma manera, es posible utilizar proxys HTTP para escalar y mejorar la performance de los servicios disponibles.
+
+REST permite utilizar todas las ventajas provistas por HTTP en la comunicación, tales como encriptación de flujo de datos, autenticación, sesiones, compresión de datos, etc. Esto simplifica el sistema y ahorra esfuerzo en el desarrollo de las aplicaciones.
+
+
+
+
+Diferencias con otras arquitecturas de Web Services
+----------------------------------------------------------------
+
+Existen otras posibilidades para la generación de Web Services, tales como SOAP, RPC y CORBA. Tales arquitecturas gozan de herramientas más maduras, lo cual es su principal ventaja frente a REST. Sin embargo esto puede cambiar con el tiempo. Otra ventaja es la seguridad de tipos ofrecida en los request XML, utilizados por ejemplo en XML-RPC o SOAP. Esto también puede ser modificado en REST por el programador.
+
+La principal ventaja del enfoque REST es la facilidad de implementación, la agilidad de diseño y el enfoque de peso liviano. Otras ventajas tienen que ver con la performance: soporte de cache, peticiones y respuestas de pequeño tamaño y parseo simple de las peticiones. Esto se traduce en clientes y servidores simples y menor utilización de la red.
+
+REST es un sistema que descansa en un protocolo abierto y bien conocido. En cambio con SOAP/RPC cada diseñador debe definir un nuevo conjunto de sustantivos/verbos para la aplicación, y puede o no utilizar HTTP como protocolo de comunicaciones. 
+Muchas veces este nuevo conjunto es propietario o no está correctamente documentado, por lo que la compatibilidad con otros sistemas se ve perjudicada.
+
+
+
+
+
+Utilización en el Proyecto
+-----------------------------------
+
+Se utiliza REST 
+
+
+.. aafig::
+	
+	
+		/co/id ------------------>  /uc/id/
+
+	+----------+             +-------------+
+	|    CO    +------------>+     UC      |
+	+----------+             +------+------+
+                                    |
+                      +-------------+----------------+              
+                      |             |                | 
+                      V             V                V 
+                 +----+----+    +---+------+     +---+------+                   
+                 |   ST    |    |   AI     |     |    DI    |
+                 +---------+    +----------+     +----------+
+
+
+
+
+
+
+Bibliografía
+-----------------
+
+http://en.wikipedia.org/wiki/Representational_State_Transfer
+
+http://microformats.org/wiki/rest/urls
+
+http://en.wikipedia.org/wiki/Create,_read,_update_and_delete
+
+http://www.cs.virginia.edu/~cs650/assignments/papers/p407-fielding.pdf
 
 
