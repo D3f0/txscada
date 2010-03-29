@@ -65,17 +65,33 @@ Muchas veces este nuevo conjunto es propietario o no está correctamente documen
 Utilización en el Proyecto
 -----------------------------------
 
-Se utiliza REST 
+Se utiliza REST mediante los verbos HTTP para implementar semántica CRUD y acceder a los recursos almacenados en la base de datos.
 
+POST
+    Crear un recurso dentro de una colección dada
+
+GET
+    Obtener un recurso
+    
+PUT
+    Actualizar un recurso
+
+DELETE
+    Eliminar un recurso
+    
+Para aquellos clientes (navegadores) que no soporten los métodos PUT y DELETE, es posible emularlos proveyendo un parámetro extra que indique el verbo a ejecutar.
+
+La principal unidad de operación es la "colección" la cual típicamente corresponde a los datos agrupados dentro de una tabla. 
+La siguiente figura indica la estructura de "sustantivos" de nuestro dominio:
 
 .. aafig::
-	
-	
-		/co/id ------------------>  /uc/id/
+        
+        
+                /co/id ------------------>  /uc/id/
 
-	+----------+             +-------------+
-	|    CO    +------------>+     UC      |
-	+----------+             +------+------+
+        +----------+             +-------------+
+        |    CO    +------------>+     UC      |
+        +----------+             +------+------+
                                     |
                       +-------------+----------------+              
                       |             |                | 
@@ -84,8 +100,75 @@ Se utiliza REST
                  |   ST    |    |   AI     |     |    DI    |
                  +---------+    +----------+     +----------+
 
+En consecuencia, algunas de las rutas de operación serían
+
+        * /cos/
+        
+                Todos los concentradores
+                
+        * /co/{id}
+        
+                Un concentrador dado su id
+        
+        * /co/{id}/ucs
+        
+                Todas las Unidades de Control de un Concentrador
+                
+        * /co/{id}/uc/{id}
+        
+                Unidad de control
+        
+        * /co/{id}/uc/{id}/ais
+                
+                Todas las entradas analógicas de una unidad de control
+        
+        * /co/{id}/uc/{id}/ai/{n}
+        
+                Entrada analógica de una unidad de control
+        
+        * /co/{id}/uc/{id}/dis
+                
+                Todas las entradas digitales de una unidad de control
+        
+        * /co/{id}/uc/{id}/di/{n}
+                
+                Entrada digital de un una unidad de control
+        
+        * /co/{id}/uc/{id}/evs
+                
+                Eventos de una unidad de control
+                
+                .. note::
+                        Hay que ver porque el resultado puede ser bastante grande       
+                
+                
+        
+        * /co/{id}/uc/{id}/sts
+                
+                Variables de estado de una unidad de control
+        
+        * /co/{id}/uc/{id}/st{n}
+        
+        * /co/{id}/uc/{id}/ev
 
 
+A continuación se verán unos casos de ejemplo hipotéticos:
+
+Obtener la lista de todos los concentradores
+
+    GET dominio/cos/
+
+Obtener la información de un concentrador dada su clave
+
+    GET dominio/co/1234
+
+Crear una nueva unidad de control
+
+    POST dominio/co/1234/ucs/
+
+Actualizar la información de una Unidad de control dada
+
+    PUT dominio/co/1234/uc/123
 
 
 
@@ -93,6 +176,8 @@ Bibliografía
 -----------------
 
 http://en.wikipedia.org/wiki/Representational_State_Transfer
+
+http://en.wikipedia.org/wiki/Http
 
 http://microformats.org/wiki/rest/urls
 
