@@ -238,8 +238,6 @@ El nuevo objetivo será acceder a los datos tanto con un
 browser (navegador) como con aplicaciones que puedan generar y consumir HTTP 
 (aplicaciones de escritorio, celulares, demonios de tele-control, etc.).
 
-
-
 Para lograr exponer los datos mediante HTTP se planteó la definición de una API.
 
 
