@@ -6,7 +6,8 @@
 << /F1 2 0 R
  /F2 3 0 R
  /F3 4 0 R
- /F4 5 0 R >>
+ /F4 5 0 R
+ /F5 13 0 R >>
 endobj
 % 'F1': class PDFType1Font 
 2 0 obj
@@ -44,15 +45,91 @@ endobj
  /Subtype /Type1
  /Type /Font >>
 endobj
-% 'Page1': class PDFPage 
+% 'Annot.NUMBER1': class LinkAnnotation 
 6 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 31 0 R
+ /XYZ
+ 54.44311
+ 387.8043
+ 0 ]
+ /Rect [ 193.8529
+ 374.5936
+ 273.3429
+ 386.5936 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER2': class LinkAnnotation 
+7 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 31 0 R
+ /XYZ
+ 68.69291
+ 399.8043
+ 0 ]
+ /Rect [ 125.51
+ 200.5936
+ 179.4
+ 212.5936 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER3': class LinkAnnotation 
+8 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 31 0 R
+ /XYZ
+ 68.69291
+ 375.8043
+ 0 ]
+ /Rect [ 480.6829
+ 158.5936
+ 505.6829
+ 170.5936 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER4': class LinkAnnotation 
+9 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 31 0 R
+ /XYZ
+ 68.69291
+ 363.8043
+ 0 ]
+ /Rect [ 261.3222
+ 140.5936
+ 295.7722
+ 152.5936 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Page1': class PDFPage 
+10 0 obj
 % Page dictionary
-<< /Contents 12 0 R
+<< /Annots [ 6 0 R
+ 7 0 R
+ 8 0 R
+ 9 0 R ]
+ /Contents 41 0 R
  /MediaBox [ 0
  0
  595.2756
  841.8898 ]
- /Parent 11 0 R
+ /Parent 40 0 R
  /Resources << /Font 1 0 R
  /ProcSet [ /PDF
  /Text
@@ -63,52 +140,471 @@ endobj
  /Trans <<  >>
  /Type /Page >>
 endobj
-% 'R7': class PDFCatalog 
-7 0 obj
+% 'Annot.NUMBER5': class LinkAnnotation 
+11 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 31 0 R
+ /XYZ
+ 68.69291
+ 339.8043
+ 0 ]
+ /Rect [ 65.47291
+ 621.5936
+ 123.8229
+ 633.5936 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER6': class LinkAnnotation 
+12 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 31 0 R
+ /XYZ
+ 68.69291
+ 351.8043
+ 0 ]
+ /Rect [ 169.9729
+ 273.5936
+ 196.6529
+ 285.5936 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'F5': class PDFType1Font 
+13 0 obj
+% Font Courier
+<< /BaseFont /Courier
+ /Encoding /WinAnsiEncoding
+ /Name /F5
+ /Subtype /Type1
+ /Type /Font >>
+endobj
+% 'Page2': class PDFPage 
+14 0 obj
+% Page dictionary
+<< /Annots [ 11 0 R
+ 12 0 R ]
+ /Contents 42 0 R
+ /MediaBox [ 0
+ 0
+ 595.2756
+ 841.8898 ]
+ /Parent 40 0 R
+ /Resources << /Font 1 0 R
+ /ProcSet [ /PDF
+ /Text
+ /ImageB
+ /ImageC
+ /ImageI ] >>
+ /Rotate 0
+ /Trans <<  >>
+ /Type /Page >>
+endobj
+% 'Annot.NUMBER7': class LinkAnnotation 
+15 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 31 0 R
+ /XYZ
+ 68.69291
+ 327.8043
+ 0 ]
+ /Rect [ 344.5129
+ 192.3936
+ 410.6529
+ 204.3936 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Page3': class PDFPage 
+16 0 obj
+% Page dictionary
+<< /Annots [ 15 0 R ]
+ /Contents 43 0 R
+ /MediaBox [ 0
+ 0
+ 595.2756
+ 841.8898 ]
+ /Parent 40 0 R
+ /Resources << /Font 1 0 R
+ /ProcSet [ /PDF
+ /Text
+ /ImageB
+ /ImageC
+ /ImageI ] >>
+ /Rotate 0
+ /Trans <<  >>
+ /Type /Page >>
+endobj
+% 'Annot.NUMBER8': class LinkAnnotation 
+17 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 10 0 R
+ /XYZ
+ 122.7129
+ 213.8436
+ 0 ]
+ /Rect [ 68.69291
+ 386.5543
+ 122.5829
+ 398.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER9': class PDFDictionary 
+18 0 obj
+<< /A << /S /URI
+ /Type /Action
+ /URI (http://en.wikipedia.org/wiki/Reactor_pattern) >>
+ /Border [ 0
+ 0
+ 0 ]
+ /Rect [ 266.0123
+ 386.5543
+ 457.2023
+ 398.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER10': class LinkAnnotation 
+19 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 10 0 R
+ /XYZ
+ 191.0729
+ 387.8436
+ 0 ]
+ /Rect [ 54.44311
+ 374.5543
+ 133.9331
+ 386.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER11': class PDFDictionary 
+20 0 obj
+<< /A << /S /URI
+ /Type /Action
+ /URI (http://softwareramblings.com/2008/07/multi-thread-scaling-issues-with-python-and-ruby.html) >>
+ /Border [ 0
+ 0
+ 0 ]
+ /Rect [ 139.4825
+ 374.5543
+ 546.8325
+ 386.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER12': class LinkAnnotation 
+21 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 10 0 R
+ /XYZ
+ 477.9029
+ 171.8436
+ 0 ]
+ /Rect [ 68.69291
+ 362.5543
+ 93.69291
+ 374.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER13': class PDFDictionary 
+22 0 obj
+<< /A << /S /URI
+ /Type /Action
+ /URI (http://mina.apache.org/performance-test-reports.html) >>
+ /Border [ 0
+ 0
+ 0 ]
+ /Rect [ 153.7323
+ 362.5543
+ 387.7123
+ 374.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER14': class LinkAnnotation 
+23 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 10 0 R
+ /XYZ
+ 245.5529
+ 153.8436
+ 0 ]
+ /Rect [ 68.69291
+ 350.5543
+ 103.1429
+ 362.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER15': class PDFDictionary 
+24 0 obj
+<< /A << /S /URI
+ /Type /Action
+ /URI (http://twistedmatrix.com/trac/) >>
+ /Border [ 0
+ 0
+ 0 ]
+ /Rect [ 153.7323
+ 350.5543
+ 280.9923
+ 362.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER16': class LinkAnnotation 
+25 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 14 0 R
+ /XYZ
+ 167.1929
+ 286.8436
+ 0 ]
+ /Rect [ 68.69291
+ 338.5543
+ 95.37291
+ 350.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER17': class PDFDictionary 
+26 0 obj
+<< /A << /S /URI
+ /Type /Action
+ /URI (http://pypi.python.org/pypi/config/0.3.7) >>
+ /Border [ 0
+ 0
+ 0 ]
+ /Rect [ 153.7323
+ 338.5543
+ 532.5827
+ 350.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER18': class LinkAnnotation 
+27 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 14 0 R
+ /XYZ
+ 62.69291
+ 634.8436
+ 0 ]
+ /Rect [ 68.69291
+ 326.5543
+ 127.0429
+ 338.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER19': class PDFDictionary 
+28 0 obj
+<< /A << /S /URI
+ /Type /Action
+ /URI (http://www.sqlalchemy.org/) >>
+ /Border [ 0
+ 0
+ 0 ]
+ /Rect [ 153.7323
+ 326.5543
+ 273.2123
+ 338.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER20': class LinkAnnotation 
+29 0 obj
+<< /Border [ 0
+ 0
+ 0 ]
+ /Contents ()
+ /Dest [ 16 0 R
+ /XYZ
+ 341.7329
+ 205.6436
+ 0 ]
+ /Rect [ 68.69291
+ 314.5543
+ 134.8329
+ 326.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Annot.NUMBER21': class PDFDictionary 
+30 0 obj
+<< /A << /S /URI
+ /Type /Action
+ /URI (http://www.youtube.com/watch?v=GS1JYdZlrK4) >>
+ /Border [ 0
+ 0
+ 0 ]
+ /Rect [ 153.7323
+ 314.5543
+ 366.8723
+ 326.5543 ]
+ /Subtype /Link
+ /Type /Annot >>
+endobj
+% 'Page4': class PDFPage 
+31 0 obj
+% Page dictionary
+<< /Annots [ 17 0 R
+ 18 0 R
+ 19 0 R
+ 20 0 R
+ 21 0 R
+ 22 0 R
+ 23 0 R
+ 24 0 R
+ 25 0 R
+ 26 0 R
+ 27 0 R
+ 28 0 R
+ 29 0 R
+ 30 0 R ]
+ /Contents 44 0 R
+ /MediaBox [ 0
+ 0
+ 595.2756
+ 841.8898 ]
+ /Parent 40 0 R
+ /Resources << /Font 1 0 R
+ /ProcSet [ /PDF
+ /Text
+ /ImageB
+ /ImageC
+ /ImageI ] >>
+ /Rotate 0
+ /Trans <<  >>
+ /Type /Page >>
+endobj
+% 'R32': class PDFCatalog 
+32 0 obj
 % Document Root
-<< /Outlines 9 0 R
- /PageLabels 13 0 R
+<< /Outlines 34 0 R
+ /PageLabels 45 0 R
  /PageMode /UseNone
- /Pages 11 0 R
+ /Pages 40 0 R
  /Type /Catalog >>
 endobj
-% 'R8': class PDFInfo 
-8 0 obj
+% 'R33': class PDFInfo 
+33 0 obj
 << /Author ()
- /CreationDate (D:20100325121932+03'00')
+ /CreationDate (D:20100330011618+03'00')
  /Keywords ()
  /Producer (ReportLab http://www.reportlab.com)
  /Subject (\(unspecified\))
  /Title (Informe Final Capa de Alto Nivel del Poyecto Redes y Microncontroladores) >>
 endobj
-% 'R9': class PDFOutlines 
-9 0 obj
-<< /Count 1
- /First 10 0 R
- /Last 10 0 R
+% 'R34': class PDFOutlines 
+34 0 obj
+<< /Count 5
+ /First 35 0 R
+ /Last 39 0 R
  /Type /Outlines >>
 endobj
 % 'Outline.0': class OutlineEntryObject 
-10 0 obj
-<< /Dest [ 6 0 R
+35 0 obj
+<< /Dest [ 10 0 R
  /XYZ
  62.69291
  665.0236
  0 ]
- /Parent 9 0 R
+ /Next 36 0 R
+ /Parent 34 0 R
  /Title (Introducci\363n) >>
 endobj
-% 'R11': class PDFPages 
-11 0 obj
+% 'Outline.1': class OutlineEntryObject 
+36 0 obj
+<< /Dest [ 10 0 R
+ /XYZ
+ 62.69291
+ 434.0236
+ 0 ]
+ /Next 37 0 R
+ /Parent 34 0 R
+ /Prev 35 0 R
+ /Title (Orientaci\363n a Eventos) >>
+endobj
+% 'Outline.2': class OutlineEntryObject 
+37 0 obj
+<< /Dest [ 14 0 R
+ /XYZ
+ 62.69291
+ 765.0236
+ 0 ]
+ /Next 38 0 R
+ /Parent 34 0 R
+ /Prev 36 0 R
+ /Title (Software de Adquisici\363n de Datos) >>
+endobj
+% 'Outline.3': class OutlineEntryObject 
+38 0 obj
+<< /Dest [ 16 0 R
+ /XYZ
+ 62.69291
+ 647.8236
+ 0 ]
+ /Next 39 0 R
+ /Parent 34 0 R
+ /Prev 37 0 R
+ /Title (Integraci\363n de SCADA/HMI: Sistema Avrak) >>
+endobj
+% 'Outline.4': class OutlineEntryObject 
+39 0 obj
+<< /Dest [ 31 0 R
+ /XYZ
+ 62.69291
+ 639.0236
+ 0 ]
+ /Parent 34 0 R
+ /Prev 38 0 R
+ /Title (Definici\363n de SCADA basado en Web y HTML5) >>
+endobj
+% 'R40': class PDFPages 
+40 0 obj
 % page tree
-<< /Count 1
- /Kids [ 6 0 R ]
+<< /Count 4
+ /Kids [ 10 0 R
+ 14 0 R
+ 16 0 R
+ 31 0 R ]
  /Type /Pages >>
 endobj
-% 'R12': class PDFStream 
-12 0 obj
+% 'R41': class PDFStream 
+41 0 obj
 % page stream
-<< /Length 1880 >>
+<< /Length 6330 >>
 stream
 1 0 0 1 0 0 cm BT /F1 12 Tf 14.4 TL ET
 q
@@ -132,7 +628,7 @@ q
 1 0 0 1 91.03937 3 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Nahuel Defoss\351) Tj T* ET
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Nahuel Defoss\351, Lautaro Pecile) Tj T* ET
 Q
 Q
 q
@@ -166,59 +662,1481 @@ BT 1 0 0 1 0 8.435 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Introducci\363n) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 602.0236 cm
+1 0 0 1 62.69291 566.0236 cm
 q
-0 0 0 rg
-BT 1 0 0 1 0 28.82 Tm /F1 10 Tf 12 TL 2.314985 Tw (El objetivo de la capa de alto nivel del proyecto "Microcontroladores e Internet" es la adquisici\363n y) Tj T* 0 Tw .787674 Tw (persistencia de datos, adem\341s de proveer un mecanismo de representaci\363n de la informaci\363n adquirida) Tj T* 0 Tw (permitiendo el nv\355o de ordenes \(comandos\) como lazo de realimentaci\363n humana sobre el sistema.) Tj T* ET
+BT 1 0 0 1 0 64.82 Tm 2.314985 Tw 12 TL /F1 10 Tf 0 0 0 rg (El objetivo de la capa de alto nivel del proyecto "Microcontroladores e Internet" es la adquisici\363n y) Tj T* 0 Tw .787674 Tw (persistencia de datos, adem\341s de proveer un mecanismo de representaci\363n de la informaci\363n adquirida) Tj T* 0 Tw .097126 Tw (permitiendo el env\355o de ordenes \(comandos\) como lazo de realimentaci\363n humana sobre el sistema. Este) Tj T* 0 Tw .139269 Tw (tipo de software se conoce como sistema SCADA \() Tj /F4 10 Tf (Supervisory Control and Data Acquisition) Tj /F1 10 Tf (\). Un sistema) Tj T* 0 Tw .570651 Tw (SCADA generalmente se acompa\361a de algun tipo de interfase que permite la interacci\363n con el usuario,) Tj T* 0 Tw (denominado HMI, \() Tj /F4 10 Tf (Human Machine Interfce) Tj /F1 10 Tf (\).) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 560.0236 cm
+1 0 0 1 62.69291 524.0236 cm
 q
 BT 1 0 0 1 0 28.82 Tm 2.59784 Tw 12 TL /F1 10 Tf 0 0 0 rg (Se estableci\363 tambi\351n como objetivo la utilziaci\363n de ) Tj /F4 10 Tf (Software Libre) Tj /F1 10 Tf (, para el desarrollo integro del) Tj T* 0 Tw 1.089985 Tw (software, con el objeto de garantizar la independecia del fabricante y bajo coste de implantaci\363n del la) Tj T* 0 Tw (tecnolog\355a.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 446.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 64.82 Tm /F1 10 Tf 12 TL 1.438735 Tw (El proyecto inicialmente se orient\363 en el desarrollo de una terminal de consulta y env\355o de comandos) Tj T* 0 Tw .674985 Tw (similar a ArquiCom utilizando el lenguaje Python y el toolkit gr\341fico Qt. Se comprob\363 durante esta etapa) Tj T* 0 Tw .04528 Tw (que el lenguaje Python a pesar de ser de muy alto nivel, est\341 preparado para trabajar en comunicaiciones) Tj T* 0 Tw .394985 Tw (donde se deben realizar operaciones a nivel de bit con bastate facilidad. Una vez superadas las pruebas) Tj T* 0 Tw 2.89248 Tw (iniciales, se plantaron los requerminetos genrales como visualizaci\363n de eventos, ubicaci\363n de las) Tj T* 0 Tw (terminales \(RTU\) en mapa o esquema, y alarmas.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 413.0236 cm
+q
+BT 1 0 0 1 0 8.435 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Orientaci\363n a Eventos) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 371.0236 cm
+q
+BT 1 0 0 1 0 28.82 Tm 3.907674 Tw 12 TL /F1 10 Tf 0 0 0 rg (Los lenguajes de muy alto nivel orientados a objetos son ejecutados sobre m\341quinas virtuales.) Tj T* 0 Tw 2.70748 Tw (Generalmente estas proveen el mecanismo de hilos \() Tj /F4 10 Tf (Threads) Tj /F1 10 Tf (\) para logar concurrencia, pero est\341n) Tj T* 0 Tw (limitados en varios aspectos ) Tj ([) Tj 0 0 .501961 rg (StepehDoyle2009) Tj 0 0 0 rg (].) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 317.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 40.82 Tm /F1 10 Tf 12 TL .799398 Tw (Los hilos son la herramienta m\341s com\372n a la hora de realizar concurrencia y consisten en la capacidad) Tj T* 0 Tw .572126 Tw (de poder ejecutar concurrentemente varios fragmentos de c\363digo por parte de un programa. Un ejemplo) Tj T* 0 Tw 2.018876 Tw (puede ser la atenci\363n de varios clientes, o en el caso de el presente proyecto, la consulta a varios) Tj T* 0 Tw (concentradores.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 251.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 52.82 Tm /F1 10 Tf 12 TL .098935 Tw (Un hilo consiste en un proceso o m\351todo \(en un lenguaje OO\), el cual es ejecutado por un programador o) Tj T* 0 Tw 2.349984 Tw (scheduler apropiativo provisto por el sistema operativo. No se puede saber a ciencia cierta en que) Tj T* 0 Tw 1.44061 Tw (momento se va a ejecutar cada hilo y se suelen usar primitavas de sincronizaci\363n como sem\341foros o) Tj T* 0 Tw 3.238651 Tw (monitores para garantizar la integridad de los datos \(debido a que todos los hilos comparten su) Tj T* 0 Tw (estado/datos\).) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 185.0236 cm
+q
+BT 1 0 0 1 0 52.82 Tm 1.484104 Tw 12 TL /F1 10 Tf 0 0 0 rg (En el caso de una aplicaci\363n orientada a eventos, la concurrencia se logra a trav\351s de la subdivici\363n) Tj T* 0 Tw .571412 Tw (voluntaria en el momento de la programaci\363n en peque\361os fragmentos de c\363digo \(funciones o m\351todos\)) Tj T* 0 Tw .49686 Tw (que son ejecutados por un scheduler, generalmente apodado reactor en honor a un patr\363n de dise\361o de) Tj T* 0 Tw .017126 Tw (concurrencia ) Tj ([) Tj 0 0 .501961 rg (WikiReactor) Tj 0 0 0 rg (]. En este enfoque, no se requieren primitivas de sincronizaci\363n debdo a que se) Tj T* 0 Tw (trata de multitarea cooperativa.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 155.0236 cm
+q
+BT 1 0 0 1 0 16.82 Tm .533735 Tw 12 TL /F1 10 Tf 0 0 0 rg (En general las arquitecutras orientadas a eventos en entornos con alta carga de entrada salida son m\341s) Tj T* 0 Tw (beneficiosas que los hilos. Se puede tomar como ejemplo de este hecho, el proyecto Apache ) Tj ([) Tj 0 0 .501961 rg (MINA) Tj 0 0 0 rg (].) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 113.0236 cm
+q
+BT 1 0 0 1 0 28.82 Tm 1.85561 Tw 12 TL /F1 10 Tf 0 0 0 rg (El framework de red orientado a eventos ) Tj ([) Tj 0 0 .501961 rg (Twisted) Tj 0 0 0 rg (] fue elejido para la implementaci\363n de la capa de) Tj T* 0 Tw .309984 Tw (comunicaciones con las unidades remotas, debido a que provee un enfoque simple y orientado a objetos) Tj T* 0 Tw (de la multitarea colaborativa.) Tj T* ET
 Q
 Q
  
 endstream
 
 endobj
-% 'R13': class PDFPageLabels 
-13 0 obj
+% 'R42': class PDFStream 
+42 0 obj
+% page stream
+<< /Length 7071 >>
+stream
+1 0 0 1 0 0 cm BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 62.69291 744.0236 cm
+q
+BT 1 0 0 1 0 8.435 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Software de Adquisici\363n de Datos) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 702.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 28.82 Tm /F1 10 Tf 12 TL .053984 Tw (Una vez seleccionado el framework de comunicaciones asincr\363nicas, se decidi\363 el m\351todo de acceso a la) Tj T* 0 Tw 1.515868 Tw (base de datos. En vez de seleccionar una base de datos particular, se opt\363 por utilizar un mapeador) Tj T* 0 Tw (objeto-realcional, que consiste en una capa de software que presenta la base de datos como objetos.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 648.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 40.82 Tm /F1 10 Tf 12 TL 1.156457 Tw (Si bien el lenguaje de acceso a las bases de datos, conocido como SQL est\341 normado por ISO/ANSI,) Tj T* 0 Tw .828443 Tw (cada fabricante incorpora sutiles diferencias que hacen que se requieran peque\361os arreglos para poder) Tj T* 0 Tw .236651 Tw (manejar una base de datos u otra. Los mapeadores objeto relacionales relizan una abstracci\363n por sobre) Tj T* 0 Tw (estas diferencias.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 606.0236 cm
+q
+BT 1 0 0 1 0 28.82 Tm 4.264269 Tw 12 TL /F1 10 Tf 0 0 0 rg (Se seleccion\363 como mecanismo de acceso a la base de datos el mapeador objeto relacional) Tj T* 0 Tw .598876 Tw ([) Tj 0 0 .501961 rg (SQLAlchemy) Tj 0 0 0 rg (] debido a que pemite un nivel de detalle muy alto a la hora de realizar los mapeos, posee) Tj T* 0 Tw (varios subproyectos de inter\351s como Elixir y tiene una extensa comunidad.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 588.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Las tablas definidas para la adquisici\363n de datos fueron las siguientes:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 582.0236 cm
+Q
+q
+1 0 0 1 62.69291 300.0236 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 276 cm
+Q
+q
+1 0 0 1 20 276 cm
+Q
+q
+1 0 0 1 20 240 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (CO - Concentrador) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 15 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Posee un n\372mero y la direcci\363n IP) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 240 cm
+Q
+q
+1 0 0 1 20 240 cm
+Q
+q
+1 0 0 1 20 204 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (UC - Unidad de Control) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 15 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Posee un n\372mero de UC, una relaci\363n hacia el CO al que pertenece) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 204 cm
+Q
+q
+1 0 0 1 20 204 cm
+Q
+q
+1 0 0 1 20 156 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 33 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 33 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (SV - Variable de Sistema) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 27 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 16.82 Tm /F1 10 Tf 12 TL 2.088314 Tw (Representa una variable de sistema, posee como atributo el n\372mero \(posici\363n\), y est\341) Tj T* 0 Tw (relacionada con la UC a la que pertenece.) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 156 cm
+Q
+q
+1 0 0 1 20 156 cm
+Q
+q
+1 0 0 1 20 108 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 33 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 33 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (DI - Variable de Sistema) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 27 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 16.82 Tm /F1 10 Tf 12 TL .439269 Tw (Representa una variable digital de un bit, posee como atributo el n\372mero \(posici\363n\), y est\341) Tj T* 0 Tw (relacionada con la UC a la que pertenece.) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 108 cm
+Q
+q
+1 0 0 1 20 108 cm
+Q
+q
+1 0 0 1 20 60 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 33 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 33 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (AI - Variable de Sistema) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 27 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 16.82 Tm /F1 10 Tf 12 TL 2.782706 Tw (Representa una variable anal\363gica, posee como atributo el n\372mero \(posici\363n\), y est\341) Tj T* 0 Tw (relacionada con la UC a la que pertenece.) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 60 cm
+Q
+q
+1 0 0 1 20 60 cm
+Q
+q
+1 0 0 1 20 0 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 45 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 45 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (EV - Evento) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 39 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 28.82 Tm /F1 10 Tf 12 TL .795697 Tw (Representa un evento en el sistema, posee la impronta de tiempo impuesta par la unidad) Tj T* 0 Tw 1.25186 Tw (de control, la relaci\363n con la unidad de control, el tipo de evento y el valor \(repsesentan) Tj T* 0 Tw (pasajes de 0 a 1 o de 1 a 0\).) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 0 cm
+Q
+q
+1 0 0 1 20 0 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 300.0236 cm
+Q
+q
+1 0 0 1 62.69291 270.0236 cm
+q
+BT 1 0 0 1 0 16.82 Tm .745366 Tw 12 TL /F1 10 Tf 0 0 0 rg (Ciertas vairables de configuraci\363n fueron almacenadas en archivos con formato legilbe para el humano,) Tj T* 0 Tw (provista por el paquete ) Tj ([) Tj 0 0 .501961 rg (config) Tj 0 0 0 rg (]:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 80.82362 cm
+q
+q
+1 0 0 1 0 0 cm
+q
+1 0 0 1 6.6 6.6 cm
+q
+.662745 .662745 .662745 RG
+.5 w
+.960784 .960784 .862745 rg
+n -6 -6 468.6898 180 re B*
+Q
+q
+0 0 0 rg
+BT 1 0 0 1 0 161.71 Tm /F5 10 Tf 12 TL (picnet :) Tj T* ({) Tj T* (  tcp_port : 9761) Tj T* (  id_rs485 : 1) Tj T* (}) Tj T* (scada :) Tj T* ({) Tj T* (  verbosity : 1) Tj T* (  type : 'sqlite3') Tj T* (  user : '') Tj T* (  password : '') Tj T* (  host : '') Tj T* (  dbname : 'dsem.db') Tj T* (  options : '') Tj T* ET
+Q
+Q
+Q
+Q
+Q
+ 
+endstream
+
+endobj
+% 'R43': class PDFStream 
+43 0 obj
+% page stream
+<< /Length 7403 >>
+stream
+1 0 0 1 0 0 cm BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 62.69291 691.8236 cm
+q
+q
+1 0 0 1 0 0 cm
+q
+1 0 0 1 6.6 6.6 cm
+q
+.662745 .662745 .662745 RG
+.5 w
+.960784 .960784 .862745 rg
+n -6 -6 468.6898 72 re B*
+Q
+q
+0 0 0 rg
+BT 1 0 0 1 0 53.71 Tm /F5 10 Tf 12 TL (  save_di : False) Tj T* (  save_ai : False) Tj T* (  save_ev : True) Tj T* (  save_sv : False) Tj T* (}) Tj T* ET
+Q
+Q
+Q
+Q
+Q
+q
+1 0 0 1 62.69291 659.8236 cm
+q
+BT 1 0 0 1 0 16.82 Tm .661098 Tw 12 TL /F1 10 Tf 0 0 0 rg (A este software se lo bautiz\363 como Alsvid en honor a un corcel de la mitolog\355a escandinava, su nombre) Tj T* 0 Tw (significa ) Tj /F4 10 Tf ("muy vel\363z") Tj /F1 10 Tf (.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 626.8236 cm
+q
+BT 1 0 0 1 0 8.435 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Integraci\363n de SCADA/HMI: Sistema Avrak) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 596.8236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 16.82 Tm /F1 10 Tf 12 TL 1.088555 Tw (Se desarroll\363 como actividad de extensi\363n una implementaci\363n sobre el motor de adquisici\363n de datos) Tj T* 0 Tw (una interfase hombre m\341quina \(HMI\) para un sistema de semaforizaci\363n.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 566.8236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 16.82 Tm /F1 10 Tf 12 TL .757984 Tw (Por motivios de practicidad se decidi\363 embeber el motor SCADA en la aplicaci\363n HMI, obteni\351ndose un) Tj T* 0 Tw (\372nico ejecutable que solo depende de el motor de base de datos. En este caso se seleccion\363 MySQL.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 536.8236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 16.82 Tm /F1 10 Tf 12 TL .697633 Tw (Este sistema presenta sobre un mapa de la ciuidad el conjunto de puntos que representan el estado de) Tj T* 0 Tw (cada esquina. Para lograr este objetivo se agregaron nuevas tablas a la base de datos:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 530.8236 cm
+Q
+q
+1 0 0 1 62.69291 368.8236 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 156 cm
+Q
+q
+1 0 0 1 20 156 cm
+Q
+q
+1 0 0 1 20 120 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Calle) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 15 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Almacena el nombre de la calle y un identificador entero) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 120 cm
+Q
+q
+1 0 0 1 20 120 cm
+Q
+q
+1 0 0 1 20 84 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Esquina) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 15 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Almacena las relaciones con esquina calle y la posici\363n en el mapa) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 84 cm
+Q
+q
+1 0 0 1 20 84 cm
+Q
+q
+1 0 0 1 20 48 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Esquina_Calles) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 15 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Almacena el nombre de las calles, el sentido y el \341ngulo) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 48 cm
+Q
+q
+1 0 0 1 20 48 cm
+Q
+q
+1 0 0 1 20 0 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 33 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 33 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Sem\341foro) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 27 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 16.82 Tm /F1 10 Tf 12 TL 3.299983 Tw (Almacena la relaci\363n con la UC, el tipo de movimiento y el subitpo de movimiento) Tj T* 0 Tw (permitiendo definir un sem\341foro vehicular, sem\341foro de giro y sem\341foro peatonal.) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 0 cm
+Q
+q
+1 0 0 1 20 0 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 368.8236 cm
+Q
+q
+1 0 0 1 62.69291 350.8236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (La interfase visual consisti\363 en 4 pesta\361as:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 344.8236 cm
+Q
+q
+1 0 0 1 62.69291 218.8236 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 120 cm
+Q
+q
+1 0 0 1 20 120 cm
+Q
+q
+1 0 0 1 20 84 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Mapa) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 15 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Permite la visualizaci\363n de las diferentes esquinas de la ciudad) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 84 cm
+Q
+q
+1 0 0 1 20 84 cm
+Q
+q
+1 0 0 1 20 36 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 33 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 33 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Eventos) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 27 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 16.82 Tm /F1 10 Tf 12 TL .260651 Tw (Listado de eventos, permitiendo filtrado en funci\363n de su fecha y su tipo, adem\341s de relizar) Tj T* 0 Tw (impresiones.) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 36 cm
+Q
+q
+1 0 0 1 20 36 cm
+Q
+q
+1 0 0 1 20 0 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 21 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Configuraci\363n) Tj T* ET
+Q
+Q
+q
+1 0 0 1 23 15 cm
+Q
+q
+1 0 0 1 23 3 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+BT 1 0 0 1 0 2 Tm  T* ET
+q
+1 0 0 1 20 0 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Permite la definici\363n de Unidades de Control y Concentradores.) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 23 3 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 20 0 cm
+Q
+q
+1 0 0 1 20 0 cm
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 218.8236 cm
+Q
+q
+1 0 0 1 62.69291 188.8236 cm
+q
+BT 1 0 0 1 0 16.82 Tm 2.015318 Tw 12 TL /F1 10 Tf 0 0 0 rg (En este proyecto se realiz\363 un desarrollo de una interfase de configuraci\363n gr\341fica mediante Qt. Se) Tj T* 0 Tw (puede ver un ejemplo de la funcionalidad en el siguiente video ) Tj ([) Tj 0 0 .501961 rg (YouTubeAvrak) Tj 0 0 0 rg (].) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 170.8236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (El siguiente digrama expone la arquitecutra del sistema:) Tj T* ET
+Q
+Q
+ 
+endstream
+
+endobj
+% 'R44': class PDFStream 
+44 0 obj
+% page stream
+<< /Length 6745 >>
+stream
+1 0 0 1 0 0 cm BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 62.69291 669.0236 cm
+q
+[] 0 d
+BT /F3 10 Tf 12 TL ET
+1 w
+1 0 0 1 0 0 cm
+0 j
+BT /F3 10 Tf 12 TL ET
+0 0 0 RG
+0 J
+0 0 0 rg
+q
+1 0 0 1 0 0 cm
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 4 92 m 212 92 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 4 92 m 4 76 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 212 92 m 212 76 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 216 84 m 484 84 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 4 76 m 212 76 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 484 84 m 484 12 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 108 56 m 106 62 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 108 56 m 110 62 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 108 72 m 108 56 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 4 52 m 212 52 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 244 52 m 452 52 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 4 52 m 4 36 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 212 52 m 212 36 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 240 44 m 234 42 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 240 44 m 234 46 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 216 44 m 240 44 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 244 52 m 244 36 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 452 52 m 452 36 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 4 36 m 212 36 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 244 36 m 452 36 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 332 16 m 330 22 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 332 16 m 334 22 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 332 32 m 332 16 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 244 20 m 328 20 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 336 20 m 452 20 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 244 20 m 244 4 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 452 20 m 452 4 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 456 12 m 462 14 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 456 12 m 462 10 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 456 12 m 484 12 l S
+Q
+q
+[] 0 d
+.8 w
+0 j
+0 0 0 RG
+0 J
+n 244 4 m 452 4 l S
+Q
+q
+BT /F5 8 Tf 9.6 TL ET
+BT /F5 8 Tf 9.6 TL ET
+0 0 0 rg
+BT 1 0 0 1 48 81.6 Tm (Interfase Qt) Tj T* ET
+Q
+q
+BT /F5 8 Tf 9.6 TL ET
+BT /F5 8 Tf 9.6 TL ET
+0 0 0 rg
+BT 1 0 0 1 48 41.6 Tm (Twisted) Tj T* ET
+Q
+q
+BT /F5 8 Tf 9.6 TL ET
+BT /F5 8 Tf 9.6 TL ET
+0 0 0 rg
+BT 1 0 0 1 288 41.6 Tm (SQL Alchemy) Tj T* ET
+Q
+q
+BT /F5 8 Tf 9.6 TL ET
+BT /F5 8 Tf 9.6 TL ET
+0 0 0 rg
+BT 1 0 0 1 288 9.6 Tm (MySQL) Tj T* ET
+Q
+Q
+Q
+Q
+q
+1 0 0 1 62.69291 651.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Este proyecto se bautiz\363 Avrak, otro corcel de la mitolog\355a escandinava.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 618.0236 cm
+q
+BT 1 0 0 1 0 8.435 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Definici\363n de SCADA basado en Web y HTML5) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 564.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 40.82 Tm /F1 10 Tf 12 TL 2.038555 Tw (Avrak constituy\363 una prueba de que una arquitecutra de mutitarea colaborativa puede ser usada en) Tj T* 0 Tw .052651 Tw (conjunto con otros compoenentes de software para lograr un sistema de monitoreo y control, sin embargo) Tj T* 0 Tw 2.789985 Tw (cuenta con la desvetaja de que el sistema depende en buena parte de c\363digo espec\355fico para la) Tj T* 0 Tw (plataforma como la biblioteca gr\341fica Qt y la base de datos.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 498.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 52.82 Tm /F1 10 Tf 12 TL 1.68436 Tw (Se plante\363 como mejora la utilizaci\363n del protcolo HTTP como mecanismo de acceso y control a los) Tj T* 0 Tw .53561 Tw (datos y la separaci\363n de el manejo de el protcolo de comunicaciones \(picnet\) de la aplicaci\363n espec\355fica) Tj T* 0 Tw 1.556098 Tw (de control \(sem\341foros en el caso de Avrak\). El nuevo objetivo ser\341 acceder a los datos tanto con un) Tj T* 0 Tw 2.15248 Tw (browser \(navegador\) como con aplicaciones que puedan generar y consumir HTTP \(aplicaciones de) Tj T* 0 Tw (escritorio, celulares, demonios de tele-control, etc.\).) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 480.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (Para lograr exponer los datos mediante HTTP se plante\363 la definici\363n de una API.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 423.3307 cm
+Q
+q
+1 0 0 1 62.69291 394.9843 cm
+n 0 14.17323 m 469.8898 14.17323 l S
+Q
+q
+1 0 0 1 62.69291 382.9843 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (WikiReactor) Tj T* ET
+Q
+Q
+q
+1 0 0 1 91.03937 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 0 rg (Patr\363n de dise\361o reactor ) Tj 0 0 .501961 rg (http://en.wikipedia.org/wiki/Reactor_pattern) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 48.44311 370.9843 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (StepehDoyle2009) Tj T* ET
+Q
+Q
+q
+1 0 0 1 91.03937 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (http://softwareramblings.com/2008/07/multi-thread-scaling-issues-with-python-and-ruby.html) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 358.9843 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (MINA) Tj T* ET
+Q
+Q
+q
+1 0 0 1 91.03937 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (http://mina.apache.org/performance-test-reports.html) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 346.9843 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (Twisted) Tj T* ET
+Q
+Q
+q
+1 0 0 1 91.03937 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (http://twistedmatrix.com/trac/) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 334.9843 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (config) Tj T* ET
+Q
+Q
+q
+1 0 0 1 91.03937 0 cm
+q
+0 0 .501961 rg
+0 0 .501961 RG
+BT 1 0 0 1 0 4.82 Tm /F1 10 Tf 12 TL (http://pypi.python.org/pypi/config/0.3.7) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 322.9843 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (SQLAlchemy) Tj T* ET
+Q
+Q
+q
+1 0 0 1 91.03937 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (http://www.sqlalchemy.org/) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 310.9843 cm
+0 0 0 rg
+BT /F3 10 Tf 12 TL ET
+q
+1 0 0 1 6 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (YouTubeAvrak) Tj T* ET
+Q
+Q
+q
+1 0 0 1 91.03937 0 cm
+q
+BT 1 0 0 1 0 4.82 Tm 12 TL /F1 10 Tf 0 0 .501961 rg (http://www.youtube.com/watch?v=GS1JYdZlrK4) Tj T* ET
+Q
+Q
+q
+Q
+Q
+ 
+endstream
+
+endobj
+% 'R45': class PDFPageLabels 
+45 0 obj
 % Document Root
 << /Nums [ 0
- 14 0 R ] >>
+ 46 0 R
+ 1
+ 47 0 R
+ 2
+ 48 0 R
+ 3
+ 49 0 R ] >>
 endobj
-% 'R14': class PDFPageLabel 
-14 0 obj
+% 'R46': class PDFPageLabel 
+46 0 obj
 % None
 << /S /D
  /St 1 >>
 endobj
+% 'R47': class PDFPageLabel 
+47 0 obj
+% None
+<< /S /D
+ /St 2 >>
+endobj
+% 'R48': class PDFPageLabel 
+48 0 obj
+% None
+<< /S /D
+ /St 3 >>
+endobj
+% 'R49': class PDFPageLabel 
+49 0 obj
+% None
+<< /S /D
+ /St 4 >>
+endobj
 xref
-0 15
+0 50
 0000000000 65535 f
 0000000113 00000 n
-0000000245 00000 n
-0000000410 00000 n
-0000000585 00000 n
-0000000754 00000 n
-0000000933 00000 n
-0000001212 00000 n
-0000001368 00000 n
-0000001650 00000 n
-0000001774 00000 n
-0000001917 00000 n
-0000002024 00000 n
-0000004009 00000 n
-0000004102 00000 n
+0000000258 00000 n
+0000000423 00000 n
+0000000598 00000 n
+0000000767 00000 n
+0000000961 00000 n
+0000001202 00000 n
+0000001438 00000 n
+0000001679 00000 n
+0000001905 00000 n
+0000002244 00000 n
+0000002486 00000 n
+0000002715 00000 n
+0000002875 00000 n
+0000003200 00000 n
+0000003427 00000 n
+0000003743 00000 n
+0000003984 00000 n
+0000004249 00000 n
+0000004491 00000 n
+0000004802 00000 n
+0000005044 00000 n
+0000005317 00000 n
+0000005559 00000 n
+0000005810 00000 n
+0000006052 00000 n
+0000006313 00000 n
+0000006555 00000 n
+0000006802 00000 n
+0000007044 00000 n
+0000007291 00000 n
+0000007710 00000 n
+0000007869 00000 n
+0000008153 00000 n
+0000008278 00000 n
+0000008454 00000 n
+0000008654 00000 n
+0000008865 00000 n
+0000009083 00000 n
+0000009272 00000 n
+0000009407 00000 n
+0000015838 00000 n
+0000023010 00000 n
+0000030514 00000 n
+0000037364 00000 n
+0000037496 00000 n
+0000037573 00000 n
+0000037650 00000 n
+0000037727 00000 n
 trailer
 << /ID 
  % ReportLab generated PDF document -- digest (http://www.reportlab.com) 
- [(\344]\202IY7\323jV\360\017\023\021\252t\246) (\344]\202IY7\323jV\360\017\023\021\252t\246)] 
+ [(R\205\300\342\003\004\334w\212\233\221a\357\372`\343) (R\205\300\342\003\004\334w\212\233\221a\357\372`\343)] 
 
- /Info 8 0 R
- /Root 7 0 R
- /Size 15 >>
+ /Info 33 0 R
+ /Root 32 0 R
+ /Size 50 >>
 startxref
-4149
+37774
 %%EOF
