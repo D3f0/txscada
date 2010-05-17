@@ -1,0 +1,1197 @@
+<ui version="4.0" >
+ <class>Form</class>
+ <widget class="QWidget" name="Form" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1061</width>
+    <height>785</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Picnet Terminal</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout_2" >
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_5" >
+     <item>
+      <widget class="QGroupBox" name="groupBox_6" >
+       <property name="title" >
+        <string>Datos envío</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_8" >
+        <item row="0" column="0" colspan="4" >
+         <widget class="QLineEdit" name="line_envio" />
+        </item>
+        <item row="1" column="3" >
+         <widget class="QPushButton" name="pushLimpiar" >
+          <property name="toolTip" >
+           <string>Envía la cadena mediante el Socket o el puerto RS232</string>
+          </property>
+          <property name="layoutDirection" >
+           <enum>Qt::RightToLeft</enum>
+          </property>
+          <property name="text" >
+           <string>Limpiar</string>
+          </property>
+          <property name="icon" >
+           <iconset>
+            <normaloff>res/draw-eraser.png</normaloff>res/draw-eraser.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" >
+         <widget class="QPushButton" name="pushEnviar" >
+          <property name="toolTip" >
+           <string>Envía la cadena mediante el Socket o el puerto RS232</string>
+          </property>
+          <property name="layoutDirection" >
+           <enum>Qt::RightToLeft</enum>
+          </property>
+          <property name="text" >
+           <string>Enviar</string>
+          </property>
+          <property name="icon" >
+           <iconset>
+            <normaloff>res/go-last.png</normaloff>res/go-last.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QComboBox" name="combo_modo" >
+          <property name="toolTip" >
+           <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:8pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Cambia el modo en el cual se interpreta la cadena &lt;span style=" font-weight:600;">String Transporte&lt;/span>&lt;/p>&lt;/body>&lt;/html></string>
+          </property>
+          <item>
+           <property name="text" >
+            <string>Hexadecimal</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>ASCII</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QLabel" name="label_18" >
+          <property name="text" >
+           <string>Formato de entrada:</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_4" >
+       <property name="title" >
+        <string>Envio</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3" >
+        <item>
+         <widget class="QPlainTextEdit" name="textEnvio" >
+          <property name="minimumSize" >
+           <size>
+            <width>376</width>
+            <height>120</height>
+           </size>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5" >
+          <item>
+           <widget class="QCheckBox" name="check_send_hexa" >
+            <property name="toolTip" >
+             <string>Recepción en hexadecimal</string>
+            </property>
+            <property name="text" >
+             <string>Hexa</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_7" >
+            <property name="maximumSize" >
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string/>
+            </property>
+            <property name="pixmap" >
+             <pixmap>res/view-sort-ascending.png</pixmap>
+            </property>
+            <property name="scaledContents" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_3" >
+            <property name="minimumSize" >
+             <size>
+              <width>121</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text" >
+             <string>Bytes enviados</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit" >
+            <property name="maximumSize" >
+             <size>
+              <width>61</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="layoutDirection" >
+             <enum>Qt::RightToLeft</enum>
+            </property>
+            <property name="autoFillBackground" >
+             <bool>false</bool>
+            </property>
+            <property name="text" >
+             <string>0</string>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_5" >
+       <property name="title" >
+        <string>Recepción</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_7" >
+        <item rowspan="4" row="0" column="0" colspan="2" >
+         <widget class="QPlainTextEdit" name="textReceived" >
+          <property name="minimumSize" >
+           <size>
+            <width>376</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0" >
+         <layout class="QHBoxLayout" name="horizontalLayout" >
+          <item>
+           <widget class="QCheckBox" name="check_del_slashn" >
+            <property name="toolTip" >
+             <string>Elimina los caracteres \n finalizadores. Util cuando se reciben cadenas de texto.</string>
+            </property>
+            <property name="text" >
+             <string>Suprimir \n</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="check_recv_hexa" >
+            <property name="toolTip" >
+             <string>Recepción en hexa
+</string>
+            </property>
+            <property name="text" >
+             <string>Hexa</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_21" >
+            <property name="maximumSize" >
+             <size>
+              <width>24</width>
+              <height>24</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string/>
+            </property>
+            <property name="pixmap" >
+             <pixmap>res/view-sort-descending.png</pixmap>
+            </property>
+            <property name="scaledContents" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_13" >
+            <property name="minimumSize" >
+             <size>
+              <width>121</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font" >
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text" >
+             <string>Bytes recibidos</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_2" >
+            <property name="maximumSize" >
+             <size>
+              <width>61</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="layoutDirection" >
+             <enum>Qt::RightToLeft</enum>
+            </property>
+            <property name="autoFillBackground" >
+             <bool>false</bool>
+            </property>
+            <property name="text" >
+             <string>0</string>
+            </property>
+            <property name="readOnly" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_4" >
+     <item>
+      <widget class="QGroupBox" name="groupBox" >
+       <property name="maximumSize" >
+        <size>
+         <width>208</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="title" >
+        <string>Comunicación RS232</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2" >
+        <item row="0" column="0" colspan="3" >
+         <widget class="QCheckBox" name="check_envio_serial" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="text" >
+           <string>Enviar por RS232</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="2" >
+         <widget class="QPushButton" name="pushConnect_serial" >
+          <property name="minimumSize" >
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>Conectar</string>
+          </property>
+          <property name="icon" >
+           <iconset>
+            <normaloff>res/network-connect.png</normaloff>
+            <normalon>res/network-disconnect.png</normalon>res/network-connect.png</iconset>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" >
+         <widget class="QPushButton" name="pushConf_serial" >
+          <property name="text" >
+           <string>Conf.</string>
+          </property>
+          <property name="icon" >
+           <iconset>
+            <normaloff>res/configure.png</normaloff>res/configure.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" >
+         <widget class="QLabel" name="label_6" >
+          <property name="font" >
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text" >
+           <string>Estado:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" >
+         <widget class="QLabel" name="labelConexionSerial" >
+          <property name="minimumSize" >
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>Sin conexión</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_2" >
+       <property name="maximumSize" >
+        <size>
+         <width>208</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="title" >
+        <string>Comunicación TCP</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout" >
+        <item row="3" column="0" colspan="2" >
+         <layout class="QHBoxLayout" name="horizontalLayout_3" >
+          <item>
+           <widget class="QLabel" name="label_4" >
+            <property name="font" >
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text" >
+             <string>Estado:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_status_socket" >
+            <property name="minimumSize" >
+             <size>
+              <width>91</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text" >
+             <string>Sin conexión</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="0" colspan="2" >
+         <widget class="QCheckBox" name="check_envio_socket" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <property name="text" >
+           <string>Enviar por socket</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QPushButton" name="pushConf_socket" >
+          <property name="toolTip" >
+           <string>Configuración del socket.
+Cada vez que cambie la configuración</string>
+          </property>
+          <property name="text" >
+           <string>Conf.</string>
+          </property>
+          <property name="icon" >
+           <iconset>
+            <normaloff>res/configure.png</normaloff>res/configure.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QPushButton" name="pushConnect_socket" >
+          <property name="minimumSize" >
+           <size>
+            <width>100</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string>Conectar</string>
+          </property>
+          <property name="icon" >
+           <iconset>
+            <normaloff>res/network-connect.png</normaloff>
+            <normalon>res/network-disconnect.png</normalon>res/network-connect.png</iconset>
+          </property>
+          <property name="checkable" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_14" >
+       <property name="title" >
+        <string>Extras</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_8" >
+        <item>
+         <widget class="QCheckBox" name="checkBox_3" >
+          <property name="toolTip" >
+           <string>Cuando se presiona el botón enviar en un comando, se realiza automáticamente el envío, si se encuentra conectado.</string>
+          </property>
+          <property name="text" >
+           <string>Auto envío de comandos</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushHex2Bin" >
+          <property name="text" >
+           <string>Hexa a binario</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_3" >
+          <property name="text" >
+           <string>Idetificar paquete</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="push_about" >
+       <property name="text" >
+        <string>Acerca del terminal</string>
+       </property>
+       <property name="icon" >
+        <iconset>
+         <normaloff>res/games-hint.png</normaloff>res/games-hint.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_12" >
+       <property name="minimumSize" >
+        <size>
+         <width>0</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="text" >
+        <string>Salir</string>
+       </property>
+       <property name="icon" >
+        <iconset>
+         <normaloff>res/system-shutdown.png</normaloff>res/system-shutdown.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer" >
+       <property name="orientation" >
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_3" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize" >
+      <size>
+       <width>295</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="title" >
+      <string>Comandos</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2" >
+      <item>
+       <widget class="QScrollArea" name="scrollArea" >
+        <property name="widgetResizable" >
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents" >
+         <property name="geometry" >
+          <rect>
+           <x>0</x>
+           <y>-280</y>
+           <width>252</width>
+           <height>1006</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout" >
+          <item>
+           <layout class="QGridLayout" name="gridLayout_3" >
+            <item row="0" column="0" >
+             <widget class="QLabel" name="label_5" >
+              <property name="minimumSize" >
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip" >
+               <string>Dirección origen</string>
+              </property>
+              <property name="text" >
+               <string>Origen</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" >
+             <widget class="QLabel" name="label_8" >
+              <property name="minimumSize" >
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip" >
+               <string>Dirección Destino</string>
+              </property>
+              <property name="text" >
+               <string>Destino</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2" >
+             <widget class="QLabel" name="label_9" >
+              <property name="minimumSize" >
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip" >
+               <string>Número de secuencia. 0..255</string>
+              </property>
+              <property name="text" >
+               <string>Sec.</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="HexSpinBox" name="spinOrigen" >
+              <property name="toolTip" >
+               <string>Dirección origen</string>
+              </property>
+              <property name="minimum" >
+               <number>1</number>
+              </property>
+              <property name="maximum" >
+               <number>254</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="HexSpinBox" name="spinDestino" >
+              <property name="toolTip" >
+               <string>Dirección Destino</string>
+              </property>
+              <property name="minimum" >
+               <number>1</number>
+              </property>
+              <property name="maximum" >
+               <number>254</number>
+              </property>
+              <property name="value" >
+               <number>3</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2" >
+             <widget class="HexSpinBox" name="spinSecuencia" >
+              <property name="toolTip" >
+               <string>Número de secuencia. 0..255</string>
+              </property>
+              <property name="minimum" >
+               <number>0</number>
+              </property>
+              <property name="maximum" >
+               <number>255</number>
+              </property>
+              <property name="value" >
+               <number>0</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_12" >
+            <property name="title" >
+             <string>Estados y eventos</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_11" >
+             <item row="0" column="0" >
+              <widget class="QPushButton" name="pushSendReqEv" >
+               <property name="toolTip" >
+                <string>Trae los estados del micro y posiblemente eventos</string>
+               </property>
+               <property name="text" >
+                <string>Estados</string>
+               </property>
+               <property name="icon" >
+                <iconset>
+                 <normaloff>res/help-contents.png</normaloff>res/help-contents.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" >
+              <widget class="QPushButton" name="pushSendReqMorEv" >
+               <property name="toolTip" >
+                <string>Pide eventos</string>
+               </property>
+               <property name="text" >
+                <string>MorEv</string>
+               </property>
+               <property name="icon" >
+                <iconset>
+                 <normaloff>res/address-book-new.png</normaloff>res/address-book-new.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_7" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="title" >
+             <string>Control de bits</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_4" >
+             <item row="0" column="0" >
+              <widget class="QLabel" name="label_10" >
+               <property name="toolTip" >
+                <string>Dirección origen</string>
+               </property>
+               <property name="text" >
+                <string>Puerto</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" colspan="2" >
+              <widget class="HexSpinBox" name="spinPuerto" >
+               <property name="toolTip" >
+                <string>Dirección origen</string>
+               </property>
+               <property name="minimum" >
+                <number>0</number>
+               </property>
+               <property name="maximum" >
+                <number>254</number>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" >
+              <widget class="QLabel" name="label_11" >
+               <property name="toolTip" >
+                <string>Dirección origen</string>
+               </property>
+               <property name="text" >
+                <string>Bit</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" colspan="2" >
+              <widget class="HexSpinBox" name="spinBit" >
+               <property name="toolTip" >
+                <string>Dirección origen</string>
+               </property>
+               <property name="minimum" >
+                <number>0</number>
+               </property>
+               <property name="maximum" >
+                <number>7</number>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" >
+              <widget class="QLabel" name="label_12" >
+               <property name="toolTip" >
+                <string>Dirección origen</string>
+               </property>
+               <property name="text" >
+                <string>Función</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1" >
+              <widget class="QRadioButton" name="radioBitUno" >
+               <property name="text" >
+                <string>1</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2" >
+              <widget class="QRadioButton" name="radioBitCero" >
+               <property name="text" >
+                <string>0</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" colspan="3" >
+              <widget class="QPushButton" name="pushControl" >
+               <property name="text" >
+                <string>Enviar</string>
+               </property>
+               <property name="icon" >
+                <iconset>
+                 <normaloff>res/run-build.png</normaloff>res/run-build.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" >
+              <widget class="QCheckBox" name="checkIndirecto" >
+               <property name="text" >
+                <string>Indirecto</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_8" >
+            <property name="title" >
+             <string>PeH y sincronizmo</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_6" >
+             <item>
+              <widget class="QPushButton" name="pushPuestaEnHora" >
+               <property name="text" >
+                <string>Enviar</string>
+               </property>
+               <property name="icon" >
+                <iconset>
+                 <normaloff>res/edit-clear-history.png</normaloff>res/edit-clear-history.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_9" >
+            <property name="title" >
+             <string>Acceso a RAM</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_6" >
+             <item row="0" column="0" colspan="3" >
+              <layout class="QGridLayout" name="gridLayout_5" >
+               <item row="0" column="0" >
+                <widget class="QLabel" name="label_14" >
+                 <property name="toolTip" >
+                  <string>Dirección origen</string>
+                 </property>
+                 <property name="text" >
+                  <string>Página</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1" >
+                <widget class="QLabel" name="label_15" >
+                 <property name="toolTip" >
+                  <string>Dirección Destino</string>
+                 </property>
+                 <property name="text" >
+                  <string>Dir.</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2" >
+                <widget class="QLabel" name="label_16" >
+                 <property name="toolTip" >
+                  <string>Número de secuencia. 0..255</string>
+                 </property>
+                 <property name="text" >
+                  <string>Cant.</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1" >
+                <widget class="HexSpinBox" name="spinDireccion" >
+                 <property name="toolTip" >
+                  <string>Dirección Destino</string>
+                 </property>
+                 <property name="minimum" >
+                  <number>1</number>
+                 </property>
+                 <property name="maximum" >
+                  <number>254</number>
+                 </property>
+                 <property name="value" >
+                  <number>3</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2" >
+                <widget class="HexSpinBox" name="spinCantidad" >
+                 <property name="toolTip" >
+                  <string>Número de secuencia. 0..255</string>
+                 </property>
+                 <property name="minimum" >
+                  <number>0</number>
+                 </property>
+                 <property name="maximum" >
+                  <number>255</number>
+                 </property>
+                 <property name="value" >
+                  <number>0</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0" >
+                <widget class="HexSpinBox" name="spinPagina" >
+                 <property name="toolTip" >
+                  <string>Dirección origen</string>
+                 </property>
+                 <property name="minimum" >
+                  <number>1</number>
+                 </property>
+                 <property name="maximum" >
+                  <number>254</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item row="1" column="0" >
+              <widget class="QLabel" name="label_17" >
+               <property name="text" >
+                <string>Valor:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" colspan="2" >
+              <widget class="QLineEdit" name="lineMemoryData" />
+             </item>
+             <item row="2" column="0" colspan="2" >
+              <widget class="QPushButton" name="pushLeerEE" >
+               <property name="text" >
+                <string>Leer E²</string>
+               </property>
+               <property name="icon" >
+                <iconset>
+                 <normaloff>res/page-zoom.png</normaloff>res/page-zoom.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2" >
+              <widget class="QPushButton" name="pushEscribirEE" >
+               <property name="text" >
+                <string>Escribir E²</string>
+               </property>
+               <property name="icon" >
+                <iconset>
+                 <normaloff>res/im-status-message-edit.png</normaloff>res/im-status-message-edit.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" colspan="3" >
+              <widget class="QPushButton" name="pushLeerRam" >
+               <property name="text" >
+                <string>Leer RAM</string>
+               </property>
+               <property name="icon" >
+                <iconset>
+                 <normaloff>res/page-zoom.png</normaloff>res/page-zoom.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_11" >
+            <property name="title" >
+             <string>Eventos Dummy</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_10" >
+             <item row="0" column="0" >
+              <widget class="QLabel" name="label" >
+               <property name="text" >
+                <string>Cantidad</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" >
+              <widget class="QSpinBox" name="spinBox_9" />
+             </item>
+             <item rowspan="2" row="1" column="0" >
+              <widget class="QPushButton" name="pushButton_8" >
+               <property name="text" >
+                <string>Eventos</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" >
+              <widget class="QPushButton" name="pushButton_9" >
+               <property name="text" >
+                <string>Boradcast</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_10" >
+            <property name="title" >
+             <string>String Aplicación</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_7" >
+             <item>
+              <widget class="QLineEdit" name="lineAppString" />
+             </item>
+             <item>
+              <widget class="QPushButton" name="pushEnviarAppString" >
+               <property name="text" >
+                <string>Enviar</string>
+               </property>
+               <property name="icon" >
+                <iconset>
+                 <normaloff>res/system-run.png</normaloff>res/system-run.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_13" >
+            <property name="title" >
+             <string>Scan Periódico</string>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_9" >
+             <item row="0" column="0" >
+              <widget class="QLabel" name="label_19" >
+               <property name="text" >
+                <string>Rango</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" colspan="2" >
+              <widget class="QLineEdit" name="lineDirRange" >
+               <property name="text" >
+                <string>3-4,5</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" colspan="2" >
+              <widget class="QLabel" name="label_20" >
+               <property name="text" >
+                <string>Intervalo</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2" >
+              <widget class="QSpinBox" name="spinBox_10" >
+               <property name="suffix" >
+                <string> mS</string>
+               </property>
+               <property name="minimum" >
+                <number>1</number>
+               </property>
+               <property name="maximum" >
+                <number>999999</number>
+               </property>
+               <property name="singleStep" >
+                <number>10</number>
+               </property>
+               <property name="value" >
+                <number>200</number>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" colspan="3" >
+              <widget class="QCheckBox" name="checkRequerirEstados" >
+               <property name="text" >
+                <string>Requerir Estados</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" colspan="3" >
+              <widget class="QCheckBox" name="checkRequerirEventos" >
+               <property name="text" >
+                <string>Requerir Eventos</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>HexSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>hexspinbox</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushLimpiar</sender>
+   <signal>pressed()</signal>
+   <receiver>textReceived</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>533</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>416</x>
+     <y>509</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushLimpiar</sender>
+   <signal>pressed()</signal>
+   <receiver>textEnvio</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>533</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>344</x>
+     <y>221</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_12</sender>
+   <signal>pressed()</signal>
+   <receiver>Form</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>659</x>
+     <y>307</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>829</x>
+     <y>-7</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,19 @@
+Downloading/unpacking tx
+  Getting page http://pypi.python.org/simple/tx
+  Could not fetch URL http://pypi.python.org/simple/tx: HTTP Error 404: Not Found
+  Will skip URL http://pypi.python.org/simple/tx when looking for download links for tx
+  Getting page http://pypi.python.org/simple/
+  URLs to search for versions for tx:
+  Could not find any downloads that satisfy the requirement tx
+No distributions at all found for tx
+Exception information:
+Traceback (most recent call last):
+  File "/usr/local/lib/python2.6/dist-packages/pip-0.3.1-py2.6.egg/pip.py", line 252, in main
+    self.run(options, args)
+  File "/usr/local/lib/python2.6/dist-packages/pip-0.3.1-py2.6.egg/pip.py", line 408, in run
+    requirement_set.install_files(finder, force_root_egg_info=self.bundle)
+  File "/usr/local/lib/python2.6/dist-packages/pip-0.3.1-py2.6.egg/pip.py", line 1750, in install_files
+    url = finder.find_requirement(req_to_install, upgrade=self.upgrade)
+  File "/usr/local/lib/python2.6/dist-packages/pip-0.3.1-py2.6.egg/pip.py", line 1029, in find_requirement
+    raise DistributionNotFound('No distributions at all found for %s' % req)
+DistributionNotFound: No distributions at all found for tx

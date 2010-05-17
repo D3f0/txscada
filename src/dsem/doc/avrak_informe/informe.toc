@@ -1,0 +1,12 @@
+\select@language {spanish}
+\contentsline {chapter}{\numberline {1}Introducci\IeC {\'o}n}{1}
+\contentsline {chapter}{\numberline {2}Elementos de la inrerfase}{2}
+\contentsline {section}{\numberline {2.1}Solapa de Configuraci\IeC {\'o}n}{2}
+\contentsline {subsection}{\numberline {2.1.1}Deslizante de configuraci\IeC {\'o}n}{2}
+\contentsline {subsubsection}{Concentradores}{2}
+\contentsline {subsubsection}{Uniadades de Control}{2}
+\contentsline {section}{\numberline {2.2}Deslizante de Comandos}{2}
+\contentsline {section}{\numberline {2.3}Tabla de eventos}{2}
+\contentsline {section}{\numberline {2.4}Mapa}{3}
+\contentsline {chapter}{\numberline {3}Eventos}{5}
+\contentsline {chapter}{\numberline {4}Reportes}{7}

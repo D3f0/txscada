@@ -1,0 +1,143 @@
+\documentclass[11pt,a4paper]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+
+\begin{document}
+
+\title{Sietema de semaforización Avrak}
+\author{Defossé Nahuel, Bruno Zappellini}
+\date{\today}
+
+\maketitle
+
+\tableofcontents
+
+\begin{abstract}
+El sistema de Semaforización Avrak, basado en el motor de adquisición de
+datos\footnote{SCADA} Alsvid, es un software multiplataforma
+\footnote{Puede ser ejecutado sobre Windows 2000 y XP, tanto como en Linux}
+diseñado con el objeto de monitorear un sistema de semaforización bajo una 
+red de microcontroladores Picnet.
+Este documento describe como utilizar la GUI\footnote{Interfase Gráfica de
+Usuario} así como una breve descripción sobre el significado de cada elemento.
+\end{abstract}
+
+\chapter{Introducción}
+\label{ch:intro}
+
+Avrak consiste en el Centro de Control. Las funciones que cumple son las
+siguientes:
+\begin{itemize}
+  \item {Creación y edición de Concentradores. Descripto en la
+  página \pageref{ch:couc}.}
+  \item Cargar archivos SMF\footnote{Archivos de configuración creados con el
+  configurador de Ricardo} como Unidades de Control\footnote{La edicón no está
+  permitida desde el Centro de Control. Descripto en la página
+  \pageref{ch:couc}.}
+  
+   \begin{item}
+   Creación de esquinas sobre un mapa de la ciudad de Trelew con su
+   correspondiente configuración:
+   consecutivos.
+   \begin{itemize}
+     \item Selección de concentrador (CO) y unidad de control(UC).
+     \item Selección de tipo de esquina y calles.
+     \item Inputación de los Movimientos\footnote{Juego de 2 o 3 luces} y
+     posicionamiento en el mapa.
+   \end{itemize}
+   \end{item}
+   \item{Visualización en tiempo real de una unidad de ccontrol (UC) para su
+  	diagnóstico}
+   \item{Listado de eventos. Permitiendo inputar fechas de atención y
+   reparación en caso de ser necesario}
+   \item 
+   \begin{item}
+    Filtardo de eventos en función de
+    \begin{itemize}
+      \item Rango de fechas
+      \item Unidade de control
+      \item Estado del evento.
+    \end{itemize}
+   \end{item}
+  
+\end{itemize}
+
+\chapter{Elementos de la inrerfase}
+\label{ch:couc}
+
+\section{Solapa de Configuración}
+\subsection{Deslizante de configuración}
+\subsubsection{Concentradores}
+\begin{center}
+	\begin{figure}[h] %[h] para here [b] para bottom [t] para top
+	\includegraphics[width=400pt]{./img/co_config.png}
+	\end{figure}
+\end{center}
+
+
+\subsubsection{Uniadades de Control}
+\section{Deslizante de Comandos}
+Envío de comandos
+
+\section{Tabla de eventos}
+
+\newpage
+\section{Mapa}
+\label{ch:mapa}
+El mapa permite visualizar geográficamente la posición del evento.
+
+\begin{center}
+	\begin{figure}[h] %[h] para here [b] para bottom [t] para top
+	\includegraphics[width=100pt]{./img/middle-mouse-button-press.png}
+	\end{figure}
+\end{center}
+
+
+
+\chapter{Eventos}
+\label{ch:eventos}
+Un \emph{evento} es un suceso en el campo el cual requiere atención por el
+usuario. Algunos de los sucesos que generan eventos son lámparas quemadas,
+apertura de llaves por bandalismo, entre otros.
+
+Los eventos se encuentran divididos en 2 tipos:
+\begin{itemize}
+  \item Alta prioridad
+  \item Baja prioridad
+  
+\end{itemize}
+
+
+
+
+Los eventos tienen las siguientes propiedades:
+\begin{description}
+  \item [COID] { Identificador de concentrador y unidad de control }
+  \item [Tipo] { Tipo de evento }
+  \item [Prioridad] { Prioridad }
+  \item [Nombre] { Nombre de la unidad de control que reportó el evento}
+  \item [Descripción] { En función a campos internos del evento, se muestra una
+  descripción del evento }
+  \item [Puerto/Movi] { Número de movimiento o número de puerto }
+  \item [Lámpara/Bit] { Número de lampara en el movimiento o número de bit del
+  puerto que produjo el suceso }
+  \item [Estado] { Los eventos son producidos por cambios de estado lógico, el
+  nuevo estado es el que se inidica en este campo }
+  \item [Timestamp] { Fecha y hora en la cual fue reportado el evento con
+  precisicón de  décima de milisegundo }
+  \item [Atención] { Hora de atención, el operario, \ldots}
+  \item [Reparación] { Al realizarse la reparación del evento en el campo, el
+  operario mediante le botón derecho del mouse puede establecer el evento como
+  reparado }
+  
+\end{description}
+
+
+\chapter{Reportes}
+\label{ch:print}
+Capítulo sobre la salida impresa.
+
+
+\end{document}

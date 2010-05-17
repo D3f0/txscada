@@ -1,0 +1,10 @@
+<RCC>
+  <qresource prefix="icons" >
+    <file>res/wizard.png</file>
+    <file>res/find.png</file>
+    <file>res/fileclose.png</file>
+    <file>res/exit.png</file>
+    <file>res/endturn.png</file>
+    <file>res/convert.png</file>
+  </qresource>
+</RCC>

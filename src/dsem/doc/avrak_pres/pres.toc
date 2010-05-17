@@ -1,0 +1,4 @@
+\beamer@endinputifotherversion {3.07pt}
+\select@language {spanish}
+\beamer@sectionintoc {2}{Introducci\IeC {\'o}n}{3}{0}{1}
+\beamer@subsectionintoc {2}{1}{Elecci\IeC {\'o}n del lenguaje}{3}{0}{1}

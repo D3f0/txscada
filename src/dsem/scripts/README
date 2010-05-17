@@ -1,0 +1,11 @@
+El comando chr2hex recibe por stdin una secuencia de caracteres
+que transforma en valores hexadecimales correspondientes al valor
+en la tabla US-ASCII de cada caracter.
+
+Una aplicacion sencilla para ver la salida en hexa de lo que se
+recibe desde un socket creado contra 192.168.1.8 en el puerto 9761
+seria:
+
+  $ nc 192.168.1.8 9761 | ./chr2hex
+
+La aplicacion echo recibe

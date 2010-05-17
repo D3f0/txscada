@@ -1,0 +1,18 @@
+
+En el mapa, cuando se inputa un punto:
+(
+ * nombre_uc
+ * id_co
+ * id_uc
+ * zona
+ * can_movi
+)
+Opcional:
+    Importa archivo SMF?
+        Si lo importa, carga
+
+El sistema genera las entradas de movimiento.
+
+Usuarios:
+    * Supervisor ( hace todo )
+    * Operador  ( no cancela alarmas, no edita )

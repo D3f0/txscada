@@ -1,0 +1,150 @@
+<ui version="4.0" >
+ <class>WizardDialog</class>
+ <widget class="QDialog" name="WizardDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>478</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Wizard</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <widget class="QFrame" name="frame" >
+     <property name="frameShape" >
+      <enum>QFrame::HLine</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <item>
+      <spacer name="horizontalSpacer" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushCancel" >
+       <property name="text" >
+        <string>&amp;Cancelar</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="../../data.qrc" >
+         <normaloff>:/icons/res/process-stop.png</normaloff>:/icons/res/process-stop.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushBack" >
+       <property name="text" >
+        <string>&amp;Anterior</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="../../data.qrc" >
+         <normaloff>:/icons/res/go-previous.png</normaloff>:/icons/res/go-previous.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushNext" >
+       <property name="text" >
+        <string>&amp;Siguiente</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="../../data.qrc" >
+         <normaloff>:/icons/res/go-next.png</normaloff>:/icons/res/go-next.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushFinish" >
+       <property name="text" >
+        <string>&amp;Finalizar</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="../../data.qrc" >
+         <normaloff>:/icons/res/dialog-ok-apply.png</normaloff>:/icons/res/dialog-ok-apply.png</iconset>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../data.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>pushCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>WizardDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>155</x>
+     <y>271</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>150</x>
+     <y>215</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushFinish</sender>
+   <signal>clicked()</signal>
+   <receiver>WizardDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>407</x>
+     <y>279</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>399</x>
+     <y>230</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

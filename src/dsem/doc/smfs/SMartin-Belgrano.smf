@@ -1,0 +1,5 @@
+0303010400021E003200010178	;CONFIG:id_CO,id_UC,Zona,CanMovi,timovH,timovL,CicloSm1,RetGen1,CicloSem2,RetGen2,EntAgenda,PeriodoToma,PerEvLamp
+08140500008600		;ENTRADASALIDA: CanVarSys,CanDOs,CanDIs,CanAIs,ConfigFlags,ADCControl,MaskDirA
+001033121033		;PGM1:SlotIni,IntvVe,MovPea,IntvV2A,IntA2R
+001033121033		;PGM2
+00000001		;dia,hora,min,PGM

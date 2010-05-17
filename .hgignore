@@ -22,3 +22,9 @@ doc/build/doctrees
 *.pickle
 doc/*/build/latex
 doc/*/build/doctrees/
+
+*pyscada/img/*.png
+*pyscada/img/*.jpg
+
+*mapa_*.tar
+*.png

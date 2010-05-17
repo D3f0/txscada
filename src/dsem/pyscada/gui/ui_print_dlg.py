@@ -1,0 +1,122 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'gui/ui_files/print_dlg.ui'
+#
+# Created: Mon Mar 30 00:48:34 2009
+#      by: PyQt4 UI code generator 4.4.3
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt4 import QtCore, QtGui
+
+class Ui_PrintDialog(object):
+    def setupUi(self, PrintDialog):
+        PrintDialog.setObjectName("PrintDialog")
+        PrintDialog.resize(303, 368)
+        self.verticalLayout = QtGui.QVBoxLayout(PrintDialog)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.label_5 = QtGui.QLabel(PrintDialog)
+        self.label_5.setPixmap(QtGui.QPixmap(":/icons/res/document-print.png"))
+        self.label_5.setScaledContents(False)
+        self.label_5.setObjectName("label_5")
+        self.verticalLayout.addWidget(self.label_5)
+        self.formLayout = QtGui.QFormLayout()
+        self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
+        self.formLayout.setObjectName("formLayout")
+        self.label = QtGui.QLabel(PrintDialog)
+        self.label.setObjectName("label")
+        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.label)
+        self.dateTimeEdit_desde = QtGui.QDateTimeEdit(PrintDialog)
+        self.dateTimeEdit_desde.setObjectName("dateTimeEdit_desde")
+        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.dateTimeEdit_desde)
+        self.label_2 = QtGui.QLabel(PrintDialog)
+        self.label_2.setObjectName("label_2")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.label_2)
+        self.dateTimeEdit_hasta = QtGui.QDateTimeEdit(PrintDialog)
+        self.dateTimeEdit_hasta.setObjectName("dateTimeEdit_hasta")
+        self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.dateTimeEdit_hasta)
+        self.label_4 = QtGui.QLabel(PrintDialog)
+        self.label_4.setObjectName("label_4")
+        self.formLayout.setWidget(4, QtGui.QFormLayout.LabelRole, self.label_4)
+        self.checkBox_todo_CO = QtGui.QCheckBox(PrintDialog)
+        self.checkBox_todo_CO.setObjectName("checkBox_todo_CO")
+        self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.checkBox_todo_CO)
+        self.comboBox_CO = QComboBoxModelQuery(PrintDialog)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.comboBox_CO.sizePolicy().hasHeightForWidth())
+        self.comboBox_CO.setSizePolicy(sizePolicy)
+        self.comboBox_CO.setObjectName("comboBox_CO")
+        self.formLayout.setWidget(5, QtGui.QFormLayout.LabelRole, self.comboBox_CO)
+        self.label_3 = QtGui.QLabel(PrintDialog)
+        self.label_3.setObjectName("label_3")
+        self.formLayout.setWidget(6, QtGui.QFormLayout.LabelRole, self.label_3)
+        self.checkBox_todo_UC = QtGui.QCheckBox(PrintDialog)
+        self.checkBox_todo_UC.setObjectName("checkBox_todo_UC")
+        self.formLayout.setWidget(6, QtGui.QFormLayout.FieldRole, self.checkBox_todo_UC)
+        self.comboBox_UC = QComboBoxModelQuery(PrintDialog)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.comboBox_UC.sizePolicy().hasHeightForWidth())
+        self.comboBox_UC.setSizePolicy(sizePolicy)
+        self.comboBox_UC.setObjectName("comboBox_UC")
+        self.formLayout.setWidget(7, QtGui.QFormLayout.LabelRole, self.comboBox_UC)
+        self.label_6 = QtGui.QLabel(PrintDialog)
+        self.label_6.setObjectName("label_6")
+        self.formLayout.setWidget(8, QtGui.QFormLayout.LabelRole, self.label_6)
+        self.comboBox_tipo = QtGui.QComboBox(PrintDialog)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.comboBox_tipo.sizePolicy().hasHeightForWidth())
+        self.comboBox_tipo.setSizePolicy(sizePolicy)
+        self.comboBox_tipo.setObjectName("comboBox_tipo")
+        self.formLayout.setWidget(9, QtGui.QFormLayout.LabelRole, self.comboBox_tipo)
+        self.checkBox_todo_tipo = QtGui.QCheckBox(PrintDialog)
+        self.checkBox_todo_tipo.setObjectName("checkBox_todo_tipo")
+        self.formLayout.setWidget(8, QtGui.QFormLayout.FieldRole, self.checkBox_todo_tipo)
+        self.verticalLayout.addLayout(self.formLayout)
+        self.buttonBox = QtGui.QDialogButtonBox(PrintDialog)
+        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        self.buttonBox.setObjectName("buttonBox")
+        self.verticalLayout.addWidget(self.buttonBox)
+
+        self.retranslateUi(PrintDialog)
+        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("accepted()"), PrintDialog.accept)
+        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL("rejected()"), PrintDialog.reject)
+        QtCore.QObject.connect(self.checkBox_todo_CO, QtCore.SIGNAL("clicked(bool)"), self.comboBox_CO.setDisabled)
+        QtCore.QObject.connect(self.checkBox_todo_UC, QtCore.SIGNAL("clicked(bool)"), self.comboBox_UC.setDisabled)
+        QtCore.QObject.connect(self.checkBox_todo_tipo, QtCore.SIGNAL("clicked(bool)"), self.comboBox_tipo.setDisabled)
+        QtCore.QMetaObject.connectSlotsByName(PrintDialog)
+        PrintDialog.setTabOrder(self.dateTimeEdit_desde, self.dateTimeEdit_hasta)
+        PrintDialog.setTabOrder(self.dateTimeEdit_hasta, self.comboBox_CO)
+        PrintDialog.setTabOrder(self.comboBox_CO, self.comboBox_UC)
+        PrintDialog.setTabOrder(self.comboBox_UC, self.comboBox_tipo)
+        PrintDialog.setTabOrder(self.comboBox_tipo, self.buttonBox)
+
+    def retranslateUi(self, PrintDialog):
+        PrintDialog.setWindowTitle(QtGui.QApplication.translate("PrintDialog", "Impresión", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("PrintDialog", "Desde", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("PrintDialog", "Hasta", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("PrintDialog", "Concentrador (CO)", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_todo_CO.setText(QtGui.QApplication.translate("PrintDialog", "Todos los CO", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("PrintDialog", "Unidad de control (UC)", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_todo_UC.setText(QtGui.QApplication.translate("PrintDialog", "Todas las UC", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_6.setText(QtGui.QApplication.translate("PrintDialog", "Tipo de evento", None, QtGui.QApplication.UnicodeUTF8))
+        self.checkBox_todo_tipo.setText(QtGui.QApplication.translate("PrintDialog", "Todos los tipos", None, QtGui.QApplication.UnicodeUTF8))
+
+from widgets import QComboBoxModelQuery
+import data_rc
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    PrintDialog = QtGui.QDialog()
+    ui = Ui_PrintDialog()
+    ui.setupUi(PrintDialog)
+    PrintDialog.show()
+    sys.exit(app.exec_())
+

@@ -1,0 +1,368 @@
+<ui version="4.0" >
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>298</width>
+    <height>513</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Configuración µC Net</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset>
+    <normaloff>../../res/oxy/actions/configure.png</normaloff>../../res/oxy/actions/configure.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <widget class="QGroupBox" name="groupBox_3" >
+     <property name="title" >
+      <string>Perfiles</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3" >
+      <item row="0" column="0" colspan="4" >
+       <widget class="QComboBox" name="comboBox_profname" />
+      </item>
+      <item row="1" column="0" >
+       <widget class="QPushButton" name="pushButton_newprof" >
+        <property name="toolTip" >
+         <string>Nuevo perfil</string>
+        </property>
+        <property name="text" >
+         <string/>
+        </property>
+        <property name="icon" >
+         <iconset>
+          <normaloff>res/oxy/actions/document-new.png</normaloff>res/oxy/actions/document-new.png</iconset>
+        </property>
+        <property name="iconSize" >
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QPushButton" name="pushButton_saveprof" >
+        <property name="toolTip" >
+         <string>Guardar perfil</string>
+        </property>
+        <property name="text" >
+         <string/>
+        </property>
+        <property name="icon" >
+         <iconset>
+          <normaloff>res/oxy/actions/view-calendar-tasks.png</normaloff>res/oxy/actions/view-calendar-tasks.png</iconset>
+        </property>
+        <property name="iconSize" >
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" >
+       <widget class="QPushButton" name="pushButton_loadprof" >
+        <property name="toolTip" >
+         <string>Cargar perfil</string>
+        </property>
+        <property name="text" >
+         <string/>
+        </property>
+        <property name="icon" >
+         <iconset>
+          <normaloff>res/oxy/actions/document-import.png</normaloff>res/oxy/actions/document-import.png</iconset>
+        </property>
+        <property name="iconSize" >
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3" >
+       <widget class="QPushButton" name="pushButton_delprof" >
+        <property name="toolTip" >
+         <string>Borrar perfil</string>
+        </property>
+        <property name="text" >
+         <string/>
+        </property>
+        <property name="icon" >
+         <iconset>
+          <normaloff>res/oxy/actions/draw-eraser.png</normaloff>res/oxy/actions/draw-eraser.png</iconset>
+        </property>
+        <property name="iconSize" >
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2" >
+     <property name="title" >
+      <string>Servidor HMI µC Net</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2" >
+      <item row="2" column="0" >
+       <widget class="QLabel" name="label_port" >
+        <property name="toolTip" >
+         <string>Puerto en el cual escuchara conexiones web el HMI del motor SCADA.</string>
+        </property>
+        <property name="text" >
+         <string>Puerto</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" >
+       <widget class="QLabel" name="label_addr" >
+        <property name="toolTip" >
+         <string>Dirección sobre la cual escuchará conexiones. Por defecto, loopback, 127.0.0.1</string>
+        </property>
+        <property name="text" >
+         <string>Dirección</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QLineEdit" name="lineEdit_addr" >
+        <property name="toolTip" >
+         <string>Dirección sobre la cual escuchará conexiones. Por defecto, loopback, 127.0.0.1</string>
+        </property>
+        <property name="text" >
+         <string>localhost</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" >
+       <widget class="QSpinBox" name="lineEdit_port" >
+        <property name="minimum" >
+         <number>1024</number>
+        </property>
+        <property name="maximum" >
+         <number>65000</number>
+        </property>
+        <property name="value" >
+         <number>8000</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" >
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>Acceder a:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" >
+       <widget class="QLabel" name="label_link" >
+        <property name="text" >
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="title" >
+      <string>Base de datos</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout" >
+      <item row="0" column="0" >
+       <widget class="QLabel" name="label_DB_type" >
+        <property name="text" >
+         <string>Tipo</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2" >
+       <widget class="QComboBox" name="comboBox_DB_type" >
+        <item>
+         <property name="text" >
+          <string>SQLite (interna)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>MySQL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>PostgreSQL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>Oracle</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="label_DB_name" >
+        <property name="toolTip" >
+         <string>Nombre de la base de datos, en SQLite es solo el nombre del archivo.</string>
+        </property>
+        <property name="text" >
+         <string>Nombre</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" >
+       <widget class="QLineEdit" name="lineEdit_DB_name" >
+        <property name="toolTip" >
+         <string>Nombre de la base de datos, en SQLite es solo el nombre del archivo.</string>
+        </property>
+        <property name="text" >
+         <string>db/db.sqlite</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2" >
+       <widget class="QLabel" name="label_DB_user" >
+        <property name="toolTip" >
+         <string>Nombre de usuario para conectarse a la base de datos</string>
+        </property>
+        <property name="text" >
+         <string>Nombre de usuario</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2" >
+       <widget class="QLineEdit" name="lineEdit_DB_user" >
+        <property name="toolTip" >
+         <string>Nombre de usuario para conectarse a la base de datos</string>
+        </property>
+        <property name="text" >
+         <string>foo</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" >
+       <widget class="QLabel" name="label_DB_pass" >
+        <property name="toolTip" >
+         <string>Contraseña para acceder a la base de datos</string>
+        </property>
+        <property name="text" >
+         <string>Contraseña</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2" >
+       <widget class="QLineEdit" name="lineEdit_DB_pass" >
+        <property name="toolTip" >
+         <string>Contraseña para acceder a la base de datos</string>
+        </property>
+        <property name="text" >
+         <string>foo</string>
+        </property>
+        <property name="echoMode" >
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" >
+       <widget class="QLabel" name="label_DB_server" >
+        <property name="toolTip" >
+         <string>Servidor de la base de datos</string>
+        </property>
+        <property name="text" >
+         <string>Servidor</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2" >
+       <widget class="QLineEdit" name="lineEdit_DB_server" >
+        <property name="toolTip" >
+         <string>Servidor de la base de datos</string>
+        </property>
+        <property name="text" >
+         <string>localhost</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" >
+       <widget class="QLabel" name="label_DB_port" >
+        <property name="toolTip" >
+         <string>Puerto de la base de datos</string>
+        </property>
+        <property name="text" >
+         <string>Puerto</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2" >
+       <widget class="QLineEdit" name="lineEdit_DB_port" >
+        <property name="toolTip" >
+         <string>Puerto de la base de datos</string>
+        </property>
+        <property name="text" >
+         <string>3306</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>257</x>
+     <y>503</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>288</x>
+     <y>503</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

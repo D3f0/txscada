@@ -1,0 +1,12 @@
+\frametitle {JSONRPC 1.0}
+  \textbf{Petición del cliente}
+  \begin{verbatim}
+{ "method": "echo", "params": ["Hello JSON-RPC"], "id": 1}
+  \end{verbatim}
+
+  \textbf{Respuesta del servidor}
+  \begin{verbatim}
+{ "result": "Hello JSON-RPC", "error": null, "id": 1}
+  \end{verbatim}
+Existe una notable diferencia entre la cantidad de datos enviados
+por llamadas RPC similares

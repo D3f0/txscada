@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="icons" >
+    <file>res/application-exit.png</file>
+    <file>res/view-statistics.png</file>
+    <file>res/object-rotate-right.png</file>
+    <file>res/media-playback-stop.png</file>
+    <file>res/media-playback-start.png</file>
+    <file>res/configure.png</file>
+    <file>res/back.png</file>
+    <file>res/view-file-columns.png</file>
+  </qresource>
+</RCC>

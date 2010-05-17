@@ -1,0 +1,79 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Titulo del documento</title>
+    <style type="text/css">
+        @page {
+        size: a4 landscape;
+        margin: 0.8cm 1cm 2cm 0.8cm;
+        
+        @frame footer {
+            -pdf-frame-content: footerContent;
+            bottom: 0.2cm;
+            margin-left: 1cm;
+            margin-right: 1cm;
+            height: 1cm;
+        }   
+        
+        
+       table td {
+            /*text-align: center;*/
+            /*border: 1px solid #000;*/
+            padding: 3px;
+        }
+        
+        th {
+            font-weight: bolder;
+            text-align: center;
+            font-style: small-caps;
+        }
+        
+        
+    </style>
+</head>
+
+<body>
+
+<H1>Avrak - Reporte de eventos</H1>
+<h3>Desde: {{ fecha_desde.strftime('%x %X') }}</h3>
+<h3>Hasta: {{ fecha_hasta.strftime('%x %X') }}</h3>
+
+ 
+<table border="1">
+    <tbody>
+    <tr>
+    	<th width="4%" style="text-align: center; font-weight: bolder; padding: 5px;">COID</th>
+        <th width="3%" style="text-align: center; font-weight: bolder;padding: 5px;">Tipo</th>
+        <th width="3%" style="text-align: center; font-weight: bolder;padding: 5px;">Prio.</th>
+        <th style="text-align: center; font-weight: bolder;padding: 5px;">Nombre</th>
+        <th style="text-align: center; font-weight: bolder;padding: 5px;">Descripci&oacute;n</th>
+        <th width="6%" style="text-align: center; font-weight: bolder;padding: 5px;">Puerto/Movi.</th>
+        <th width="6%" style="text-align: center; font-weight: bolder;padding: 5px;">Lamp./Bit</th>
+        <th width="6%" style="text-align: center; font-weight: bolder;padding: 5px;">Estado</th>
+        <th width="14%" style="text-align: center; font-weight: bolder;padding: 5px;">Fecha ocurrencia</th>
+        <th style="text-align: center; font-weight: bolder;padding: 5px;">Fecha atenci&oacute;n</th>
+        <th style="text-align: center; font-weight: bolder;padding: 5px;">Fecha reparaci&oacute;n</th>
+        <th style="text-align: center; font-weight: bolder;padding: 5px;">Obs.</th>
+    </tr>
+    
+    {% for e in eventos %} 
+    <tr>
+	    <td style="padding: 2px; text-align: center;">{{ "%.2d" % e.id_CO }}{{ "%.2d" % e.id_UC }}</td>
+	    <td style="padding: 2px; text-align: center;">{{ e.tipo }}</td>
+	    <td style="padding: 2px; text-align: center;">{{ e.prio }}</td>
+	    <td style="padding: 2px; text-align: center;">{{ e.nombre_uc }}</td>
+	    <td style="padding: 2px; text-align: center;">{{ e.descripcion }}</td>
+	    <td style="padding: 2px; text-align: center;">{{ e.nro_port }}</td>
+	    <td style="padding: 2px; text-align: center;">{{ e.nro_bit }}</td>
+	    <td style="padding: 2px; text-align: center;">{{ e.estado_bit }}</td>
+	    <td style="padding: 2px; text-align: center;">{{ e.ts_bit.toString('dd/MM/yyyy hh:mm:ss') }}.{{ e.ts_bit_ms}}</td>
+	    <td style="padding: 2px; text-align: center;">{{ e.ts_a.toString('dd/MM/yyyy hh:mm:ss') }}</td>
+	    <td style="padding: 2px; text-align: center;">{{ e.ts_r.toString('dd/MM/yyyy hh:mm:ss') }}</td>
+	    <td style="padding: 2px"></td>
+    </tr>
+    
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

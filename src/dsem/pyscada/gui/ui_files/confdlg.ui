@@ -1,0 +1,265 @@
+<ui version="4.0" >
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>377</width>
+    <height>389</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Config SCADA</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2" >
+   <item>
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tabDB" >
+      <attribute name="title" >
+       <string>Base de datos</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout" >
+       <item>
+        <layout class="QFormLayout" name="formLayout" >
+         <property name="fieldGrowthPolicy" >
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
+         <item row="0" column="0" >
+          <widget class="QLabel" name="label" >
+           <property name="text" >
+            <string>Tipo</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" >
+          <widget class="QComboBox" name="comboDBType" >
+           <item>
+            <property name="text" >
+             <string>MySQL</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>SQLite (interna)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>MS SQL Server</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>Postgres</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>Oracle</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="label_2" >
+           <property name="toolTip" >
+            <string>Nombre de la base de datos o esquema (Schema).
+En SQLite es el nombre del archivo.</string>
+           </property>
+           <property name="text" >
+            <string>Nombre de base</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" >
+          <widget class="QLineEdit" name="lineDBName" >
+           <property name="text" >
+            <string>dsem</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" >
+          <widget class="QPushBtnEnabler" name="pushBrowse" >
+           <property name="enabled" >
+            <bool>false</bool>
+           </property>
+           <property name="text" >
+            <string>Base SQLite...</string>
+           </property>
+           <property name="icon" >
+            <iconset resource="../../data.qrc" >
+             <normaloff>:/icons/res/document-open.png</normaloff>:/icons/res/document-open.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" >
+          <widget class="QLabel" name="labelUser" >
+           <property name="text" >
+            <string>Nombre de usuario</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" >
+          <widget class="QLineEdit" name="lineUser" >
+           <property name="text" >
+            <string>dsem</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" >
+          <widget class="QLabel" name="labelPass" >
+           <property name="text" >
+            <string>Contraseña</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1" >
+          <widget class="QLineEdit" name="linePass" >
+           <property name="text" >
+            <string>passmenot</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" >
+          <widget class="QLabel" name="labelServer" >
+           <property name="text" >
+            <string>Servidor</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1" >
+          <widget class="QLineEdit" name="lineServer" >
+           <property name="text" >
+            <string>localhost</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0" >
+          <widget class="QLabel" name="labelPort" >
+           <property name="text" >
+            <string>Puerto</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1" >
+          <widget class="QSpinBox" name="spinPort" >
+           <property name="minimum" >
+            <number>1</number>
+           </property>
+           <property name="maximum" >
+            <number>65536</number>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" >
+          <widget class="QLabel" name="labelOptions" >
+           <property name="text" >
+            <string>Opciones</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1" >
+          <widget class="QLineEdit" name="lineOptions" />
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_3" >
+         <property name="text" >
+          <string>Los cambios en la cofiguracion de la base de datos
+requieren reiniciar la aplicaion para tomar efecto.</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tabCom" >
+      <attribute name="title" >
+       <string>Comunicaciones</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_2" >
+       <item row="0" column="0" >
+        <widget class="QLabel" name="label_9" >
+         <property name="text" >
+          <string>Puerto de comunicaciones con el campo:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1" >
+        <widget class="QSpinBox" name="spinPicnetTcpPort" >
+         <property name="minimum" >
+          <number>1</number>
+         </property>
+         <property name="maximum" >
+          <number>65364</number>
+         </property>
+         <property name="value" >
+          <number>9761</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QPushBtnEnabler</class>
+   <extends>QPushButton</extends>
+   <header>customwidgets</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../data.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>227</x>
+     <y>351</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>295</x>
+     <y>351</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

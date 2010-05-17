@@ -1,0 +1,49 @@
+#! /usr/bin/env python
+# -*- encoding: utf-8 -*-
+
+import sys
+import os
+import termios
+
+def getchar():
+    '''
+    Equivale al comando getchar() di C
+    '''
+    fd = sys.stdin.fileno()
+    if os.isatty(fd):
+        old = termios.tcgetattr(fd)
+        new = termios.tcgetattr(fd)
+        new[3] = new[3] & ~termios.ICANON & ~termios.ECHO
+        new[6] [termios.VMIN] = 1
+        new[6] [termios.VTIME] = 0
+      
+        try:
+            termios.tcsetattr(fd, termios.TCSANOW, new)
+            termios.tcsendbreak(fd,0)
+            ch = os.read(fd,7)
+
+        finally:
+            termios.tcsetattr(fd, termios.TCSAFLUSH, old)
+    else:
+        ch = os.read(fd,16)
+    return(ch)
+
+def main(argv = sys.argv):
+    try:
+        while True:
+            # l = sys.stdin.read(1)
+            c = getchar()
+            if not c:
+                break
+            for x in c:
+                print ("%.2x" % ord(x)).upper(),
+            sys.stdout.write('\n')
+            #sys.stdout.flush()
+
+    except KeyboardInterrupt, e:
+        return
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+
