@@ -1,5 +1,6 @@
-from tornado.web import RequestHandler
+from tornado.web import RequestHandler, HTTPError
 from rest.emitters import Emitter
+import httplib as http
 
 class RESTHandler(RequestHandler):
     MAPPED_METHODS = { 'GET': 'retrieve', 'POST': 'create', 'PUT': 'update', 'DELETE': 'delete' }
@@ -12,16 +13,16 @@ class RESTHandler(RequestHandler):
         self.set_header('Content-Type', ct)
 
     def retrieve(self, *args, **kwargs):
-        raise HTTPError(405)
+        raise HTTPError(http.METHOD_NOT_ALLOWED)
 
     def create(self, *args, **kwargs):
-        raise HTTPError(405)
+        raise HTTPError(http.METHOD_NOT_ALLOWED)
 
     def update(self, *args, **kwargs):
-        raise HTTPError(405)
+        raise HTTPError(http.METHOD_NOT_ALLOWED)
 
     def delete(self, *args, **kwargs):
-        raise HTTPError(405)
+        raise HTTPError(http.METHOD_NOT_ALLOWED)
 
     def write(self, chunk):
         emitter = self.emitter_class(chunk)
@@ -33,7 +34,7 @@ class RESTHandler(RequestHandler):
         method = self.request.method
         try:
             if method not in self.MAPPED_METHODS.keys():
-                raise HTTPError(405)
+                raise HTTPError(http.METHOD_NOT_ALLOWED)
             # If XSRF cookies are turned on, reject form submissions without
             # the proper cookie
             if method == "POST" and self.application.settings.get("xsrf_cookies"):
