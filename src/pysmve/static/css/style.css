@@ -1,0 +1,18 @@
+body{
+    font-family: "Verdana";
+    font-size: 13px;
+    background-color: #fff;
+    margin: 0px;
+}
+
+
+#svg {
+    border: 1px solid #ccc; 
+    background: white;
+    height: 600px;
+    width: 900px;
+}
+
+#tabs >div {
+	min-height: 500px;
+}

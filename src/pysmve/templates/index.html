@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>{% if title %}{{ title }}{% else %}S.M.V.E.{%endif%}</title>
+    <script src="{{ STATIC_URL }}js/jquery.js" type="text/javascript" charset="utf-8"></script>
+    
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.svg.package-1.4.5/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.svg.package-1.4.5/jquery.svg.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.svg.package-1.4.5/jquery.svganim.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.svg.package-1.4.5/jquery.svgdom.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.svg.package-1.4.5/jquery.svgfilter.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.svg.package-1.4.5/jquery.svggraph.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.svg.package-1.4.5/jquery.svgplot.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.svg.package-1.4.5/jquery.svg.js"></script>
+    
+
+    <script src="{{ STATIC_URL }}js/jquery.ui/js/jquery-ui-1.8.21.custom.min.js" type="text/javascript" charset="utf-8">
+    </script>
+    <!-- Datatables (http://datatables.net/index) -->
+    <script type="text/javascript" src="{{ STATIC_URL }}js/DataTables-1.9.2/media/js/jquery.dataTables.min.js">
+    </script>
+    <!-- Highchart -->
+    <script type="text/javascript" src="{{ STATIC_URL }}js/Highcharts-2.2.5/js/highcharts.js"></script>
+
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/style.css" type="text/css" media="screen" charset="utf-8">
+    <link rel="stylesheet" href="{{ STATIC_URL }}js/jquery.ui/css/ui-darkness/jquery-ui-1.8.21.custom.css" 
+        type="text/css" media="screen" charset="utf-8">
+        
+</head>
+<body id="index" onload="">
+    
+    <div id="tabs">
+        <ul>
+            <li><a href="#tab-diagrama">Unifilar</a></li>
+            <li><a href="#tab-eventos">Eventos</a></li>
+            <li><a href="#tab-curvas">Curvas</a></li>
+        </ul>
+        <div id="tab-diagrama">
+            <div id="svg">
+
+            </div>
+        </div>
+        <div id="tab-eventos">
+            <table cellpadding="0" cellspacing="0" border="0" class="display" id="tabla-eventos" width="100%">
+                <thead>
+                    <th>Uno</th>
+                    <th>Dos</th>
+                    <th>Tres</th>
+                    <th>Cuatro</th>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            
+        </div>
+        <div id="tab-curvas">
+            <div id="plot">
+            </div>
+            <div style="padding: 4px" id="refresh-chart">
+                <a class="button">Refresh!</a>
+            </div>
+        </div>
+    </div>
+    
+    <script type="text/javascript" charset="utf-8">
+        $(function  () {
+            /**
+            *
+            */
+            var $canvas = $('#svg');     // Cache del SVG Generado
+
+            
+            $('#tabs').tabs();
+            $canvas.svg({
+                loadURL: '{{STATIC_URL}}svg/eett.svg',
+                onLoad: function(svg){
+                    console.log(svg);
+                    var texts = $('text', svg.root());
+                    $(texts).click(function (){
+                        //console.log($(this).text());
+                        //alert("El texto clickeado es "+ $(this).text());
+                        var tspan = this;
+                        var dlg = $('<div>').dialog({
+                            autoOpen: false,
+                            title: $(this).text(),
+                            modal: true,
+                            buttons: [
+                                {text: "Cerrar", click: function  () {
+                                    $(this).dialog('close').dialog('destroy');
+                                }},
+                                {text: "Aceptar", click: function (){
+                                    
+                                    var newVal =$(this).find('.newValue').val();
+                                    if (newVal){
+                                        $(tspan).text(newVal);
+                                        
+                                    }
+                                    $(this).dialog('destroy');
+                                }}
+                                
+                            ]
+                        });
+                        $(dlg).html('<span>Nuevo valor</span><input class="newValue" type="text" value="'+$(this).text()+'">');
+                        $(dlg).dialog('open');
+                        
+                    }).hover(function (){
+                        // In texto
+                        $(this).css('fill', '#dd0000');
+                    },function (){
+                        // Mouse sale del texto
+                        $(this).css('fill', '#000');
+                    }); // Texts
+                    // Iteración sobre los grupos
+                    // 
+                    $('g:not([id^=layer])').hover(function(){
+                        // In
+                        $(this).find('path').css('stroke', '#f00');
+                        
+                    }, function (){
+                        // Out
+                        $(this).find('path').css('stroke', '#000');
+                    }).each(function (argument) {
+                       console.log("Grupo", this);
+                    });
+
+                    function updateValues () {
+                        $.ajax('/valores', {
+                            success: function (data) {
+                                var svg = $canvas.svg();
+                                $.each(data, function  (selector, value) {
+                                    svg.find('#'+selector).text(value);
+                                })
+                                //console.log(svg.find('#potencia-1'));
+                            }
+                        });
+                    }
+                    window.setInterval(updateValues, 1000);
+                    console.log("Eventos...");
+                    $('#tabla-eventos').dataTable({
+                                                    "bJQueryUI": true,
+                                                    "sAjaxSource": "/eventos/",
+                    });
+                    // Charts
+                    var chart = new Highcharts.Chart({
+                        chart: {
+                            renderTo: "plot"
+                        },
+                        title: {
+                            text: "Ploteo de potencia"
+                        },
+                        yAxis: {
+                            title: {text:"KW/h"},
+                        },
+                        series: [
+                            {
+                                data: [1, 2, 3, 4],
+                                name: "Potencia Activa"
+                            }
+
+                        ]
+                    });
+                    $('#highcharts-0').svg().find('tspan:last').text('');
+                    // Botpon de refresco
+                    $('#refresh-chart').button().click(function (){
+                        var $dlg = $('<div></div>').dialog({
+                            title: "Alfa"
+                        });
+                        $.ajax('/potencias_historicas/').success(function (data, opts) {
+                            console.log(data, opts);
+                            $dlg.html('<pre>'+data+'</pre>');
+                        })
+                    });
+                }
+            });
+             
+
+        });
+    </script>
+</body>
+</html>
