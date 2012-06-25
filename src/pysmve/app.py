@@ -27,7 +27,7 @@ def index():
     except Exception as e:
         print e
 
-@app.route('/valores')
+@app.route('/valores/')
 @stacktraceable
 def valores():
 	'''Retorna valores'''

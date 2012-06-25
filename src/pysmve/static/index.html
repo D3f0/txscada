@@ -20,7 +20,8 @@
     <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8">
     <link rel="stylesheet" href="js/jquery.ui/css/ui-darkness/jquery-ui-1.8.21.custom.css" 
         type="text/css" media="screen" charset="utf-8">
-        
+    
+    <script type="text/javascript" charset="utf-8" src="{{ STATIC_URL }}js/app/main.js"></script>
 </head>
 <body id="index" onload="">
     
@@ -29,10 +30,14 @@
             <li><a href="#tab-diagrama">Mapa</a></li>
             <li><a href="#tab-eventos">Eventos</a></li>
             <li><a href="#tab-curvas">Curvas</a></li>
+            <li><a href="#tabs-develop">Desarrollo</a></li>
         </ul>
         <div id="tab-diagrama">
-            <div id="svg">
+            <div id="svg" style="float: left;">
 
+            </div>
+            <div style="float: right; width: 120px; height: 200px; border: 1px #ccc solid; background: red;">
+                AA
             </div>
         </div>
         <div id="tab-eventos">
@@ -41,98 +46,11 @@
         <div id="tab-curvas">
             
         </div>
+        <div id="tabs-develop">
+            Desarrollo
+        </div>
     </div>
     
-    <script type="text/javascript" charset="utf-8">
-        $(function  () {
-            /**
-            *
-            */            
-            function makeDialog(){
-                var dlg = $('<div></div>').dialog({
-                    autoOpen: false,
-                    buttons: [
-                        {
-                            text: "Aceptar",
-                            click: function(){
-                                var newVal =$(this).find('.newValue').val();
-                                if (newVal){
-                                    $(tspan).text(newVal);
-                                }
-                            }
-                        },
-                        {
-                            text: "Cancelar",
-                            click: function (){
-                                $(this).dialog('destroy');
-                            }
-                        }
-                    ]
-                    
-                });
-                $(dlg).html('<span>Nuevo valor</span><input class="newValue" type="text" value="'+$(this).text()+'">');
-                $(dlg).dialog('open');
-                
-                
-            }
-            $('#tabs').tabs();
-            $('#svg').svg({
-                loadURL: 'svg/eett.svg',
-                onLoad: function(svg){
-                    console.log(svg);
-                    var texts = $('text', svg.root());
-                    $(texts).click(function (){
-                        //console.log($(this).text());
-                        //alert("El texto clickeado es "+ $(this).text());
-                        var tspan = this;
-                        var dlg = $('<div>').dialog({
-                            autoOpen: false,
-                            title: $(this).text(),
-                            modal: true,
-                            buttons: [
-                                {text: "Cerrar", click: function  () {
-                                    $(this).dialog('close').dialog('destroy');
-                                }},
-                                {text: "Aceptar", click: function (){
-                                    
-                                    var newVal =$(this).find('.newValue').val();
-                                    if (newVal){
-                                        $(tspan).text(newVal);
-                                        
-                                    }
-                                    $(this).dialog('destroy');
-                                }}
-                                
-                            ]
-                        });
-                        $(dlg).html('<span>Nuevo valor</span><input class="newValue" type="text" value="'+$(this).text()+'">');
-                        $(dlg).dialog('open');
-                        
-                    }).hover(function (){
-                        // In texto
-                        $(this).css('fill', '#dd0000');
-                    },function (){
-                        // Mouse sale del texto
-                        $(this).css('fill', '#000');
-                    }); // Texts
-                    // Iteración sobre los grupos
-                    // 
-                    $('g:not([id^=layer])').hover(function(){
-                        // In
-                        $(this).find('path').css('stroke', '#f00');
-                        
-                    }, function (){
-                        // Out
-                        $(this).find('path').css('stroke', '#000');
-                    }).each(function (argument) {
-                       console.log("Grupo", this);
-                    });
-                    
-                }
-            });
-             
-
-        });
-    </script>
+    
 </body>
 </html>
