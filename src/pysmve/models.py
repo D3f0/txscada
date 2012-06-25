@@ -99,7 +99,14 @@ class VarSys(BaseModel):
 	unidad_de_medida = CharField(db_column="umedida")
 	valor = IntegerField()
 
-
+class COMaster(BaseModel):
+    dirIED = IntegerField(verbose_name=u"Direcci&oacute;n IED")
+    descripcion = CharField(verbose_name=u"Descripci&oacute;n")
+    
+class UC(BaseModel):
+    comaster = ForeignKeyField(COMaster)
+    direccion = IntegerField()
+    descripcion = CharField()
 
 
 import sys

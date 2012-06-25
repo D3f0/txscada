@@ -18,7 +18,7 @@ body{
 }
 
 
-#seleccion-fecha {
-    margin: 2px;
+#seleccion-fecha input {
+    border: 1px solid #ccc;
 
 }

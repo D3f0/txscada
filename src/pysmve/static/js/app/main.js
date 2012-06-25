@@ -12,90 +12,47 @@ $(function  () {
         sAjaxSource: "/eventos/",
         bProcessing: true
     });
-    // Highcharts
-    function generateData(){
-        var tmp = [];
+    var config = datatables.COMaster;
+    $.extend(config, {
+       sAjaxSource: '/api/comaster/' 
+    });
+    console.log("Confiuracion del comaster es", config);
+    $('#co-master').dataTable(config);
+       
     
-        for (var i=0; i<100; i++){
-            tmp[tmp.length] = Math.floor((Math.random()*300)+1);
-        }    
-        return tmp;
-    }
-    
-    
-    chart = new Highcharts.Chart({
-        chart: {
-            renderTo: 'chart-potencias',
-            type: 'spline',
-
-            events:{
-                load: function  () {
-                    console.log("Chart generado");
-                    var that = this;
-                    
-                    function update(date, data){
-                        if (!data) {
-                            data = generateData();
-                        }
-                        if (!date){
-                            date = "" + new Date();
-                        }
-                        try {
-                            that.series[0].remove(true);
-                            
-                        }
-                        catch (error){
-                            
-                        };
-                        
-                        that.addSeries({
-                           name: "Potencia del "+date,
-                           data: data
-                        });
-                    }
-    
-                    $('#fecha').datepicker({
-                        onSelect: function (text, date) {
-                            update(text);
-                        }
-                    }).next('a:first').button().click(function (){
-                       update($('#fecha').val());
-                    });
-                    update();   
-                }
-                
-            }
-        },
-        title: {
-            text: "Demanda de potencia diaria"
-        },
-        yAxis: {
-            title: {
-                text: "KW/h"
-            }
-        }
-        
-        
+    $('#ucs').dataTable($.extend(datatables.UC), {
+        sAjaxSource: '/api/ucs/' 
     });
     
-    // chart.renderer.path(['M', 0, 100, 'L', 100, 0]).attr(
-    //         //{'stroke-width': 2px; stroke: '#ff0'\
-    //     ).add();}
+    // Highchart
+    var curvaDePotenciaPlot = new Highcharts.Chart({
+        chart: {
+            renderTo: "plot-curvas"
+        },
+        title: {
+            text: "Ploteo de potencia"
+        },
+        yAxis: {
+            title: {text:"KW/h"},
+        },
+        series: [
+            {
+                data: [1, 2, 3, 4],
+                name: "Potencia Activa"
+            }
+
+        ]
+    });
     
-    // Actualizacion
-    //$('.button').button();
-    try {
-        console.log("Funciones")
-        var ws = new WebSocket('ws://localhost:8080/smve');
-        WS = ws;
-        ws.onopen = function () {
-          console.log("On open", arguments);
-            
-        };
-    } catch(error){console.error("Error WS:" + error)}
-    
-    
-    var $svg = null;
+    // Botons
+    $('.button').button();
+    //
+    $('#seleccion-fecha input[name=fecha]').datepicker({
+        onSelect: function (date, text) {
+            console.log("Selecci´on de la fecha", arguments);
+        }
+        
+    });
     // Svg
     $('#svg').svg({
         loadURL: window.SMVE.config.STATIC_URL + 'svg/eett.svg',
@@ -165,10 +122,9 @@ $(function  () {
                 console.error("Error");
             }
             
-        });
-    }
-
-    window.setInterval(valueUpdate, 1000);
-        
+            
+        }
+    });
+     
 
 });
