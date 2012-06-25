@@ -43,14 +43,33 @@ def publish_models():
     return d
     
 @app.template_filter('draw_table')
-def draw_table(table=None, args=''):
-    '''Renderiza una tabla de peewee conmo una jQuery Datatable'''
+def draw_table(table=None, attributes = None, hide_columns = None, name = None):
+    '''Renderiza una tabla de peewee conmo una jQuery Datatable
+    generado configuración inicial'''
     from operator import attrgetter
+    import json
+    if not name:
+        name = table._meta.model_name
     
     fields = [field for field in table._meta.fields.values()]
     fields.sort(key=attrgetter('_order'))    
     ths = ''.join(['<th>%s</th>' % f.verbose_name for f in fields])
-    return '<table %s>%s</table>' % (args, '<tr>%s</tr>' % ths)
+    table = '<table %s>%s</table>' % (attributes or '', '<thead><tr>%s</tr></thead>' % ths)
+    # Script initial configuration
+    obj = {
+        'bProcessing': True,
+        'bServerSide': True,
+        'bJQueryUI': True,
+    }
+    
+    script = '''<script type="text/javascript">
+        if (typeof(datatables) == "undefined"){
+            datatables = {};
+        }
+        datatables.%(name)s = %(conf)s;
+        </script>''' % dict(conf=json.dumps(obj), name=name)
+        
+    return '\n'.join([table, script])
     
 
 
@@ -105,3 +124,7 @@ def potencias_historicas():
 		data.append([d, randrange(1,100)])
 		d += timedelta(minutes=randrange(1,60))
 	return dumps(dict(data=data))
+
+@app.route('/api/comaster/')
+def comaster():
+    return jsonify({'aaData': []})

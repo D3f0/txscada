@@ -47,6 +47,7 @@
             <li><a href="#tab-diagrama">Unifilar</a></li>
             <li><a href="#tab-eventos">Eventos</a></li>
             <li><a href="#tab-curvas">Curvas</a></li>
+            <li><a href="#tab-conexion">Conexiones</a></li>
             <li><a href="#tab-develop">Desarrollo</a></li>
         </ul>
         <div id="tab-diagrama">
@@ -66,15 +67,25 @@
                 </tbody>
             </table>
     
-        {{ Evento|draw_table("id=3")|safe }}
+        {{ Evento|draw_table("id=eventos")|safe }}
             
         </div>
         <div id="tab-curvas">
-            <div id="plot">
-            </div>
-            <div style="padding: 4px" id="refresh-chart">
+            <div id="seleccion-fecha">
+                Fecha a graficar: <input name="fecha" type="text">
                 <a class="button">Refresh!</a>
+                </div>
+            <div id="plot-curvas">
             </div>
+            
+        </div>
+        <div id="tab-conexion">
+            <h3 id="">Concentradores Master</h3>
+            {{ COMaster|draw_table("id=co-master")|safe }}
+            
+            <h3 id="">Unidades de Control</h3>
+            
+            {{ UC|draw_table("id=ucs")|safe}}
         </div>
         <div id="tab-develop">
             <h3>AI</h3>
