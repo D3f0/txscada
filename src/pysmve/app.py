@@ -1,34 +1,66 @@
 # encoding: utf-8
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from jinja2 import FileSystemLoader
 import os
 from utils.decorators import stacktraceable
 from utils.marshall import dumps
+import template_utils
+
 
 ROOT_PATH = os.path.dirname(__file__)
 template_path = 'templates'
 app = Flask(__name__)
 app.jinja_loader = FileSystemLoader(os.path.join(ROOT_PATH, template_path))
 
+# Base de datos
+import models
+
 # Test purposue
 from random import seed, randrange
 seed(os.getpid())
+from utils.datatable import parseparams
+#--------------------------------------------------------------------
+# Contex processors y cosas para los temapltes
+#--------------------------------------------------------------------
 
 @app.context_processor
 def static_url():
     return dict(STATIC_URL = '/static/')
 
+@app.context_processor
+def publish_models():
+    import peewee
+    d = {}
+    for name in dir(models): 
+        obj = getattr(models, name)
+        try:
+            assert issubclass(obj, peewee.Model)
+        except:
+            pass
+        d[name] = obj
+    print d
+    return d
+    
+@app.template_filter('draw_table')
+def draw_table(table=None, args=''):
+    '''Renderiza una tabla de peewee conmo una jQuery Datatable'''
+    from operator import attrgetter
+    
+    fields = [field for field in table._meta.fields.values()]
+    fields.sort(key=attrgetter('_order'))    
+    ths = ''.join(['<th>%s</th>' % f.verbose_name for f in fields])
+    return '<table %s>%s</table>' % (args, '<tr>%s</tr>' % ths)
+    
+
+
 @app.route("/")
+#@stacktraceable
 def index():
-    #import ipdb; ipdb.set_trace()
-    try:
-        return render_template("index.html")
-    except Exception as e:
-        print e
+    return render_template("index.html")
+    
 
 @app.route('/valores/')
-@stacktraceable
 def valores():
 	'''Retorna valores'''
 	rand_pot = lambda : "%.2f Kw" % (randrange(1,250)/10.)
@@ -56,7 +88,10 @@ def valores():
 def eventos():
 	'''jQuery datatable inspired json data'''
 	data = []
-	for i in xrange(10):
+	#print request.values
+	options = parseparams(request.values)
+	#import ipdb; ipdb.set_trace()
+	for i in xrange(options.get('display_length', 10)):
 		data.append(["Evento", randrange(1, 10), randrange(1,20), randrange(1, 10)])
 	return jsonify(dict(aaData = data))
 

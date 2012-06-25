@@ -1,6 +1,9 @@
 # encoding: utf-8
+'''
+Base de datos según la hoja IED-Alpha de MicroCNet-v17
+'''
 
-# Base de datos según la hoja IED-Alpha de MicroCNet-v17
+__all__ = ['AIS', 'Energia', 'Evento', 'DIS', 'VarSys']
 
 from peewee import *
 

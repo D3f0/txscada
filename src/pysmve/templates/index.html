@@ -65,6 +65,8 @@
                 <tbody>
                 </tbody>
             </table>
+    
+        {{ Evento|draw_table("id=3")|safe }}
             
         </div>
         <div id="tab-curvas">
@@ -75,6 +77,8 @@
             </div>
         </div>
         <div id="tab-develop">
+            <h3>AI</h3>
+            {{ AIS|draw_table|safe }}
         </div>
     </div>
     
