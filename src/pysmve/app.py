@@ -5,7 +5,7 @@ from jinja2 import FileSystemLoader
 import os
 from utils.decorators import stacktraceable
 from utils.marshall import dumps
-import template_utils
+#import template_utils
 
 
 ROOT_PATH = os.path.dirname(__file__)
