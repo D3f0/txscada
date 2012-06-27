@@ -12,6 +12,80 @@ $(function  () {
         sAjaxSource: "/eventos/",
         bProcessing: true
     });
+    // Highcharts
+    function generateData(){
+        var tmp = [];
+    
+        for (var i=0; i<100; i++){
+            tmp[tmp.length] = Math.floor((Math.random()*300)+1);
+        }    
+        return tmp;
+    }
+    
+    
+    chart = new Highcharts.Chart({
+        chart: {
+            renderTo: 'chart-potencias',
+            type: 'spline',
+
+            events:{
+                load: function  () {
+                    console.log("Chart generado");
+                    var that = this;
+                    
+                    function update(date, data){
+                        if (!data) {
+                            data = generateData();
+                        }
+                        if (!date){
+                            date = "" + new Date();
+                        }
+                        try {
+                            that.series[0].remove(true);
+                        }
+                        catch (error){
+                            
+                        };
+                        
+                        that.addSeries({
+                           name: "Potencia del "+date,
+                           data: data
+                        });
+                    }
+    
+                    $('#fecha').datepicker({
+                        onSelect: function (text, date) {
+                            update(text);
+                        }
+                    }).next('a:first').button().click(function (){
+                       update($('#fecha').val());
+                    });
+                    update();   
+                }
+                
+            }
+        },
+        title: {
+            text: "Demanda de potencia diaria"
+        },
+        yAxis: {
+            title: {
+                text: "KW/h"
+            }
+        }
+        
+        
+    });
+    
+    // chart.renderer.path(['M', 0, 100, 'L', 100, 0]).attr(
+    //         //{'stroke-width': 2px; stroke: '#ff0'\
+    //     ).add();}
+    
+    // Actualizacion
+    //$('.button').button();
+    
+    
+    
     // Svg
     $('#svg').svg({
         loadURL: window.SMVE.config.STATIC_URL + 'svg/eett.svg',

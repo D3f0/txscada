@@ -16,3 +16,9 @@ body{
 #tabs >div {
 	min-height: 500px;
 }
+
+
+#seleccion-fecha {
+    margin: 2px;
+
+}
