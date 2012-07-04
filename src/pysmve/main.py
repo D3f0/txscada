@@ -45,6 +45,8 @@ def main(argv = sys.argv):
         from twisted.internet import reactor
         
         from models import COMaster
+        for x in COMaster.select():
+            print x
         
         reactor.listenTCP(options.port, site)
         reactor.callLater(1, partial(open_local_browser, port=options.port))    
