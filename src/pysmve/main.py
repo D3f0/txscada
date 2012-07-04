@@ -44,6 +44,8 @@ def main(argv = sys.argv):
         from resources import site
         from twisted.internet import reactor
         
+        from models import COMaster
+        
         reactor.listenTCP(options.port, site)
         reactor.callLater(1, partial(open_local_browser, port=options.port))    
         print "Iniciando servidor en http://0.0.0.0:%s" % options.port

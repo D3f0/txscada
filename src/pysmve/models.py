@@ -100,8 +100,14 @@ class VarSys(BaseModel):
 	valor = IntegerField()
 
 class COMaster(BaseModel):
-    dirIED = IntegerField(verbose_name=u"Direcci&oacute;n IED")
+    '''
+    Modela un concentrador a ser consultado
+    TODO: Falta apuntar el concentrador a un perfil, para poder versinar
+    '''
+    direccion = CharField(verbose_name=u"Direcci&oacute;n", unique=True)
     descripcion = CharField(verbose_name=u"Descripci&oacute;n")
+    hablitado = BooleanField(default=False)
+    port = IntegerField(verbose_name="Puerto TCP de conexion", default=9761)
     
 class UC(BaseModel):
     comaster = ForeignKeyField(COMaster)
