@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>{% if title %} {{ title }} {% else %} Sin título {% endif %}</title>
+	<link type="text/css" rel="stylesheet" href="/static/css/site-style.css">
+	<script type="text/javascript" src="/static/js/yui-min.js"></script>
+
+  </head>
+  <body>
+  	<div id="wrapper">
+    {% block content %}
+		
+			<h3>Sistema Web Scada</h3>			
+			<p>Esta es una petición asincrónica</p>
+			<a id="test" class="link_btn" href="#1">Prueba</a>
+	
+	{% endblock %}
+	
+		<div class="footer">
+			<span class="speed_info">
+			Página generada en {{ "%2.5f" % (time_time() - time)  }} segundos.
+			</span>
+			
+		</div>
+	</div>
+	<script type="text/javascript">
+		
+		
+	</script>
+  </body>
+</html>
+

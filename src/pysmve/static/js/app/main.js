@@ -123,8 +123,9 @@ $(function  () {
             }
             
             
-        }
-    });
+        });
+    } // Value Update
+    window.setInterval(valueUpdate, 1000);
      
 
 });
