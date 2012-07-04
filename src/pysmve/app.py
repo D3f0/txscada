@@ -39,7 +39,6 @@ def publish_models():
         except:
             pass
         d[name] = obj
-    print d
     return d
     
 @app.template_filter('draw_table')

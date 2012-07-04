@@ -101,13 +101,20 @@ class VarSys(BaseModel):
 
 
 
+
 import sys
 def main(argv=sys.argv):
-	'''Crear las tablas de la base'''
-	database.connect()
-	for cls in BaseModel.__subclasses__():
-		print cls.create_table(True)
-    #import ipdb; ipdb.set_trace()    
+    '''Crear las tablas de la base'''
+    from argparse import ArgumentParser
+    parser = ArgumentParser("Modelos")
+    parser.add_argument('-r', '--reset', default=False, 
+	                       action="store_true")
+    options = parser.parse_args()
+    
+    database.connect()
+    for cls in BaseModel.__subclasses__():
+        print cls.create_table(True)
+    
         
 if __name__ == '__main__':
 	main()

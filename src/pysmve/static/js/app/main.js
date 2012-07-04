@@ -42,6 +42,7 @@ $(function  () {
                         }
                         try {
                             that.series[0].remove(true);
+                            
                         }
                         catch (error){
                             
@@ -83,9 +84,18 @@ $(function  () {
     
     // Actualizacion
     //$('.button').button();
+    try {
+        console.log("Funciones")
+        var ws = new WebSocket('ws://localhost:8080/smve');
+        WS = ws;
+        ws.onopen = function () {
+          console.log("On open", arguments);
+            
+        };
+    } catch(error){console.error("Error WS:" + error)}
     
     
-    
+    var $svg = null;
     // Svg
     $('#svg').svg({
         loadURL: window.SMVE.config.STATIC_URL + 'svg/eett.svg',
@@ -139,9 +149,26 @@ $(function  () {
             }).each(function (argument) {
                //console.log("Grupo", this);
             });
+            }
+       }); // Svg
+    var $svg = $('#svg');
+    function valueUpdate() {
+        console.log("Update");
+        $.ajax('/valores', {
+            success: function (data){
+               $.each(data, function (key, value){
+                   console.log(key, value);
+                   console.log($svg.find('#'+key).text(value));
+                });
+            },
+            error: function () {
+                console.error("Error");
+            }
             
-        }
-    });
-     
+        });
+    }
+
+    window.setInterval(valueUpdate, 1000);
+        
 
 });
