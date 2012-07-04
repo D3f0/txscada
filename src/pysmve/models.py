@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # encoding: utf-8
 '''
 Base de datos según la hoja IED-Alpha de MicroCNet-v17
@@ -70,21 +71,30 @@ class IED(BaseModel):
         '''IED hermanos'''
         return self.co_master.ied_set.filter(offset__ne = self.offset)
 
-# class MV(BaseModel):
-#     '''Basado en el tipo de dato Measured Value de IEC61850'''
-#     class Meta:
-#         database = database
-#     ied = ForeignKeyField(IED)
-#     offset = IntegerField(default=0, help_text="Desplazamiento en la trama")
-#     
-#     def get_next_offset(self):
-#         pass
-#     
-#     def save(self, *largs, **kwargs):
-#         print largs, kwargs
-#         import ipdb; ipdb.set_trace()
-#         super(MV, self).save(*largs, **kwargs)
+class MV(BaseModel):
+    '''Basado en el tipo de dato Measured Value de IEC61850'''
+    class Meta:
+        database = database
+    ied = ForeignKeyField(IED)
+    offset = IntegerField(default=0, help_text="Desplazamiento en la trama")
     
+    def get_next_offset(self):
+        pass
+    
+    def save(self, *largs, **kwargs):
+        print largs, kwargs
+        import ipdb; ipdb.set_trace()
+        super(MV, self).save(*largs, **kwargs)
+        
+class X(MV):
+    valor_x = CharField()
+    
+class Y(MV):
+    valor_z = CharField()
+            
+#class CMV(BaseModel):
+    
+        
 class VarSys(BaseModel):
     '''
     Nombre		VarSys		Calif	0	Normal
@@ -110,6 +120,7 @@ class VarSys(BaseModel):
         print "Creando %s con offset %s" % (self.__class__.__name__, self.offset)
         
         return super(self.__class__, self).save(*largs, **kwargs)
+
 
 
 class DIS(BaseModel):
@@ -189,22 +200,27 @@ class Energia(BaseModel):
 
 
 
+def get_models(base=None):
+    '''Django like get_models'''
+    if not base:
+        base = BaseModel
+    for subclass in base.__subclasses__():
+        yield subclass
+        for subsubclass in get_models(subclass):
+            yield subsubclass
 
 def crear_tablas():
-    bases = [BaseModel, ]
-    for base in bases:
-        classes = base.__subclasses__()
-        for n, cls in enumerate(classes):
-            print "Creando clase", n+1, "de", len(classes)
-            sys.stdout.flush()
-            cls.create_table(True)
-    print
+    
+    for model in enumerate(get_models()):
+        print "Creando clase", n+1, model
+        cls.create_table(True)
+    
 def cargar_tablas():
     
     master = COMaster(direccion = '192.168.1.97', descripcion="CO Master de Prueba",
                       hablitado = True)
     master.save()
-    
+    # Copiado y pegado del excel
     configuracion = '''
     0	8	6	2	1
     1	4	4	4	2
