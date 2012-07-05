@@ -47,7 +47,12 @@ class COMaster(BaseModel):
     @property
     def dis(self):
         return DIS.filter(ied__co_master = self)
-    
+
+def iter_n_times(times=8):
+    counter = 0
+    while True:
+        yield counter % times
+        counter += 1
 
 class IED(BaseModel):
     '''Descripcion del IED conectado a un comaster'''
@@ -70,74 +75,26 @@ class IED(BaseModel):
     def siblings(self):
         '''IED hermanos'''
         return self.co_master.ied_set.filter(offset__ne = self.offset)
+        
+    def crear_puertos(self, cant_ptos=1, no_bits=16, pto_base=0):
+        '''Crear puertos digitales'''
+        for no_port in range(pto_base, cant_ptos):
+            for no_bit in range(no_bits):
+                # Crear la DI
+                parametro = no_port * no_bits
+                DIS().save()
+                
+        
+            
 
 class MV(BaseModel):
     '''Basado en el tipo de dato Measured Value de IEC61850'''
-    class Meta:
-        database = database
+    #class Meta:
+    #    database = database
+    #abstract = True
+    
     ied = ForeignKeyField(IED)
     offset = IntegerField(default=0, help_text="Desplazamiento en la trama")
-    
-    def get_next_offset(self):
-        pass
-    
-    def save(self, *largs, **kwargs):
-        print largs, kwargs
-        import ipdb; ipdb.set_trace()
-        super(MV, self).save(*largs, **kwargs)
-        
-class X(MV):
-    valor_x = CharField()
-    
-class Y(MV):
-    valor_z = CharField()
-            
-#class CMV(BaseModel):
-    
-        
-class VarSys(BaseModel):
-    '''
-    Nombre		VarSys		Calif	0	Normal
-    Tipo		RealTime			1	stalled
-    Tamaño		8			2	Calculada
-    Unidad		bit	
-    '''
-    ied = ForeignKeyField(IED)
-    offset = IntegerField()
-    parametro = CharField()
-    descripcion = CharField()
-    unidad_de_medida = CharField(db_column="umedida")
-    
-    valor = IntegerField()
-    
-    def save(self, *largs, **kwargs):
-        
-        self.offset = self.filter(ied__co_master = self.ied.co_master).aggregate(Max('offset'))
-        if self.offset is None:
-            self.offset = 0
-        else:
-            self.offset += 1
-        print "Creando %s con offset %s" % (self.__class__.__name__, self.offset)
-        
-        return super(self.__class__, self).save(*largs, **kwargs)
-
-
-
-class DIS(BaseModel):
-    '''
-    Nombre		DIs		Calif	0	Normal
-    Tipo		RealTime		1	stalled
-    Tamaño		1				2	Calculada
-    Unidad		bit				
-    '''
-    ied = ForeignKeyField(IED)
-    parametro = CharField()
-    offset = IntegerField()
-    descripcion = CharField()
-    puerto = IntegerField()
-    numero_de_bit = IntegerField(db_column="nrobit")
-    calificador = IntegerField(db_column="calif")
-    valor = IntegerField()
     
     def save(self, *largs, **kwargs):
         
@@ -148,8 +105,46 @@ class DIS(BaseModel):
             self.offset += 1
         print "Creando varsys con offset", self.offset
         
-        return super(VarSys, self).save(*largs, **kwargs)
+        return BaseModel.save(self, *largs, **kwargs)
         
+
+class CMV(BaseModel):
+    pass
+    
+        
+class VarSys(MV):
+    '''
+    Nombre		VarSys		Calif	0	Normal
+    Tipo		RealTime			1	stalled
+    Tamaño		8			2	Calculada
+    Unidad		bit	
+    '''
+    #ied = ForeignKeyField(IED)
+    #offset = IntegerField()
+    parametro = CharField()
+    descripcion = CharField()
+    unidad_de_medida = CharField(db_column="umedida")
+    
+    valor = IntegerField()
+    
+
+class DIS(MV):
+    '''
+    Nombre		DIs		Calif	0	Normal
+    Tipo		RealTime		1	stalled
+    Tamaño		1				2	Calculada
+    Unidad		bit				
+    '''
+    #ied = ForeignKeyField(IED)
+    #offset = IntegerField()
+    parametro = CharField(help_text="Valores D01 a D111")
+    descripcion = CharField()
+    puerto = IntegerField()
+    numero_de_bit = IntegerField(db_column="nrobit")
+    calificador = IntegerField(db_column="calif")
+    valor = IntegerField()
+    
+
 class Evento(BaseModel):
 	'''
 	'''
@@ -159,11 +154,11 @@ class Evento(BaseModel):
 	valor = IntegerField()
 
     
-class AIS(BaseModel):
+class AIS(MV):
 	'''Analogicas digitales (valores de energia)
 	'''
-	ied = ForeignKeyField(IED)
-	offset = IntegerField(db_column='umedida')
+	#ied = ForeignKeyField(IED)
+	#offset = IntegerField(db_column='umedida')
 	parametro = CharField()
 	descripcion = CharField()
 	unidad_de_medida = CharField()
@@ -210,29 +205,44 @@ def get_models(base=None):
             yield subsubclass
 
 def crear_tablas():
+    '''Crea los modelos definidos en el archivo'''
+    for n, model in enumerate(get_models()):
+        print "Creando clase", n+1, model._meta.model_name
+        model.create_table(True)
+
+def texto_tabulado_a_lista_enteros(texto):
+    '''Separa texto pegado desde excel (separado por \t)
+    en listas/tuplas de enteros'''
+    salida = []
+    for line in texto.split('\n'):
+        line = line.strip()
+        if not line: continue
+        salida.append(map(int, line.split()))
+    return salida
     
-    for model in enumerate(get_models()):
-        print "Creando clase", n+1, model
-        cls.create_table(True)
     
+def crear_co_master_template(direccion=None, descripcion=None, habilitado=True):
+    # TODO: Completar la función
+    if not direccion: direccion = '192.168.1.97'
+    
+    
+        
+
 def cargar_tablas():
     
     master = COMaster(direccion = '192.168.1.97', descripcion="CO Master de Prueba",
                       hablitado = True)
     master.save()
     # Copiado y pegado del excel
-    configuracion = '''
+    text_cfg = '''
     0	8	6	2	1
     1	4	4	4	2
     2	4	4	4	3
     3	4	4	4	4
     4	4	4	4	5
     '''
-    configuracion = map(lambda s: s.strip(), configuracion.split('\n'))
-    configuracion = filter(len, configuracion)
-    configuracion = map(lambda s: map(int, s.split()), configuracion)
+    configuracion = texto_tabulado_a_lista_enteros(text_cfg)
     
-    offset = None
     for offset, canvarsys, candis, canais, dir485ied in configuracion:
         ied = IED(offset=offset, can_varsys = canvarsys,
                     can_dis = candis, can_ais = canais,
@@ -240,13 +250,20 @@ def cargar_tablas():
         ied.save()
         
         if dir485ied == 1:
-            
+            # VarSys del IED 1 (el co master)
             VarSys(ied = ied, parametro="Calif", descripcion="Calificador", unidad_de_medida="unidad").save()
             VarSys(ied = ied, parametro="RateCountLoop", descripcion="", unidad_de_medida="Ciclos").save()
             VarSys(ied = ied, parametro="RateCountLoop2", descripcion="", unidad_de_medida="Ciclos").save()
             VarSys(ied = ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms").save()
+            # DIS del CO Master
+            
+            cant_ports = 3
+            for i in range(cant_ptos):
+                pass
         else:
-            pass
+            VarSys(ied=ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms")
+            VarSys(ied=ied, parametro="Calificador", descripcion="Calif Low/Errores High", unidad_de_medida="Ciclos")
+            
     for i in IED.select():
         print i
     #configuracion = map(lambdas: s.strip().split(), configuracion)
@@ -266,7 +283,7 @@ def main(argv=sys.argv):
     
     
     if options.reset:
-        
+        print "Creando la base de datos"
         os.unlink(DB_FILE)
         database.connect()
         crear_tablas()
