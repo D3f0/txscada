@@ -4,7 +4,7 @@
 Base de datos según la hoja IED-Alpha de MicroCNet-v17
 '''
 
-__all__ = ['AIS', 'Energia', 'Evento', 'DIS', 'VarSys']
+__all__ = ['AI', 'Energia', 'Evento', 'DI', 'VarSys']
 
 
 import os
@@ -42,11 +42,11 @@ class COMaster(BaseModel):
         
     @property
     def ais(self):
-        return AIS.filter(ied__co_master = self)
+        return AI.filter(ied__co_master = self)
     
     @property
     def dis(self):
-        return DIS.filter(ied__co_master = self)
+        return DI.filter(ied__co_master = self)
 
 def iter_n_times(times=8):
     counter = 0
@@ -54,8 +54,13 @@ def iter_n_times(times=8):
         yield counter % times
         counter += 1
 
+
 class IED(BaseModel):
     '''Descripcion del IED conectado a un comaster'''
+    
+    # Los puertos de digitales son de 16 bits
+    PORT_WIDTH = 16
+    
     co_master = ForeignKeyField(COMaster)
     offset = IntegerField()
     can_varsys = IntegerField(default=0, help_text="Cantidad de variables")
@@ -76,13 +81,15 @@ class IED(BaseModel):
         '''IED hermanos'''
         return self.co_master.ied_set.filter(offset__ne = self.offset)
         
-    def crear_puertos(self, cant_ptos=1, no_bits=16, pto_base=0):
+    def crear_puertos_di(self, cant_ptos=1, pto_base=0):
         '''Crear puertos digitales'''
         for no_port in range(pto_base, cant_ptos):
-            for no_bit in range(no_bits):
+            for no_bit in range(self.PORT_WIDTH):
                 # Crear la DI
-                parametro = no_port * no_bits
-                DIS().save()
+                parametro="D%.2d" % ((no_port * self.PORT_WIDTH) + no_bit)
+                DI(ied=self, puerto=no_port, numero_de_bit=no_bit, parametro=parametro).save()
+
+                
                 
         
             
@@ -98,12 +105,12 @@ class MV(BaseModel):
     
     def save(self, *largs, **kwargs):
         
-        self.offset = VarSys.filter(ied__co_master = self.ied.co_master).aggregate(Max('offset'))
+        self.offset = self.filter(ied__co_master = self.ied.co_master).aggregate(Max('offset'))
         if self.offset is None:
             self.offset = 0
         else:
             self.offset += 1
-        print "Creando varsys con offset", self.offset
+        print "Creando %s con offset %s" % (self._meta.model_name, self.offset)
         
         return BaseModel.save(self, *largs, **kwargs)
         
@@ -128,7 +135,7 @@ class VarSys(MV):
     valor = IntegerField()
     
 
-class DIS(MV):
+class DI(MV):
     '''
     Nombre		DIs		Calif	0	Normal
     Tipo		RealTime		1	stalled
@@ -144,17 +151,25 @@ class DIS(MV):
     calificador = IntegerField(db_column="calif")
     valor = IntegerField()
     
-
+    def save(self, *largs, **kwargs):
+        
+        cant_dis_ied = self.filter(ied__co_master = self.ied.co_master).count()
+        if cant_dis_ied is None: cant_dis_ied = 0
+        self.offset = cant_dis_ied // 8 # Frame length
+        print "Creando %s con offset %s" % (self._meta.model_name, self.offset)
+        
+        return BaseModel.save(self, *largs, **kwargs)
+    
 class Evento(BaseModel):
 	'''
 	'''
-	di = ForeignKeyField(DIS)
+	di = ForeignKeyField(DI)
 	calificador = IntegerField(db_column="calif")
 	timestamp = DateTimeField()
 	valor = IntegerField()
 
     
-class AIS(MV):
+class AI(MV):
 	'''Analogicas digitales (valores de energia)
 	'''
 	#ied = ForeignKeyField(IED)
@@ -242,7 +257,7 @@ def cargar_tablas():
     4	4	4	4	5
     '''
     configuracion = texto_tabulado_a_lista_enteros(text_cfg)
-    
+    PORT_WIDTH = 16
     for offset, canvarsys, candis, canais, dir485ied in configuracion:
         ied = IED(offset=offset, can_varsys = canvarsys,
                     can_dis = candis, can_ais = canais,
@@ -256,16 +271,24 @@ def cargar_tablas():
             VarSys(ied = ied, parametro="RateCountLoop2", descripcion="", unidad_de_medida="Ciclos").save()
             VarSys(ied = ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms").save()
             # DIS del CO Master
+            ied.crear_puertos_di(3)
             
-            cant_ports = 3
-            for i in range(cant_ptos):
-                pass
+            AI(ied=ied, parametro="V", descripcion="Tensión barra 33K", unidad_de_medida="Kv", multip_asm=1, 
+               divider=1, relacion_tv=1, relacion_ti=0, relacion_33_13=2.5).save()
+            
         else:
-            VarSys(ied=ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms")
-            VarSys(ied=ied, parametro="Calificador", descripcion="Calif Low/Errores High", unidad_de_medida="Ciclos")
+            # Crear el VS
+            VarSys(ied=ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms").save()
+            VarSys(ied=ied, parametro="Calificador", descripcion="Calif Low/Errores High", unidad_de_medida="Ciclos").save()
+            # Crear DIs
+            ied.crear_puertos_di(1)
+            # Crear AIs
+            AI(ied=ied, parametro="P", descripcion=u"Potencia Activa", unidad_de_medida="Kw", multip_asm=1.09, 
+               divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()
+            AI(ied=ied, parametro="Q", descripcion=u"Potencia Reactiva", unidad_de_medida="Kvar", multip_asm=1.09, 
+               divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()
             
-    for i in IED.select():
-        print i
+    
     #configuracion = map(lambdas: s.strip().split(), configuracion)
     
 
