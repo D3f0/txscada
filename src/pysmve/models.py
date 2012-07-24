@@ -56,64 +56,72 @@ def iter_n_times(times=8):
 
 
 class IED(BaseModel):
-	'''Descripcion del IED conectado a un comaster'''
-	
-	# Los puertos de digitales son de 16 bits
-	PORT_WIDTH = 16
-	
-	co_master = ForeignKeyField(COMaster)
-	offset = IntegerField()
-	can_varsys = IntegerField(default=0, help_text="Cantidad de variables")
-	can_dis = IntegerField(default=0, help_text=u"Cantidad de variables digitales")
-	can_ais = IntegerField(default=0, help_text=u"Cantidad de variables analógicas")
-	dir_485_ied = IntegerField(help_text="Dirección 485")
-	
-	
-	def __unicode__(self):
-		return ("CO:{co_master} Offset:{offset} VS:{can_varsys} AIs:{can_ais} DIs:{can_dis}" 
-				" 485:{dir_485_ied}").format(
-		co_master=self.co_master, offset=self.offset, can_varsys=self.can_varsys,
-		can_ais=self.can_ais, can_dis=self.can_dis, dir_485_ied=self.dir_485_ied
-		)
-	
-	@property
-	def siblings(self):
-		'''IED hermanos'''
-		return self.co_master.ied_set.filter(offset__ne = self.offset)
-		
-	def crear_puertos_di(self, cant_ptos=1, pto_base=0):
-		'''Crear puertos digitales'''
-		# Función de conveniencia
-		for no_port in range(pto_base, cant_ptos):
-			for no_bit in range(self.PORT_WIDTH):
-				# Crear la DI
-				parametro="D%.2d" % ((no_port * self.PORT_WIDTH) + no_bit)
-				DI(ied=self, puerto=no_port, numero_de_bit=no_bit, parametro=parametro).save()
+    '''Descripcion del IED conectado a un comaster'''
+    
+    # Los puertos de digitales son de 16 bits
+    PORT_WIDTH = 16
 
-				
+    co_master = ForeignKeyField(COMaster)
+    offset = IntegerField()
+    can_varsys = IntegerField(default=0, help_text="Cantidad de variables")
+    can_dis = IntegerField(default=0, help_text=u"Cantidad de variables digitales")
+    can_ais = IntegerField(default=0, help_text=u"Cantidad de variables analógicas")
+    dir_485_ied = IntegerField(help_text="Dirección 485")
+	
+	
+    def __unicode__(self):
+        return ("CO:{co_master} Offset:{offset} VS:{can_varsys} AIs:{can_ais} DIs:{can_dis}" 
+            " 485:{dir_485_ied}").format(
+            co_master=self.co_master, offset=self.offset, can_varsys=self.can_varsys,
+            can_ais=self.can_ais, can_dis=self.can_dis, dir_485_ied=self.dir_485_ied
+            )
+    
+    @property
+    def siblings(self):
+        '''IED hermanos'''
+        return self.co_master.ied_set.filter(offset__ne = self.offset)
+
+    def crear_varsys(self, cantidad, ):
+        """docstring for crear_varsys"""
+        raise NotImplementedError
+        
+        	
+    def crear_puertos_di(self, cant_ptos=1, pto_base=0):
+        '''Crear puertos digitales'''
+        # Función de conveniencia
+        for no_port in range(pto_base, cant_ptos):
+            for no_bit in range(self.PORT_WIDTH):
+                # Crear la DI
+                parametro="D%.2d" % ((no_port * self.PORT_WIDTH) + no_bit)
+                DI(ied=self, puerto=no_port, numero_de_bit=no_bit, parametro=parametro).save()
+
+    def crear_ais(self, cantidad):
+        """docstring for crear_ais"""
+        pass
+    		
 				
 		
 			
 
 class MV(BaseModel):
-	'''Basado en el tipo de dato Measured Value de IEC61850'''
-	#class Meta:
-	#	 database = database
-	#abstract = True
-	
-	ied = ForeignKeyField(IED)
-	offset = IntegerField(default=0, help_text="Desplazamiento en la trama")
-	
-	def save(self, *largs, **kwargs):
-		
-		self.offset = self.filter(ied__co_master = self.ied.co_master).aggregate(Max('offset'))
-		if self.offset is None:
-			self.offset = 0
-		else:
-			self.offset += 1
-		print "Creando %s con offset %s" % (self._meta.model_name, self.offset)
-		
-		return BaseModel.save(self, *largs, **kwargs)
+    '''Basado en el tipo de dato Measured Value de IEC61850'''
+    #class Meta:
+    #	 database = database
+    #abstract = True
+
+    ied = ForeignKeyField(IED)
+    offset = IntegerField(default=0, help_text="Desplazamiento en la trama")
+
+    def save(self, *largs, **kwargs):
+        if not self.offset:
+            self.offset = self.filter(ied__co_master = self.ied.co_master).aggregate(Max('offset'))
+            if self.offset is None:
+                self.offset = 0
+            else:
+                self.offset += 1
+            print "Creando %s con offset %s" % (self._meta.model_name, self.offset)
+
+        return BaseModel.save(self, *largs, **kwargs)
 		
 
 class CMV(BaseModel):
@@ -141,29 +149,30 @@ class VarSys(MV):
     
 
 class DI(MV):
-	'''
-	Nombre		DIs		Calif	0	Normal
-	Tipo		RealTime		1	stalled
-	Tamaño		1				2	Calculada
-	Unidad		bit				
-	'''
-	#ied = ForeignKeyField(IED)
-	#offset = IntegerField()
-	parametro = CharField(help_text="Valores D01 a D111")
-	descripcion = CharField()
-	puerto = IntegerField()
-	numero_de_bit = IntegerField(db_column="nrobit")
-	calificador = IntegerField(db_column="calif")
-	valor = IntegerField()
+    '''
+    Nombre		DIs		Calif	0	Normal
+    Tipo		RealTime		1	stalled
+    Tamaño		1				2	Calculada
+    Unidad		bit				
+    '''
+    #ied = ForeignKeyField(IED)
+    #offset = IntegerField()
+    parametro = CharField(help_text="Valores D01 a D111")
+    descripcion = CharField()
+    puerto = IntegerField()
+    numero_de_bit = IntegerField(db_column="nrobit")
+    calificador = IntegerField(db_column="calif")
+    valor = IntegerField()
 	
-	def save(self, *largs, **kwargs):
-		
-		cant_dis_ied = self.filter(ied__co_master = self.ied.co_master).count()
-		if cant_dis_ied is None: cant_dis_ied = 0
-		self.offset = cant_dis_ied // 8 # Frame length
-		print "Creando %s con offset %s" % (self._meta.model_name, self.offset)
-		
-		return BaseModel.save(self, *largs, **kwargs)
+    def save(self, *largs, **kwargs):
+        '''Guardar una digital'''
+        if not self.offset:
+            cant_dis_ied = self.filter(ied__co_master = self.ied.co_master).count()
+            if cant_dis_ied is None: cant_dis_ied = 0
+            self.offset = cant_dis_ied // 8 # Frame length
+            print "Creando %s con offset %s" % (self._meta.model_name, self.offset)
+
+        return BaseModel.save(self, *largs, **kwargs)
 	
 class Evento(BaseModel):
 	'''
@@ -268,6 +277,9 @@ def cargar_tablas():
 					can_dis = candis, can_ais = canais,
 					dir_485_ied = dir485ied, co_master = master)
 		ied.save()
+		# ------------------------------------------------------------------
+		# TODO: Generar una configuración mejor, quizás pasando a un crear_var_sys
+		# ------------------------------------------------------------------
 		
 		if dir485ied == 1:
 			# VarSys del IED 1 (el co master)

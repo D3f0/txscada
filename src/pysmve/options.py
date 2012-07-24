@@ -10,4 +10,4 @@ parser.add_argument('-r', '--reload', action = "store_true", default = False,
 
 parser.add_argument('-p', '--port', default=4000, type=int,
 					help="Port to bind the webserver to.")
-#parser.add_argument(dest, 
+parser.add_argument('command', nargs=1, default='server')

@@ -49,9 +49,10 @@ def draw_table(table=None, attributes = None, hide_columns = None, name = None):
     import json
     if not name:
         name = table._meta.model_name
-    
+    if not attributes: attributes = ''
+    attributes += ' flag="model-datatable" model="%s"' % name
     fields = [field for field in table._meta.fields.values()]
-    fields.sort(key=attrgetter('_order'))    
+    fields.sort(key=attrgetter('_order'))
     ths = ''.join(['<th>%s</th>' % f.verbose_name for f in fields])
     table = '<table %s>%s</table>' % (attributes or '', '<thead><tr>%s</tr></thead>' % ths)
     # Script initial configuration
@@ -127,3 +128,20 @@ def potencias_historicas():
 @app.route('/api/comaster/')
 def comaster():
     return jsonify({'aaData': []})
+
+def dump(iterable, skip=None):
+    if not skip: skip = []
+    data = []
+    for obj in iterable:
+        names = [ name for name in obj._meta.fields.keys() if not name in skip ]
+        fields = map(lambda name: (name, getattr(obj, name)), obj._meta.fields.keys())
+        data.append(dict(fields))
+    return data
+
+@app.route('/api/ais/')
+def analog_inputs():
+    """docstring for analog_inputs"""
+    from flask_peewee.serializer import Serializer
+    from models import AI
+    from json import dumps    
+    return dumps(dump(AI.select(), skip=['ied']))

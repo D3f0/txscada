@@ -22,9 +22,9 @@
     </script>
     <!-- Highchart -->
     <script type="text/javascript" src="{{ STATIC_URL }}js/Highcharts-2.2.5/js/highcharts.js"></script>
-    
+    {#
     <script src="{{ STATIC_URL}}js/jquery-websocket/jquery.websocket-0.0.1.js" type="text/javascript" charset="utf-8"></script>
-
+    #}
 
     <link rel="stylesheet" href="{{ STATIC_URL }}css/style.css" type="text/css" media="screen" charset="utf-8">
     <link rel="stylesheet" href="{{ STATIC_URL }}js/jquery.ui/css/ui-darkness/jquery-ui-1.8.21.custom.css" 
@@ -54,6 +54,10 @@
         <div id="tab-diagrama">
             <div id="svg" style="width: 900px; height: 600px;">
 
+            </div>
+            <div style="float: right; position: absolute; top: 2px; right: 2px; ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
+                <label for="checkbox-update">Update:</label>
+                <input type="checkbox" id="checkbox-update" checked="checked">
             </div>
         </div>
         <div id="tab-eventos">
@@ -90,7 +94,7 @@
         </div>
         <div id="tab-develop">
             <h3>AI</h3>
-            {#{ AIS|draw_table|safe }#}
+            {{ AI|draw_table|safe }}
         </div>
     </div>
     

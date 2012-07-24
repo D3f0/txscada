@@ -17,6 +17,8 @@ def open_local_browser(port):
 def main(argv = sys.argv):
     # Aplicación
     
+    from commands import command
+    
     from app import app
     from options import parser
 

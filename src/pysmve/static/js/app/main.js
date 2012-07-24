@@ -5,24 +5,6 @@ $(function  () {
     */            
     
     $('#tabs').tabs();
-    // Tabla de eventos
-    $('#tabla-eventos').dataTable({
-        bJQueryUI: true,
-        bServerSide: true,
-        sAjaxSource: "/eventos/",
-        bProcessing: true
-    });
-    var config = datatables.COMaster;
-    $.extend(config, {
-       sAjaxSource: '/api/comaster/' 
-    });
-    console.log("Confiuracion del comaster es", config);
-    $('#co-master').dataTable(config);
-       
-    
-    $('#ucs').dataTable($.extend(datatables.UC), {
-        sAjaxSource: '/api/ucs/' 
-    });
     
     // Highchart
     var curvaDePotenciaPlot = new Highcharts.Chart({
@@ -110,12 +92,18 @@ $(function  () {
        }); // Svg
     var $svg = $('#svg');
     function valueUpdate() {
+        
+        if (!$('#checkbox-update').is(':checked')){
+            return;
+        }
         console.log("Update");
         $.ajax('/valores', {
             success: function (data){
                $.each(data, function (key, value){
-                   console.log(key, value);
-                   console.log($svg.find('#'+key).text(value));
+                   //console.log(key, value);
+                   //console.log(
+                       $svg.find('#'+key).text(value)
+                    //);
                 });
             },
             error: function () {
@@ -126,6 +114,39 @@ $(function  () {
         });
     } // Value Update
     window.setInterval(valueUpdate, 1000);
-     
+    
+    
+    // Tabla de eventos
+    // $('#tabla-eventos').dataTable({
+    //         bJQueryUI: true,
+    //         bServerSide: true,
+    //         sAjaxSource: "/eventos/",
+    //         bProcessing: true
+    //     \);}
+    
+    
+    $.extend(datatables.COMaster, {
+       sAjaxSource: '/api/comaster/' 
+    });
+       
+    
+    $.extend(datatables.UC, {
+        sAjaxSource: '/api/ucs/' 
+    });
+    
+    $.extend(datatables.AI, {
+       sAjaxSource: '/api/ais/' 
+        
+    });
+    
+    $('table[flag]').each(function () {
+        var modelName = $(this).attr('model');
+        var conf = datatables[modelName];
+        console.log(modelName, conf);
+        $(this).dataTable(conf);
+        
+        //console.log(this);
+        
+    });
 
 });
