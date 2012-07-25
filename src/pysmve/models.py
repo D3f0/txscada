@@ -18,6 +18,19 @@ database = SqliteDatabase(DB_FILE)
 class BaseModel(Model):
 	class Meta:
 		database = database
+		
+		
+class Perfil(BaseModel):
+    '''
+    Solo hay un perfil activo y de el depende toda 
+    la configuracion activa. Se pueden copiar los 
+    perfiles para poder hacer pruebas o edici´on.
+    '''
+    nombre = CharField(max_length=120)
+    version = FloatField(default=1.0)
+    
+    def copy(self, new_name):
+        pass
 
 
 class COMaster(BaseModel):

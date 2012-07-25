@@ -2,6 +2,7 @@
 
 
 import functools
+from operator import itemgetter
 import exceptions
 
 COMMANDS = {}
@@ -59,13 +60,18 @@ def server(options, restart=False):
             print x
         
         reactor.listenTCP(options.port, site)
-        reactor.callLater(1, partial(open_local_browser, port=options.port))    
+        reactor.callLater(1, functools.partial(open_local_browser, port=options.port))    
         print "Iniciando servidor en http://0.0.0.0:%s" % options.port
         reactor.run()
     
 @command
-def server_plus(options):
-    print "Server plus"
+def server_plus(options, restart=False, kill=False):
+    while True:
+        try:
+            server(options, restart)
+        except Exception as e:
+            print e, type(e)
+            import sys; sys.exit()
     
 @command
 def dbshell(options):
@@ -75,11 +81,14 @@ def dbshell(options):
 def syncdb(options, recreate=False):
     pass
     
-
-
-if __name__ == '__main__':
-    # Print available commands
-    print COMMANDS.keys()
-
+@command
+def help(options, command=None):
+    from inspect import getargspec
+    print "Available commands:\n"
+    for name, command in sorted(COMMANDS.items(), key=itemgetter(0)):
+        print "    *", name
+        arguments = getargspec(command).args[1:]
+        if arguments:
+            print "        %s" % ", ".join(arguments)
     
     

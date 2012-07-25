@@ -3,7 +3,7 @@ try:
 except ImportError, e:
 	from utils import argparse
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(usage="Cada comando recibe argumentos spearados por comas")
 parser.add_argument('-r', '--reload', action = "store_true", default = False,
 					help = "Use Flask run script instead of Twisted reactor loop. "
 					"Useful for testing only the web application reload")
