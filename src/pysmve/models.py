@@ -270,54 +270,52 @@ def crear_co_master_template(direccion=None, descripcion=None, habilitado=True):
 	
 		
 
-def cargar_tablas():
+def cargar_tablas(perfil='default'):
+    perfil = Pe
 	
-	master = COMaster(direccion = '192.168.1.97', descripcion="CO Master de Prueba",
+    master = COMaster(direccion = '192.168.1.97', descripcion="CO Master de Prueba",
 					  hablitado = True)
-	master.save()
-	# Copiado y pegado del excel
-	text_cfg = '''
-	0	8	6	2	1
-	1	4	4	4	2
-	2	4	4	4	3
-	3	4	4	4	4
-	4	4	4	4	5
-	'''
-	configuracion = texto_tabulado_a_lista_enteros(text_cfg)
-	PORT_WIDTH = 16
-	for offset, canvarsys, candis, canais, dir485ied in configuracion:
-		ied = IED(offset=offset, can_varsys = canvarsys,
+    master.save()
+    # Copiado y pegado del excel
+    text_cfg = '''
+    0	8	6	2	1
+    1	4	4	4	2
+    2	4	4	4	3
+    3	4	4	4	4
+    4	4	4	4	5
+    '''
+    configuracion = texto_tabulado_a_lista_enteros(text_cfg)
+    PORT_WIDTH = 16
+    for offset, canvarsys, candis, canais, dir485ied in configuracion:
+        ied = IED(offset=offset, can_varsys = canvarsys,
 					can_dis = candis, can_ais = canais,
 					dir_485_ied = dir485ied, co_master = master)
-		ied.save()
-		# ------------------------------------------------------------------
-		# TODO: Generar una configuración mejor, quizás pasando a un crear_var_sys
-		# ------------------------------------------------------------------
+        ied.save()
+        # ------------------------------------------------------------------
+        # TODO: Generar una configuración mejor, quizás pasando a un crear_var_sys
+        # ------------------------------------------------------------------
 		
-		if dir485ied == 1:
-			# VarSys del IED 1 (el co master)
-			VarSys(ied = ied, parametro="Calif", descripcion="Calificador", unidad_de_medida="unidad").save()
-			VarSys(ied = ied, parametro="RateCountLoop", descripcion="", unidad_de_medida="Ciclos").save()
-			VarSys(ied = ied, parametro="RateCountLoop2", descripcion="", unidad_de_medida="Ciclos").save()
-			VarSys(ied = ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms").save()
-			# DIS del CO Master
-			ied.crear_puertos_di(3)
-			
-			AI(ied=ied, parametro="V", descripcion=u"Tensión barra 33K", unidad_de_medida="Kv", multip_asm=1, 
-			   divider=1, relacion_tv=1, relacion_ti=0, relacion_33_13=2.5).save()
-			
-		else:
-			# Crear el VS
-			VarSys(ied=ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms").save()
-			VarSys(ied=ied, parametro="Calificador", descripcion="Calif Low/Errores High", unidad_de_medida="Ciclos").save()
-			# Crear DIs
-			ied.crear_puertos_di(1)
-			# Crear AIs
-			AI(ied=ied, parametro="P", descripcion=u"Potencia Activa", unidad_de_medida="Kw", multip_asm=1.09, 
-			   divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()
-			AI(ied=ied, parametro="Q", descripcion=u"Potencia Reactiva", unidad_de_medida="Kvar", multip_asm=1.09, 
-			   divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()
-			
-	
-	#configuracion = map(lambdas: s.strip().split(), configuracion)
-	
+        if dir485ied == 1:
+            # VarSys del IED 1 (el co master)
+            VarSys(ied = ied, parametro="Calif", descripcion="Calificador", unidad_de_medida="unidad").save()
+            VarSys(ied = ied, parametro="RateCountLoop", descripcion="", unidad_de_medida="Ciclos").save()
+            VarSys(ied = ied, parametro="RateCountLoop2", descripcion="", unidad_de_medida="Ciclos").save()
+            VarSys(ied = ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms").save()
+            # DIS del CO Master
+            ied.crear_puertos_di(3)
+            
+            AI(ied=ied, parametro="V", descripcion=u"Tensión barra 33K", unidad_de_medida="Kv", multip_asm=1, 
+              divider=1, relacion_tv=1, relacion_ti=0, relacion_33_13=2.5).save()
+            
+        else:
+            # Crear el VS
+            VarSys(ied=ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms").save()
+            VarSys(ied=ied, parametro="Calificador", descripcion="Calif Low/Errores High", unidad_de_medida="Ciclos").save()
+            # Crear DIs
+            ied.crear_puertos_di(1)
+            # Crear AIs
+            AI(ied=ied, parametro="P", descripcion=u"Potencia Activa", unidad_de_medida="Kw", multip_asm=1.09, 
+              divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()
+            AI(ied=ied, parametro="Q", descripcion=u"Potencia Reactiva", unidad_de_medida="Kvar", multip_asm=1.09, 
+              divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()
+
