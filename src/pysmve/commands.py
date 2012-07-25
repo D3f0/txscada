@@ -32,10 +32,10 @@ def open_local_browser(port):
 
 
 @command
-def server(options, restart=False):
+def server(options, reload=False):
     from app import app
     print "Running server"
-    if options.reload:
+    if reload:
         # Con flask
         print "Trabajando con flask stand-alone"
         import gevent.wsgi

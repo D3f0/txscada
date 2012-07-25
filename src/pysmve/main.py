@@ -5,6 +5,8 @@ import sys
 import utils
 import errors
 print utils
+import logging
+logger = logging.getLogger('')
 
 
 def runcommand(cmdline, options, command_dict):
@@ -25,7 +27,24 @@ def runcommand(cmdline, options, command_dict):
         raise errors.CommandArgumentError(unicode(e))
     return command_func(options, **kwargs)
     
-
+def setup_logging(options):
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        datefmt='%d-%m-%y %H:%M',
+                        filename='automata.log',
+                        filemode='w')
+    if options.verbose:
+        console = logging.StreamHandler()
+        console.setLevel(logging.DEBUG)
+        # set a format which is simpler for console use
+        formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+        # tell the handler to use this format
+        console.setFormatter(formatter)
+        # add the handler to the root logger
+        logging.getLogger('').addHandler(console)
+    
+    
+    
 
 def main(argv = sys.argv):
     # Aplicación
@@ -34,6 +53,7 @@ def main(argv = sys.argv):
     from options import parser
     
     options = parser.parse_args()
+    setup_logging(options)
     try:
         return runcommand(options.command[0], options, command_dict=COMMANDS)
     except errors.NoSuchCommand as e:
@@ -41,10 +61,7 @@ def main(argv = sys.argv):
     except errors.CommandArgumentError as e:
         print "Command Argument Error: %s" % e
     return -1
-        
     
-    
-
 
 if __name__ == "__main__":
     sys.exit(main())
