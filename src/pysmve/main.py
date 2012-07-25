@@ -10,23 +10,19 @@ print utils
 def runcommand(cmdline, options, command_dict):
     """Split commands in fabric style,
     returns (cmdname, cmdkwargs)"""
-    from difflib import get_close_matches
     if ':' in cmdline:
         cmdname, args = cmdline.split(':', 1)
     else:
         cmdname, args = cmdline, ''
     #print cmdname, "-", args
-    command_name = get_close_matches(cmdname, command_dict.keys())
-    n = len(command_name)
-    if n == 0:
-        raise errors.NoSuchCommand("No command named %s" % cmdname)
-    else:
-        name = command_name[0]
-        if n > 1:
-            print "Choosing %s from %s" % (name, ', '.join(command_name))
-        command_func = command_dict[command_name[0]]
-        
-    kwargs = utils.make_kwargs(command_func, args)
+    command_name = utils.choose(cmdname, command_dict.keys())
+
+    name = command_name        
+    command_func = command_dict[name]
+    try:
+        kwargs = utils.make_kwargs(command_func, args)
+    except ValueError as e:
+        raise errors.CommandArgumentError(unicode(e))
     return command_func(options, **kwargs)
     
 
@@ -42,7 +38,10 @@ def main(argv = sys.argv):
         return runcommand(options.command[0], options, command_dict=COMMANDS)
     except errors.NoSuchCommand as e:
         print e
-        return -1
+    except errors.CommandArgumentError as e:
+        print "Command Argument Error: %s" % e
+    return -1
+        
     
     
 

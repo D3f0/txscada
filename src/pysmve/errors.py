@@ -6,3 +6,6 @@ class ImproperlyConfigured(Exception):
     
 class NoSuchCommand(Exception):
     pass
+    
+class CommandArgumentError(Exception):
+    pass

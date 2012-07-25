@@ -11,18 +11,21 @@ def coincidence(s1, s2):
         counter += 1
     return counter
     
-def choose_pop(starting, listofargs):
+def choose(starting, listofargs, pop=False):
     '''
     Removes most similar word from listofargs with startswith(starting)
     criteria.
-    Ex: choose_pop('ab', ['abc', 'def']) => returns abc, listofargs ['def']
+    Ex: choose('ab', ['abc', 'def']) => returns abc, listofargs ['def']
     '''
     coincidences = map(lambda s: coincidence(starting, s), listofargs)
     mostlikely = max(coincidences)
     if not mostlikely:
-        raise ValueError("Argument error with %s" % starting)
+        raise ValueError("Unexpected %s" % starting)
     index = coincidences.index(mostlikely) # Most likely word maximises
-    value = listofargs.pop(index)
+    if pop:
+        value = listofargs.pop(index)
+    else:
+        value = listofargs[index]
     return value
     
     
@@ -41,5 +44,5 @@ def make_kwargs(func, strofargs):
         else:
             k, v = (arg, arg)
     
-    kwargs.update({choose_pop(k, args): v})
+    kwargs.update({choose(k, args, pop=True): v})
     return kwargs 

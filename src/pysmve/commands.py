@@ -112,3 +112,7 @@ def help(options, command=None):
             print "        %s" % ", ".join(arguments)
     
     
+@command
+def emulator(options, listen=None):
+    listen_port = 9736 if listen == None else int(listen)
+    print "Running emulator on port %s" % listen_port
