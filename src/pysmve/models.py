@@ -31,7 +31,10 @@ class Perfil(BaseModel):
     
     def copy(self, new_name):
         pass
-
+    
+    @classmethod
+    def by_name(cls, name):
+        pass
 
 class COMaster(BaseModel):
 	'''

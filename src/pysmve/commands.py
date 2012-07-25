@@ -66,7 +66,15 @@ def server(options, reload=False):
         reactor.callLater(1, functools.partial(open_local_browser, port=options.port))    
         print "Iniciando servidor en http://0.0.0.0:%s" % options.port
         reactor.run()
+
+@command
+def simpleserver(options):
+    """Run client protocol"""
+    from models import database, Perfil
+    database.connect()
+    Perfil.get()
     
+
 @command
 def server_plus(options, restart=False, kill=False):
     while True:
