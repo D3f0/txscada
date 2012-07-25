@@ -4,6 +4,9 @@
 import functools
 from operator import itemgetter
 import exceptions
+from logging import getLogger
+logger = getLogger(__name__)
+
 
 COMMANDS = {}
 
@@ -75,11 +78,28 @@ def server_plus(options, restart=False, kill=False):
     
 @command
 def dbshell(options):
-    pass
+    from models import Perfil, COMaster, IED, VarSys, DI, Evento, AI, Energia
+    print "Importing: Perfil, COMaster, IED, VarSys, DI, Evento, AI, Energia"
+    
+    from IPython import embed
+    embed()
     
 @command
-def syncdb(options, recreate=False):
-    pass
+def syncdb(options, reset=False, create=False):
+    from models import DB_FILE, database, crear_tablas, cargar_tablas
+    import os
+    if reset:
+        os.unlink(DB_FILE)
+        database.connect()
+        crear_tablas()
+        cargar_tablas()
+    elif create:
+        database.connect()
+        crear_tablas()
+
+    else:
+        dbshell(options)
+    
     
 @command
 def help(options, command=None):

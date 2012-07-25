@@ -4,7 +4,7 @@
 Base de datos según la hoja IED-Alpha de MicroCNet-v17
 '''
 
-__all__ = ['AI', 'Energia', 'Evento', 'DI', 'VarSys']
+__all__ = ['AI', 'Energia', 'Evento', 'DI', 'VarSys', 'BaseModel']
 
 
 import os
@@ -321,35 +321,3 @@ def cargar_tablas():
 	
 	#configuracion = map(lambdas: s.strip().split(), configuracion)
 	
-
-	
-
-def main(argv=sys.argv):
-	'''Crear las tablas de la base'''
-	from argparse import ArgumentParser
-	parser = ArgumentParser("Modelos")
-	parser.add_argument('-r', '--reset', default=False, 
-						   action="store_true")
-	parser.add_argument('-c', '--create', default=False,
-						action="store_true")
-	options = parser.parse_args()
-	
-	
-	if options.reset:
-		print "Creando la base de datos"
-		os.unlink(DB_FILE)
-		database.connect()
-		crear_tablas()
-		cargar_tablas()
-		
-	elif options.create:
-		print "Creando tablas en la base"
-		database.connect()
-	else:
-		print "Iniciando shell"
-		from IPython import embed
-		embed()
-	
-		
-if __name__ == '__main__':
-	main()
