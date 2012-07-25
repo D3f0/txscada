@@ -69,7 +69,8 @@ def sum_big_endian(lista):
         alto = not alto
     return suma   
 
-make_cs_bigendian = lambda l: make_cs(sum_big_endian(l)) 
+make_cs_bigendian = lambda l: make_cs(sum_big_endian(l))
+format_cs = lambda l: ' '.join(map(lambda i: ('%x' % i).upper(), make_cs_bigendian(l)))
 # Para que esta comprobación de bien, make_cs debe devolver una lista y
 # no una tupla.
 check_cs_bigendian = lambda l: make_cs_bigendian(l[:-2]) == l[-2:]
@@ -79,14 +80,13 @@ def main(argv = sys.argv):
     trama = [1, 2, 4, 5, 5, 6]
     
 #    trama += make_cs_list(trama)
-    
+    trama = 'FE	08	01	40	80	10'
     print trama
-    cs = make_cs_bigendian(trama)
-    trama += cs
-    print "Checkusm", cs
-    print "Trama con checksum", trama, 'es correcta?', check_cs_bigendian(trama)
-    return 0
-
+    trama = map(lambda s: int(s, 16), trama.split())
+    print format_cs(trama)
+    
+    
+    
 if __name__ == "__main__":
     sys.exit(main())
 

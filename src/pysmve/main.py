@@ -28,21 +28,29 @@ def runcommand(cmdline, options, command_dict):
     return command_func(options, **kwargs)
     
 def setup_logging(options):
-    logging.basicConfig(level=logging.DEBUG,
+    levels = {
+        'CRITICAL': logging.CRITICAL,
+        'DEBUG':    logging.DEBUG,
+        'ERROR':    logging.ERROR,
+        'FATAL':    logging.FATAL, 
+        'INFO':     logging.INFO, 
+        'WARNING':  logging.WARNING
+    }
+    logging.basicConfig(level=levels.get(options.file_level, logging.DEBUG),
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                         datefmt='%d-%m-%y %H:%M',
                         filename='automata.log',
                         filemode='w')
-    if options.verbose:
-        console = logging.StreamHandler()
-        console.setLevel(logging.DEBUG)
-        # set a format which is simpler for console use
-        formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-        # tell the handler to use this format
-        console.setFormatter(formatter)
-        # add the handler to the root logger
-        logging.getLogger('').addHandler(console)
     
+    console = logging.StreamHandler()
+    console.setLevel(levels.get(options.stdout_level, logging.DEBUG))
+    # set a format which is simpler for console use
+    formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+    # tell the handler to use this format
+    console.setFormatter(formatter)
+    # add the handler to the root logger
+    logging.getLogger('').addHandler(console)
+
     
     
 

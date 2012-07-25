@@ -13,5 +13,7 @@ parser.add_argument('-p', '--port', default=4000, type=int,
 parser.add_argument('command', nargs=1, default='server')
 parser.add_argument('-l', '--logfile', default='smve.log',
                     help="File for logging output")
-parser.add_argument('-v', '--verbose', default=False, action='store_true',
-                    help="Log to stdout")
+parser.add_argument('-L', '--file-level', default='INFO', nargs='?', dest='file_level',
+                    help="File logging level ('CRITICAL', 'DEBUG', 'ERROR', 'FATAL', 'INFO', 'WARNING')")
+parser.add_argument('-O', '--stdout-level', default='DEBUG', nargs='?', dest='stdout_level',
+                    help="Stdout logging level ('CRITICAL', 'DEBUG', 'ERROR', 'FATAL', 'INFO', 'WARNING')")
