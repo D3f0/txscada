@@ -9,12 +9,11 @@ import os
 sys.path.append(os.path.sep.join(('..','..')))
 
 # Imports
-from picnet.checksum import make_cs_pkg
-from lib.datastructures import SortedDict
-from picnet.checksum import make_cs
-from picnet.dtime import DTime
+from collections import OrderedDict
+from checksum import make_cs, make_cs_pkg
+from dtime import DTime
 # Manejo de bits
-from picnet.bitfield import bitfield
+from bitfield import bitfield
 # Comprobar una cadena
 from checksum import make_cs_bigendian, check_cs_bigendian
 
@@ -87,7 +86,7 @@ def arg_gen(prefix='A', length=3):
 
  
 
-class Paquete(SortedDict):
+class Paquete(OrderedDict):
     #TODO: Implementar la validación para el paquete
     def __init__(self, datos = None, auto_calc_cs = False):
         '''

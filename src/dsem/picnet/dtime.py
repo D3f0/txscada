@@ -1,12 +1,13 @@
 #! /usr/bin/env python
 # -*- encoding: utf-8 -*-
 
-from picnet.bitfield import bitfield
+from bitfield import bitfield
 from datetime import datetime, timedelta
 
 class DTime(object):
     '''
     Esta clase trabaja con la codificacion en bits de la fecha para Picnet.
+    Version < 14.
     '''
     def __init__(self, input_ = None):
         '''

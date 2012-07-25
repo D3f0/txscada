@@ -5,12 +5,10 @@
 La misión de este módulo es detectar paquetes validos bajo el protocolo
 uCNet.
 '''
-from cgi import log
-from picnet.checksum import make_cs_bigendian
-import logging
 
+import logging
 import sys
-from picnet import proto, checksum
+import proto, checksum
 
 #------------------------------------------------------------------------------ 
 # Orden de bytes:
