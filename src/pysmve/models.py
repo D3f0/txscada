@@ -10,6 +10,7 @@ __all__ = ['AI', 'Energia', 'Evento', 'DI', 'VarSys', 'BaseModel']
 import os
 import sys
 from os.path import join, dirname
+from datetime import datetime
 from peewee import *
 
 DB_FILE = join(dirname(__file__), 'database.db')
@@ -21,32 +22,38 @@ class BaseModel(Model):
 		
 		
 class Perfil(BaseModel):
-    '''
-    Solo hay un perfil activo y de el depende toda 
-    la configuracion activa. Se pueden copiar los 
-    perfiles para poder hacer pruebas o edici´on.
-    '''
-    nombre = CharField(max_length=120)
-    version = FloatField(default=1.0)
-    
-    def copy(self, new_name):
-        pass
-    
-    @classmethod
-    def by_name(cls, name):
-        pass
+	'''
+	Solo hay un perfil activo y de el depende toda 
+	la configuracion activa. Se pueden copiar los 
+	perfiles para poder hacer pruebas o edici´on.
+	'''
+	def __init__(self, *largs, **kwargs):
+		super(Perfil, self).__init__(*largs, **kwargs)
+		kwargs.setdefault('fecha', datetime.now())
+		
+	nombre = CharField(max_length=120)
+	version = FloatField(default=1.0)
+	fecha = DateTimeField()
+	
+	def copy(self, new_name):
+		pass
+	
+	@classmethod
+	def by_name(cls, name):
+		pass
 
 class COMaster(BaseModel):
 	'''
 	Modela un concentrador a ser consultado
 	TODO: Falta apuntar el concentrador a un perfil, para poder versinar
 	'''
+	perfil = ForeignKeyField(Perfil, help_text="Perfil asociado al master")
 	direccion = CharField(verbose_name=u"Direcci&oacute;n", unique=True)
 	descripcion = CharField(verbose_name=u"Descripci&oacute;n")
 	hablitado = BooleanField(default=False)
 	port = IntegerField(verbose_name="Puerto TCP de conexion", default=9761)
-	timeout = FloatField(default = 5.0, help_text="Tiempo que se espera por consulta antes de decretarlo muerto")
-	poll_interval = FloatField(default = 5, help_text="Tiempo en segundos entre consultas") 
+	timeout = FloatField(default=5.0, help_text="Tiempo que se espera por consulta antes de decretarlo muerto")
+	poll_interval = FloatField(default=5, help_text="Tiempo en segundos entre consultas") 
 	
 	def __unicode__(self):
 		#return "<COMaser IP: %s Hab:%s>" % (self.direccion, self.hablitado)
@@ -54,15 +61,15 @@ class COMaster(BaseModel):
 	
 	@property
 	def varsys(self):
-		return VarSys.filter(ied__co_master = self)
+		return VarSys.filter(ied__co_master=self)
 		
 	@property
 	def ais(self):
-		return AI.filter(ied__co_master = self)
+		return AI.filter(ied__co_master=self)
 	
 	@property
 	def dis(self):
-		return DI.filter(ied__co_master = self)
+		return DI.filter(ied__co_master=self)
 
 def iter_n_times(times=8):
 	counter = 0
@@ -72,123 +79,120 @@ def iter_n_times(times=8):
 
 
 class IED(BaseModel):
-    '''Descripcion del IED conectado a un comaster'''
-    
-    # Los puertos de digitales son de 16 bits
-    PORT_WIDTH = 16
+	'''Descripcion del IED conectado a un comaster'''
+	
+	# Los puertos de digitales son de 16 bits
+	PORT_WIDTH = 16
 
-    co_master = ForeignKeyField(COMaster)
-    offset = IntegerField()
-    can_varsys = IntegerField(default=0, help_text="Cantidad de variables")
-    can_dis = IntegerField(default=0, help_text=u"Cantidad de variables digitales")
-    can_ais = IntegerField(default=0, help_text=u"Cantidad de variables analógicas")
-    dir_485_ied = IntegerField(help_text="Dirección 485")
+	co_master = ForeignKeyField(COMaster)
+	offset = IntegerField()
+	can_varsys = IntegerField(default=0, help_text="Cantidad de variables")
+	can_dis = IntegerField(default=0, help_text=u"Cantidad de variables digitales")
+	can_ais = IntegerField(default=0, help_text=u"Cantidad de variables analógicas")
+	dir_485_ied = IntegerField(help_text="Dirección 485")
 	
 	
-    def __unicode__(self):
-        return ("CO:{co_master} Offset:{offset} VS:{can_varsys} AIs:{can_ais} DIs:{can_dis}" 
-            " 485:{dir_485_ied}").format(
-            co_master=self.co_master, offset=self.offset, can_varsys=self.can_varsys,
-            can_ais=self.can_ais, can_dis=self.can_dis, dir_485_ied=self.dir_485_ied
-            )
-    
-    @property
-    def siblings(self):
-        '''IED hermanos'''
-        return self.co_master.ied_set.filter(offset__ne = self.offset)
+	def __unicode__(self):
+		return ("CO:{co_master} Offset:{offset} VS:{can_varsys} AIs:{can_ais} DIs:{can_dis}" 
+			" 485:{dir_485_ied}").format(
+			co_master=self.co_master, offset=self.offset, can_varsys=self.can_varsys,
+			can_ais=self.can_ais, can_dis=self.can_dis, dir_485_ied=self.dir_485_ied
+			)
+	
+	@property
+	def siblings(self):
+		'''IED hermanos'''
+		return self.co_master.ied_set.filter(offset__ne=self.offset)
 
-    def crear_varsys(self, cantidad, ):
-        """docstring for crear_varsys"""
-        raise NotImplementedError
-        
-        	
-    def crear_puertos_di(self, cant_ptos=1, pto_base=0):
-        '''Crear puertos digitales'''
-        # Función de conveniencia
-        for no_port in range(pto_base, cant_ptos):
-            for no_bit in range(self.PORT_WIDTH):
-                # Crear la DI
-                parametro="D%.2d" % ((no_port * self.PORT_WIDTH) + no_bit)
-                DI(ied=self, puerto=no_port, numero_de_bit=no_bit, parametro=parametro).save()
+	def crear_varsys(self, cantidad,):
+		"""docstring for crear_varsys"""
+		raise NotImplementedError
+		
+			
+	def crear_puertos_di(self, cant_ptos=1, pto_base=0):
+		'''Crear puertos digitales'''
+		# Función de conveniencia
+		for no_port in range(pto_base, cant_ptos):
+			for no_bit in range(self.PORT_WIDTH):
+				# Crear la DI
+				parametro = "D%.2d" % ((no_port * self.PORT_WIDTH) + no_bit)
+				DI(ied=self, puerto=no_port, numero_de_bit=no_bit, parametro=parametro).save()
 
-    def crear_ais(self, cantidad):
-        """docstring for crear_ais"""
-        pass
-    		
+	def crear_ais(self, cantidad):
+		"""docstring for crear_ais"""
+		pass
+			
 				
 		
 			
 
 class MV(BaseModel):
-    '''Basado en el tipo de dato Measured Value de IEC61850'''
-    #class Meta:
-    #	 database = database
-    #abstract = True
+	'''Basado en el tipo de dato Measured Value de IEC61850'''
+	#class Meta:
+	#	 database = database
+	#abstract = True
 
-    ied = ForeignKeyField(IED)
-    offset = IntegerField(default=0, help_text="Desplazamiento en la trama")
+	ied = ForeignKeyField(IED)
+	offset = IntegerField(default=0, help_text="Desplazamiento en la trama")
 
-    def save(self, *largs, **kwargs):
-        if not self.offset:
-            self.offset = self.filter(ied__co_master = self.ied.co_master).aggregate(Max('offset'))
-            if self.offset is None:
-                self.offset = 0
-            else:
-                self.offset += 1
-            print "Creando %s con offset %s" % (self._meta.model_name, self.offset)
+	def save(self, *largs, **kwargs):
+		if not self.offset:
+			self.offset = self.filter(ied__co_master=self.ied.co_master).aggregate(Max('offset'))
+			if self.offset is None:
+				self.offset = 0
+			else:
+				self.offset += 1
+			print "Creando %s con offset %s" % (self._meta.model_name, self.offset)
 
-        return BaseModel.save(self, *largs, **kwargs)
+		return BaseModel.save(self, *largs, **kwargs)
 		
-
-class CMV(BaseModel):
-	pass
 	
 		
 class VarSys(MV):
-    '''
-    Nombre		VarSys		Calif	0	Normal
-    Tipo		RealTime			1	stalled
-    Tamaño		8			2	Calculada
-    Unidad		bit	
-    '''
-    #ied = ForeignKeyField(IED)
-    #offset = IntegerField()
-    parametro = CharField()
-    descripcion = CharField()
-    unidad_de_medida = CharField(db_column="umedida")
-    
-    valor = IntegerField()
-    
-    def __unicode__(self):
-        """Unicode"""
-        return "%s %s %s" % (self.offset, self.parametro, self.descripcion)
-    
+	'''
+	Nombre		VarSys		Calif	0	Normal
+	Tipo		RealTime			1	stalled
+	Tamaño		8			2	Calculada
+	Unidad		bit	
+	'''
+	#ied = ForeignKeyField(IED)
+	#offset = IntegerField()
+	parametro = CharField()
+	descripcion = CharField()
+	unidad_de_medida = CharField(db_column="umedida")
+	
+	valor = IntegerField()
+	
+	def __unicode__(self):
+		"""Unicode"""
+		return "%s %s %s" % (self.offset, self.parametro, self.descripcion)
+	
 
 class DI(MV):
-    '''
-    Nombre		DIs		Calif	0	Normal
-    Tipo		RealTime		1	stalled
-    Tamaño		1				2	Calculada
-    Unidad		bit				
-    '''
-    #ied = ForeignKeyField(IED)
-    #offset = IntegerField()
-    parametro = CharField(help_text="Valores D01 a D111")
-    descripcion = CharField()
-    puerto = IntegerField()
-    numero_de_bit = IntegerField(db_column="nrobit")
-    calificador = IntegerField(db_column="calif")
-    valor = IntegerField()
+	'''
+	Nombre		DIs		Calif	0	Normal
+	Tipo		RealTime		1	stalled
+	Tamaño		1				2	Calculada
+	Unidad		bit				
+	'''
+	#ied = ForeignKeyField(IED)
+	#offset = IntegerField()
+	parametro = CharField(help_text="Valores D01 a D111")
+	descripcion = CharField()
+	puerto = IntegerField()
+	numero_de_bit = IntegerField(db_column="nrobit")
+	calificador = IntegerField(db_column="calif")
+	valor = IntegerField()
 	
-    def save(self, *largs, **kwargs):
-        '''Guardar una digital'''
-        if not self.offset:
-            cant_dis_ied = self.filter(ied__co_master = self.ied.co_master).count()
-            if cant_dis_ied is None: cant_dis_ied = 0
-            self.offset = cant_dis_ied // 8 # Frame length
-            print "Creando %s con offset %s" % (self._meta.model_name, self.offset)
+	def save(self, *largs, **kwargs):
+		'''Guardar una digital'''
+		if not self.offset:
+			cant_dis_ied = self.filter(ied__co_master=self.ied.co_master).count()
+			if cant_dis_ied is None: cant_dis_ied = 0
+			self.offset = cant_dis_ied // 8 # Frame length
+			print "Creando %s con offset %s" % (self._meta.model_name, self.offset)
 
-        return BaseModel.save(self, *largs, **kwargs)
+		return BaseModel.save(self, *largs, **kwargs)
 	
 class Evento(BaseModel):
 	'''
@@ -252,7 +256,7 @@ def get_models(base=None):
 def crear_tablas():
 	'''Crea los modelos definidos en el archivo'''
 	for n, model in enumerate(get_models()):
-		print "Creando clase", n+1, model._meta.model_name
+		print "Creando clase", n + 1, model._meta.model_name
 		model.create_table(True)
 
 def texto_tabulado_a_lista_enteros(texto):
@@ -264,61 +268,57 @@ def texto_tabulado_a_lista_enteros(texto):
 		if not line: continue
 		salida.append(map(int, line.split()))
 	return salida
-	
-	
-def crear_co_master_template(direccion=None, descripcion=None, habilitado=True):
-	# TODO: Completar la función
-	if not direccion: direccion = '192.168.1.97'
-	
-	
+
+		
 		
 
-def cargar_tablas(perfil='default'):
-    perfil = Pe
-	
-    master = COMaster(direccion = '192.168.1.97', descripcion="CO Master de Prueba",
-					  hablitado = True)
-    master.save()
-    # Copiado y pegado del excel
-    text_cfg = '''
-    0	8	6	2	1
-    1	4	4	4	2
-    2	4	4	4	3
-    3	4	4	4	4
-    4	4	4	4	5
-    '''
-    configuracion = texto_tabulado_a_lista_enteros(text_cfg)
-    PORT_WIDTH = 16
-    for offset, canvarsys, candis, canais, dir485ied in configuracion:
-        ied = IED(offset=offset, can_varsys = canvarsys,
-					can_dis = candis, can_ais = canais,
-					dir_485_ied = dir485ied, co_master = master)
-        ied.save()
-        # ------------------------------------------------------------------
-        # TODO: Generar una configuración mejor, quizás pasando a un crear_var_sys
-        # ------------------------------------------------------------------
+def cargar_tablas(nombre_perfil='default'):
+	from datetime import datetime
+	perfil = Perfil(nombre=nombre_perfil, fecha=datetime.now())
+	perfil.save()
+	master = COMaster(perfil=perfil,
+					direccion='192.168.1.97', descripcion="CO Master de Prueba",
+					hablitado=True)
+	master.save()
+	# Copiado y pegado del excel
+	text_cfg = '''
+	0	8	6	2	1
+	1	4	4	4	2
+	2	4	4	4	3
+	3	4	4	4	4
+	4	4	4	4	5
+	'''
+	configuracion = texto_tabulado_a_lista_enteros(text_cfg)
+	PORT_WIDTH = 16
+	for offset, canvarsys, candis, canais, dir485ied in configuracion:
+		ied = IED(offset=offset, can_varsys=canvarsys,
+					can_dis=candis, can_ais=canais,
+					dir_485_ied=dir485ied, co_master=master)
+		ied.save()
+		# ------------------------------------------------------------------
+		# TODO: Generar una configuración mejor, quizás pasando a un crear_var_sys
+		# ------------------------------------------------------------------
 		
-        if dir485ied == 1:
-            # VarSys del IED 1 (el co master)
-            VarSys(ied = ied, parametro="Calif", descripcion="Calificador", unidad_de_medida="unidad").save()
-            VarSys(ied = ied, parametro="RateCountLoop", descripcion="", unidad_de_medida="Ciclos").save()
-            VarSys(ied = ied, parametro="RateCountLoop2", descripcion="", unidad_de_medida="Ciclos").save()
-            VarSys(ied = ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms").save()
-            # DIS del CO Master
-            ied.crear_puertos_di(3)
-            
-            AI(ied=ied, parametro="V", descripcion=u"Tensión barra 33K", unidad_de_medida="Kv", multip_asm=1, 
-              divider=1, relacion_tv=1, relacion_ti=0, relacion_33_13=2.5).save()
-            
-        else:
-            # Crear el VS
-            VarSys(ied=ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms").save()
-            VarSys(ied=ied, parametro="Calificador", descripcion="Calif Low/Errores High", unidad_de_medida="Ciclos").save()
-            # Crear DIs
-            ied.crear_puertos_di(1)
-            # Crear AIs
-            AI(ied=ied, parametro="P", descripcion=u"Potencia Activa", unidad_de_medida="Kw", multip_asm=1.09, 
-              divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()
-            AI(ied=ied, parametro="Q", descripcion=u"Potencia Reactiva", unidad_de_medida="Kvar", multip_asm=1.09, 
-              divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()
-
+		if dir485ied == 1:
+			# VarSys del IED 1 (el co master)
+			VarSys(ied=ied, parametro="Calif", descripcion="Calificador", unidad_de_medida="unidad").save()
+			VarSys(ied=ied, parametro="RateCountLoop", descripcion="", unidad_de_medida="Ciclos").save()
+			VarSys(ied=ied, parametro="RateCountLoop2", descripcion="", unidad_de_medida="Ciclos").save()
+			VarSys(ied=ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms").save()
+			# DIS del CO Master
+			ied.crear_puertos_di(3)
+			
+			AI(ied=ied, parametro="V", descripcion=u"Tensión barra 33K", unidad_de_medida="Kv", multip_asm=1,
+			  divider=1, relacion_tv=1, relacion_ti=0, relacion_33_13=2.5).save()
+			
+		else:
+			# Crear el VS
+			VarSys(ied=ied, parametro="Sesgo", descripcion="Sesgo (entero)", unidad_de_medida="ms").save()
+			VarSys(ied=ied, parametro="Calificador", descripcion="Calif Low/Errores High", unidad_de_medida="Ciclos").save()
+			# Crear DIs
+			ied.crear_puertos_di(1)
+			# Crear AIs
+			AI(ied=ied, parametro="P", descripcion=u"Potencia Activa", unidad_de_medida="Kw", multip_asm=1.09,
+			  divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()
+			AI(ied=ied, parametro="Q", descripcion=u"Potencia Reactiva", unidad_de_medida="Kvar", multip_asm=1.09,
+			  divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()

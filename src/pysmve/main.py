@@ -4,7 +4,6 @@
 import sys
 import utils
 import errors
-print utils
 import logging
 logger = logging.getLogger('')
 

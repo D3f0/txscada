@@ -67,12 +67,32 @@ def server(options, reload=False):
         print "Iniciando servidor en http://0.0.0.0:%s" % options.port
         reactor.run()
 
+def getprofile(name):
+    from peewee import DoesNotExist
+    from models import Perfil
+    try:
+        return Perfil.get(nombre=name)
+    except DoesNotExist:
+        return None
+    
+
 @command
-def simpleserver(options):
+def maraserver(options):
     """Run client protocol"""
     from models import database, Perfil
     database.connect()
-    Perfil.get()
+    profile = getprofile(options.profile)
+    if not profile:
+        print "No existe el perfil: %s" % options.profile
+        return -1
+    for comaster in profile.comaster_set:
+        print "Arrancando con COMaster %s" % comaster
+    
+    
+    
+@command
+def cloneprofile(options, dest):
+    print "Copying profile %s to %s" % (options.profile, dest)
     
 
 @command
@@ -110,8 +130,17 @@ def syncdb(options, reset=False, create=False):
     
     
 @command
-def help(options, command=None):
+def help(options, **kwargs):
     from inspect import getargspec
+    if kwargs:
+        for command_name in kwargs.keys():
+            func = COMMANDS.get(command_name, None)
+            if func is None:
+                print "%s does not exist!"
+                return -1
+            # Function names
+            print 
+        
     print "Available commands:\n"
     for name, command in sorted(COMMANDS.items(), key=itemgetter(0)):
         print "    *", name
