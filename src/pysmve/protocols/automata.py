@@ -67,7 +67,6 @@ def is_bound(f):
 
 def apply_if_bounded(func, self, *args, **kwargs):
     '''Apply'''
-    if not callable(func): return
     if is_bound(func):
         return func(*args, **kwargs)
     return func(self, *args, **kwargs)
@@ -227,7 +226,7 @@ class MaraPacketStateMachine(StateMachine):
         # BCH           
         {'from': 'wait_bch', 'with': ANY, 'to': 'wait_bcl', 'action': 'store'},
         # BCL
-        {'from': 'wait_bcl', 'with': ANY, 'to': 'start', 'and': lambda s, d: check_cs_bigendian(s.buffer), 'accepts': True, 'action': 'store'},
+        {'from': 'wait_bcl', 'with': ANY, 'to': 'start', 'and': 'test_checksum', 'accepts': True, 'action': 'store'},
         {'from': 'wait_bcl', 'with': ANY, 'to': 'start', 'action': 'reset',},
     )
     
@@ -249,7 +248,8 @@ class MaraPacketStateMachine(StateMachine):
         self.store(data)
         self.payload_qty -= 1
         
-    def checksum_ok(self, data):
+    def test_checksum(self, data):
+        print "Test checksum"
         return check_cs_bigendian(self.buffer)
         
     def accept_package(self, data):
@@ -286,12 +286,8 @@ if __name__ == '__main__':
     
     automata = MaraPacketStateMachine()
     # Package from old code + package from excel
-    pkgs = makepkg() + ints_from_str('FE    08    01    40    80    10    80    A7')
-    for pkg in pkgs:
-        print "Total input length", len(pkg)
-        for n, c in enumerate(pkg #+ #[0, 0, ]
-                              ):
-            print "=>{0} {1:10} {2:2x} {2:3}".format( n, automata.state, c)
+    for n, c in enumerate(zip(makepkg(), ints_from_str('FE    08    01    40    80    10    80    A7'))):
+            
             if automata.feed(c):
                 print automata.buffer
     
@@ -299,4 +295,3 @@ if __name__ == '__main__':
     
     #print automata._table
     print automata.state    
-    
