@@ -9,6 +9,12 @@ import re
 from collections import OrderedDict, namedtuple
 from utils.checksum import check_cs_bigendian
 from utils.checksum import make_cs_bigendian
+from utils import ints_from_str
+
+#===============================================================================
+# Input that cause state change, for convenience ranges and sets are special
+# subclasses
+#===============================================================================
 
 class Condition(object):
     def __init__(self, arg):
@@ -21,17 +27,15 @@ class Condition(object):
     def __repr__(self):
         return "Condition"
 
-
-
 class Range(Condition):
     def __init__(self, range_min, range_max):
         """Range"""
-        assert range_min < range_max, "range_min must be less than range_max"
+        assert range_min <= range_max, "range_min must be less or equal than range_max"
         self.range_min, self.range_max = range_min, range_max
     
     def check(self, x):
         """Evaluates if condition is met"""
-        return self.range_min < x < self.range_max
+        return self.range_min <= x <= self.range_max
     
     def __repr__(self):
         return "Range from %s to %s" % (self.range_min, self.range_max)
@@ -55,7 +59,23 @@ class Any(Condition):
         return "Any"
 
 ANY = Any(None)
+#===============================================================================
+# Utility functions
+#===============================================================================
+def is_bound(f):
+    return hasattr(f, 'im_self') and getattr(f, 'im_self') is not None
 
+def apply_if_bounded(func, self, *args, **kwargs):
+    '''Apply'''
+    if not callable(func): return
+    if is_bound(func):
+        return func(*args, **kwargs)
+    return func(self, *args, **kwargs)
+
+
+#===============================================================================
+# State machine
+#===============================================================================
 Transition = namedtuple('Transition', 'input_condition extra_condition to_state action initial accepts')
 
 class StateMachine(object):
@@ -64,7 +84,7 @@ class StateMachine(object):
     TRANSITIONS = [
         # { 'from: STATE, 'with': SYMBOL, 'and': EXTRA_CONDITION, 'to': NEXT_STATE, 'whit': TRANSITION_FUNCTION, 'action': ACTION}
     ]
-    _state = None
+    
     def __init__(self):
         """docstring for %s"""
         self._table = OrderedDict()
@@ -135,33 +155,20 @@ class StateMachine(object):
         transition = Transition(input_condition,  extra_condition,  to_state,  action, initial,  accepts)
         state.append(transition)
     
-    @property
-    def empty(self):
-        return len(self) == 0
-        
-    def __len__(self):
-        """Transition table length"""
-        return len(self._table)
-    
     def feed(self, char):
         '''Consumes one character
         :returns True if reached an state'''
         if isinstance(char, basestring):
             raise ValueError("La entrada debe de caracter debe ser de longitud 1: %s %s" % (char, len(char)))
         transitions = self._table[self.state]
-        #print char, transitions 
+
         for n, trans in enumerate(transitions):
-            #if self.state == 'wait_com':
-            #    import ipdb; ipdb.set_trace()
             if trans.input_condition.check(char): # Match
-                #if callable(trans.extra_condition):
-                if trans.extra_condition is not None:
-                    import ipdb; ipdb.set_trace()
-                    if not trans.extra_condition(self, char):
-                        continue
+                if callable(trans.extra_condition):
+                    if not apply_if_bounded(trans.extra_condition, self, char): continue
                 if callable(trans.action):
-                    trans.action(char)
-                print "Transition #", n
+                    apply_if_bounded(trans.action, self, char)
+                #print "Transition #", n
                 self.state = trans.to_state
                 return trans.accepts
                 
@@ -169,11 +176,7 @@ class StateMachine(object):
     def states(self):
         return self._table.keys()
     
-    def feed_hex(self, data):
-        """mes a hex string in human readable format"""
-        for char in re.split('[\s:]', data):
-            self.feed(int(char, 16))
-    
+    _state = None
     @property
     def state(self):
         ''' StateMachine current state'''
@@ -181,12 +184,16 @@ class StateMachine(object):
     
     @state.setter
     def state(self, value):
-        #assert value in self.states
-        print "Channging to ", value
-        
-        #if self._state is not None and self._state != self.START_STATE and value == self.START_STATE:
-        #    raise Exception()
+        #print "=>", value
         self._state = value
+    
+    @property
+    def empty(self):
+        return len(self) == 0
+        
+    def __len__(self):
+        """Transition table length"""
+        return len(self._table)
     
     
 class MaraPacketStateMachine(StateMachine):
@@ -209,18 +216,18 @@ class MaraPacketStateMachine(StateMachine):
         {'from': 'wait_seq', 'with': ANY, 'to': 'start', 'action': 'reset' },
         # COMMAND
         {'from': 'wait_com', 'with': Range(0, 0x10), 'to': 'wait_arg', 'action': 'store' ,
-         'and': lambda o: o.qty > 0 },
+         'and': lambda s, d: s.payload_qty > 0 },
         {'from': 'wait_com', 'with': Range(0, 0x10), 'to': 'wait_bch', 'action': 'store' , },
         {'from': 'wait_com', 'with': ANY, 'to': 'start', 'action': 'reset' },
         # ARGS
-        {'from': 'wait_arg', 'with': ANY, 'to': 'wait_arg', 'action': 'store_arg',
-         'and': lambda o: o.qty > 0},
         {'from': 'wait_arg', 'with': ANY, 'to': 'wait_bch', 'action': 'store_arg',
-         'and': lambda o: o.qty == 0}, # Run out of arguments
+         'and': lambda s, d: s.payload_qty == 0}, # Run out of arguments
+        {'from': 'wait_arg', 'with': ANY, 'to': 'wait_arg', 'action': 'store_arg',
+         'and': lambda s, d: s.payload_qty > 0},
         # BCH           
         {'from': 'wait_bch', 'with': ANY, 'to': 'wait_bcl', 'action': 'store'},
         # BCL
-        {'from': 'wait_bcl', 'with': ANY, 'to': 'start', 'and': 'checksum_ok', 'accepts': True, 'action': 'store'},
+        {'from': 'wait_bcl', 'with': ANY, 'to': 'start', 'and': lambda s, d: check_cs_bigendian(s.buffer), 'accepts': True, 'action': 'store'},
         {'from': 'wait_bcl', 'with': ANY, 'to': 'start', 'action': 'reset',},
     )
     
@@ -228,18 +235,19 @@ class MaraPacketStateMachine(StateMachine):
         super(MaraPacketStateMachine, self).__init__()
         self.reset(None)
         
+    def reset(self, data):
+        self.buffer = []
+        
     def store_qty(self, data):
         self.store(data)
-        self.qty = data - 8 # Takes away
+        self.payload_qty = data - 9 # Already taken char
     
     def store(self, data):
         self.buffer.append(data)
         
-    def reset(self, data):
-        self.buffer = []
-        
     def store_arg(self, data):
         self.store(data)
+        self.payload_qty -= 1
         
     def checksum_ok(self, data):
         return check_cs_bigendian(self.buffer)
@@ -247,9 +255,12 @@ class MaraPacketStateMachine(StateMachine):
     def accept_package(self, data):
         pass
 
+def ints_from_hexstr(hexstr):
+    pass
         
         
 if __name__ == '__main__':
+    
     def makepkg():
         datos = [
                  SOF,   # Start of Frame 
@@ -274,13 +285,18 @@ if __name__ == '__main__':
         return datos
     
     automata = MaraPacketStateMachine()
-    for c in makepkg():
-        if automata.feed(c):
-            print automata.buffer
-            
+    # Package from old code + package from excel
+    pkgs = makepkg() + ints_from_str('FE    08    01    40    80    10    80    A7')
+    for pkg in pkgs:
+        print "Total input length", len(pkg)
+        for n, c in enumerate(pkg #+ #[0, 0, ]
+                              ):
+            print "=>{0} {1:10} {2:2x} {2:3}".format( n, automata.state, c)
+            if automata.feed(c):
+                print automata.buffer
+    
     #automata.feed_hex('AE AE DA DE 02 B2')
     
     #print automata._table
-    #print automata.state
-    
+    print automata.state    
     
