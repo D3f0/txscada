@@ -47,7 +47,7 @@ Event = Struct("Event",
                        UBInt8('day'),
                        UBInt8('hour'),
                        UBInt8('minute'),
-                       UBInt8('seconds'),
+                       UBInt8('second'),
                        
                        Switch("evtype", lambda ctx: ctx.evtype, {
                             "DIGITAL": Embed(SubSec),
@@ -59,14 +59,14 @@ Event = Struct("Event",
 # Payload del comando 10 - Encuesta de energías al COMaster
 #===============================================================================
 Payload_10 = Struct("Payload_10",
-                           UBInt8('canvarsys'),
+                           Byte('canvarsys'),
                            Array(lambda ctx: ctx.canvarsys / 2, ULInt16('varsys')),
-                           UBInt8('candis'),
+                           Byte('candis'),
                            Array(lambda ctx: ctx.candis / 2, ULInt16('dis')),
-                           UBInt8('canais'),
-                           Array(lambda ctx: ctx.canais / 2, ULInt16('ais')),
-                           UBInt8('canevs'),
-                           Array(lambda ctx: ctx.canevs / 10, Event),
+                           Byte('canais'),
+                           #Array(lambda ctx: ctx.canais / 2, ULInt16('ais')),
+                           Byte('canevs'),
+                           #Array(lambda ctx: ctx.canevs / 10, Event),
 )
 
 MaraFrame = Struct('Mara', 
@@ -76,7 +76,9 @@ MaraFrame = Struct('Mara',
             Byte('source'),
             Byte('sequence'),
             Byte('command'),
-            Range(0, 1, Payload_10),
+            #Range(0, 1, Payload_10),
+            
+            Optional(Payload_10),
             #Array(lambda ctx: ctx.length - 8, UBInt8('data')),
             #OptionalGreedyRange(Payload_01),
             UBInt16('bcc')
@@ -118,17 +120,30 @@ if __name__ == '__main__':
     print "Construyendo un evento digital de puerto "
     pkg = Event.build(Container(evtype="DIGITAL", q=0, addr485=31,
                                         bit=0, port=3, status=0, year=12, month=1, day=1, hour=12, minute=24,
-                                        seconds=10, cseg=0, dmseg=10))
+                                        second=10, cseg=0, dmseg=10))
     
     print "Evento digital",  upperhexstr(pkg)
+    
+    print "Construyendo payload del comando 10"
+    
+    pkg = Payload_10.build(Container(canvarsys=3, varsys=[0x1234], candis=3, dis=[0x4567],  canais=0,ais=[], canevs=0, events=[]))
+    print upperhexstr(pkg)
+    
+    
     sys.exit()
     pkg = MaraFrame.build(Container(sof=0xFE, length=0, source=1, dest=2, sequence=0x80, command=0x10, 
                                     #Payload_10 = Container(),
-                                    Payload_10=Container(canvarsys=3, varsys=[0x2323], 
-                                                         canais=3, ais=[0x1212],
-                                                         candis=3, dis=[0x2233], canevs=0),
+                                    Payload_10=Container(canvarsys=1, 
+                                                         varsys=[0x2323, ], 
+                                                         canais=3,
+                                                         ais=[0x1212],
+                                                         candis=3,
+                                                         dis=[0x2233],
+                                                         canevs=0,
+                                                         Event=[] ),
                                     bcc=0))
-    print "Pkg", [ "%.2x" % ord(c) for c in pkg ]
+    
+    print "Trama Mara",  upperhexstr(pkg)
     #MaraFrame.build()
-    from IPython import embed; embed()
+    #from IPython import embed; embed()
     
