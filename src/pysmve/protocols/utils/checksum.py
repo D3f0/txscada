@@ -20,7 +20,6 @@ make_cs_list = lambda l: make_cs(sum(l))
 def make_cs_pkg(pkg):
     valor = sum([ord(b) for b in pkg.octet_str()])
     return make_cs(valor)
-
         
     
 def check_cs(trama):
@@ -62,6 +61,8 @@ def sum_big_endian(lista):
     # Para hacer Little Endian inicializar alto en false 
     suma, alto = 0, True
     for i in lista:
+        if isinstance(i, basestring):
+            i = ord(i)
         if alto:
             suma += i << 8
         else:
