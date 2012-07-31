@@ -2,12 +2,12 @@
 from construct import *
 
 TCD = BitStruct('TCD',
-                       Enum(BitField("evtype", 2),
-                            DIGITAL=0,
-                            ENERGY=1,
-                        ),
-                       BitField("q", 2),
-                       BitField("addr485", 4),
+                    Enum(BitField("evtype", 2),
+                         DIGITAL=0,
+                         ENERGY=1,
+                    ),
+                    BitField("q", 2),
+                    BitField("addr485", 4),
 )
 
 
@@ -108,7 +108,25 @@ def any2buffer(data):
 
 upperhexstr = lambda buff: ' '.join([ ("%.2x" % ord(c)).upper() for c in buff])
 
+def dtime2dict(dtime = None):
+    import datetime
+    if not dtime:
+        dtime = datetime.datetime.now()
+    d = {}
+    d['year']   = dtime.year % 100 
+    d['month']  = dtime.month
+    d['day']    = dtime.day
+    d['hour']   = dtime.hour
+    d['minute'] = dtime.minute
+    d['second'] = dtime.second
+    
+    return d
+
 if __name__ == '__main__':
+    #===========================================================================
+    # Debug with ipython --pdb -c "%run constructs.py"
+    #===========================================================================
+    
     import sys
     int2str = lambda l: ''.join(map(chr, l))
     #int2strgen = lambda *l: (chr(i) for i in l)
@@ -125,31 +143,29 @@ if __name__ == '__main__':
                             second=10, 
                             cseg=0, dmseg=10)
     
-    print "Construyendo un evento digital de puerto con", event_data
+    print "Construyendo un evento digital de puerto con puerto 3, bit 0, estado 0" #event_data
     pkg = Event.build(event_data)
-    
-    print "Evento digital",  upperhexstr(pkg)
+    print upperhexstr(pkg)
+    print "Evento de energía"
+    energy_data = Container(evtype="ENERGY", q=0, addr485=4,
+                            idle=0, channel=0, 
+                            value=int(0x032F), 
+                            **dtime2dict())
+    pkg = Event.build(energy_data)
+    print upperhexstr(pkg)
     
     print "Construyendo payload del comando 10"
-    
-    pkg = Payload_10.build(Container(canvarsys=3, varsys=[0x1234], candis=3, dis=[0x4567],  canais=0,ais=[], canevs=21, event=[event_data, event_data]))
+    payload_10_data = Container(canvarsys=3, varsys=[0x1234], candis=3, dis=[0x4567],  canais=0,ais=[], canevs=31, event=[event_data, event_data, energy_data])
+    pkg = Payload_10.build(payload_10_data)
     print upperhexstr(pkg)
     
     
-    sys.exit()
+    
     pkg = MaraFrame.build(Container(sof=0xFE, length=0, source=1, dest=2, sequence=0x80, command=0x10, 
                                     #Payload_10 = Container(),
-                                    Payload_10=Container(canvarsys=1, 
-                                                         varsys=[0x2323, ], 
-                                                         canais=3,
-                                                         ais=[0x1212],
-                                                         candis=3,
-                                                         dis=[0x2233],
-                                                         canevs=11,
-                                                         event=[]),
+                                    Payload_10=payload_10_data,
                                     bcc=0))
     
     print "Trama Mara",  upperhexstr(pkg)
-    #MaraFrame.build()
-    #from IPython import embed; embed()
+    
     
