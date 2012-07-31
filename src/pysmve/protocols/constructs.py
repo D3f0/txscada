@@ -1,5 +1,6 @@
 # encoding: utf-8
 from construct import *
+from utils.checksum import make_cs_bigendian
 
 TCD = BitStruct('TCD',
                     Enum(BitField("evtype", 2),
@@ -68,7 +69,9 @@ Payload_10 = Struct("Payload_10",
                            Byte('canevs'),
                            Array(lambda ctx: ctx.canevs / 10, Event),
 )
-
+#===============================================================================
+# Paquete Mara 14
+#===============================================================================
 MaraFrame = Struct('Mara', 
             Byte('sof'),
             Byte('length'),
@@ -76,11 +79,7 @@ MaraFrame = Struct('Mara',
             Byte('source'),
             Byte('sequence'),
             Byte('command'),
-            #Range(0, 1, Payload_10),
-            
             Optional(Payload_10),
-            #Array(lambda ctx: ctx.length - 8, UBInt8('data')),
-            #OptionalGreedyRange(Payload_01),
             UBInt16('bcc')
 )
 
@@ -120,7 +119,23 @@ def dtime2dict(dtime = None):
     d['minute'] = dtime.minute
     d['second'] = dtime.second
     
-    return d
+    return d    
+
+def add_checksum_and_length(stream):
+    '''Adds checksum and length to a stream'''
+
+def build_mara_frame(obj, subcon=MaraFrame):
+    '''Generates a mara frame, with checksum and qty'''
+    stream = subcon.build(obj)
+    data= "".join([
+                    stream[0],
+                    UBInt8('qty').build(len(stream)),
+                    stream[2:-2],
+                    ])
+    cs = make_cs_bigendian(data)
+    cs_str = Array(2, Byte('cs')).build(cs)
+    return "".join((data, cs_str))
+    
 
 if __name__ == '__main__':
     #===========================================================================
@@ -156,16 +171,16 @@ if __name__ == '__main__':
     
     print "Construyendo payload del comando 10"
     payload_10_data = Container(canvarsys=3, varsys=[0x1234], candis=3, dis=[0x4567],  canais=0,ais=[], canevs=31, event=[event_data, event_data, energy_data])
+    
     pkg = Payload_10.build(payload_10_data)
     print upperhexstr(pkg)
-    
-    
-    
-    pkg = MaraFrame.build(Container(sof=0xFE, length=0, source=1, dest=2, sequence=0x80, command=0x10, 
-                                    #Payload_10 = Container(),
+    frame_data = Container(sof=0xFE, length=0, source=1, dest=2, sequence=0x80, command=0x10, 
                                     Payload_10=payload_10_data,
-                                    bcc=0))
+                                    bcc=0)
+    pkg = MaraFrame.build(frame_data)
     
-    print "Trama Mara",  upperhexstr(pkg)
+    print "Trama Mara c/QTY=0 y sin CS: ",  upperhexstr(pkg)
+    
+    print "Trama completa:", upperhexstr(build_mara_frame(frame_data))
     
     
