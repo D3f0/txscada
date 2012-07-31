@@ -121,8 +121,6 @@ def dtime2dict(dtime = None):
     
     return d    
 
-def add_checksum_and_length(stream):
-    '''Adds checksum and length to a stream'''
 
 def build_mara_frame(obj, subcon=MaraFrame):
     '''Generates a mara frame, with checksum and qty'''
@@ -170,7 +168,7 @@ if __name__ == '__main__':
     print upperhexstr(pkg)
     
     print "Construyendo payload del comando 10"
-    payload_10_data = Container(canvarsys=3, varsys=[0x1234], candis=3, dis=[0x4567],  canais=0,ais=[], canevs=31, event=[event_data, event_data, energy_data])
+    payload_10_data = Container(canvarsys=5, varsys=[0x1234, 0xfeda], candis=3, dis=[0x4567],  canais=0,ais=[], canevs=31, event=[event_data, event_data, energy_data])
     
     pkg = Payload_10.build(payload_10_data)
     print upperhexstr(pkg)
@@ -180,7 +178,6 @@ if __name__ == '__main__':
     pkg = MaraFrame.build(frame_data)
     
     print "Trama Mara c/QTY=0 y sin CS: ",  upperhexstr(pkg)
-    
     print "Trama completa:", upperhexstr(build_mara_frame(frame_data))
     
     
