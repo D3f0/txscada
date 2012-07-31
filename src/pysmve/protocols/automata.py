@@ -2,6 +2,7 @@
 # -----------------------------------------------------------------
 # Gneric class attribute based StateMachine machine
 # Designed to replace ad hoc definition of 
+# TODO: Better implementation
 # -----------------------------------------------------------------
 
 from constants import *
@@ -163,8 +164,10 @@ class StateMachine(object):
 
         for n, trans in enumerate(transitions):
             if trans.input_condition.check(char): # Match
-                if callable(trans.extra_condition):
-                    if not apply_if_bounded(trans.extra_condition, self, char): continue
+                if trans.extra_condition:
+                    if not apply_if_bounded(trans.extra_condition, self, char):
+                        print "Extra conditino not met"
+                        continue
                 if callable(trans.action):
                     apply_if_bounded(trans.action, self, char)
                 #print "Transition #", n
@@ -193,6 +196,12 @@ class StateMachine(object):
     def __len__(self):
         """Transition table length"""
         return len(self._table)
+    
+    def format_table(self):
+        for state, trans in self._table.iteritems():
+            print "*", state
+            for arc in trans:
+                print "\t", arc
     
     
 class MaraPacketStateMachine(StateMachine):
@@ -293,5 +302,5 @@ if __name__ == '__main__':
     
     #automata.feed_hex('AE AE DA DE 02 B2')
     
-    #print automata._table
+    print automata.format_table()    
     print automata.state    
