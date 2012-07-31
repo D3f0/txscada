@@ -32,7 +32,7 @@ Value = BitStruct('val',
                   BitField('value', length=14,)
 )
 
-Event = Struct("Event",
+Event = Struct("event",
                        Embed(TCD),
                        Switch("evtype", lambda ctx: ctx.evtype,  
                               {
@@ -64,9 +64,9 @@ Payload_10 = Struct("Payload_10",
                            Byte('candis'),
                            Array(lambda ctx: ctx.candis / 2, ULInt16('dis')),
                            Byte('canais'),
-                           #Array(lambda ctx: ctx.canais / 2, ULInt16('ais')),
+                           Array(lambda ctx: ctx.canais / 2, ULInt16('ais')),
                            Byte('canevs'),
-                           #Array(lambda ctx: ctx.canevs / 10, Event),
+                           Array(lambda ctx: ctx.canevs / 10, Event),
 )
 
 MaraFrame = Struct('Mara', 
@@ -117,16 +117,22 @@ if __name__ == '__main__':
     r = TCD.build(Container(evtype="ENERGY", q=1, addr485=1))
     print r
     #result.data = range(1, 10)
-    print "Construyendo un evento digital de puerto "
-    pkg = Event.build(Container(evtype="DIGITAL", q=0, addr485=31,
-                                        bit=0, port=3, status=0, year=12, month=1, day=1, hour=12, minute=24,
-                                        second=10, cseg=0, dmseg=10))
+    event_data = Container(evtype="DIGITAL", 
+                            q=0, addr485=5, 
+                            bit=0, port=3, status=0, 
+                            year=12, month=1, day=1, 
+                            hour=12, minute=24,
+                            second=10, 
+                            cseg=0, dmseg=10)
+    
+    print "Construyendo un evento digital de puerto con", event_data
+    pkg = Event.build(event_data)
     
     print "Evento digital",  upperhexstr(pkg)
     
     print "Construyendo payload del comando 10"
     
-    pkg = Payload_10.build(Container(canvarsys=3, varsys=[0x1234], candis=3, dis=[0x4567],  canais=0,ais=[], canevs=0, events=[]))
+    pkg = Payload_10.build(Container(canvarsys=3, varsys=[0x1234], candis=3, dis=[0x4567],  canais=0,ais=[], canevs=21, event=[event_data, event_data]))
     print upperhexstr(pkg)
     
     
@@ -139,8 +145,8 @@ if __name__ == '__main__':
                                                          ais=[0x1212],
                                                          candis=3,
                                                          dis=[0x2233],
-                                                         canevs=0,
-                                                         Event=[] ),
+                                                         canevs=11,
+                                                         event=[]),
                                     bcc=0))
     
     print "Trama Mara",  upperhexstr(pkg)
