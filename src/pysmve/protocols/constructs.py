@@ -1,86 +1,91 @@
 # encoding: utf-8
+#===============================================================================
+# Mara Protocol Structures
+#===============================================================================
 from construct import *
 from utils.checksum import make_cs_bigendian
+from construct.macros import ULInt8
 
 TCD = BitStruct('TCD',
-                    Enum(BitField("evtype", 2),
-                         DIGITAL=0,
-                         ENERGY=1,
-                    ),
-                    BitField("q", 2),
-                    BitField("addr485", 4),
+    Enum(BitField("evtype", 2),
+         DIGITAL=0,
+         ENERGY=1,
+    ),
+    BitField("q", 2),
+    BitField("addr485", 4),
 )
 
 
 BPE = BitStruct('BPE',
-                       BitField("bit", 4),
-                       BitField("port", 3),
-                       BitField("status", 1),
+    BitField("bit", 4),
+    BitField("port", 3),
+    BitField("status", 1),
 )
 
 IdleCan = BitStruct('idlecan',
-                  BitField('idle', 5),
-                  BitField('channel', 3) 
+    BitField('idle', 5),
+    BitField('channel', 3) 
 )
 
-SubSec = Struct('seconds', 
-              UBInt8('cseg'),
-              UBInt8('dmseg'),
+TimerTicks = Struct('ticks', 
+    #UBInt8('cseg'),
+    #UBInt8('dmseg'),
+    ULInt16('ticks')
 )
 
 Value = BitStruct('val', 
-                  BitField('q', length=2, ),
-                  BitField('value', length=14,)
+    BitField('q', length=2, ),
+    BitField('value', length=14,)
 )
 
 Event = Struct("event",
-                       Embed(TCD),
-                       Switch("evtype", lambda ctx: ctx.evtype,  
-                              {
-                               "DIGITAL": Embed(BPE),
-                               "ENERGY":  Embed(IdleCan),
-                               }
-                       ),
-                       #Embed(BPE),
-                       
-                       UBInt8('year'),
-                       UBInt8('month'),
-                       UBInt8('day'),
-                       UBInt8('hour'),
-                       UBInt8('minute'),
-                       UBInt8('second'),
-                       
-                       Switch("evtype", lambda ctx: ctx.evtype, {
-                            "DIGITAL": Embed(SubSec),
-                            "ENERGY":  Embed(Value),
-                       }),
+    Embed(TCD),
+    Switch("evtype", lambda ctx: ctx.evtype,  
+           {
+            "DIGITAL": Embed(BPE),
+            "ENERGY":  Embed(IdleCan),
+            }
+    ),
+    #Embed(BPE),
+    
+    UBInt8('year'),
+    UBInt8('month'),
+    UBInt8('day'),
+    UBInt8('hour'),
+    UBInt8('minute'),
+    UBInt8('second'),
+    
+    Switch("evtype", lambda ctx: ctx.evtype, {
+         "DIGITAL": Embed(TimerTicks),
+         "ENERGY":  Embed(Value),
+    }),
 )
 
 #===============================================================================
 # Payload del comando 10 - Encuesta de energías al COMaster
 #===============================================================================
 Payload_10 = Struct("Payload_10",
-                           Byte('canvarsys'),
-                           Array(lambda ctx: ctx.canvarsys / 2, ULInt16('varsys')),
-                           Byte('candis'),
-                           Array(lambda ctx: ctx.candis / 2, ULInt16('dis')),
-                           Byte('canais'),
-                           Array(lambda ctx: ctx.canais / 2, ULInt16('ais')),
-                           Byte('canevs'),
-                           Array(lambda ctx: ctx.canevs / 10, Event),
+    ULInt8('canvarsys'),
+    Array(lambda ctx: ctx.canvarsys / 2, ULInt16('varsys')),
+    ULInt8('candis'),
+    Array(lambda ctx: ctx.candis / 2, ULInt16('dis')),
+    ULInt8('canais'),
+    Array(lambda ctx: ctx.canais / 2, ULInt16('ais')),
+    ULInt8('canevs'),
+    Array(lambda ctx: ctx.canevs / 10, Event),
 )
 #===============================================================================
 # Paquete Mara 14
 #===============================================================================
 MaraFrame = Struct('Mara', 
-            Byte('sof'),
-            Byte('length'),
-            Byte('dest'),
-            Byte('source'),
-            Byte('sequence'),
-            Byte('command'),
+            ULInt8('sof'),
+            ULInt8('length'),
+            ULInt8('dest'),
+            ULInt8('source'),
+            ULInt8('sequence'),
+            ULInt8('command'),
             Optional(Payload_10),
-            UBInt16('bcc')
+            ULInt8('bcc')
 )
 
 def ints2buffer(hexstr):
@@ -105,9 +110,15 @@ def any2buffer(data):
         return hexstr2buffer(data)
     raise Exception("%s can't be converted to string buffer")
 
+# Buffer -> Upper Human Readable Hex String
 upperhexstr = lambda buff: ' '.join([ ("%.2x" % ord(c)).upper() for c in buff])
 
 def dtime2dict(dtime = None):
+    '''
+    Converts a datetime.datetime instance into
+    a dictionary suitable for ENERGY event
+    timestamp
+    '''
     import datetime
     if not dtime:
         dtime = datetime.datetime.now()
@@ -118,7 +129,8 @@ def dtime2dict(dtime = None):
     d['hour']   = dtime.hour
     d['minute'] = dtime.minute
     d['second'] = dtime.second
-    
+    # Ticks de cristal que va de 0 a 32K-1 en un segundo
+    d['ticks'] = dtime.microsecond * (float(2<<14)-1) / 1000000
     return d    
 
 
@@ -154,7 +166,7 @@ if __name__ == '__main__':
                             year=12, month=1, day=1, 
                             hour=12, minute=24,
                             second=10, 
-                            cseg=0, dmseg=10)
+                            ticks=4212)
     
     print "Construyendo un evento digital de puerto con puerto 3, bit 0, estado 0" #event_data
     pkg = Event.build(event_data)
@@ -162,7 +174,7 @@ if __name__ == '__main__':
     print "Evento de energía"
     energy_data = Container(evtype="ENERGY", q=0, addr485=4,
                             idle=0, channel=0, 
-                            value=int(0x032F), 
+                            value=0x032F, 
                             **dtime2dict())
     pkg = Event.build(energy_data)
     print upperhexstr(pkg)

@@ -4,6 +4,7 @@ Jinja2==2.6
 Twisted==12.0.0
 WTForms==1.0.1
 Werkzeug==0.8.3
+construct==2.06
 flask-peewee==0.5.4
 gevent==0.13.7
 greenlet==0.4.0
@@ -14,7 +15,6 @@ pycrypto==2.6
 pyzmq==2.2.0
 -e git+https://github.com/ghtdak/qtreactor.git@82ec1802f04fbe54527884a55dafc859cd997c49#egg=qt4reactor-dev
 ssh==1.7.14
-twistar==1.0
 txZMQ==0.5.0
 wsgiref==0.1.2
 wtf-peewee==0.1.3

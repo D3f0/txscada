@@ -67,6 +67,11 @@ def main(argv = sys.argv):
         print e
     except errors.CommandArgumentError as e:
         print "Command Argument Error: %s" % e
+    except Exception as e:
+        if options.traceback:
+            from traceback import format_exc
+            print type(e), e
+            print format_exc()
     return -1
     
 

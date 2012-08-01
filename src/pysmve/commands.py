@@ -5,6 +5,7 @@ import functools
 from operator import itemgetter
 import exceptions
 from logging import getLogger
+from protocols.mara import MaraServerFactory
 logger = getLogger(__name__)
 
 
@@ -67,27 +68,41 @@ def server(options, reload=False):
         print "Iniciando servidor en http://0.0.0.0:%s" % options.port
         reactor.run()
 
-def getprofile(name):
+def getprofile(name, fail=True):
     from peewee import DoesNotExist
     from models import Perfil
     try:
         return Perfil.get(nombre=name)
     except DoesNotExist:
+        if fail:
+            print "No existe el perfil %s" % name
+            raise
+            #sys.exit(-1)
         return None
     
 
 @command
 def maraserver(options):
-    """Run client protocol"""
+    """Run server protocol"""
+    from models import database, Perfil
+    from twisted.internet import reactor
+    try:
+        database.connect()
+        profile = getprofile(options.profile)
+        for comaster in profile.comaster_set:
+            print "Conectando con ", comaster
+            reactor.listenTCP(comaster.direccion, comaster.port, MaraServerFactory(comaster))
+        print "Run..."
+        reactor.run()
+    except Exception:
+        from traceback import format_exc
+        print format_exc()
+        raise
+@command
+def maraclient(options):
     from models import database, Perfil
     database.connect()
     profile = getprofile(options.profile)
-    if not profile:
-        print "No existe el perfil: %s" % options.profile
-        return -1
-    for comaster in profile.comaster_set:
-        print "Arrancando con COMaster %s" % comaster
-    
     
     
 @command
