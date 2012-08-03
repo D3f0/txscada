@@ -171,6 +171,16 @@ def format_frame(buff, as_hex_string=False):
         print "%12s" % "CANAIS:", p.candis, "%d valores de word de 16" % (p.canais/2)
         print "%12s" % "DIS:", p.ais
         # Eventos
+        print "%12s" % "CANEVS:", p.canevs, "%d cada evento ocupa 10 bytes" % (p.canevs/10)
+        for ev in p.event:
+            if ev.evtype == "DIGITAL":
+                print "\tDIGITAL Q: %d ADDR485: %d BIT: %2d PORT: %s STATUS: %s 20%d/%s/%d"\
+                " %.2d:%.2d:%.2d Ticks 1s/32K: %d" % (ev.q, ev.addr485, ev.bit, ev.port, ev.status, ev.year, ev.month, ev.day,
+                            ev.hour, ev.minute, ev.second, ev.ticks)
+            elif ev.evtype == "ENERGY":
+                print "\tENERGY Q: %d ADDR485: %d" % (ev.q, ev.addr485, )
+            else:
+                print "Tipo de evento no reconocido"
     print "BCC:", d.bcc
         
 
