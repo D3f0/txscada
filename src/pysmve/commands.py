@@ -91,7 +91,7 @@ def maraserver(options):
         profile = getprofile(options.profile)
         for comaster in profile.comaster_set:
             print "Conectando con ", comaster
-            reactor.listenTCP(comaster.direccion, comaster.port, MaraServerFactory(comaster))
+            reactor.listenTCP(comaster.address, comaster.port, MaraServerFactory(comaster))
         print "Run..."
         reactor.run()
     except Exception:
