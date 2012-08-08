@@ -253,12 +253,12 @@ def format_frame(buff, as_hex_string=False):
                 print '\t',
                 print "DIGITAL",
                 print "Q:", ev.q, 
-                print "ADDR485", ev.addr485, 
-                print "BIT:", ev.bit,
+                print "ADDR485",    ev.addr485, 
+                print "BIT: %2d" % ev.bit,
                 print "PORT:", ev.port,
                 print "STATUS:", ev.status,
-                print "%d/%d/%d %2d:%.2d:%.2d" % (ev.year+2000, ev.month, ev.day, ev.hour, ev.minute, ev.second),
-                print "%.2f" % ev.subsec
+                print "%d/%d/%d %2d:%.2d:%2.2f" % (ev.year+2000, ev.month, ev.day, ev.hour, ev.minute, ev.second + ev.subsec)
+                #print "%.2f" % ev.subsec
                 
                 
             elif ev.evtype == "ENERGY":
@@ -326,74 +326,14 @@ def test_events():
     print Event.parse(''.join(map(chr, ev)))
 
 def test_frames():
-    print "-"*80
-    print "Trama 1"
-    print "-"*80
-    trama_1 = """
-    FE 44 40 01 4A 10 19 00 00 90 1D 01 00 00 00 00 00 80 80 00 00 80 80 00 00 80 80 00
-    00 80 80 0F 00 00 43 00 00 00 00 04 00 04 00 04 00 04 13 48 05 51 00 51 00 51 00 51
-    00 51 00 51 00 51 00 51 00 01 E1 29
-    """
-    # Primera trama
-    format_frame(trama_1, as_hex_string=True)
+    from sample_data import FRAMES
+    for n, frame in enumerate(FRAMES):
+        print "-"*80
+        print "Trama %d" % (n+1)
+        print "-"*80
     
+        format_frame(frame, as_hex_string=True)
     
-    print "-"*80
-    print "Trama 2"
-    print "-"*80
-    trama_2 = """
-    FE 44 40 01 4C 10 19 00 00 85 1D 01 00 00 00 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 0F 
-    00 00 43 00 00 00 00 04 00 04 00 04 00 04 13 4C 05 51 00 51 00 51 00 51 00 51 00 51 00 51 00 51 
-    00 01 DD 30
-    """
-    # Segunda trama
-    format_frame(trama_2, as_hex_string=True)
-
-    print "-"*80
-    print "Trama 3"
-    print "-"*80
-    trama_3 = """
-    FE F8 40 01 4D 10 19 00 00 8D 1D 01 00 00 00 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 0F
-    00 00 43 00 00 00 00 04 00 04 00 04 00 04 13 81 09 51 00 51 00 51 00 51 00 51 00 51 00 51 00 51
-    00 B5 01 93 0C 01 01 01 08 22 00 14 01 E3 0C 01 01 01 08 22 00 14 01 05 0C 01 01 01 08 22 00 14 
-    01 92 0C 01 01 01 08 22 00 18 01 E2 0C 01 01 01 08 22 00 18 01 04 0C 01 01 01 08 22 00 18 01 F1 
-    0C 01 01 01 08 22 00 1C 01 93 0C 01 01 01 08 22 00 1C 01 F3 0C 01 01 01 08 22 00 1C 01 05 0C 01 
-    01 01 08 22 00 1C 01 F2 0C 01 01 01 08 22 00 20 01 04 0C 01 01 01 08 22 00 20 01 F0 0C 01 01 01 
-    08 22 00 24 01 92 0C 01 01 01 08 22 00 24 01 15 0C 01 01 01 08 22 00 60 01 14 0C 01 01 01 08 22 
-    00 7C 01 F3 0C 01 01 01 08 23 00 00 01 15 0C 01 01 01 08 23 00 00 3C 91
-    """
-    # Tercer trama
-    format_frame(trama_3, as_hex_string=True)
-    
-    print "-"*80
-    print "Trama 4"
-    print "-"*80
-    
-    #sys.exit()
-    
-    trama_4 = """
-    FE E4 40 01 F1 10 19 00 00 86 1D 01 00 00 00 00 EF 00 03 00 00 00 04 00 00 80 80 00 00 80 80 0F
-    00 00 43 00 00 00 40 F6 40 F6 00 F4 00 3A 13 7F 09 00 40 00 40 00 40 00 40 00 40 00 40 00 40 00
-    40 A1 45 00 0C 08 03 0F 00 00 00 00 45 01 0C 08 03 0F 00 00 00 00 
-    42 00 0C 08 03 0F 00 00 00 00
-    42 01 0C 08 03 0F 00 00 00 00 
-    43 00 0C 08 03 0F 00 00 00 00 
-    43 01 0C 08 03 0F 00 00 00 00 
-    44 00 0C 08 03 0F 00 00 00 00 
-    44 01 0C 08 03 0F 00 00 00 00 
-    43 00 0C 08 03 0F 0F 00 00 00 
-    43 01 0C 08 03 0F 0F 00 00 00 
-    44 00 0C 08 03 0F 0F 00 00 00 
-    44 01 0C 08 03 0F 0F 00 00 00 
-    45 00 0C 08 03 0F 0F 00 00 00 
-    45 01 0C 08 03 0F 0F 00 00 00 
-    42 00 0C 08 03 0F 0F 00 00 00 
-    42 01 0C 08 03 0F 0F 00 00 00 
-    1D C2
-    """
-    
-    format_frame(trama_4, as_hex_string=True)
-
 if __name__ == '__main__':
     #===========================================================================
     # Debug with ipython --pdb -c "%run constructs.py"

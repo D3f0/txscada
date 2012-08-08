@@ -1,18 +1,53 @@
 # encoding: utf-8
 from twisted.internet import protocol, reactor
 from logging import getLogger
-from constructs import MaraFrame, Event, build_mara_frame
+from constructs import MaraFrame, Event, parse_frame
 from construct import Container
 
+from utils.types import enum
 # Definiciones para mara 14 v7
 
 logger = getLogger(__name__)
 
+
+    
+
 class MaraClientProtocol(protocol.Protocol):
+    CLIENT_STATES = set('IDLE', 'RESPONSE_WAIT', )
+    
+    def __init__(self, initial_seq):
+        self.state = 'IDLE'
+        
     
     def connectionMade(self):
         logger.debug("Conection made %s" % self.endpoint)
+        ractor.callLater(0.01, self.sendCommand)
+    
+    def sendCommand(self):
+        logger.debug("Sending command")
+        # Send command
+        self.state = 'RESPONSE_WAIT'
+        self.timeout = 
         
+    def dataReceived(self, data):
+        if self.state == 'IDLE':
+            pass
+        elif self.state == 'RESPONSE_WAIT':
+            pass
+        
+    
+    
+    __state = CLIENT_STATES.IDLE
+    @property
+    def state(self):
+        return self.__state
+    
+    @state.setter
+    def state(self, value):
+        assert value in self.CLIENT_STATES
+        self.__state = value
+        
+     
     
 class MaraClientProtocolFactory(protocol.Factory):
     '''
