@@ -13,7 +13,7 @@ class Perfil(BaseModel):
         
 class Concentrador(BaseModel):
     perfil = ForeignKeyField(Perfil)
-    direccion = CharField() # Direcci´on IP
+    address = CharField() # Direcci´on IP
     nombre = CharField()    # Nombre para mostrar
     cantidad_IEDs = IntegerField() # Cantidad de IEDs
     
@@ -29,16 +29,16 @@ class IED(BaseModel):
 class CurrentVarSys(BaseModel):
     #concentrador = ForeignKeyField(Concentrador)
     ied          = ForeignKeyField(IED)
-    direccion    = IntegerField()
+    address    = IntegerField()
     parametro    = CharField()
-    descripcion  = CharField()
+    description  = CharField()
     unidad_de_medida = CharField()
     valor        = IntegerField()
     
 class CurrentDIs(BaseModel):
     ied         = ForeignKeyField(IED)
     parametro   = CharField()
-    descripcion = CharField()
+    description = CharField()
     puerto      = IntegerField()
     bit         = IntegerField()
     calificador = IntegerField()
@@ -48,7 +48,7 @@ class CurrentAIs(BaseModel):
     ied         = ForeignKeyField(IED)
     frame_offset = IntegerField()
     parametro = ForeignKeyField(Parametro)
-    descripcion = CharField()
+    description = CharField()
     unidad      = CharField()
     cte_ke      = FloatField()
     cte_multi_asm = IntegerField()

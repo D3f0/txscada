@@ -6,6 +6,7 @@ from construct import *
 from datetime import datetime
 from utils.checksum import make_cs_bigendian
 from utils.bitfield import bitfield
+import constants
 #===============================================================================
 # Adapters
 #===============================================================================
@@ -153,7 +154,33 @@ Payload_10 = Struct("payload_10",
 #===============================================================================
 # Paquete Mara 14
 #===============================================================================
-MaraFrame = Struct('Mara', 
+class BaseMaraStruct(Struct):
+    def _parse(self, stream, context):
+        # TODO: Check checksum
+        return super(BaseMaraStruct, self)._parse(stream, context)
+    
+    def _build(self, obj, stream, context):
+        '''Builds frame'''
+        # This code ain't no pythonic, shall make it better some time...
+        obj.setdefault('sof', constants.SOF)
+        obj.setdefault('length', 0) # Don't care right now
+        obj.setdefault('bcc', 0)    # Don't care right now
+        super(BaseMaraStruct, self)._build(obj, stream, context) # stream is an I/O var
+        stream.seek(0, 2) # Go to end
+        length = stream.tell() # Get length
+        stream.seek(1) # Seek mara length position (second byte)
+        stream.write( ULInt8('length').build(length) ) # Write length as ULInt8
+        stream.seek(0) # Back to the beginging
+        data_to_checksum = stream.read(length-2)
+        #print map(lambda c: "%.2x" % ord(c), data_to_checksum) 
+        #print stream.tell()
+        stream.truncate() # Discard old checksum
+        cs  = make_cs_bigendian(data_to_checksum) 
+        stream.seek(length-2) # Go to BCC position
+        stream.write(Array(2, ULInt8('foo')).build(cs))
+        
+
+MaraFrame = BaseMaraStruct('Mara', 
             ULInt8('sof'),
             ULInt8('length'),
             ULInt8('dest'),
@@ -189,7 +216,7 @@ def any2buffer(data):
 
 # Buffer -> Upper Human Readable Hex String
 upperhexstr = lambda buff: ' '.join([ ("%.2x" % ord(c)).upper() for c in buff])
-
+#aa
 def dtime2dict(dtime = None):
     '''
     Converts a datetime.datetime instance into
@@ -340,9 +367,10 @@ if __name__ == '__main__':
     #===========================================================================
     
     import sys
-    
+    #aa
     #sys.exit(test_events())
-    sys.exit(test_frames())
+    #sys.exit(test_frames())
+    from IPython import embed; embed()
     
     
     

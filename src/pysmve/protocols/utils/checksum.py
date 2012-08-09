@@ -2,8 +2,9 @@
 # -*- encoding: utf-8 -*-
 
 '''
-Rutinas de verificacion de checksum
+Mara checksum routines
 '''
+# TODO: Work wiht Streams instead of lists and Construct ULInt's
 
 def make_cs(valor):
     '''
@@ -83,6 +84,10 @@ def main(argv = sys.argv):
 #    trama += make_cs_list(trama)
     trama = 'FE	08	01	40	80	10'
     print trama
+    trama = map(lambda s: int(s, 16), trama.split())
+    print format_cs(trama)
+    
+    trama = 'fe 08 02 01 21 10'
     trama = map(lambda s: int(s, 16), trama.split())
     print format_cs(trama)
     

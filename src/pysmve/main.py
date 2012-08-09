@@ -38,11 +38,12 @@ def setup_logging(options):
     logging.basicConfig(level=levels.get(options.file_level, logging.DEBUG),
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                         datefmt='%d-%m-%y %H:%M',
-                        filename='automata.log',
+                        filename='logging.log',
                         filemode='w')
     
     console = logging.StreamHandler()
-    console.setLevel(levels.get(options.stdout_level, logging.DEBUG))
+    #console.setLevel(levels.get(options.stdout_level, logging.INFO))
+    console.setLevel(logging.NOTSET)
     # set a format which is simpler for console use
     formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
     # tell the handler to use this format

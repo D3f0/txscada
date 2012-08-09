@@ -3,58 +3,123 @@ from twisted.internet import protocol, reactor
 from logging import getLogger
 from constructs import MaraFrame, Event, parse_frame
 from construct import Container
-
-from utils.types import enum
+from construct.core import FieldError
+from constructs import MaraFrame
+from twisted.internet.defer import Deferred
+from twisted.internet.protocol import ClientFactory
+from protocols.constructs import Payload_10
 # Definiciones para mara 14 v7
 
 logger = getLogger(__name__)
 
 
-    
-
 class MaraClientProtocol(protocol.Protocol):
-    CLIENT_STATES = set('IDLE', 'RESPONSE_WAIT', )
+    CLIENT_STATES = set(['IDLE', 'RESPONSE_WAIT', ])
     
-    def __init__(self, initial_seq):
+    def __init__(self, factory):
+        self.factory = factory
         self.state = 'IDLE'
+        self.pending = 0
+        self.timeouts = 0
+        # Data to be sent to COMaster
+        self.output = Container(
+                                source = self.factory.comaster.source,
+                                dest   = self.factory.comaster.dest,
+                                sequence = self.factory.comaster.sequence,
+                                command = 0x10,
+                                payload_10 = None, # No payload
+                                )
+        # Data to be received from COMaster
+        self.input = Container()
+        print "OK"
         
-    
     def connectionMade(self):
-        logger.debug("Conection made %s" % self.endpoint)
-        ractor.callLater(0.01, self.sendCommand)
+        #from IPython import embed; embed()
+        logger.debug("Conection made to %s:%s" % self.transport.addr)
+        reactor.callLater(0.01, self.sendCommand)
     
     def sendCommand(self):
-        logger.debug("Sending command")
+        #logger.debug("Sending command")
+        print "Sending COMMAND %s" % (self.pending if self.pending else '')
         # Send command
+        frame = MaraFrame.build(self.output)
+        self.transport.write(frame)
         self.state = 'RESPONSE_WAIT'
-        self.timeout = 
+        self.timeout_deferred = reactor.callLater(self.factory.comaster.timeout, self.timeoutElapsed, )
+        #self.poll_deferred = reactor
+        
         
     def dataReceived(self, data):
         if self.state == 'IDLE':
-            pass
+            logger.warning("Discarding data in IDLE state %d bytes" % len(data))
         elif self.state == 'RESPONSE_WAIT':
-            pass
-        
+            try:
+                self.input = MaraFrame.parse(data)
+            except FieldError:
+                print "Error de paquete!"
+                return
+            if self.input.command != self.output.command:
+                logger.warn("Command not does not match with sent command %d" % self.input.command)
+            logger.debug("Message OK")
+            print "OK"
     
+    def timeoutElapsed(self):
+        self.timeouts += 1
+        self.pending += 1
+        self.sendCommand()
     
-    __state = CLIENT_STATES.IDLE
+    __state = 'IDLE'
     @property
     def state(self):
         return self.__state
     
     @state.setter
     def state(self, value):
-        assert value in self.CLIENT_STATES
+        assert value in self.CLIENT_STATES, "Invalid state %s" % value
         self.__state = value
-        
+    
+    __factory = None
+    @property
+    def factory(self):
+        return self.__factory
+    
+    @factory.setter
+    def factory(self, value):
+        assert isinstance(value, ClientFactory)
+        self.__factory = value
      
     
-class MaraClientProtocolFactory(protocol.Factory):
+class MaraClientProtocolFactory(protocol.ClientFactory):
     '''
     Cliente de consultas a las placas de desarrollo
     o a un emulador'''
-    pass
+    
+    protocol = MaraClientProtocol
+    
+    def __init__(self, comaster):
+        self.comaster = comaster
+    
+    def buildProtocol(self, *largs):
+        p = MaraClientProtocol(factory = self)
+        return p
+    
+    def clientConnectionFailed(self, connector, reason):
+        logger.warn("Connection failed: %s" % reason)
+        #connector.connect()
+        reactor.stop()
+        
+    def clientConnectionLost(self, connector, reason):
+        logger.warn("Connection lost: %s" % reason)
+        #connector.connect()
+        reactor.stop()
+    
+    def startedConnecting(self, connector):
+        logger.debug("Started connecting")
 
+
+#===============================================================================
+# COMaster emulation
+#===============================================================================
 
 class MaraServer(protocol.Protocol):
     '''

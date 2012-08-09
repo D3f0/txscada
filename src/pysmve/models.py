@@ -19,7 +19,8 @@ from peewee import (Model,
 				IntegerField,
 				BooleanField, 
 				ForeignKeyField, 
-				Max)
+				Max,
+				DoesNotExist)
 from protocols import constants as mara
 
 DB_FILE = join(dirname(__file__), 'database.db')
@@ -49,7 +50,11 @@ class Profile(BaseModel):
 	
 	@classmethod
 	def by_name(cls, name):
-		pass
+		'''Get profile by name or None if it does not exist'''
+		try:
+			return cls.get(name=name)
+		except DoesNotExist:
+			return None
 
 class COMaster(BaseModel):
 	'''
@@ -63,10 +68,14 @@ class COMaster(BaseModel):
 	port = IntegerField(verbose_name="Puerto TCP de conexion", default=mara.DEFAULT_COMASTER_PORT)
 	timeout = FloatField(default=mara.DEFAULT_TIMEOUT, help_text="Tiempo que se espera por consulta antes de decretarlo muerto")
 	poll_interval = FloatField(default=mara.DEFAULT_POLL_INTERVAL, help_text="Tiempo en segundos entre consultas") 
-
+	sequence = IntegerField(verbose_name="Mara sequence number", default=mara.MAX_SEQ)
+	source = IntegerField(verbose_name="Default 485 source address", default=0)
+	dest   = IntegerField(verbose_name="COMaster address to poll")
+	
 	def __unicode__(self):
 		#return "<COMaser IP: %s Hab:%s>" % (self.address, self.enabled)
-		return "%s"	 % self.addraddressroperty
+		return "%s"	 % self.address
+	
 	def varsys(self):
 		return VarSys.filter(ied__co_master=self)
 		
@@ -271,13 +280,13 @@ def tab_formatted2int_list(text):
 	return output
 		
 
-def populate_tables(profile_name='default'):
+def populate_tables(name, address):
 	
-	profile = Profile(name=profile_name, date=datetime.now())
+	profile = Profile(name=name, date=datetime.now())
 	profile.save()
 	master = COMaster(profile=profile,
-					address='192.168.1.97', #   
-					description="CO Master for Tests",
+					address=address, #   
+					description="CO Master for %s" % address.split('.')[-1],
 					enabled=True)
 	master.save()
 	# Copiado y pegado del excel
@@ -327,4 +336,5 @@ if __name__ == "__main__":
 	if os.path.exists(DB_FILE):
 		os.unlink(DB_FILE)
 	create_tables()
-	populate_tables()
+	for name, address in (('default', '192.168.1.97'), ('test', '127.0.0.1')):
+		populate_tables(name=name, address=address)

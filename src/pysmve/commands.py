@@ -1,11 +1,12 @@
+# encoding: utf-8
 # Comandos para el main
 
 
 import functools
 from operator import itemgetter
-import exceptions
+from errors import ImproperlyConfigured 
 from logging import getLogger
-from protocols.mara import MaraServerFactory
+from protocols.mara import MaraServerFactory, MaraClientProtocolFactory
 logger = getLogger(__name__)
 
 
@@ -14,7 +15,7 @@ COMMANDS = {}
 def command(obj):
     global COMMANDS
     if not callable(obj):
-        raise exceptions.ImproperlyConfigured("Task should be callable objects")
+        raise ImproperlyConfigured("Task should be callable objects")
     
     
     @functools.wraps(obj)
@@ -63,47 +64,56 @@ def server(options, reload=False):
         for x in COMaster.select():
             print x
         
-        reactor.listenTCP(options.port, site)
-        reactor.callLater(1, functools.partial(open_local_browser, port=options.port))    
+        reactor.listenTCP(options.port, site) #@UndefinedVariable
+        reactor.callLater(1, functools.partial(open_local_browser, port=options.port))    #@UndefinedVariable
         print "Iniciando servidor en http://0.0.0.0:%s" % options.port
-        reactor.run()
-
-def getprofile(name, fail=True):
-    from peewee import DoesNotExist
-    from models import Perfil
-    try:
-        return Perfil.get(nombre=name)
-    except DoesNotExist:
-        if fail:
-            print "No existe el perfil %s" % name
-            raise
-            #sys.exit(-1)
-        return None
-    
+        reactor.run() #@UndefinedVariable
 
 @command
 def maraserver(options):
     """Run server protocol"""
-    from models import database, Perfil
+    from models import database, Profile
     from twisted.internet import reactor
     try:
         database.connect()
-        profile = getprofile(options.profile)
+        profile = Profile.by_name(options.profile)
+        if not profile:
+            print "Profile does not exist"
+            return
         for comaster in profile.comaster_set:
             print "Conectando con ", comaster
-            reactor.listenTCP(comaster.address, comaster.port, MaraServerFactory(comaster))
+            reactor.listenTCP(comaster.address, comaster.port, MaraServerFactory(comaster)) #@UndefinedVariable
         print "Run..."
         reactor.run()
     except Exception:
         from traceback import format_exc
         print format_exc()
         raise
+    
 @command
 def maraclient(options):
-    from models import database, Perfil
-    database.connect()
-    profile = getprofile(options.profile)
-    
+    '''
+    Conexión con el mara
+    '''
+    from twisted.internet import reactor
+    try:
+        from models import database, Profile
+        database.connect()
+        profile = Profile.get(name=options.profile)
+        
+        for comaster in profile.comaster_set:
+            print "Conectando con %s" % comaster
+            reactor.connectTCP(comaster.address, 
+                               comaster.port, 
+                               MaraClientProtocolFactory(comaster),
+                               timeout=comaster.timeout,
+                               #bindAddress=None,
+                               )
+            reactor.run()
+    except Exception as e:
+        from traceback import format_exc
+        print format_exc()
+        print e
     
 @command
 def cloneprofile(options, dest):
@@ -121,7 +131,7 @@ def server_plus(options, restart=False, kill=False):
     
 @command
 def dbshell(options):
-    from models import Perfil, COMaster, IED, VarSys, DI, Evento, AI, Energia
+    from models import Profile, COMaster, IED, VarSys, DI, Event, AI, Energy
     print "Importing: Perfil, COMaster, IED, VarSys, DI, Evento, AI, Energia"
     
     from IPython import embed
@@ -129,16 +139,16 @@ def dbshell(options):
     
 @command
 def syncdb(options, reset=False, create=False):
-    from models import DB_FILE, database, crear_tablas, cargar_tablas
+    from models import DB_FILE, database, create_tables, populate_tables
     import os
     if reset:
         os.unlink(DB_FILE)
         database.connect()
-        crear_tablas()
-        cargar_tablas()
+        create_tables()()
+        populate_tables()
     elif create:
         database.connect()
-        crear_tablas()
+        create_tables()()
 
     else:
         dbshell(options)
