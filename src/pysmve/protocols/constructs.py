@@ -257,7 +257,10 @@ def parse_frame(buff, as_hex_string=False):
     return data
 
 def format_frame(buff, as_hex_string=False):
-    d = parse_frame(buff, as_hex_string)
+    if isinstance(buff, Container):
+        d = buff
+    else:
+        d = parse_frame(buff, as_hex_string)
     print "SOF:", d.sof
     print "QTY:", d.length
     print "DST:", d.dest

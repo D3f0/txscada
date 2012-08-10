@@ -7,7 +7,8 @@ from construct.core import FieldError
 from constructs import MaraFrame
 from twisted.internet.defer import Deferred
 from twisted.internet.protocol import ClientFactory
-from protocols.constructs import Payload_10
+from protocols.constructs import Payload_10, format_frame
+from protocols.constants import MAX_SEQ, MIN_SEQ
 # Definiciones para mara 14 v7
 
 logger = getLogger(__name__)
@@ -61,8 +62,17 @@ class MaraClientProtocol(protocol.Protocol):
             if self.input.command != self.output.command:
                 logger.warn("Command not does not match with sent command %d" % self.input.command)
             logger.debug("Message OK")
-            print "OK"
-    
+            # Calcular próxima sequencia
+            next = self.input.sequence + 1
+            if next == MAX_SEQ:
+                next = MIN_SEQ
+            self.factory.comaster.sequence = self.output.sequence = next 
+            reactor.callLater(self.factory.comaster.poll_interval, self.sendCommand)
+            self.timeout_deferred.cancel()
+            self.pending = 0
+            #print self.input
+            format_frame(self.input)
+            
     def timeoutElapsed(self):
         self.timeouts += 1
         self.pending += 1
