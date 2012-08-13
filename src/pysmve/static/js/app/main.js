@@ -4,8 +4,12 @@ $(function  () {
     *
     */            
     
-    $('#tabs').tabs();
+    smve = {};
     
+   	// Crear las solapas
+    $('#tabs').tabs();
+	$('#tabla-curvas-pq').tabs();
+	    
     // Highchart
     var curvaDePotenciaPlot = new Highcharts.Chart({
         chart: {
@@ -91,7 +95,12 @@ $(function  () {
             }
        }); // Svg
     var $svg = $('#svg');
+    
+    // Updater por polling
+    smve.valueUpdate = true;
     function valueUpdate() {
+    	// Timeout
+        if (!smve.valueUpdate) return;
         
         if (!$('#checkbox-update').is(':checked')){
             return;
@@ -148,5 +157,22 @@ $(function  () {
         //console.log(this);
         
     });
+    // 
+    // Tabla de eventos
+    // 
+    function createEventTable() {
+        		
+		var tablaEventos = $('#tabla-eventos');
+		console.log("Creando tabla de eventos en", tablaEventos);
+		var config = {
+			bProcessing: true,
+			bServerSide: true,
+			sAjaxSource: '/api/events/',
+			bJQueryUI: true
+		};
+		tablaEventos.dataTable(config);
+	}
+	createEventTable();
+    
 
 });

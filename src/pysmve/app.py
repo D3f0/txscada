@@ -81,49 +81,49 @@ def index():
 
 @app.route('/valores/')
 def valores():
-	'''Retorna valores'''
-	rand_pot = lambda : "%.2f Kw" % (randrange(1,250)/10.)
-	rand_pot_r = lambda : "%.2f KVa" % (randrange(1,250)/10.)
-	rand_current = lambda : "%.2f KVa" % (randrange(1000,5000)/10.)
-	return jsonify({
-		# Potencia 
-		'potencia-1': rand_pot(),
-		'potencia-2': rand_pot(),
-		'potencia-3': rand_pot(),
-		'potencia-4': rand_pot(),
-		# Potencias reactivas
-		'potencia-r-1': rand_pot_r(),
-		'potencia-r-2': rand_pot_r(),
-		'potencia-r-3': rand_pot_r(),
-		'potencia-r-4': rand_pot_r(),
-		# Corrientes
-		'corriente-1': rand_current(),
-		'corriente-2': rand_current(),
-		'corriente-3': rand_current(),
-		'corriente-4': rand_current(),
-		})
+    '''Retorna valores'''
+    rand_pot = lambda : "%.2f Kw" % (randrange(1,250)/10.)
+    rand_pot_r = lambda : "%.2f KVa" % (randrange(1,250)/10.)
+    rand_current = lambda : "%.2f KVa" % (randrange(1000,5000)/10.)
+    return jsonify({
+        # Potencia 
+        'potencia-1': rand_pot(),
+        'potencia-2': rand_pot(),
+        'potencia-3': rand_pot(),
+        'potencia-4': rand_pot(),
+        # Potencias reactivas
+        'potencia-r-1': rand_pot_r(),
+        'potencia-r-2': rand_pot_r(),
+        'potencia-r-3': rand_pot_r(),
+        'potencia-r-4': rand_pot_r(),
+        # Corrientes
+        'corriente-1': rand_current(),
+        'corriente-2': rand_current(),
+        'corriente-3': rand_current(),
+        'corriente-4': rand_current(),
+        })
 
 @app.route('/eventos/')
 def eventos():
-	'''jQuery datatable inspired json data'''
-	data = []
-	#print request.values
-	options = parseparams(request.values)
-	#import ipdb; ipdb.set_trace()
-	for i in xrange(options.get('display_length', 10)):
-		data.append(["Evento", randrange(1, 10), randrange(1,20), randrange(1, 10)])
-	return jsonify(dict(aaData = data))
+    '''jQuery datatable inspired json data'''
+    data = []
+    #print request.values
+    options = parseparams(request.values)
+    #import ipdb; ipdb.set_trace()
+    for i in xrange(options.get('display_length', 10)):
+        data.append(["Evento", randrange(1, 10), randrange(1,20), randrange(1, 10)])
+    return jsonify(dict(aaData = data))
 
 @app.route('/potencias_historicas/')
 def potencias_historicas():
-	from datetime import date, time, datetime, timedelta
-	d = datetime.combine(date.today(), time(0, 0, 0))
-	next = datetime.today() + timedelta(days=1)
-	data = []
-	while d < next:
-		data.append([d, randrange(1,100)])
-		d += timedelta(minutes=randrange(1,60))
-	return dumps(dict(data=data))
+    from datetime import date, time, datetime, timedelta
+    d = datetime.combine(date.today(), time(0, 0, 0))
+    next = datetime.today() + timedelta(days=1)
+    data = []
+    while d < next:
+        data.append([d, randrange(1,100)])
+        d += timedelta(minutes=randrange(1,60))
+    return dumps(dict(data=data))
 
 @app.route('/api/comaster/')
 def comaster():
@@ -145,3 +145,12 @@ def analog_inputs():
     from models import AI
     from json import dumps    
     return dumps(dump(AI.select(), skip=['ied']))
+
+
+@app.route('/api/events/')
+def events():
+    '''Events'''
+    from datetime import datetime
+    aaData = [('Estación 1', '1', 'Descripcion %d' % d, datetime.now())
+              for d in range(10)]
+    return dumps(dict(aaData=aaData))
