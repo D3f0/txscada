@@ -34,7 +34,7 @@ def open_local_browser(port):
 
 
 @command
-def server(options, reload=False):
+def webserver(options, reload=False):
     from app import app
     print "Running server"
     if reload:
@@ -76,14 +76,10 @@ def maraserver(options):
     from twisted.internet import reactor
     try:
         database.connect()
-        profile = Profile.by_name(options.profile)
-        if not profile:
-            print "Profile does not exist"
-            return
-        for comaster in profile.comaster_set:
-            print "Conectando con ", comaster
-            reactor.listenTCP(comaster.address, comaster.port, MaraServerFactory(comaster)) #@UndefinedVariable
-        print "Run..."
+        profile = Profile.get(name=options.profile)
+        #import IPython; IPython.embed()
+        for comaster in profile.comaster_set.filter(enabled=True):
+            reactor.listenTCP(comaster.port, MaraServerFactory(comaster)) #@UndefinedVariable
         reactor.run()
     except Exception:
         from traceback import format_exc
@@ -109,7 +105,8 @@ def maraclient(options):
                                timeout=comaster.timeout,
                                #bindAddress=None,
                                )
-            reactor.run()
+        # Una vez que está conectado todo, debemos funcionar...
+        reactor.run() #@UndefinedVariable
     except Exception as e:
         from traceback import format_exc
         print format_exc()
@@ -118,16 +115,7 @@ def maraclient(options):
 @command
 def cloneprofile(options, dest):
     print "Copying profile %s to %s" % (options.profile, dest)
-    
-
-@command
-def server_plus(options, restart=False, kill=False):
-    while True:
-        try:
-            server(options, restart)
-        except Exception as e:
-            print e, type(e)
-            import sys; sys.exit()
+    print "Not implemented yet"
     
 @command
 def dbshell(options):

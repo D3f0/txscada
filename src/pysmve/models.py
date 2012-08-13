@@ -280,15 +280,26 @@ def tab_formatted2int_list(text):
 	return output
 		
 
-def populate_tables(name, address):
-	
+def populate_tables(name, list_of_data):
+	print "Creating profile: %s with (%d) hosts" % (name, len(list_of_data))
 	profile = Profile(name=name, date=datetime.now())
 	profile.save()
-	master = COMaster(profile=profile,
-					address=address, #   
-					description="CO Master for %s" % address.split('.')[-1],
-					enabled=True)
-	master.save()
+	for data in list_of_data:
+		insert_comaster(profile, data)
+	
+def insert_comaster(profile, data):
+	''' Creates one comaster with its configuration'''
+	data.update(profile=profile,
+				enabled=True,
+				)
+	assert 'address' in data, "Falta la dirección del COMaster"
+	comaster = COMaster(**data)
+					#profile=profile,
+					#address=address, #   
+					#description="CO Master for %s" % address.split('.')[-1],
+					#enabled=True
+					#)
+	comaster.save()
 	# Copiado y pegado del excel
 	text_cfg = '''
 	0	8	6	2	1
@@ -301,7 +312,7 @@ def populate_tables(name, address):
 	for offset, canvarsys, candis, canais, addr_485_IED in config:
 		ied = IED(offset=offset, can_varsys=canvarsys,
 					can_dis=candis, can_ais=canais,
-					addr_485_IED=addr_485_IED, co_master=master)
+					addr_485_IED=addr_485_IED, co_master=comaster)
 		ied.save()
 		# ------------------------------------------------------------------
 		# TODO: Generar una configuración mejor, quizás pasando a un crear_var_sys
@@ -336,5 +347,16 @@ if __name__ == "__main__":
 	if os.path.exists(DB_FILE):
 		os.unlink(DB_FILE)
 	create_tables()
-	for name, address in (('default', '192.168.1.97'), ('test', '127.0.0.1')):
-		populate_tables(name=name, address=address)
+	
+	CONFIG = {
+		'default':[
+				dict(address='192.168.1.97', description="Placa de prueba 1 "),
+				dict(address='192.168.1.98', description="Placa de prueba 2"),
+		],
+		'test':[
+			dict(address='127.0.0.1', description=u"Conexión con localhost"),
+		]
+	}
+	
+	for name, list_of_comaster_cfg in CONFIG.iteritems():
+		populate_tables(name, list_of_comaster_cfg)

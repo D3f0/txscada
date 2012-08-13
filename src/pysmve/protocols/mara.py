@@ -41,7 +41,7 @@ class MaraClientProtocol(protocol.Protocol):
     
     def sendCommand(self):
         #logger.debug("Sending command")
-        print "Sending COMMAND %s" % (self.pending if self.pending else '')
+        print "Sending COMMAND (retry:%d)" % self.pending, " to %s:%s" % self.transport.addr
         # Send command
         frame = MaraFrame.build(self.output)
         self.transport.write(frame)
@@ -71,6 +71,7 @@ class MaraClientProtocol(protocol.Protocol):
             self.timeout_deferred.cancel()
             self.pending = 0
             #print self.input
+            print self.transport.addr, " ".join([("%.2x" % ord(c)).upper() for c in data])
             format_frame(self.input)
             
     def timeoutElapsed(self):
@@ -114,14 +115,18 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
         return p
     
     def clientConnectionFailed(self, connector, reason):
-        logger.warn("Connection failed: %s" % reason)
-        #connector.connect()
-        reactor.stop()
+        #logger.warn("Connection failed: %s" % reason)
+        print "Connection failed: %s" % reason
+        print "Restarting"
+        connector.connect()
+        #reactor.stop()
         
     def clientConnectionLost(self, connector, reason):
         logger.warn("Connection lost: %s" % reason)
-        #connector.connect()
-        reactor.stop()
+        print "Connection lost: %s" % reason
+        print "Restarting"
+        connector.connect()
+        #reactor.stop()
     
     def startedConnecting(self, connector):
         logger.debug("Started connecting")
@@ -133,55 +138,45 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
 
 class MaraServer(protocol.Protocol):
     '''
-    Emula el COMaster
+    Works as COMaster development board
+    It replies commands 0x10 based on the definition 
+    in the comaster instance (a DB table).
     '''
-    def __init__(self, factory):
+    comaster = None
+    def __init__(self):
         """Crea un protocolo que emula a un COMaster"""
-        self.facotry = factory # Referencia al factory
-        self._seq = 0x0
-        self.current_package = None
+        self.input = None
+        self.output = None
         
-    def connectionMade(self, arg):
+    def connectionMade(self,):
         """docstring for connectionMade"""
-        logger.debug("Servidor conectado")
-        pkg_data = Container(source=0, dest=1, 
-                             sequence=self.next_sequence_number(), command=0x10)
-        self.transport.write(build_mara_frame(pkg_data))
-        reactor.callLater(self.factory.comaster.timeout, self.timeout)
-    
-    
-    def timeout(self):
-        pass
+        #from ipdb import set_trace; set_trace()
+        logger.debug("Conection made to %s:%s" % self.transport.client)
     
     def dataReceived(self, data):
         """Recepción de datos"""
-        pass
+        try:
+            self.input = MaraFrame.parse(data)
+        except FieldError as e:
+            # If the server has no data, it does not matter
+            print "%s in %s" % (e, map(lambda c: ("%.2x" % ord(c)).upper(), data))
+        print "Paquete recibido"
     
-
-    def next_sequence_number(self):
-        self._seq = 0x80 if self.seq == 0x0 else 0x0
-        return self._seq
-
+    def connectionLost(self, reason):
+        print "Conexion con %s:%s terminada" % self.transport.client
         
-    
-    
-class MaraServerFactory(protocol.Protocol):
+class MaraServerFactory(protocol.Factory):
     protocol = MaraServer
-
-    def __init__(self, comaster):
-        '''CMaster'''
+    def __init__(self, comaster, *largs, **kwargs):
         self.comaster = comaster
+        logger.debug("Conexion con %s" % comaster)
+        print comaster
         
     def makeConnection(self, transport):
         print "Make connection"
         return protocol.Protocol.makeConnection(self, transport)
     
-    def buildProtocol(self, addr):
-        #logger.debug("Creando protocolo para %s" % addr)
-        print "Making connection"
-        instance = self.protocol(self)
-        return instance
-    
+
     
 
 
