@@ -153,4 +153,4 @@ def events():
     from datetime import datetime
     aaData = [('Estación 1', '1', 'Descripcion %d' % d, datetime.now())
               for d in range(10)]
-    return dumps(dict(aaData=aaData))
+    return dumps(dict(aaData=aaData, iTotalRecords=len(aaData)))

@@ -10,6 +10,23 @@ $(function  () {
     $('#tabs').tabs();
 	$('#tabla-curvas-pq').tabs();
 	    
+	var dataTableLanguage = {
+		"sProcessing": "Procesando...",
+		"sLengthMenu": "_MENU_ entradas",
+		"sZeroRecords": "No se encontraron registros.",
+		"sInfo": "_START_ hasta _END_ de _TOTAL_ registros",
+		"sInfoEmpty": "0 hasta 0 de 0 registros",
+		"sInfoFiltered": "(filtrados de _MAX_  registros)",
+		"sInfoPostFix": "",
+		"sSearch": "Búsqueda",
+		"sUrl": "",
+		"oPaginate": {
+			"sFirst":    "Primero",
+			"sPrevious": "Previo",
+			"sNext":     "Siguiente",
+			"sLast":     "Último"
+		}
+	};
     // Highchart
     var curvaDePotenciaPlot = new Highcharts.Chart({
         chart: {
@@ -135,16 +152,19 @@ $(function  () {
     
     
     $.extend(datatables.COMaster, {
-       sAjaxSource: '/api/comaster/' 
+       sAjaxSource: '/api/comaster/',
+       oLanguage: dataTableLanguage 
     });
        
     
     $.extend(datatables.UC, {
-        sAjaxSource: '/api/ucs/' 
+        sAjaxSource: '/api/ucs/',
+        oLanguage: dataTableLanguage 
     });
     
     $.extend(datatables.AI, {
-       sAjaxSource: '/api/ais/' 
+       sAjaxSource: '/api/ais/',
+       oLanguage: dataTableLanguage
         
     });
     
@@ -168,11 +188,21 @@ $(function  () {
 			bProcessing: true,
 			bServerSide: true,
 			sAjaxSource: '/api/events/',
-			bJQueryUI: true
+			bJQueryUI: true,
+			oLanguage: dataTableLanguage
 		};
 		tablaEventos.dataTable(config);
 	}
 	createEventTable();
-    
+   	
+   	function createValueTable(){
+   		var config = {
+   			bJQueryUI: true,
+   			oLanguage: dataTableLanguage
+   			
+   		};
+		$('#valores-pq-diarios').dataTable(config);
+   	} 
+   	createValueTable();
 
 });
