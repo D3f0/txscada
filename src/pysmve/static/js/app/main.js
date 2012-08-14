@@ -1,14 +1,19 @@
 // Punto de entrada a la aplicación
 $(function  () {
     /**
-    *
-    */            
-    
+    * Punto de entrada al programa...
+    */
+	// Ambito de nombres            
     smve = {};
+    // Colores
+    var INTERRUPTOR_ENCENDIDO = '#8CD701';
+    var INTERRUPTOR_APAGADO = '#f00';
     
    	// Crear las solapas
     $('#tabs').tabs();
 	$('#tabla-curvas-pq').tabs();
+	
+	// Traducción de las datatbles
 	    
 	var dataTableLanguage = {
 		"sProcessing": "Procesando...",
@@ -28,12 +33,12 @@ $(function  () {
 		}
 	};
     // Highchart
-    var curvaDePotenciaPlot = new Highcharts.Chart({
+    smve.curvaDePotencia = new Highcharts.Chart({
         chart: {
             renderTo: "plot-curvas"
         },
         title: {
-            text: "Ploteo de potencia"
+            text: "Curva de potencia"
         },
         yAxis: {
             title: {text:"KW/h"},
@@ -49,13 +54,26 @@ $(function  () {
     
     // Botons
     $('.button').button();
-    //
+    // Selección de fecha
+    function formatearFecha(d) {
+    	if (typeof(d) == "undefined") {
+    		d = new Date();
+    	}
+    	return d.getDate()+"/"+(d.getMonth()+1)+"/"+(d.getYear()+1900);
+    }
+    // Datepicker de la fecha
     $('#seleccion-fecha input[name=fecha]').datepicker({
+    	dateFormat: 'dd/mm/yy',
         onSelect: function (date, text) {
-            console.log("Selecci´on de la fecha", arguments);
+        	console.log("Refrescando valores");
+        	$.each(smve.curvaDePotencia.series, function(index) {
+        		this.remove();
+			});
+            smve.curvaDePotencia.redraw();
         }
         
-    });
+    }).val(formatearFecha());
+    
     // Svg
     $('#svg').svg({
         loadURL: window.SMVE.config.STATIC_URL + 'svg/eett.svg',
@@ -109,12 +127,24 @@ $(function  () {
             }).each(function (argument) {
                //console.log("Grupo", this);
             });
+            
+			// ----------------------------------------------------
+			// Interruptores
+			// ----------------------------------------------------
+            $('g.grupo-interruptor').each(function (){
+            	//console.log("Grupo interruptor", this);
+            	$(this).find('.interruptor').css('fill',  INTERRUPTOR_APAGADO).
+            				css('fill-opacity',  1).css('stroke', INTERRUPTOR_APAGADO);
+            	$(this).find('.interruptor-enclave').css('fill',  INTERRUPTOR_ENCENDIDO).css('fill-opacity',  1).css('stroke', INTERRUPTOR_ENCENDIDO);
+				
+            });
+            
             }
        }); // Svg
-    var $svg = $('#svg');
+    smve.mimico = $('#svg');
     
     // Updater por polling
-    smve.valueUpdate = true;
+    smve.valueUpdate = false;
     function valueUpdate() {
     	// Timeout
         if (!smve.valueUpdate) return;
@@ -128,7 +158,7 @@ $(function  () {
                $.each(data, function (key, value){
                    //console.log(key, value);
                    //console.log(
-                       $svg.find('#'+key).text(value)
+                       smve.mimico.find('#'+key).text(value)
                     //);
                 });
             },
@@ -198,11 +228,15 @@ $(function  () {
    	function createValueTable(){
    		var config = {
    			bJQueryUI: true,
-   			oLanguage: dataTableLanguage
-   			
+   			oLanguage: dataTableLanguage,
+   			bProcessing: true,
+   			bServerSide: true,
+   			sAjaxSource: '/api/energy/',
+   			bFilter: false
    		};
 		$('#valores-pq-diarios').dataTable(config);
    	} 
    	createValueTable();
+
 
 });

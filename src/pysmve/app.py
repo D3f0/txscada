@@ -5,7 +5,7 @@ from jinja2 import FileSystemLoader
 import os
 from utils.decorators import stacktraceable
 from utils.marshall import dumps
-#import template_utils
+from datetime import *
 
 
 ROOT_PATH = os.path.dirname(__file__)
@@ -154,3 +154,54 @@ def events():
     aaData = [('Estación 1', '1', 'Descripcion %d' % d, datetime.now())
               for d in range(10)]
     return dumps(dict(aaData=aaData, iTotalRecords=len(aaData)))
+
+
+def dateiter(base, limit, step):
+    current = base
+    while current < limit:
+        yield current
+        current += step
+    
+def generate_pq_for_day(a_date, step=None):
+    '''
+    Genera los 96 valores de energía
+    '''
+    if not step:
+        step = timedelta(minutes=15)
+    a_date = datetime.combine(date.today(), time(0, 0, 0))
+    limit = a_date + timedelta(days=1)
+    maketuple = lambda d: (d.strftime('%H:%M %x'), randrange(1, 100), randrange(1, 50), )
+    return [ maketuple(d) for d in dateiter(a_date, limit, step)]
+
+@app.route('/api/energy/')
+def energy_valuges():
+    '''
+    '''
+    params = parseparams(request.values)
+    print params
+    today_midnight = datetime.combine(date.today(), time(0, 0, 0))
+    limit = today_midnight + timedelta(days=1)
+    
+    data = generate_pq_for_day(today_midnight, limit)
+    #data = data[:params['display_length']]
+    paged = data[:params['display_length']]
+    return dumps({
+                  'aaData': paged,
+                  'iTotalRecords': len(data),
+                  #'iTotalDisplayRecords': len(paged),
+                  })
+    
+@app.route('/api/energy/<int:day>/<int:month>/<int:year>/')
+@stacktraceable
+def energy_by_day(day, month, year):
+    try:
+        assert 1970 <= year <= 2050, "Invalid year"
+        base=datetime(year, month, day)
+    except ValueError:
+        return "Invalid date"
+    except AssertionError as e:
+        return unicode(e)
+    
+    
+    return "OK" + base.strftime("%X %x")
+

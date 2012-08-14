@@ -77,13 +77,16 @@
         </div>
         <div id="tab-curvas">
         	<h3>Tabla de curvas y de valores</h3>
+        	<div id="seleccion-fecha">
+                Fecha a graficar: <input name="fecha" type="text">
+            </div>
         	<div id="tabla-curvas-pq">
         		<ul>
         			<li><a href="#valoresTabla">Tabla de Valores</a></li>
         			<li><a href="#valoresGrafico">Gráfico</a></li>
         		</ul>
         		<div id="valoresTabla">
-        			<table id="valores-pq-diarios">
+        			<table id="valores-pq-diarios" width="100%">
         				<thead>
         					<th>Fecha</th>
         					<th>P</th>
@@ -94,17 +97,11 @@
         			</table> 
         		</div>
         		<div id="valoresGrafico">
-					Aca va Grafico        			
+					<div id="plot-curvas">
+            		</div>        			
         		</div>
         	</div>
         	
-            <div id="seleccion-fecha">
-                Fecha a graficar: <input name="fecha" type="text">
-                <a class="button">Refresh!</a>
-                </div>
-            <div id="plot-curvas">
-            </div>
-            
         </div>
         <div id="tab-conexion" style="display: none;">
             <h3 id="">Concentradores Master</h3>

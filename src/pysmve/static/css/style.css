@@ -21,5 +21,11 @@ body{
 
 #seleccion-fecha input {
     border: 1px solid #ccc;
-
+    text-align: center;
+    width: 100px;
 }
+
+#seleccion-fecha {
+	padding: 4px;
+}
+
