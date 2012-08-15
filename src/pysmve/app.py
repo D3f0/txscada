@@ -139,6 +139,7 @@ def dump(iterable, skip=None):
     return data
 
 @app.route('/api/ais/')
+@stacktraceable
 def analog_inputs():
     """docstring for analog_inputs"""
     from flask_peewee.serializer import Serializer
@@ -170,21 +171,21 @@ def generate_pq_for_day(a_date, step=None):
         step = timedelta(minutes=15)
     a_date = datetime.combine(date.today(), time(0, 0, 0))
     limit = a_date + timedelta(days=1)
-    maketuple = lambda d: (d.strftime('%H:%M %x'), randrange(1, 100), randrange(1, 50), )
+    maketuple = lambda d: (d.isoformat(), randrange(1, 100), randrange(1, 50), )
     return [ maketuple(d) for d in dateiter(a_date, limit, step)]
 
 @app.route('/api/energy/')
-def energy_valuges():
+#@stacktraceable
+def energy_values():
     '''
     '''
     params = parseparams(request.values)
     print params
     today_midnight = datetime.combine(date.today(), time(0, 0, 0))
-    limit = today_midnight + timedelta(days=1)
-    
-    data = generate_pq_for_day(today_midnight, limit)
+    data = generate_pq_for_day(today_midnight)
     #data = data[:params['display_length']]
-    paged = data[:params['display_length']]
+    
+    paged = data[:params.get('display_length', 96)]
     return dumps({
                   'aaData': paged,
                   'iTotalRecords': len(data),
@@ -202,6 +203,6 @@ def energy_by_day(day, month, year):
     except AssertionError as e:
         return unicode(e)
     
-    
-    return "OK" + base.strftime("%X %x")
+    data = dict(data=generate_pq_for_day(base))
+    return dumps(data)
 
