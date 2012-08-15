@@ -97,7 +97,7 @@ def maraclient(options):
         database.connect()
         profile = Profile.get(name=options.profile)
         
-        for comaster in profile.comaster_set:
+        for comaster in profile.comaster_set.filter(enabled=True):
             print "Conectando con %s" % comaster
             reactor.connectTCP(comaster.address, 
                                comaster.port, 

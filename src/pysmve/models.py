@@ -11,20 +11,28 @@ import os
 import sys
 from os.path import join, dirname
 from datetime import datetime
+
 from peewee import (Model, 
-				SqliteDatabase, 
-				DateTimeField, 
+				SqliteDatabase,
+				DateTimeField,
 				CharField, 
 				FloatField, 
 				IntegerField,
 				BooleanField, 
 				ForeignKeyField, 
 				Max,
-				DoesNotExist)
+				DoesNotExist,
+				create_model_tables,
+				)
+from peewee import MySQLDatabase, PostgresqlDatabase
 from protocols import constants as mara
 
-DB_FILE = join(dirname(__file__), 'database.db')
-database = SqliteDatabase(DB_FILE)
+#DB_FILE = join(dirname(__file__), 'database.db')
+#database = SqliteDatabase(DB_FILE)
+
+database = MySQLDatabase('smve', user='root', passwd='root')
+
+database = PostgresqlDatabase('smve', user='postgres')
 
 class BaseModel(Model):
 	class Meta:
@@ -76,6 +84,7 @@ class COMaster(BaseModel):
 		#return "<COMaser IP: %s Hab:%s>" % (self.address, self.enabled)
 		return "%s"	 % self.address
 	
+	@property
 	def varsys(self):
 		return VarSys.filter(ied__co_master=self)
 		
@@ -126,8 +135,9 @@ class IED(BaseModel):
 			for no_bit in range(self.PORT_WIDTH):
 				# Crear la DI
 				param = "D%.2d" % ((no_port * self.PORT_WIDTH) + no_bit)
-				DI(ied=self, puerto=no_port, numero_de_bit=no_bit, param=param).save()
-
+				
+				DI(ied=self, port=no_port, bit=no_bit, param=param).save()
+				
 	def crear_ais(self, cantidad):
 		"""docstring for crear_ais"""
 		pass
@@ -204,12 +214,16 @@ class DI(MV):
 
 		return BaseModel.save(self, *largs, **kwargs)
 	
+	def __unicode__(self):
+		values = [self.port, self.bit, self.description, self.value]
+		return " ".join(map(str, values))
 class Event(BaseModel):
 	'''
 	'''
 	di = ForeignKeyField(DI)
 	timestamp = DateTimeField()
-	quality = IntegerField(db_column="calif")
+	subsec = FloatField(default=0)
+	q = IntegerField(db_column="calif")
 	value = IntegerField()
 
 	
@@ -229,7 +243,20 @@ class AI(MV):
 	relacion_33_13 = FloatField(db_column="rel33-13", default=2.5)
 	calificador = IntegerField(db_column="calif", default=0)
 	value = IntegerField()
-
+	
+	@property
+	def val(self):
+		return self.value * self.multip_asm * self.divider * self.relacion_tv * self.relacion_ti * self.relacion_33_13
+	
+	@property
+	def human_value(self):
+		return "%.3f %s" % (self.val, self.unit)
+	
+	def __unicode__(self):
+		values = [self.description, self.human_value]
+		return u" ".join(map(unicode, values))
+		
+	
 class Energy(BaseModel):
 	'''
 	Nombre		Energia		Calif	0	Normal
@@ -237,7 +264,9 @@ class Energy(BaseModel):
 	Tamaño		10					2	Calculada
 	Unidad		byte
 	'''
+	ied = ForeignKeyField(IED)
 	address = IntegerField()
+	channel = IntegerField()
 	offset = IntegerField()
 	param = CharField()
 	description = CharField()
@@ -250,7 +279,14 @@ class Energy(BaseModel):
 	q = IntegerField()
 	value = IntegerField()
 	timestamp = DateTimeField()
-
+	
+	@property
+	def val(self):
+		return self.value * self.multip_asm * self.divider * self.relacion_tv * self.relacion_ti * self.relacion_33_13
+	
+	@property
+	def human_value(self):
+		return "%.3f %s" % (self.val, self.unit)
 
 
 
@@ -344,19 +380,29 @@ def insert_comaster(profile, data):
 
 if __name__ == "__main__":
 	# Minimal syncdb
-	if os.path.exists(DB_FILE):
-		os.unlink(DB_FILE)
-	create_tables()
-	
-	CONFIG = {
-		'default':[
-				dict(address='192.168.1.97', description="Placa de prueba 1 "),
-				dict(address='192.168.1.98', description="Placa de prueba 2"),
-		],
-		'test':[
-			dict(address='127.0.0.1', description=u"Conexión con localhost"),
-		]
-	}
-	
-	for name, list_of_comaster_cfg in CONFIG.iteritems():
-		populate_tables(name, list_of_comaster_cfg)
+	if '-r' in sys.argv:
+		if isinstance(database, SqliteDatabase):
+			if os.path.exists(DB_FILE):
+				os.unlink(DB_FILE)
+		elif isinstance(database, (MySQLDatabase, PostgresqlDatabase)):
+		
+			create_tables()
+		
+		CONFIG = {
+			'default':[
+					dict(address='192.168.1.97', description="Placa de prueba 1 "),
+					dict(address='192.168.1.98', description="Placa de prueba 2"),
+			],
+			'test':[
+				dict(address='127.0.0.1', description=u"Conexión con localhost"),
+			]
+		}
+		
+		for name, list_of_comaster_cfg in CONFIG.iteritems():
+			populate_tables(name, list_of_comaster_cfg)
+	elif '-t' in sys.argv:
+		for com in Profile.get(name='default').comaster_set:
+			com.enabled = not com.enabled
+		
+	else:
+		from IPython import embed; embed()

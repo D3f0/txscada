@@ -8,8 +8,11 @@ $(function  () {
     	// Polling ajax de valores de energía
     	valueUpdate: true,
     	// Tiempo de polleo
-    	pollTime: 1
+    	pollTime: 2,
     	
+		// Tablas		
+		valoresPQDiarios: null,
+		tablaEventos: null    	
     };
     // Colores
     var INTERRUPTOR_ENCENDIDO = '#8CD701';
@@ -52,12 +55,12 @@ $(function  () {
         },
         xAxis: {
         	type: 'datetime',
-        	dateTimeLabelFormats: {
+        	/*dateTimeLabelFormats: {
                 month: '%e. %b',
                 day: '%b %e',
                 hour: '%b %e',
                 year: '%b'
-            }
+            }*/
             //, tickInterval: 24 * 3600 * 1000
         },
         series: [
@@ -132,9 +135,10 @@ $(function  () {
    			bProcessing: true,
    			bServerSide: true,
    			sAjaxSource: '/api/energy/',
-   			bFilter: false
+   			bFilter: false, 
+   			bInfo: false
    		};
-		$('#valores-pq-diarios').dataTable(config);
+		smve.valoresPQDiarios = $('#valores-pq-diarios').dataTable(config);
    	} 
    	createValueTable();
     
@@ -193,12 +197,14 @@ $(function  () {
     
     function valueUpdate() {
     	// Timeout
-        if (!smve.valueUpdate) return;
-        
-        if (!$('#checkbox-update').is(':checked')){
-            return;
+    	
+        if (!smve.valueUpdate) {
+        	return;
         }
-        console.log("Update");
+        
+    	
+    	smve.tablaEventos.fnDraw(false);
+        
         $.ajax('/valores', {
             success: function (data){
                $.each(data, function (key, value){
@@ -256,9 +262,11 @@ $(function  () {
 			bServerSide: true,
 			sAjaxSource: '/api/events/',
 			bJQueryUI: true,
-			oLanguage: dataTableLanguage
+			oLanguage: dataTableLanguage,
+			bFilter: false,
+			bInfo: false
 		};
-		tablaEventos.dataTable(config);
+		smve.tablaEventos = tablaEventos.dataTable(config);
 	}
 	createEventTable();
 	

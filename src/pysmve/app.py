@@ -85,6 +85,8 @@ def valores():
     rand_pot = lambda : "%.2f Kw" % (randrange(1,250)/10.)
     rand_pot_r = lambda : "%.2f KVa" % (randrange(1,250)/10.)
     rand_current = lambda : "%.2f KVa" % (randrange(1000,5000)/10.)
+    
+    
     return jsonify({
         # Potencia 
         'potencia-1': rand_pot(),
@@ -101,6 +103,8 @@ def valores():
         'corriente-2': rand_current(),
         'corriente-3': rand_current(),
         'corriente-4': rand_current(),
+        
+        
         })
 
 @app.route('/eventos/')
@@ -152,8 +156,18 @@ def analog_inputs():
 def events():
     '''Events'''
     from datetime import datetime
-    aaData = [('Estación 1', '1', 'Descripcion %d' % d, datetime.now())
-              for d in range(10)]
+    import models
+    params = parseparams(request.values)
+    #models.Profile.get(name='default').comaster_
+    events = models.Event.select().order_by(('timestamp', 'desc')).limit(params.get('display_length', 10))
+    aaData = []
+    for ev in events:
+        descs = ['Apertura' if ev.value else 'Cierre     ',  'de Interruptor campo %d' % ev.di.bit, "(%s)" % ev.di, ]
+        desc = ' '.join(map(unicode, descs))
+        
+        aaData.append(["Estacion 1", ev.value, desc, "%s.%.2f" % (ev.timestamp.strftime('%x %X'), ev.subsec)])
+    #aaData = [('Estación 1', '1', 'Descripcion %d' % d, datetime.now())
+    #          for d in range(10)]
     return dumps(dict(aaData=aaData, iTotalRecords=len(aaData)))
 
 
