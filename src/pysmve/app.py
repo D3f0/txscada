@@ -78,24 +78,28 @@ def draw_table(table=None, attributes = None, hide_columns = None, name = None):
 def index():
     return render_template("index.html")
     
-
 @app.route('/valores/')
 def valores():
     '''Retorna valores'''
     rand_pot = lambda : "%.2f Kw" % (randrange(1,250)/10.)
     rand_pot_r = lambda : "%.2f KVa" % (randrange(1,250)/10.)
     rand_current = lambda : "%.2f KVa" % (randrange(1000,5000)/10.)
+    rand_volt = lambda : "%.2f V" % (randrange(10000, 14000)/100.)
     
+    import models
     
+    co97=models.Profile.get(name='default').comaster_set.get(address='192.168.1.97')
+    ais = list(co97.ais)
+    dis = list(co97.dis)
     return jsonify({
         # Potencia 
         'potencia-1': rand_pot(),
-        'potencia-2': rand_pot(),
+        'potencia-2': ais[2].human_value,
         'potencia-3': rand_pot(),
         'potencia-4': rand_pot(),
         # Potencias reactivas
         'potencia-r-1': rand_pot_r(),
-        'potencia-r-2': rand_pot_r(),
+        'potencia-r-2': ais[3].human_value,
         'potencia-r-3': rand_pot_r(),
         'potencia-r-4': rand_pot_r(),
         # Corrientes
@@ -104,7 +108,10 @@ def valores():
         'corriente-3': rand_current(),
         'corriente-4': rand_current(),
         
+        'tension-1': co97.ais.get().val, 
         
+        'interruptor-1': models.Event.filter(di__bit = 1, di__port=0).order_by(('timestamp', 'desc')).get().value, 
+        'interruptor-2': models.Event.filter(di__bit = 1, di__port=1).order_by(('timestamp', 'desc')).get().value,
         })
 
 @app.route('/eventos/')
@@ -194,7 +201,7 @@ def energy_values():
     '''
     '''
     params = parseparams(request.values)
-    print params
+    #print params
     today_midnight = datetime.combine(date.today(), time(0, 0, 0))
     data = generate_pq_for_day(today_midnight)
     #data = data[:params['display_length']]

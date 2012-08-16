@@ -94,7 +94,7 @@ class MaraClientProtocol(protocol.Protocol):
     
     def saveInDatabase(self, response):
         print "Acutalizando DB"
-        print self.input
+        #print self.input
         payload = self.input.payload_10
         comaster = self.factory.comaster
         for varsys, value in zip(comaster.varsys, payload.varsys):

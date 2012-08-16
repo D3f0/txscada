@@ -109,9 +109,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="375.88983"
-     inkscape:cy="256.81002"
+     inkscape:zoom="2"
+     inkscape:cx="274.55816"
+     inkscape:cy="153.02838"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -179,7 +179,7 @@
          sodipodi:role="line"
          x="66.940613"
          y="359.6275"
-         id="tspan3037">BARRA 13.2Kv</tspan></text>
+         id="tspan3308">BARRA 13Kv</tspan></text>
     <flowRoot
        xml:space="preserve"
        id="flowRoot3041"
@@ -990,7 +990,7 @@
          sodipodi:cy="352.36218"
          sodipodi:rx="10"
          sodipodi:ry="10"
-         d="m 160,352.36218 a 10,10 0 1 1 -20,0 10,10 0 1 1 20,0 z"
+         d="m 160,352.36218 c 0,5.52285 -4.47715,10 -10,10 -5.52285,0 -10,-4.47715 -10,-10 0,-5.52284 4.47715,-10 10,-10 5.52285,0 10,4.47716 10,10 z"
          transform="matrix(0.72087118,0,0,0.72087118,70.89169,-293.08141)" />
       <text
          xml:space="preserve"
@@ -1640,7 +1640,7 @@
          sodipodi:nodetypes="ccc" />
       <rect
          style="color:#000000;fill:#000000;fill-opacity:0;fill-rule:nonzero;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-         id="rect4316"
+         id="interruptor-1"
          width="6.1764708"
          height="12.610294"
          x="175.61334"
@@ -1759,7 +1759,7 @@
          x="175.61334"
          height="12.610294"
          width="6.1764708"
-         id="rect4354"
+         id="interruptor-2"
          style="color:#000000;fill:#000000;fill-opacity:0;fill-rule:nonzero;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <rect
          class="interruptor-enclave"
@@ -1870,7 +1870,7 @@
          sodipodi:nodetypes="ccc" />
       <rect
          style="color:#000000;fill:#000000;fill-opacity:0;fill-rule:nonzero;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-         id="rect4392"
+         id="interruptor-3"
          width="6.1764708"
          height="12.610294"
          x="175.61334"
@@ -1989,7 +1989,7 @@
          x="175.61334"
          height="12.610294"
          width="6.1764708"
-         id="rect4430"
+         id="interruptor-4"
          style="color:#000000;fill:#000000;fill-opacity:0;fill-rule:nonzero;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <rect
          class="interruptor-enclave"
@@ -2025,5 +2025,16 @@
        x="766.10834"
        y="253.72055"
        class="interruptor" />
+    <text
+       sodipodi:linespacing="125%"
+       id="tension-1"
+       y="359.6275"
+       x="126.94061"
+       style="font-size:7.61659956px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       xml:space="preserve"><tspan
+         id="tspan3306"
+         y="359.6275"
+         x="126.94061"
+         sodipodi:role="line">13.2K</tspan></text>
   </g>
 </svg>

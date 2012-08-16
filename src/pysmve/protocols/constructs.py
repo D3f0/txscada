@@ -275,7 +275,7 @@ def format_frame(buff, as_hex_string=False):
         print "%12s" % "CANDIS:",    p.candis, "%d valores de word de 16" % (p.candis/2) 
         print "%12s" % "DIS:", p.dis
         print "%12s" % "CANAIS:", p.candis, "%d valores de word de 16" % (p.canais/2)
-        print "%12s" % "DIS:", p.ais
+        print "%12s" % "AIS:", p.ais
         # Eventos
         print "%12s" % "CANEVS:", p.canevs, "%d cada evento ocupa 10 bytes" % (p.canevs/10)
         for ev in p.event:

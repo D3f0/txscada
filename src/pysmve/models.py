@@ -84,17 +84,20 @@ class COMaster(BaseModel):
 		#return "<COMaser IP: %s Hab:%s>" % (self.address, self.enabled)
 		return "%s"	 % self.address
 	
+	#===========================================================================
+	# FIXME Make better order cirteria, creation counter?
+	#===========================================================================
 	@property
 	def varsys(self):
-		return VarSys.filter(ied__co_master=self)
+		return VarSys.filter(ied__co_master=self).order_by('id')
 		
 	@property
 	def ais(self):
-		return AI.filter(ied__co_master=self)
+		return AI.filter(ied__co_master=self).order_by('id')
 	
 	@property
 	def dis(self):
-		return DI.filter(ied__co_master=self)
+		return DI.filter(ied__co_master=self).order_by('param')
 
 
 class IED(BaseModel):
@@ -215,8 +218,13 @@ class DI(MV):
 		return BaseModel.save(self, *largs, **kwargs)
 	
 	def __unicode__(self):
-		values = [self.port, self.bit, self.description, self.value]
+		values = [self.port, self.bit, self.param, self.description or "No desc", self.value]
 		return " ".join(map(str, values))
+	
+	class Meta:
+		indexes	 = (
+			((), True)
+		)
 class Event(BaseModel):
 	'''
 	'''
@@ -246,7 +254,7 @@ class AI(MV):
 	
 	@property
 	def val(self):
-		return self.value * self.multip_asm * self.divider * self.relacion_tv * self.relacion_ti * self.relacion_33_13
+		return self.value * self.multip_asm #* self.divider * self.relacion_tv * self.relacion_ti * self.relacion_33_13
 	
 	@property
 	def human_value(self):
