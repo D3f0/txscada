@@ -1,11 +1,13 @@
 # encoding: utf-8
+'''
+Poll UC directly
+Show how to make direct poll of COMaster
+'''
 
 from socket import socket
 from protocols.constructs import MaraFrame
 from construct.lib.container import Container
 from time import sleep
-
-
 
 
 def main():

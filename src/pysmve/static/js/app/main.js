@@ -210,7 +210,17 @@ $(function  () {
                $.each(data, function (key, value){
                    //console.log(key, value);
                    //console.log(
-                       smve.mimico.find('#'+key).text(value)
+               		var el = smve.mimico.find('#'+key);
+               		if (el.hasClass('interruptor')){
+               			if (value == 1) {
+               				el.css('fill',  INTERRUPTOR_ENCENDIDO).css('stroke', INTERRUPTOR_ENCENDIDO);
+               			} else {
+               				el.css('fill',  INTERRUPTOR_APAGADO).css('stroke', INTERRUPTOR_APAGADO);
+               			}
+               			console.log("interruptor", key, value);	
+               		} else {
+                       smve.mimico.find('#'+key).text(value);
+                    }
                     //);
                 });
             },
@@ -222,24 +232,7 @@ $(function  () {
         });
     } // Value Update
     window.setInterval(valueUpdate, smve.pollTime * 1000); 
-	/*    
-    $.extend(datatables.COMaster, {
-       sAjaxSource: '/api/comaster/',
-       oLanguage: dataTableLanguage 
-    });
-       
-    
-    $.extend(datatables.UC, {
-        sAjaxSource: '/api/ucs/',
-        oLanguage: dataTableLanguage 
-    });
-    
-    $.extend(datatables.AI, {
-       sAjaxSource: '/api/ais/',
-       oLanguage: dataTableLanguage
-        
-    });
-    */
+	
     
     $('table[flag]').each(function () {
         var modelName = $(this).attr('model');

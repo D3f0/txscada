@@ -30,7 +30,7 @@ from protocols import constants as mara
 #DB_FILE = join(dirname(__file__), 'database.db')
 #database = SqliteDatabase(DB_FILE)
 
-database = MySQLDatabase('smve', user='root', passwd='root')
+#database = MySQLDatabase('smve', user='root', passwd='root')
 
 database = PostgresqlDatabase('smve', user='postgres')
 
@@ -141,9 +141,6 @@ class IED(BaseModel):
 				
 				DI(ied=self, port=no_port, bit=no_bit, param=param).save()
 				
-	def crear_ais(self, cantidad):
-		"""docstring for crear_ais"""
-		pass
 			
 				
 		
@@ -388,29 +385,4 @@ def insert_comaster(profile, data):
 
 if __name__ == "__main__":
 	# Minimal syncdb
-	if '-r' in sys.argv:
-		if isinstance(database, SqliteDatabase):
-			if os.path.exists(DB_FILE):
-				os.unlink(DB_FILE)
-		elif isinstance(database, (MySQLDatabase, PostgresqlDatabase)):
-		
-			create_tables()
-		
-		CONFIG = {
-			'default':[
-					dict(address='192.168.1.97', description="Placa de prueba 1 "),
-					dict(address='192.168.1.98', description="Placa de prueba 2"),
-			],
-			'test':[
-				dict(address='127.0.0.1', description=u"Conexión con localhost"),
-			]
-		}
-		
-		for name, list_of_comaster_cfg in CONFIG.iteritems():
-			populate_tables(name, list_of_comaster_cfg)
-	elif '-t' in sys.argv:
-		for com in Profile.get(name='default').comaster_set:
-			com.enabled = not com.enabled
-		
-	else:
-		from IPython import embed; embed()
+	from IPython import embed; embed()

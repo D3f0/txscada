@@ -88,9 +88,21 @@ def valores():
     
     import models
     
-    co97=models.Profile.get(name='default').comaster_set.get(address='192.168.1.97')
+    co97=models.Profile.get(name='default').comaster_set.get(address='192.168.1.98')
     ais = list(co97.ais)
     dis = list(co97.dis)
+    try:
+        interruptor_1 = models.Event.filter(di__bit = 0, di__port=1).order_by(('timestamp', 'desc')).get().value
+    except:
+        print "Datos vacios"
+        interruptor_1 = 1
+    
+    try:
+        interruptor_2 = models.Event.filter(di__bit = 1, di__port=1).order_by(('timestamp', 'desc')).get().value
+    except:
+        print "Datos vacios"
+        interruptor_2 = 1
+        
     return jsonify({
         # Potencia 
         'potencia-1': rand_pot(),
@@ -108,10 +120,10 @@ def valores():
         'corriente-3': rand_current(),
         'corriente-4': rand_current(),
         
-        'tension-1': co97.ais.get().val, 
+        'tension-1': "%.2f Kv" % (co97.ais.get().val * 0.01), 
         
-        'interruptor-1': models.Event.filter(di__bit = 1, di__port=0).order_by(('timestamp', 'desc')).get().value, 
-        'interruptor-2': models.Event.filter(di__bit = 1, di__port=1).order_by(('timestamp', 'desc')).get().value,
+        'interruptor-1': interruptor_1, 
+        'interruptor-2': interruptor_2,
         })
 
 @app.route('/eventos/')
@@ -201,6 +213,7 @@ def energy_values():
     '''
     '''
     params = parseparams(request.values)
+    
     #print params
     today_midnight = datetime.combine(date.today(), time(0, 0, 0))
     data = generate_pq_for_day(today_midnight)
