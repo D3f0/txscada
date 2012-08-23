@@ -88,17 +88,31 @@ class COMaster(BaseModel):
 	# FIXME Make better order cirteria, creation counter?
 	#===========================================================================
 	@property
+	def ieds(self):
+		'''IEDs en orden'''
+		return self.ied_set.order_by('offset')
+	
+	@property
 	def varsys(self):
-		return VarSys.filter(ied__co_master=self).order_by('id')
+		'''VS asociados con el COMaster en orden de la trama'''
+		for ied in self.ieds:
+			for vs in ied.varsys:
+				yield vs 
 		
 	@property
 	def ais(self):
-		return AI.filter(ied__co_master=self).order_by('id')
+		'''AIs asociados con el COMaster en orden de la trama'''
+		for ied in self.ieds:
+			for ai in ied.ais:
+				yield ai
 	
 	@property
 	def dis(self):
-		return DI.filter(ied__co_master=self).order_by('param')
-
+		'''DIs asociados con el COMaster en orden de la trama'''
+		for ied in self.ieds:
+			for di in ied.dis:
+				yield di
+	
 
 class IED(BaseModel):
 	'''Descripcion del IED conectado a un comaster'''
@@ -140,11 +154,22 @@ class IED(BaseModel):
 				param = "D%.2d" % ((no_port * self.PORT_WIDTH) + no_bit)
 				
 				DI(ied=self, port=no_port, bit=no_bit, param=param).save()
+	
+	
+	@property
+	def varsys(self):
+		return self.varsys_set.order_by('offset')
+	
+	@property
+	def ais(self):
+		'''Return AIs ordered by it's IED'''
+		return self.ai_set.order_by('offset')
+
+	@property
+	def dis(self):
+		return self.di_set.order_by('offset')
+	
 				
-			
-				
-		
-			
 
 class MV(BaseModel):
 	'''Based on Measured Value from IEC61850 Standard'''
@@ -258,7 +283,7 @@ class AI(MV):
 		return "%.3f %s" % (self.val, self.unit)
 	
 	def __unicode__(self):
-		values = [self.description, self.human_value]
+		values = [self.ied, self.description, self.human_value]
 		return u" ".join(map(unicode, values))
 		
 	
@@ -379,9 +404,9 @@ def insert_comaster(profile, data):
 			ied.build_di_ports(1)
 			# Crear AIs
 			AI(ied=ied, param="P", description=u"Potencia Activa", unit="Kw", multip_asm=1.09,
-			  divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()
+			  divider=1, relacion_tv=1, relacion_ti=1, relacion_33_13=2.5).save()
 			AI(ied=ied, param="Q", description=u"Potencia Reactiva", unit="Kvar", multip_asm=1.09,
-			  divider=1, relacion_tv=12, relacion_ti=5, relacion_33_13=2.5).save()
+			  divider=1, relacion_tv=1, relacion_ti=1, relacion_33_13=2.5).save()
 
 if __name__ == "__main__":
 	# Minimal syncdb

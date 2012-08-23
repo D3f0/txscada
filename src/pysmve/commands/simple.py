@@ -212,7 +212,18 @@ def shell(options):
     Interactive shell with database access
     '''
     from peewee import find_subclasses
-    from models import *
+    from models import (
+                        Profile,
+                        COMaster,
+                        IED,
+                        VarSys,
+                        DI,
+                        AI,
+                        MV,
+                        Event,
+                        Energy,
+                        BaseModel, )
+                        
     from IPython import embed
     models = find_subclasses(BaseModel)
     for model in models:

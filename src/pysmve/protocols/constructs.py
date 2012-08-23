@@ -12,7 +12,7 @@ import constants
 #===============================================================================
 class EnergyValueAdapter(Adapter):
     """Energy qualifier is stored in it's first two bits"""
-    MAX_ENERGY_VALUE = 2**15 # Solo 14 bits posibles
+    MAX_ENERGY_VALUE = 2**15 # Sganas in crescendo?olo 14 bits posibles
     MAX_Q_VALUE = 5 # Solo 5 bits
     
     def _encode(self, obj, context):
@@ -51,7 +51,8 @@ class SubSecondAdapter(Adapter):
         raise AdaptationError("Cant encode yet :(")
     
     def _decode(self, obj, context):
-        return obj / float(32768)
+        K = 1
+        return obj * K / float(32768) 
     
 def subsecond(name):
     return SubSecondAdapter
@@ -60,11 +61,12 @@ def subsecond(name):
 #===============================================================================
 
 TCD = BitStruct('TCD',
-    Enum(BitField("evtype", 2),
-         DIGITAL=0,
-         ENERGY=1,
-         INVALID_2=2,
-         INVALID_3=3
+    Enum(
+         BitField("evtype", 2),
+            DIGITAL=0,
+            ENERGY=1,
+            #INVALID_2=2,
+            #INVALID_3=3
     ),
     BitField("q", 2),
     BitField("addr485", 4),
@@ -111,9 +113,7 @@ Event = Struct("event",
             "ENERGY":  Embed(IdleCan),
             }
     ),
-    # TODO: Python datetime <-> mara bytes
-    #MaraDateTimeAdapter(Embed(DateTime)), 
-    
+        
     UBInt8('year'),
     UBInt8('month'),
     UBInt8('day'),
@@ -178,6 +178,11 @@ class BaseMaraStruct(Struct):
         cs  = make_cs_bigendian(data_to_checksum) 
         stream.seek(length-2) # Go to BCC position
         stream.write(Array(2, ULInt8('foo')).build(cs))
+        
+    @classmethod
+    def pretty_print(cls, container, show_header=True, show_bcc=True):
+        '''Pretty printing'''
+        format_frame(container, as_hex_string=False, show_header=show_header, show_bcc=show_bcc)
         
 
 MaraFrame = BaseMaraStruct('Mara', 
@@ -256,17 +261,19 @@ def parse_frame(buff, as_hex_string=False):
     data = MaraFrame.parse(buff)
     return data
 
-def format_frame(buff, as_hex_string=False):
+def format_frame(buff, as_hex_string=False, show_header=True, show_bcc=True):
+    
     if isinstance(buff, Container):
         d = buff
     else:
         d = parse_frame(buff, as_hex_string)
-    print "SOF:", d.sof
-    print "QTY:", d.length
-    print "DST:", d.dest
-    print "SRC:", d.source
-    print "SEQ:", d.sequence
-    print "CMD:", d.command
+    if show_header:
+        print "SOF:", d.sof
+        print "QTY:", d.length
+        print "DST:", d.dest
+        print "SRC:", d.source
+        print "SEQ:", d.sequence
+        print "CMD:", d.command
     # Payload
     if d.payload_10:
         p = d.payload_10
@@ -300,7 +307,9 @@ def format_frame(buff, as_hex_string=False):
                 print "Value: %d Q: %d" % (ev.value.val, ev.value.q)
             else:
                 print "Tipo de evento no reconocido"
-    print "BCC:", d.bcc
+    
+    if show_bcc:
+        print "BCC:", d.bcc
         
 
 def test():
