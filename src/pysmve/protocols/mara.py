@@ -7,7 +7,6 @@ from construct.core import FieldError
 from constructs import MaraFrame
 from twisted.internet.defer import Deferred
 from twisted.internet.protocol import ClientFactory
-from protocols.constructs import Payload_10, format_frame
 from protocols.constants import MAX_SEQ, MIN_SEQ
 from twisted.internet.task import LoopingCall
 from twisted.internet.threads import deferToThread
@@ -81,25 +80,24 @@ class MaraClientProtocol(protocol.Protocol):
             logger.debug("Message OK")
             # Calcular próxima sequencia
             next = self.input.sequence + 1
-            if next == MAX_SEQ:
+            if next >= MAX_SEQ:
                 next = MIN_SEQ
-            self.factory.comaster.sequence = self.output.sequence = next 
+            self.factory.comaster.sequence = self.output.sequence = next
+            print "Seq", next
             self.pending = 0
             #from IPython import embed; embed()
             deferToThread(self.saveInDatabase, response = self.input)
             
             #print self.input
             print self.transport.addr, " ".join([("%.2x" % ord(c)).upper() for c in data])
-            format_frame(self.input)
+            MaraFrame.pretty_print(self.input, show_header=False, show_bcc=False)
     
     def saveInDatabase(self, response):
         print "Acutalizando DB"
         #print self.input
+        from models import DI, AI, VarSys, Energy, Event
         payload = self.input.payload_10
         comaster = self.factory.comaster
-        for varsys, value in zip(comaster.varsys, payload.varsys):
-            varsys.valor = value
-            varsys.save()
         
         # Iterar de a bit
         
@@ -111,26 +109,64 @@ class MaraClientProtocol(protocol.Protocol):
                     #print retval
                     yield retval
         
-        for di, value in zip(comaster.dis, iterbits(payload.dis)):
-            
+        
+        def iterdis():
+            # Iterar ieds
+            for ied in self.factory.comaster.ied_set.order_by('offset'):
+                # Ordenar por puerto y por bit
+                for di in DI.filter(ied = ied).order_by(('port', 'asc'), ('bit', 'asc')):
+                    yield di
+        def iterais():
+            # Iterar ieds
+            for ied in self.factory.comaster.ied_set.order_by('offset'):
+                # Itera por ais
+                for ai in AI.filter(ied = ied).order_by('offset'):
+                    yield ai
+        
+        def itervarsys():
+            # Iterar ieds
+            for ied in self.factory.comaster.ied_set.order_by('offset'):
+                for varsys in VarSys.filter(ied = ied).order_by('offset'):
+                    yield varsys
+        
+        #=======================================================================
+        # Guardando...
+        #=======================================================================
+        for varsys, value in zip(itervarsys(), payload.varsys):
+            varsys.valor = value
+            varsys.save()
+                            
+        for di, value in zip(iterdis(), iterbits(payload.dis)):
             di.value = value
             di.save()
         
-        for ai, value in zip(comaster.ais, payload.ais):
+        for ai, value in zip(iterais(), payload.ais):
             ai.value = value
             ai.save()
             
         if self.save_events:
             for ev in payload.event:
                 if ev.evtype == "DIGITAL":
-                    di = comaster.dis.get(port = ev.port, bit = ev.bit)
+                    ied = self.factory.comaster.ied_set.get(addr_485_IED = ev.addr485)
+                    di = DI.get(ied=ied, port=ev.port, bit=ev.bit)
+                    #di = comaster.dis.get(port = ev.port, bit = ev.bit)
                     timestamp = datetime(ev.year+2000, ev.month, ev.day, ev.hour, ev.minute, ev.second,int(ev.subsec*100000))
-                    models.Event(di = di, timestamp = timestamp, subsec=ev.subsec, q=0, value = ev.status).save()
+                    Event(di = di, 
+                          timestamp = timestamp, 
+                          subsec=ev.subsec, 
+                          q=0, 
+                          value = ev.status).save()
                     
                     
                 elif ev.evtype == "ENERGY":
                     timestamp = datetime(ev.year+2000, ev.month, ev.day, ev.hour, ev.minute, ev.second)
-                    models.Energy(ied=comaster, q=ev.value.q, timestamp=timestamp, address=ev.addr485, channel=ev.channel, value=ev.value.val,).save()
+                    ied = self.factory.comaster.ied_set.get(addr_485_IED = ev.addr485)
+                    Energy(ied=ied, 
+                           q=ev.value.q, 
+                           timestamp=timestamp, 
+                           address=ev.addr485, 
+                           channel=ev.channel, 
+                           value=ev.value.val,).save()
                     
             print ("Guardados %d eventos" % len(payload.event))
         

@@ -169,7 +169,23 @@ class IED(BaseModel):
 	def dis(self):
 		return self.di_set.order_by('offset')
 	
+	_VALUE_GETTERS = {
+				'di': lambda s, p, b: list(s.dis)[s.PORT_WIDTH*p + b],
+				'ai': lambda s, p, b: list(s.ais)[p],
+				'varsys': lambda s, p, b: list(s.varsys)[p],
 				
+	}
+	def get_val(self, valtype, port, n_or_bit=None):
+		'''
+		Shortcut for queries
+		'''
+		fget = self._VALUE_GETTERS.get(valtype, None)
+		if not fget:
+			raise Exception("Invalid value type")
+		return fget(self, port, n_or_bit)
+		
+		
+		
 
 class MV(BaseModel):
 	'''Based on Measured Value from IEC61850 Standard'''
@@ -247,6 +263,7 @@ class DI(MV):
 		indexes	 = (
 			((), True)
 		)
+		
 class Event(BaseModel):
 	'''
 	'''
@@ -255,7 +272,15 @@ class Event(BaseModel):
 	subsec = FloatField(default=0)
 	q = IntegerField(db_column="calif")
 	value = IntegerField()
-
+	
+	
+	def __unicode__(self):
+		ied = self.di.ied
+		return "Digital Ad485: %s Port: %s Bit: %s Value:%s Timestamp:%s" % (ied.addr_485_IED, 
+																			self.di.port,
+																			self.di.bit,
+																			self.value, 
+																			self.timestamp)
 	
 class AI(MV):
 	'''Analogicas digitales (valores de energia)
@@ -318,7 +343,9 @@ class Energy(BaseModel):
 	def human_value(self):
 		return "%.3f %s" % (self.val, self.unit)
 
-
+	def __unicode__(self):
+		ied = self.ied
+		return "Energy Ad485: %s Value:%s Timestamp:%s" % (ied.addr_485_IED, self.value, self.timestamp)
 
 def get_models(base=None):
 	'''Django like get_models'''

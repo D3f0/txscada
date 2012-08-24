@@ -223,7 +223,10 @@ def shell(options):
                         Event,
                         Energy,
                         BaseModel, )
-                        
+    #for comaster in Profile.by_name(options.profile).comaster_set():
+    #    src = 'co%s = comaster' % comaster.addres[-3:]
+    #    exec(src)
+
     from IPython import embed
     models = find_subclasses(BaseModel)
     for model in models:
