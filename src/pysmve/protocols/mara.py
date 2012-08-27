@@ -41,17 +41,15 @@ class MaraClientProtocol(protocol.Protocol):
         self.input = Container()
         self.timer = LoopingCall(self.timerEvent)
         self.timer.start(interval = self.factory.comaster.timeout, now = False)
-        print "OK"
         
     def connectionMade(self):
-        #from IPython import embed; embed()
         logger.debug("Conection made to %s:%s" % self.transport.addr)
         reactor.callLater(0.01, self.sendCommand)
     
     def timerEvent(self):
         '''Event'''
         if self.pending == 0:
-            print "Sending command to %s" % (self.factory.comaster, )
+            print "Sending command to:",  self.factory.comaster.address, self.factory.comaster.sequence
         else:
             print "Sending retry %s %d" % (self.factory.comaster, self.pending)
             
@@ -213,9 +211,11 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
         #reactor.stop()
         
     def clientConnectionLost(self, connector, reason):
+        from twisted.internet import error
         logger.warn("Connection lost: %s" % reason)
-        print "Connection lost: %s" % reason
-        print "Restarting"
+        if reason.type == error.ConnectionLost:
+            return
+        print "Connection lost: %s. Restarting..." % reason
         connector.connect()
         #reactor.stop()
     
