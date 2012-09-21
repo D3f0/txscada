@@ -77,6 +77,9 @@ def draw_table(table=None, attributes = None, hide_columns = None, name = None):
 #@stacktraceable
 def index():
     return render_template("index.html")
+
+
+
     
 @app.route('/valores/')
 def valores():
@@ -86,32 +89,31 @@ def valores():
     rand_current = lambda : "%.2f KVa" % (randrange(1000,5000)/10.)
     rand_volt = lambda : "%.2f V" % (randrange(10000, 14000)/100.)
     
-    import models
+    from models import Profile, COMaster, VarSys, IED, AI, DI
+    comaster = Profile.by_name('default').comaster_set.get(address='192.168.1.97')
     
-    co97=models.Profile.get(name='default').comaster_set.get(address='192.168.1.98')
-    ais = list(co97.ais)
-    dis = list(co97.dis)
-    try:
-        interruptor_1 = models.Event.filter(di__bit = 0, di__port=1).order_by(('timestamp', 'desc')).get().value
-    except:
-        print "Datos vacios"
-        interruptor_1 = 1
+    ied1 = IED.get(co_master=comaster, addr_485_IED=1)
+    ied2 = IED.get(co_master=comaster, addr_485_IED=2)
+    ied3 = IED.get(co_master=comaster, addr_485_IED=3)
     
-    try:
-        interruptor_2 = models.Event.filter(di__bit = 1, di__port=1).order_by(('timestamp', 'desc')).get().value
-    except:
-        print "Datos vacios"
-        interruptor_2 = 1
+    potencia_2 = AI.get(id=2).value
+    potencia_2 = ("%s W" % (potencia_2 * 1.09)) if potencia_2 != 0x4000 else '0 KW'
+    
+    potencia_r_2 = AI.get(id=3).value
+    potencia_r_2 = ("%s VA" % (potencia_r_2 * 1.09)) if potencia_r_2 != 0x4000 else '0 KW'
         
     return jsonify({
         # Potencia 
         'potencia-1': rand_pot(),
-        'potencia-2': ais[2].human_value,
+        #'potencia-2': AI.get(ied=ied2, offset=0).value,
+        # FIXME: Indirección correcta
+        'potencia-2': potencia_2,
         'potencia-3': rand_pot(),
         'potencia-4': rand_pot(),
         # Potencias reactivas
         'potencia-r-1': rand_pot_r(),
-        'potencia-r-2': ais[3].human_value,
+        #'potencia-r-2': AI.get(ied=ied2, offset=1).|value,
+        'potencia-r-2': potencia_r_2,
         'potencia-r-3': rand_pot_r(),
         'potencia-r-4': rand_pot_r(),
         # Corrientes
@@ -120,10 +122,11 @@ def valores():
         'corriente-3': rand_current(),
         'corriente-4': rand_current(),
         
-        'tension-1': "%.2f Kv" % (co97.ais.get().val * 0.01), 
+        #'tension-1': "%.2f Kv" % AI.get(ied=ied1, offset=0).value,
+        'tension-1': "%.2f Kv" % (AI.get(id=1).value /float(100)),  
         
-        'interruptor-1': interruptor_1, 
-        'interruptor-2': interruptor_2,
+        'interruptor-1': DI.get(ied=ied1, port=1, bit=0).value, 
+        'interruptor-2': DI.get(ied=ied1, port=1, bit=1).value,
         })
 
 @app.route('/eventos/')
@@ -229,6 +232,7 @@ def energy_values():
 @app.route('/api/energy/<int:day>/<int:month>/<int:year>/')
 @stacktraceable
 def energy_by_day(day, month, year):
+    from models import Energy
     try:
         assert 1970 <= year <= 2050, "Invalid year"
         base=datetime(year, month, day)
@@ -236,7 +240,18 @@ def energy_by_day(day, month, year):
         return "Invalid date"
     except AssertionError as e:
         return unicode(e)
+    year = int(year)
+    month = int(month)
+    day = int(day)
     
-    data = dict(data=generate_pq_for_day(base))
-    return dumps(data)
+    start = datetime(year, month, day, 0, 0, 0)
+    end = datetime(year, month, day, 23, 59, 59)
+    qs = Energy.filter(address=2)
+    qs = qs.filter(timestamp__gte=start).filter(timestamp__lt=end)
+    qs.order_by('timestamp')
+    def maketuple(e):
+        return e.timestamp.isoformat(), e.val, e.val
+    data = [maketuple(e) for e in qs ]
+    
+    return dumps(dict(data=data))
 

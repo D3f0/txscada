@@ -5,6 +5,7 @@ import functools
 from operator import itemgetter
 from errors import ImproperlyConfigured 
 from logging import getLogger
+from prettytable import PrettyTable
 logger = getLogger(__name__)
 
 # Implemnetanción sencilla de comandos al estilo Django.
@@ -91,8 +92,9 @@ def maraserver(options):
         profile = Profile.get(name=options.profile)
         #import IPython; IPython.embed()
         for comaster in profile.comaster_set.filter(enabled=True):
+            print "Listening in port %d" % comaster.port
             reactor.listenTCP(comaster.port, MaraServerFactory(comaster)) #@UndefinedVariable
-        reactor.run()
+        reactor.run() #@UndefinedVariable
     except Exception:
         from traceback import format_exc
         print format_exc()
@@ -233,8 +235,20 @@ def shell(options):
         print "Importing model %s" % model.__name__
     embed()
     
-    
-    
+@command
+def profilelist(options):
+    from models import Profile
+    x = PrettyTable(["Name", "Version", "Date", "IEDs"])
+    for profile in Profile.select():
+        row = (
+               profile.name,
+               profile.version,
+               profile.date.strftime("%d/%m/%Y %X"),
+               " - ".join(map(unicode, profile.comaster_set))
+               )
+        x.add_row(row)
+        
+    print x
     
     
     
