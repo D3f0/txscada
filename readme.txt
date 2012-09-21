@@ -1,1 +1,1 @@
-Proyecto de SCADA con Python
+Proyecto de SCADA con Prolog
