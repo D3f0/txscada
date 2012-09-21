@@ -1,1 +1,1 @@
-Proyecto de SCADA con Prolog
+Proyecto de SCADA con Java 
