@@ -77,6 +77,9 @@ def draw_table(table=None, attributes = None, hide_columns = None, name = None):
 #@stacktraceable
 def index():
     return render_template("index.html")
+
+
+
     
 @app.route('/valores/')
 def valores():
@@ -229,6 +232,7 @@ def energy_values():
 @app.route('/api/energy/<int:day>/<int:month>/<int:year>/')
 @stacktraceable
 def energy_by_day(day, month, year):
+    from models import Energy
     try:
         assert 1970 <= year <= 2050, "Invalid year"
         base=datetime(year, month, day)
@@ -236,7 +240,18 @@ def energy_by_day(day, month, year):
         return "Invalid date"
     except AssertionError as e:
         return unicode(e)
+    year = int(year)
+    month = int(month)
+    day = int(day)
     
-    data = dict(data=generate_pq_for_day(base))
-    return dumps(data)
+    start = datetime(year, month, day, 0, 0, 0)
+    end = datetime(year, month, day, 23, 59, 59)
+    qs = Energy.filter(address=2)
+    qs = qs.filter(timestamp__gte=start).filter(timestamp__lt=end)
+    qs.order_by('timestamp')
+    def maketuple(e):
+        return e.timestamp.isoformat(), e.val, e.val
+    data = [maketuple(e) for e in qs ]
+    
+    return dumps(dict(data=data))
 
