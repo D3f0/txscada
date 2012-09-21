@@ -1,1 +1,1 @@
-Proyecto de SCADA con F#
+Proyecto de SCADA con Python
