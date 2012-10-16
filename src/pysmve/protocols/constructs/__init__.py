@@ -4,58 +4,13 @@
 #===============================================================================
 from construct import *
 from datetime import datetime
-from utils.checksum import make_cs_bigendian
-from utils.bitfield import bitfield
-import constants
-#===============================================================================
-# Adapters
-#===============================================================================
-class EnergyValueAdapter(Adapter):
-    """Energy qualifier is stored in it's first two bits"""
-    MAX_ENERGY_VALUE = 2**15 # Sganas in crescendo?olo 14 bits posibles
-    MAX_Q_VALUE = 5 # Solo 5 bits
+from ..utils.checksum import make_cs_bigendian
+from ..utils.bitfield import bitfield
+from .. import constants
+from adapters import (EnergyValueAdapter,
+                      MaraDateTimeAdapter,
+                      SubSecondAdapter)
     
-    def _encode(self, obj, context):
-        '''Validates input values'''
-        try:
-            val, q = obj['val'], obj['q']
-        except (AttributeError, TypeError):
-            raise ValueError("Can't get item 'val' or 'q' from %s, is it a construct.Container?" % obj)
-        assert 0 <= val < self.MAX_ENERGY_VALUE
-        assert 0 <= q <= self.MAX_Q_VALUE
-        data = bitfield(0)
-        data[0:14] = obj['val']
-        data[14:16] = obj['q']
-        return int(data)
-    
-    def _decode(self, int_val, context):
-        data = bitfield(int_val)
-        retval = Container(val=data[0:14], q=data[14:16]) 
-        return retval
-
-class MaraDateTimeAdapter(Adapter):
-    '''
-    Mara bytes <--> datetime.datetime
-    '''
-    def _decode(self, obj, context):
-        return datetime(obj.year+2000, obj.month, obj.day, obj.hour, obj.minute, obj.second)
-    
-    def _encode(self, obj, context):
-        return Container(year=obj.year-2000, month=obj.month, day=obj.day, 
-                         hour=obj.hour, minute=obj.minute, second=obj.second)
-        
-class SubSecondAdapter(Adapter):
-    '''Mara timestamp sub-second data is measured in 1/32 second steps,
-    and its value is given by a counter which goes from 0 to 0x7FFF'''
-    def _encode(self, obj, context):
-        raise AdaptationError("Cant encode yet :(")
-    
-    def _decode(self, obj, context):
-        K = 1
-        return obj * K / float(32768) 
-    
-def subsecond(name):
-    return SubSecondAdapter
 #===============================================================================
 # Mara protocol SubConstructs
 #===============================================================================
@@ -72,12 +27,23 @@ TCD = BitStruct('TCD',
     BitField("addr485", 4),
 )
 
+#=========================================================================================
+# Old Bit Port Status
+# Deprecated since mara 1.4v11
+#=========================================================================================
 
 BPE = BitStruct('BPE',
     BitField("bit", 4),
     BitField("port", 3),
     BitField("status", 1),
 )
+
+EPB = BitStruct('BPE',
+    BitField("status", 1),
+    BitField("port", 3),
+    BitField("bit", 4),
+)
+
 
 IdleCan = BitStruct('idlecan',
     BitField('idle', 5),
@@ -152,7 +118,7 @@ Payload_10 = Struct("payload_10",
     Array(lambda ctx: ctx.canevs / 10, Event),
 )
 #===============================================================================
-# Paquete Mara 14
+# Paquete Mara 14.10
 #===============================================================================
 class BaseMaraStruct(Struct):
     def _parse(self, stream, context):
@@ -365,7 +331,7 @@ def test_events():
     print Event.parse(''.join(map(chr, ev)))
 
 def test_frames():
-    from sample_data import FRAMES
+    from ..sample_data import FRAMES
     for n, frame in enumerate(FRAMES):
         print "-"*80
         print "Trama %d" % (n+1)

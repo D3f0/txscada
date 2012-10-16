@@ -1,24 +1,26 @@
 # encoding: utf-8
 from twisted.internet import protocol, reactor
 from logging import getLogger
-from constructs import MaraFrame, Event, parse_frame
 from construct import Container
-from construct.core import FieldError
-from constructs import MaraFrame
-from twisted.internet.defer import Deferred
+from construct.core import FieldError, Struct
 from twisted.internet.protocol import ClientFactory
+from ..constructs import (MaraFrame, Event)
 from protocols.constants import MAX_SEQ, MIN_SEQ
 from twisted.internet.task import LoopingCall
 from twisted.internet.threads import deferToThread
-import models
 from datetime import datetime
-from utils.bitfield import bitfield
-# Definiciones para mara 14 v7
+from ..utils.bitfield import bitfield
+from ..constructs import upperhexstr
+import models
 
 logger = getLogger(__name__)
 
 
 class MaraClientProtocol(protocol.Protocol):
+    '''
+    Communitcation with one COMaster.
+    A COMaster actas as a gateway with RS485 operational bay networks.
+    '''
     
     CLIENT_STATES = set(['IDLE', 'RESPONSE_WAIT', ])
     
@@ -44,7 +46,7 @@ class MaraClientProtocol(protocol.Protocol):
         
     def connectionMade(self):
         logger.debug("Conection made to %s:%s" % self.transport.addr)
-        reactor.callLater(0.01, self.sendCommand)
+        reactor.callLater(0.01, self.sendCommand) #@UndefinedVariable
     
     def timerEvent(self):
         '''Event'''
@@ -73,24 +75,26 @@ class MaraClientProtocol(protocol.Protocol):
             except FieldError:
                 print "Error de paquete!"
                 return
-            if self.input.command != self.output.command:
-                logger.warn("Command not does not match with sent command %d" % self.input.command)
+            # FIXME: Hacerlos con todos los campos o con ninguno
+            #if self.input.command != self.output.command:
+            #    logger.warn("Command not does not match with sent command %d" % self.input.command)
             logger.debug("Message OK")
             # Calcular próxima sequencia
-            next = self.input.sequence + 1
-            if next >= MAX_SEQ:
-                next = MIN_SEQ
-            self.factory.comaster.sequence = self.output.sequence = next
-            print "Seq", next
+            # FIXME: Checkear que la secuencia sea == a self.output.sequence
+            next_seq = self.input.sequence + 1
+            if next_seq >= MAX_SEQ:
+                next_seq = MIN_SEQ
+            self.factory.comaster.sequence = self.output.sequence = next_seq
+            print "Seq", next_seq
             self.pending = 0
             #from IPython import embed; embed()
-            deferToThread(self.saveInDatabase, response = self.input)
+            deferToThread(self.saveInDatabase)
             
             #print self.input
             print self.transport.addr, " ".join([("%.2x" % ord(c)).upper() for c in data])
             MaraFrame.pretty_print(self.input, show_header=False, show_bcc=False)
     
-    def saveInDatabase(self, response):
+    def saveInDatabase(self):
         print "Acutalizando DB"
         #print self.input
         from models import DI, AI, VarSys, Energy, Event
@@ -131,7 +135,7 @@ class MaraClientProtocol(protocol.Protocol):
         # Guardando...
         #=======================================================================
         for varsys, value in zip(itervarsys(), payload.varsys):
-            varsys.valor = value
+            varsys.value = value
             varsys.save()
                             
         for di, value in zip(iterdis(), iterbits(payload.dis)):
@@ -187,7 +191,23 @@ class MaraClientProtocol(protocol.Protocol):
     def factory(self, value):
         assert isinstance(value, ClientFactory)
         self.__factory = value
-     
+
+    
+    @property
+    def construct(self):
+        return self.__construct
+    
+    @construct.setter
+    def construct(self, value):
+        assert issubclass(value, Struct), "Se esperaba un Struct"
+        self.__construct = value
+    
+class MaraClientDBUpdater(MaraClientProtocol): 
+    '''
+    This protocols saves data from scans into the
+    database using Peewee ORM. This may change 
+    in the future.
+    '''
     
 class MaraClientProtocolFactory(protocol.ClientFactory):
     '''
@@ -202,7 +222,7 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
     def buildProtocol(self, *largs):
         p = MaraClientProtocol(factory = self)
         return p
-    
+        
     def clientConnectionFailed(self, connector, reason):
         #logger.warn("Connection failed: %s" % reason)
         print "Connection failed: %s" % reason
@@ -221,54 +241,3 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
     
     def startedConnecting(self, connector):
         logger.debug("Started connecting")
-
-
-#===============================================================================
-# COMaster emulation
-#===============================================================================
-
-class MaraServer(protocol.Protocol):
-    '''
-    Works as COMaster development board
-    It replies commands 0x10 based on the definition 
-    in the comaster instance (a DB table).
-    '''
-    comaster = None
-    def __init__(self):
-        """Crea un protocolo que emula a un COMaster"""
-        self.input = None
-        self.output = None
-        
-    def connectionMade(self,):
-        """docstring for connectionMade"""
-        #from ipdb import set_trace; set_trace()
-        logger.debug("Conection made to %s:%s" % self.transport.client)
-    
-    def dataReceived(self, data):
-        """Recepción de datos"""
-        try:
-            self.input = MaraFrame.parse(data)
-        except FieldError as e:
-            # If the server has no data, it does not matter
-            print "%s in %s" % (e, map(lambda c: ("%.2x" % ord(c)).upper(), data))
-        print "Paquete recibido"
-    
-    def connectionLost(self, reason):
-        print "Conexion con %s:%s terminada" % self.transport.client
-        
-class MaraServerFactory(protocol.Factory):
-    protocol = MaraServer
-    def __init__(self, comaster, *largs, **kwargs):
-        self.comaster = comaster
-        logger.debug("Conexion con %s" % comaster)
-        print comaster
-        
-    def makeConnection(self, transport):
-        print "Make connection"
-        return protocol.Protocol.makeConnection(self, transport)
-    
-
-    
-
-
-        
