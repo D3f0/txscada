@@ -49,3 +49,20 @@ class SubSecondAdapter(Adapter):
     def _decode(self, obj, context):
         K = 1
         return obj * K / float(32768) 
+    
+    
+class PEHAdapter(Adapter):
+    def _decode(self, obj, context):
+        return datetime(obj.year+2000, obj.month, obj.day, obj.hour, obj.minute, obj.second)
+        
+    
+    
+    def _encode(self, obj, context):
+        '''bytes->datetime'''
+        return Container(year=obj.year-2000, month=obj.month, day=obj.day,
+                         hour=obj.hour, minute=obj.minute, second=obj.second,
+                         fsegh=0, fsegl=0,
+                         day_of_week = obj.weekday(),
+                         )
+    
+    
