@@ -236,6 +236,29 @@ def shell(options):
     embed()
     
 @command
+def enableone(options, comaster='192.168.1.98', profile='default'):
+    '''Hablita un comaster en particular %s''' % comaster
+    from models import Profile
+    comasters = Profile.get(name=profile).comaster_set
+    comasters.exclude(address=comaster).update(enabled=False)
+    co = comasters.get(address=comaster)
+    co.enabled = True
+    co.save()
+
+@command
+def listenabled(options, profile='default', all=False):
+    '''Lista las comasters'''
+    from models import Profile, COMaster
+    if not all:
+        cos = Profile.get(name=profile).comaster_set
+    else:
+        cos = COMaster.select()
+        
+    for co in Profile.get(name=profile).comaster_set:
+        print co.address, co.enabled
+    
+    
+@command
 def profilelist(options):
     from models import Profile
     x = PrettyTable(["Name", "Version", "Date", "IEDs"])
