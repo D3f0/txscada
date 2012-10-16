@@ -228,7 +228,7 @@ def shell(options):
     #for comaster in Profile.by_name(options.profile).comaster_set():
     #    src = 'co%s = comaster' % comaster.addres[-3:]
     #    exec(src)
-
+    from datetime import datetime, date
     from IPython import embed
     models = find_subclasses(BaseModel)
     for model in models:
