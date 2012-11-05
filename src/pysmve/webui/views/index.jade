@@ -19,17 +19,50 @@ block append head
   script(src='/javascripts/Highcharts-2.2.5/js/highcharts.js')
   // script(src='/javascripts/
   script(src='/javascripts/app/main.js')
+  link(rel='stylesheet', href='/javascripts/jquery.ui/css/ui-darkness/jquery-ui-1.8.21.custom.css')
+  
+  script (type='text/javascript')
+      SMVE = {
+          config: {
+              STATIC_URL: ''
+          }
+      }
+    
   
   
 block content
-  h1= title
-  p.bienvenida #{title}
-
-  div.concetradores
-    for x in lista
-      li= x
-        a(href=x) Editar
-  div
-    div
-      p Laralala
-      a(href='/') Home
+  div#tabs
+    ul
+      li
+        a(href='#tab-diagrama') Unifilar
+      li
+        a(href='#tab-eventos') Eventos
+        
+      li
+        a(href='#tab-curvas') Curvas
+        
+    div#tab-diagrama
+      div#svg(style="width: 900px; height: 600px; background: #fff;")
+       
+    div#tab-eventos
+      table
+        thead
+          tr
+            th E.T.
+            th Estado
+            th Descripción
+            th Fecha
+            
+    div#tab-curvas
+      div#seleccion-fecha
+        p Fecha a graficar
+          input(name='fecha', type='text')
+        div#tabla-curvas-pq
+          ul
+            li
+              a#valoresTabla
+              a#valoresGrafico
+          div#valoresTabla
+          
+          div#valoresGrafico
+            div#plot-curvas
