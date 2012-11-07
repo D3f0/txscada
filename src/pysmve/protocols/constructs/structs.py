@@ -149,6 +149,12 @@ class BaseMaraStruct(Struct):
         obj.setdefault('sof', constants.SOF)
         obj.setdefault('length', 0) # Don't care right now
         obj.setdefault('bcc', 0)    # Don't care right now
+        #=================================================================================
+        # TODO: Don't rely on this payloads
+        #=================================================================================
+        obj.setdefault('peh', None)
+        obj.setdefault('payload_10', None)
+        
         super(BaseMaraStruct, self)._build(obj, stream, context) # stream is an I/O var
         stream.seek(0, 2) # Go to end
         length = stream.tell() # Get length

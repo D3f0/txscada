@@ -12,6 +12,7 @@ from datetime import datetime
 from ..utils.bitfield import bitfield
 from ..constructs import upperhexstr
 import models
+from protocols.utils import format_buffer
 
 logger = getLogger(__name__)
 
@@ -37,18 +38,42 @@ class MaraClientProtocol(protocol.Protocol):
                                 dest   = self.factory.comaster.dest,
                                 sequence = self.factory.comaster.sequence,
                                 command = 0x10,
-                                payload_10 = None, # No payload
+                                payload_10 = None, # No payload,
+                                #peh=None,
                                 )
         # Data to be received from COMaster
         self.input = Container()
-        self.timer = LoopingCall(self.timerEvent)
-        self.timer.start(interval = self.factory.comaster.timeout, now = False)
+        self.poll_timer = LoopingCall(self.pollTimerEvent)
+        self.poll_timer.start(interval = self.factory.comaster.timeout, now=False)
+        
+        self.peh_timer = LoopingCall(self.pehTimerEvent)
+        self.peh_timer.start(interval=self.factory.comaster.timeout*0.5, now=False)
+        
+        reactor.callLater(0.1, self.pehTimerEvent)
+        
         
     def connectionMade(self):
         logger.debug("Conection made to %s:%s" % self.transport.addr)
         reactor.callLater(0.01, self.sendCommand) #@UndefinedVariable
     
-    def timerEvent(self):
+    def getPEHContainer(self):
+        return Container(
+                         source=self.output.source,
+                         dest=0xFF,
+                         sequence=self.output.sequence,
+                         command=0x12,
+                         peh=datetime.now()
+                         )
+    
+    def pehTimerEvent(self):
+        '''Evento que inidica que se debe enviar la puesta en hora'''
+        
+        if self.state == 'IDLE':
+            buffer = self.construct.build(self.getPEHContainer())
+            self.transport.write(buffer)
+            print "PEH >>", format_buffer(buffer)
+    
+    def pollTimerEvent(self):
         '''Event'''
         if self.pending == 0:
             print "Sending command to:",  self.factory.comaster.address, self.factory.comaster.sequence
@@ -91,8 +116,9 @@ class MaraClientProtocol(protocol.Protocol):
             deferToThread(self.saveInDatabase)
             
             #print self.input
-            print self.transport.addr, " ".join([("%.2x" % ord(c)).upper() for c in data])
+            print self.transport.addr, format_buffer(data)
             MaraFrame.pretty_print(self.input, show_header=False, show_bcc=False)
+            self.state = 'IDLE'
     
     def saveInDatabase(self):
         print "Acutalizando DB"
@@ -181,6 +207,12 @@ class MaraClientProtocol(protocol.Protocol):
     def state(self, value):
         assert value in self.CLIENT_STATES, "Invalid state %s" % value
         self.__state = value
+        # Fix this horrible code!!!
+        if value == 'IDLE':
+            if self.queued:
+                
+                self.transport.write(self.construct.build(self.queued))
+                self.queued = None
     
     __factory = None
     @property
@@ -192,7 +224,7 @@ class MaraClientProtocol(protocol.Protocol):
         assert isinstance(value, ClientFactory)
         self.__factory = value
 
-    
+    __construct = None    
     @property
     def construct(self):
         return self.__construct
@@ -221,6 +253,8 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
     
     def buildProtocol(self, *largs):
         p = MaraClientProtocol(factory = self)
+        # TODO: Make this dynamic
+        p.construct = MaraFrame
         return p
         
     def clientConnectionFailed(self, connector, reason):
