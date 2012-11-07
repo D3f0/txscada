@@ -12,14 +12,14 @@ import sys
 from os.path import join, dirname
 from datetime import datetime
 
-from peewee import (Model, 
+from peewee import (Model,
 				SqliteDatabase,
 				DateTimeField,
-				CharField, 
-				FloatField, 
+				CharField,
+				FloatField,
 				IntegerField,
-				BooleanField, 
-				ForeignKeyField, 
+				BooleanField,
+				ForeignKeyField,
 				Max,
 				DoesNotExist,
 				create_model_tables,
@@ -32,30 +32,30 @@ from protocols import constants as mara
 
 #database = MySQLDatabase('smve', user='root', passwd='root')
 
-database = PostgresqlDatabase('smve', user='postgres')
+database = PostgresqlDatabase('smve', user='postgres', host='localhost', port=5432)
 
 class BaseModel(Model):
 	class Meta:
 		database = database
-		
-		
+
+
 class Profile(BaseModel):
 	'''
-	Solo hay un perfil activo y de el depende toda 
-	la configuracion activa. Se pueden copiar los 
+	Solo hay un perfil activo y de el depende toda
+	la configuracion activa. Se pueden copiar los
 	perfiles para poder hacer pruebas o edici´on.
 	'''
 	def __init__(self, *largs, **kwargs):
 		super(Profile, self).__init__(*largs, **kwargs)
 		kwargs.setdefault('fecha', datetime.now())
-		
+
 	name = CharField(max_length=120)
 	version = FloatField(default=1.0)
 	date = DateTimeField()
-	
+
 	def copy(self, new_name):
 		pass
-	
+
 	@classmethod
 	def by_name(cls, name):
 		'''Get profile by name or None if it does not exist'''
@@ -70,20 +70,20 @@ class COMaster(BaseModel):
 	TODO: Falta apuntar el concentrador a un perfil, para poder versinar
 	'''
 	profile = ForeignKeyField(Profile, help_text="Perfil asociado al master")
-	address =  CharField(unique=True, default=mara.DEFAULT_COMASTER_ADDR, verbose_name=u"Direcci&oacute;n")
+	address = CharField(unique=True, default=mara.DEFAULT_COMASTER_ADDR, verbose_name=u"Direcci&oacute;n")
 	description = CharField(verbose_name=u"Descripci&oacute;n")
 	enabled = BooleanField(default=False)
 	port = IntegerField(verbose_name="Puerto TCP de conexion", default=mara.DEFAULT_COMASTER_PORT)
 	timeout = FloatField(default=mara.DEFAULT_TIMEOUT, help_text="Tiempo que se espera por consulta antes de decretarlo muerto")
-	poll_interval = FloatField(default=mara.DEFAULT_POLL_INTERVAL, help_text="Tiempo en segundos entre consultas") 
+	poll_interval = FloatField(default=mara.DEFAULT_POLL_INTERVAL, help_text="Tiempo en segundos entre consultas")
 	sequence = IntegerField(verbose_name="Mara sequence number", default=mara.MAX_SEQ)
 	source = IntegerField(verbose_name="Default 485 source address", default=0)
-	dest   = IntegerField(verbose_name="COMaster address to poll")
-	
+	dest = IntegerField(verbose_name="COMaster address to poll")
+
 	def __unicode__(self):
 		#return "<COMaser IP: %s Hab:%s>" % (self.address, self.enabled)
 		return "%s"	 % self.address
-	
+
 	#===========================================================================
 	# FIXME Make better order cirteria, creation counter?
 	#===========================================================================
@@ -91,32 +91,32 @@ class COMaster(BaseModel):
 	def ieds(self):
 		'''IEDs en orden'''
 		return self.ied_set.order_by('offset')
-	
+
 	@property
 	def varsys(self):
 		'''VS asociados con el COMaster en orden de la trama'''
 		for ied in self.ieds:
 			for vs in ied.varsys:
-				yield vs 
-		
+				yield vs
+
 	@property
 	def ais(self):
 		'''AIs asociados con el COMaster en orden de la trama'''
 		for ied in self.ieds:
 			for ai in ied.ais:
 				yield ai
-	
+
 	@property
 	def dis(self):
 		'''DIs asociados con el COMaster en orden de la trama'''
 		for ied in self.ieds:
 			for di in ied.dis:
 				yield di
-	
+
 
 class IED(BaseModel):
 	'''Descripcion del IED conectado a un comaster'''
-	
+
 	# Los puertos de digitales son de 16 bits
 	PORT_WIDTH = 16
 
@@ -126,15 +126,15 @@ class IED(BaseModel):
 	can_dis = IntegerField(default=0, help_text=u"Cantidad de variables digitales")
 	can_ais = IntegerField(default=0, help_text=u"Cantidad de variables analógicas")
 	addr_485_IED = IntegerField(help_text="Dirección 485")
-	
-	
+
+
 	def __unicode__(self):
-		return ("CO:{co_master} Offset:{offset} VS:{can_varsys} AIs:{can_ais} DIs:{can_dis}" 
+		return ("CO:{co_master} Offset:{offset} VS:{can_varsys} AIs:{can_ais} DIs:{can_dis}"
 			" 485:{addr_485_IED}").format(
 			co_master=self.co_master, offset=self.offset, can_varsys=self.can_varsys,
 			can_ais=self.can_ais, can_dis=self.can_dis, addr_485_IED=self.addr_485_IED
 			)
-	
+
 	@property
 	def siblings(self):
 		'''IED hermanos'''
@@ -143,8 +143,8 @@ class IED(BaseModel):
 	def crear_varsys(self, cantidad,):
 		"""docstring for crear_varsys"""
 		raise NotImplementedError
-		
-			
+
+
 	def build_di_ports(self, cant_ptos=1, pto_base=0):
 		'''Crear puertos digitales'''
 		# Función de conveniencia
@@ -152,14 +152,14 @@ class IED(BaseModel):
 			for no_bit in range(self.PORT_WIDTH):
 				# Crear la DI
 				param = "D%.2d" % ((no_port * self.PORT_WIDTH) + no_bit)
-				
+
 				DI(ied=self, port=no_port, bit=no_bit, param=param).save()
-	
-	
+
+
 	@property
 	def varsys(self):
 		return self.varsys_set.order_by('offset')
-	
+
 	@property
 	def ais(self):
 		'''Return AIs ordered by it's IED'''
@@ -168,12 +168,12 @@ class IED(BaseModel):
 	@property
 	def dis(self):
 		return self.di_set.order_by('offset')
-	
+
 	_VALUE_GETTERS = {
-				'di': lambda s, p, b: list(s.dis)[s.PORT_WIDTH*p + b],
+				'di': lambda s, p, b: list(s.dis)[s.PORT_WIDTH * p + b],
 				'ai': lambda s, p, b: list(s.ais)[p],
 				'varsys': lambda s, p, b: list(s.varsys)[p],
-				
+
 	}
 	def get_val(self, valtype, port, n_or_bit=None):
 		'''
@@ -183,9 +183,9 @@ class IED(BaseModel):
 		if not fget:
 			raise Exception("Invalid value type")
 		return fget(self, port, n_or_bit)
-		
-		
-		
+
+
+
 
 class MV(BaseModel):
 	'''Based on Measured Value from IEC61850 Standard'''
@@ -206,45 +206,45 @@ class MV(BaseModel):
 			print "Creating %s with offset: %s" % (self._meta.model_name, self.offset)
 
 		return BaseModel.save(self, *largs, **kwargs)
-		
-	
-		
+
+
+
 class VarSys(MV):
 	'''
 	Nombre		VarSys		Calif	0	Normal
 	Tipo		RealTime			1	stalled
 	Tamaño		8			2	Calculada
-	Unidad		bit	
+	Unidad		bit
 	'''
 	#ied = ForeignKeyField(IED)
 	#offset = IntegerField()
 	param = CharField()
 	description = CharField()
 	unit = CharField(db_column="umedida")
-	
+
 	valor = IntegerField()
-	
+
 	def __unicode__(self):
 		"""Unicode"""
 		return "%s %s %s" % (self.offset, self.param, self.description)
-	
+
 
 class DI(MV):
 	'''
 	Nombre		DIs		Calif	0	Normal
 	Tipo		RealTime		1	stalled
 	Tamaño		1				2	Calculada
-	Unidad		bit				
+	Unidad		bit
 	'''
 	#ied = ForeignKeyField(IED)
 	#offset = IntegerField()
 	param = CharField(help_text="Valores D01 a D111")
 	description = CharField()
 	port = IntegerField()
-	bit  = IntegerField(help_text="Bit number")
+	bit = IntegerField(help_text="Bit number")
 	q = IntegerField(db_column="q", help_text="Quality")
 	value = IntegerField()
-	
+
 	def save(self, *largs, **kwargs):
 		'''Guardar una digital'''
 		if not self.offset:
@@ -254,16 +254,16 @@ class DI(MV):
 			print "Creating %s with offset: %s" % (self._meta.model_name, self.offset)
 
 		return BaseModel.save(self, *largs, **kwargs)
-	
+
 	def __unicode__(self):
 		values = [self.port, self.bit, self.param, self.description or "No desc", self.value]
 		return " ".join(map(str, values))
-	
+
 	class Meta:
 		indexes	 = (
 			((), True)
 		)
-		
+
 class Event(BaseModel):
 	'''
 	'''
@@ -272,16 +272,16 @@ class Event(BaseModel):
 	subsec = FloatField(default=0)
 	q = IntegerField(db_column="calif")
 	value = IntegerField()
-	
-	
+
+
 	def __unicode__(self):
 		ied = self.di.ied
-		return "Digital Ad485: %s Port: %s Bit: %s Value:%s Timestamp:%s" % (ied.addr_485_IED, 
+		return "Digital Ad485: %s Port: %s Bit: %s Value:%s Timestamp:%s" % (ied.addr_485_IED,
 																			self.di.port,
 																			self.di.bit,
-																			self.value, 
+																			self.value,
 																			self.timestamp)
-	
+
 class AI(MV):
 	'''Analogicas digitales (valores de energia)
 	'''
@@ -298,20 +298,20 @@ class AI(MV):
 	relacion_33_13 = FloatField(db_column="rel33-13", default=2.5)
 	calificador = IntegerField(db_column="calif", default=0)
 	value = IntegerField()
-	
+
 	@property
 	def val(self):
 		return self.value * self.multip_asm #* self.divider * self.relacion_tv * self.relacion_ti * self.relacion_33_13
-	
+
 	@property
 	def human_value(self):
 		return "%.3f %s" % (self.val, self.unit)
-	
+
 	def __unicode__(self):
 		values = [self.ied, self.description, self.human_value]
 		return u" ".join(map(unicode, values))
-		
-	
+
+
 class Energy(BaseModel):
 	'''
 	Nombre		Energia		Calif	0	Normal
@@ -334,11 +334,11 @@ class Energy(BaseModel):
 	q = IntegerField()
 	value = IntegerField()
 	timestamp = DateTimeField()
-	
+
 	@property
 	def val(self):
 		return self.value * self.multip_asm * self.divider * self.relacion_tv * self.relacion_ti * self.relacion_33_13
-	
+
 	@property
 	def human_value(self):
 		return "%.3f %s" % (self.val, self.unit)
@@ -371,7 +371,7 @@ def tab_formatted2int_list(text):
 		if not line: continue
 		output.append(map(int, line.split()))
 	return output
-		
+
 
 def populate_tables(name, list_of_data):
 	print "Creating profile: %s with (%d) hosts" % (name, len(list_of_data))
@@ -379,7 +379,7 @@ def populate_tables(name, list_of_data):
 	profile.save()
 	for data in list_of_data:
 		insert_comaster(profile, data)
-	
+
 def insert_comaster(profile, data):
 	''' Creates one comaster with its configuration'''
 	data.update(profile=profile,
@@ -410,7 +410,7 @@ def insert_comaster(profile, data):
 		# ------------------------------------------------------------------
 		# TODO: Generar una configuración mejor, quizás pasando a un crear_var_sys
 		# -----------------------------------------------------------from datetime import datetime-------
-		
+
 		if addr_485_IED == 1:
 			# VarSys del IED 1 (el co master)
 			VarSys(ied=ied, param="Calif", description="Calificador", unit="unidad").save()
@@ -419,10 +419,10 @@ def insert_comaster(profile, data):
 			VarSys(ied=ied, param="Sesgo", description="Sesgo (entero)", unit="ms").save()
 			# DIS del CO Master
 			ied.build_di_ports(3)
-			
+
 			AI(ied=ied, param="V", description=u"Tensión barra 33K", unit="Kv", multip_asm=1,
 			  divider=1, relacion_tv=1, relacion_ti=0, relacion_33_13=2.5).save()
-			
+
 		else:
 			# Crear el VS
 			VarSys(ied=ied, param="Sesgo", description="Sesgo (entero)", unit="ms").save()
