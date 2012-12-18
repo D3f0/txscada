@@ -1,15 +1,15 @@
+Django==1.4.3
 Fabric==1.4.2
 Flask==0.8
 Jinja2==2.6
-# MySQL-python==1.2.3
+South==0.7.6
 Twisted==12.0.0
-WTForms==1.0.1
 Werkzeug==0.8.3
-cliff==1.1.2
-cmd2==0.6.4
+-e git+https://github.com/aobo711/bootstrap-django-admin.git@ed3237d7d11d10c01ebde838e5463c8b5eba3f66#egg=bootstrap_django_admin-dev
 construct==2.06
+cyclone==1.0-rc15
 distribute==0.6.28
-flask-peewee==0.5.4
+django-extensions==1.0.2
 gevent==0.13.7
 greenlet==0.4.0
 ipdb==0.6.1
@@ -17,12 +17,14 @@ ipython==0.12.1
 peewee==0.9.7
 prettytable==0.6.1
 psycopg2==2.4.5
+pyOpenSSL==0.13
 pycrypto==2.6
 pyparsing==1.5.6
 pyzmq==2.2.0
 -e git+https://github.com/ghtdak/qtreactor.git@82ec1802f04fbe54527884a55dafc859cd997c49#egg=qt4reactor-dev
+simplejson==2.6.2
+sockjs-cyclone==0.0.2
 ssh==1.7.14
 txZMQ==0.5.0
 wsgiref==0.1.2
-wtf-peewee==0.1.3
 zope.interface==3.8.0
