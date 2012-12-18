@@ -11,7 +11,7 @@ from adapters import (EnergyValueAdapter,
                       MaraDateTimeAdapter,
                       SubSecondAdapter)
 from protocols.constructs.adapters import PEHAdapter
-    
+
 #===============================================================================
 # Mara protocol SubConstructs
 #===============================================================================
@@ -48,17 +48,17 @@ EPB = BitStruct('BPE',
 
 IdleCan = BitStruct('idlecan',
     BitField('idle', 5),
-    BitField('channel', 3) 
+    BitField('channel', 3)
 )
 
-TimerTicks = Struct('ticks', 
+TimerTicks = Struct('ticks',
     #UBInt8('cseg'),
     #UBInt8('dmseg'),
     ULInt16('ticks')
 )
 
-Value = BitStruct('val', 
-    BitField('q', length=2, ),
+Value = BitStruct('val',
+    BitField('q', length=2,),
     BitField('value', length=14,)
 )
 
@@ -76,30 +76,31 @@ DateTime = Struct('datetime',
 
 Event = Struct("event",
     Embed(TCD),
-    Switch("evdetail", lambda ctx: ctx.evtype,  
+    Switch("evdetail", lambda ctx: ctx.evtype,
            {
             "DIGITAL": Embed(BPE),
             "ENERGY":  Embed(IdleCan),
             }
     ),
-        
+
     UBInt8('year'),
     UBInt8('month'),
     UBInt8('day'),
     UBInt8('hour'),
     UBInt8('minute'),
+
     UBInt8('second'),
-    
+
     If(lambda ctx: ctx['evtype'] == "DIGITAL",
        #Embed(SubSecondAdapter(ULInt16('ticks'))),
        SubSecondAdapter(ULInt16('subsec'))
     ),
-          
+
     If(lambda ctx: ctx.evtype == "ENERGY",
        EnergyValueAdapter(ULInt16('value')),
-    ),           
-    
-    
+    ),
+
+
     #Switch("taildata", lambda ctx: ctx.evtype, {
     #    "DIGITAL": ULInt16('ticks'),
     #    #"ENERGY":  EnergyValueAdapter(ULInt16('copete')),
@@ -133,7 +134,7 @@ Payload_PEH = Struct("peh",
     ULInt8('fsegl'),
     ULInt8('fsegh'),
     # Day of week
-    ULInt8('day_of_week'), 
+    ULInt8('day_of_week'),
 )
 #===============================================================================
 # Paquete Mara 14.10
@@ -142,7 +143,7 @@ class BaseMaraStruct(Struct):
     def _parse(self, stream, context):
         # TODO: Check checksum
         return super(BaseMaraStruct, self)._parse(stream, context)
-    
+
     def _build(self, obj, stream, context):
         '''Builds frame'''
         # This code ain't no pythonic, shall make it better some time...
@@ -154,28 +155,28 @@ class BaseMaraStruct(Struct):
         #=================================================================================
         obj.setdefault('peh', None)
         obj.setdefault('payload_10', None)
-        
+
         super(BaseMaraStruct, self)._build(obj, stream, context) # stream is an I/O var
         stream.seek(0, 2) # Go to end
         length = stream.tell() # Get length
         stream.seek(1) # Seek mara length position (second byte)
-        stream.write( ULInt8('length').build(length) ) # Write length as ULInt8
+        stream.write(ULInt8('length').build(length)) # Write length as ULInt8
         stream.seek(0) # Back to the beginging
-        data_to_checksum = stream.read(length-2)
+        data_to_checksum = stream.read(length - 2)
         #print map(lambda c: "%.2x" % ord(c), data_to_checksum) 
         #print stream.tell()
         stream.truncate() # Discard old checksum
-        cs  = make_cs_bigendian(data_to_checksum) 
-        stream.seek(length-2) # Go to BCC position
+        cs = make_cs_bigendian(data_to_checksum)
+        stream.seek(length - 2) # Go to BCC position
         stream.write(Array(2, ULInt8('foo')).build(cs))
-        
+
     @classmethod
     def pretty_print(cls, container, show_header=True, show_bcc=True):
         '''Pretty printing'''
         format_frame(container, as_hex_string=False, show_header=show_header, show_bcc=show_bcc)
-        
 
-MaraFrame = BaseMaraStruct('Mara', 
+
+MaraFrame = BaseMaraStruct('Mara',
             ULInt8('sof'),
             ULInt8('length'),
             ULInt8('dest'),
@@ -198,9 +199,9 @@ def ints2buffer(hexstr):
     parts = [ chr(an_int) for an_int in hexstr ]
     return ''.join(parts)
 
-def hexstr2buffer(a_str):        
+def hexstr2buffer(a_str):
     '''
-    "FE  01" => '\xFE\x01'    
+    "FE  01" => '\xFE\x01'
     '''
     import re
     a_str = a_str.strip().replace('\n', ' ')
@@ -217,7 +218,7 @@ def any2buffer(data):
 # Buffer -> Upper Human Readable Hex String
 upperhexstr = lambda buff: ' '.join([ ("%.2x" % ord(c)).upper() for c in buff])
 #aa
-def dtime2dict(dtime = None):
+def dtime2dict(dtime=None):
     '''
     Converts a datetime.datetime instance into
     a dictionary suitable for ENERGY event
@@ -227,21 +228,21 @@ def dtime2dict(dtime = None):
     if not dtime:
         dtime = datetime.datetime.now()
     d = {}
-    d['year']   = dtime.year % 100 
-    d['month']  = dtime.month
-    d['day']    = dtime.day
-    d['hour']   = dtime.hour
+    d['year'] = dtime.year % 100
+    d['month'] = dtime.month
+    d['day'] = dtime.day
+    d['hour'] = dtime.hour
     d['minute'] = dtime.minute
     d['second'] = dtime.second
     # Ticks de cristal que va de 0 a 32K-1 en un segundo
-    d['ticks'] = dtime.microsecond * (float(2<<14)-1) / 1000000
-    return d    
+    d['ticks'] = dtime.microsecond * (float(2 << 14) - 1) / 1000000
+    return d
 
 
 def build_frame(obj, subcon=MaraFrame):
     '''Generates a mara frame, with checksum and qty'''
     stream = subcon.build(obj)
-    data= "".join([
+    data = "".join([
                     stream[0],
                     UBInt8('qty').build(len(stream)),
                     stream[2:-2],
@@ -257,7 +258,7 @@ def parse_frame(buff, as_hex_string=False):
     return data
 
 def format_frame(buff, as_hex_string=False, show_header=True, show_bcc=True):
-    
+
     if isinstance(buff, Container):
         d = buff
     else:
@@ -272,40 +273,40 @@ def format_frame(buff, as_hex_string=False, show_header=True, show_bcc=True):
     # Payload
     if d.payload_10:
         p = d.payload_10
-        print "%12s" % "CANVARSYS:", p.canvarsys, "%d valores de word de 16" % (p.canvarsys/2)
-        print "%12s" % "VARSYS:",    p.varsys 
-        print "%12s" % "CANDIS:",    p.candis, "%d valores de word de 16" % (p.candis/2) 
+        print "%12s" % "CANVARSYS:", p.canvarsys, "%d valores de word de 16" % (p.canvarsys / 2)
+        print "%12s" % "VARSYS:", p.varsys
+        print "%12s" % "CANDIS:", p.candis, "%d valores de word de 16" % (p.candis / 2)
         print "%12s" % "DIS:", p.dis
-        print "%12s" % "CANAIS:", p.candis, "%d valores de word de 16" % (p.canais/2)
+        print "%12s" % "CANAIS:", p.candis, "%d valores de word de 16" % (p.canais / 2)
         print "%12s" % "AIS:", p.ais
         # Eventos
-        print "%12s" % "CANEVS:", p.canevs, "%d cada evento ocupa 10 bytes" % (p.canevs/10)
+        print "%12s" % "CANEVS:", p.canevs, "%d cada evento ocupa 10 bytes" % (p.canevs / 10)
         for ev in p.event:
             if ev.evtype == "DIGITAL":
                 print '\t',
                 print "DIGITAL",
-                print "Q:", ev.q, 
-                print "ADDR485",    ev.addr485, 
+                print "Q:", ev.q,
+                print "ADDR485", ev.addr485,
                 print "BIT: %2d" % ev.bit,
                 print "PORT:", ev.port,
                 print "STATUS:", ev.status,
-                print "%d/%d/%d %2d:%.2d:%2.2f" % (ev.year+2000, ev.month, ev.day, ev.hour, ev.minute, ev.second + ev.subsec)
+                print "%d/%d/%d %2d:%.2d:%2.2f" % (ev.year + 2000, ev.month, ev.day, ev.hour, ev.minute, ev.second + ev.subsec)
                 #print "%.2f" % ev.subsec
-                
-                
+
+
             elif ev.evtype == "ENERGY":
                 print "\t",
                 print "ENERGY Q: %d" % ev.q,
                 print "ADDR485: %d" % ev.q, ev.addr485,
                 print "CHANNEL: %d" % ev.channel,
-                print "%d/%d/%d %2d:%.2d:%.2d" % (ev.year+2000, ev.month, ev.day, ev.hour, ev.minute, ev.second),
+                print "%d/%d/%d %2d:%.2d:%.2d" % (ev.year + 2000, ev.month, ev.day, ev.hour, ev.minute, ev.second),
                 print "Value: %d Q: %d" % (ev.value.val, ev.value.q)
             else:
                 print "Tipo de evento no reconocido"
-    
+
     if show_bcc:
         print "BCC:", d.bcc
-        
+
 
 int2str = lambda l: ''.join(map(chr, l))
 
@@ -318,36 +319,36 @@ def test():
     r = TCD.build(Container(evtype="ENERGY", q=1, addr485=1))
     print r
     #result.data = range(1, 10)
-    event_data = Container(evtype="DIGITAL", 
-                            q=0, addr485=5, 
-                            bit=0, port=3, status=0, 
-                            year=12, month=1, day=1, 
+    event_data = Container(evtype="DIGITAL",
+                            q=0, addr485=5,
+                            bit=0, port=3, status=0,
+                            year=12, month=1, day=1,
                             hour=12, minute=24,
-                            second=10, 
+                            second=10,
                             ticks=4212)
-    
+
     print "Construyendo un evento digital de puerto con puerto 3, bit 0, estado 0" #event_data
     pkg = Event.build(event_data)
     print upperhexstr(pkg)
     print "Evento de energía"
     energy_data = Container(evtype="ENERGY", q=0, addr485=4,
-                            idle=0, channel=0, 
-                            value=0x032F, 
+                            idle=0, channel=0,
+                            value=0x032F,
                             **dtime2dict())
     pkg = Event.build(energy_data)
     print upperhexstr(pkg)
-    
+
     print "Construyendo payload del comando 10"
-    payload_10_data = Container(canvarsys=5, varsys=[0x1234, 0xfeda], candis=3, dis=[0x4567],  canais=0,ais=[], canevs=31, event=[event_data, event_data, energy_data])
-    
+    payload_10_data = Container(canvarsys=5, varsys=[0x1234, 0xfeda], candis=3, dis=[0x4567], canais=0, ais=[], canevs=31, event=[event_data, event_data, energy_data])
+
     pkg = Payload_10.build(payload_10_data)
     print upperhexstr(pkg)
-    frame_data = Container(sof=0xFE, length=0, source=1, dest=2, sequence=0x80, command=0x10, 
+    frame_data = Container(sof=0xFE, length=0, source=1, dest=2, sequence=0x80, command=0x10,
                                     payload_10=payload_10_data,
                                     bcc=0)
     pkg = MaraFrame.build(frame_data)
-    
-    print "Trama Mara c/QTY=0 y sin CS: ",  upperhexstr(pkg)
+
+    print "Trama Mara c/QTY=0 y sin CS: ", upperhexstr(pkg)
     print "Trama completa:", upperhexstr(build_frame(frame_data))
 
 def test_events():
@@ -356,7 +357,7 @@ def test_events():
     '''
     ev = 0x40, 0x12, 0xC, 0x8, 0x7, 0x9, 0x30, 0x0, 0x00, 0x40
     print Event.parse(''.join(map(chr, ev)))
-    
+
     ev = 0x00, 0x12, 0xC, 0x8, 0x7, 0x9, 0x30, 0x0, 0x00, 0x40
     print Event.parse(''.join(map(chr, ev)))
 
@@ -364,9 +365,9 @@ def test_frames():
     from ..sample_data import FRAMES
     for n, frame in enumerate(FRAMES):
         print "-"*80
-        print "Trama %d" % (n+1)
+        print "Trama %d" % (n + 1)
         print "-"*80
-    
+
         format_frame(frame, as_hex_string=True)
 
 def test_peh():
@@ -382,19 +383,18 @@ def test_peh():
                          payload_10=None,
                          ))
     print " ".join([("%.2x" % ord(x)).upper() for x in frame])
-    
-    
+
+
     print MaraFrame.parse(any2buffer('FE 11 FF 40 22 12 0C 0A 10 00 37 0D 50 3D 02 3B 48'))
 if __name__ == '__main__':
     #===========================================================================
     # Debug with ipython --pdb -c "%run constructs.py"
     #===========================================================================
-    
+
     import sys
     #aa
     #sys.exit(test_events())
     #sys.exit(test_frames())
     from IPython import embed; embed()
-    
-    
-    
+
+
