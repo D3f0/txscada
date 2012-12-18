@@ -179,6 +179,9 @@ class EnergyPoint(MV):
     rel_ti = models.FloatField(default=1)
     rel_33_13 = models.FloatField(default=2.5)
 
+    def __unicode__(self):
+        return "%s %s %s" % (self.description, self.ied.rs485_address, self.param)
+
 class Energy(models.Model):
     '''
     Energy Measure. Every day has 96 energy values taken from the energy meter

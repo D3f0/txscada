@@ -72,7 +72,9 @@ class Command(NoArgsCommand):
         unidad, _ = Unit.objects.get_or_create(name='unidad')
         kv, _ = Unit.objects.get_or_create(name='kV')
         kw, _ = Unit.objects.get_or_create(name='kW')
+        kwh, _ = Unit.objects.get_or_create(name='kWh')
         kva, _ = Unit.objects.get_or_create(name='kVA')
+        kvah, _ = Unit.objects.get_or_create(name='kVAh')
 
 
         profile_name = options.get('profile_name')
@@ -135,6 +137,7 @@ class Command(NoArgsCommand):
                                               param=param,
                                               description=desc,
                                               offset=n / 8)
+
                 else:
                     # Create others
                     # AI
@@ -146,5 +149,27 @@ class Command(NoArgsCommand):
                                       description='Potencia Reactiva',
                                       offset=2,
                                       unit=kva)
-
+                    # Energy Points
+                    ied.energypoint_set.create(
+                                                channel=0,
+                                                description=u"Energía Activa",
+                                                param='Ea',
+                                                unit=kwh,
+                                                ke=0.025,
+                                                divider=1,
+                                                rel_tv=12,
+                                                rel_ti=5,
+                                                rel_33_13=2.5
+                                                )
+                    ied.energypoint_set.create(
+                                                channel=1,
+                                                description=u"Energía Reactiva",
+                                                param='Er',
+                                                unit=kvah,
+                                                ke=0.025,
+                                                divider=1,
+                                                rel_tv=12,
+                                                rel_ti=5,
+                                                rel_33_13=2.5
+                                                )
 

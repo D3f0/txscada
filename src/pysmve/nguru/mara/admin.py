@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from models import Profile, COMaster, IED, Unit, SV, DI, AI, Event, Energy
+from models import Profile, COMaster, IED, Unit, SV, DI, AI, Event, EnergyPoint, Energy
 
 site = admin.AdminSite('mara')
 
@@ -40,4 +40,11 @@ class AIAdmin(admin.ModelAdmin):
     list_filter = ('ied',)
 
 site.register(AI, AIAdmin)
+
 site.register(Energy)
+
+class EnergyPointAdmin(admin.ModelAdmin):
+    list_display = ('__unicode__', 'channel', 'description', 'offset', 'param',
+                    'ke', 'divider', 'rel_tv', 'rel_ti', 'rel_33_13', 'ied',)
+    list_filter = ('ied', 'channel',)
+site.register(EnergyPoint, EnergyPointAdmin)
