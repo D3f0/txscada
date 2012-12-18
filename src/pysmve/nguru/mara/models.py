@@ -82,9 +82,16 @@ class MV(models.Model):
     IEC Meassured Value
     '''
     ied = models.ForeignKey(IED)
-    offset = models.SmallIntegerField(default=0)
-    param = models.CharField(max_length=10)
-    description = models.CharField(max_length=100)
+    offset = models.SmallIntegerField(default=0,
+                                      verbose_name="Byte offset in mara frame")
+    param = models.CharField(max_length=10,
+                             null=True,
+                             blank=True)
+
+    description = models.CharField(max_length=100,
+                                   null=True,
+                                   blank=True
+                                   )
 
     class Meta:
         abstract = True
@@ -95,7 +102,12 @@ class SV(MV):
     '''
     System variable
     '''
+    SV_WIDTHS = (
+                 (8, '8'),
+                 (16, '16')
+    )
     unit = models.ForeignKey(Unit)
+    width = models.IntegerField(choices=SV_WIDTHS)
     value = models.SmallIntegerField(default=0)
 
     class Meta:
