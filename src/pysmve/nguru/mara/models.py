@@ -166,22 +166,24 @@ class AI(MV):
         verbose_name = "Analog Input"
         verbose_name_plural = "Analog Inputs"
 
-class Energy(MV):
-    '''
-    Energy Measure. Every day has 96 energy values taken from the energy meter
-    '''
+class EnergyPoint(MV):
     #ied = models.ForeignKey(IED)
     #offset = models.IntegerField()
     #param = models.CharField()
     #description = models.CharField()
-    address = models.IntegerField(default=0)
     channel = models.IntegerField(default=0)
     unit = models.ForeignKey(Unit)
-    Ke = models.FloatField(default=1)
+    ke = models.FloatField(default=0.025)
     divider = models.FloatField(default=1)
     rel_tv = models.FloatField(default=1)
     rel_ti = models.FloatField(default=1)
-    rel_33_13 = models.FloatField(default=1)
+    rel_33_13 = models.FloatField(default=2.5)
+
+class Energy(models.Model):
+    '''
+    Energy Measure. Every day has 96 energy values taken from the energy meter
+    '''
+    energy_point = models.ForeignKey(EnergyPoint)
     timestamp = models.DateTimeField()
     value = models.IntegerField()
     q = models.IntegerField(verbose_name="Quality")
