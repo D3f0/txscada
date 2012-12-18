@@ -25,14 +25,15 @@ class COMaster(models.Model):
     A gateway with mara IEDs that also performs other
     tasks such time synchronization with slaves.
     '''
-    profile = models.ForeignKey(Profile)
+    profile = models.ForeignKey(Profile, related_name='comasters')
     ip_address = models.IPAddressField()
     enabled = models.BooleanField(default=False)
     port = models.IntegerField(verbose_name="TCP port for connection",
                                default=constants.DEFAULT_COMASTER_PORT)
     poll_interval = models.FloatField(verbose_name="Poll interval in seconds",
                                       default=5)
-    sequence = models.IntegerField(help_text=u"Current sequence number")
+    sequence = models.IntegerField(help_text=u"Current sequence number",
+                                   default=0)
     rs485_source = models.SmallIntegerField(
                                             default=0,
                                             help_text='RS485 source address'
@@ -50,10 +51,12 @@ class IED(models.Model):
     '''
     Inteligent Electronic Device.
     '''
-    co_master = models.ForeignKey(COMaster)
+    co_master = models.ForeignKey(COMaster, related_name='ieds')
     offset = models.SmallIntegerField(default=0)
     rs485_address = models.SmallIntegerField(default=0)
 
+    def __unicode__(self):
+        return u"%s[%s]" % (self.co_master.ip_address, self.rs485_address)
 
     class Meta:
         verbose_name = "IED"
@@ -93,9 +96,11 @@ class MV(models.Model):
                                    blank=True
                                    )
 
+    def __unicode__(self):
+        return "%s %s" % (self.param, self.description or '')
+
     class Meta:
         abstract = True
-
 
 
 class SV(MV):
@@ -112,6 +117,8 @@ class SV(MV):
 
     class Meta:
         unique_together = ('offset', 'ied',)
+        verbose_name = "System Variable"
+        verbose_name_plural = "System Variables"
 
 class DI(MV):
     '''
@@ -127,7 +134,7 @@ class DI(MV):
         return u"DI %2d:%2d (%s)" % (self.port, self.bit, self.param)
 
     class Meta:
-        unique_together = ('offset', 'ied',)
+        unique_together = ('offset', 'ied', 'port', 'bit')
         verbose_name = "Digital Input"
         verbose_name_plural = "Digital Inputs"
 
