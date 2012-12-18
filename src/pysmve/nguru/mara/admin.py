@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from models import Profile, COMaster, IED, Unit, DI, AI, Event, Energy
+from models import Profile, COMaster, IED, Unit, SV, DI, AI, Event, Energy
 
 site = admin.AdminSite('mara')
 
@@ -14,16 +14,30 @@ site.register(COMaster, COMasterAdmin)
 
 class IEDAdmin(admin.ModelAdmin):
     list_display = ('co_master', 'offset', 'rs485_address')
+    list_filter = ('co_master',)
 
 site.register(IED, IEDAdmin)
 
 site.register(Unit)
 
+class SVAdmin(admin.ModelAdmin):
+    list_display = ('__unicode__', 'unit', 'width', 'value', 'ied',)
+    list_filter = ('ied',)
+
+site.register(SV, SVAdmin)
+
 class DIAdmin(admin.ModelAdmin):
-    list_display = ('ied', 'port', 'bit',)
+    list_display = ('param', 'port', 'bit', 'description', 'ied')
+    list_filter = ('ied',)
     #list_display_links = ()
+
 
 site.register(DI, DIAdmin)
 site.register(Event)
-site.register(AI)
+
+class AIAdmin(admin.ModelAdmin):
+    list_display = ('__unicode__', 'unit', 'description', 'ied')
+    list_filter = ('ied',)
+
+site.register(AI, AIAdmin)
 site.register(Energy)
