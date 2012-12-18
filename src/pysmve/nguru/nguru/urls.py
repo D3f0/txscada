@@ -4,13 +4,14 @@ from django.conf.urls import patterns, include, url
 # from django.contrib import admin
 # admin.autodiscover()
 
+from mara.admin import site
 urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'nguru.views.home', name='home'),
     # url(r'^nguru/', include('nguru.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^admin', site.urls),
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
