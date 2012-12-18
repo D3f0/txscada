@@ -1,5 +1,11 @@
 # Django settings for nguru project.
 
+import sys
+from os.path import abspath, dirname, join
+
+PROJECT_ROOT = dirname(abspath(__file__))
+print PROJECT_ROOT
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -156,3 +162,7 @@ try:
     from local_settings import *
 except ImportError as error:
     print("Error loading local_settings.py: %s" % error)
+
+# Monkey patch local path
+if DEBUG:
+    sys.path.append(join(PROJECT_ROOT, '..', '..',))
