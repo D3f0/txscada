@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 '''
 Generate intial dabtase entities based on mara XLS file
 '''
@@ -65,6 +64,7 @@ class Command(NoArgsCommand):
                     make_option('-d', '--delete', help="Delete previous data",
                                 action='store_true', default=False)
                  )
+    help = '''Crea un COMaster con sus IED asociados en un perfil dado'''
 
     def handle_noargs(self, **options):
         from mara.models import Profile, Unit
