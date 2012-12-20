@@ -1,3 +1,4 @@
+# encoding: utf-8
 from django.conf.urls import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
@@ -10,8 +11,10 @@ urlpatterns = patterns('',
     # url(r'^$', 'nguru.views.home', name='home'),
     # url(r'^nguru/', include('nguru.foo.urls')),
     url("", include('django_socketio.urls')),
-    # Uncomment the admin/doc line below to enable admin documentation:
+    # Administración
+    (r'^grappelli/', include('grappelli.urls')),
     url(r'^admin', site.urls),
+    # Vista inicial
     url('^$', 'django.views.generic.simple.direct_to_template',
         {
          'template': 'index.html'
