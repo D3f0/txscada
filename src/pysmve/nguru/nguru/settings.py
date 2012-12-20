@@ -38,6 +38,9 @@ LANGUAGE_CODE = 'es-ar'
 
 SITE_ID = 1
 
+
+GRAPPELLI_ADMIN_TITLE = "S.M.V.E."
+
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
@@ -101,6 +104,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'nguru.urls'
@@ -112,6 +116,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    'templates',
 )
 
 INSTALLED_APPS = (
@@ -121,15 +126,20 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #'admin_bootstrap',
-    'django.contrib.admin',
+
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'south',
     'django_extensions',
     'django_socketio',
+    'debug_toolbar',
 
     'mara',
+
+    #'admin_bootstrap',
+    'grappelli',
+    'django.contrib.admin',
+
 )
 
 # A sample logging configuration. The only tangible logging
@@ -169,3 +179,11 @@ except ImportError as error:
 # Monkey patch local path
 if DEBUG:
     sys.path.append(join(PROJECT_ROOT, '..', '..',))
+
+#=========================================================================================
+# Debug Toolbar
+#=========================================================================================
+
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
+}
