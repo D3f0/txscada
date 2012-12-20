@@ -4,17 +4,44 @@ from models import Profile, COMaster, IED, Unit, SV, DI, AI, Event, EnergyPoint,
 
 site = admin.AdminSite('mara')
 
-site.register(Profile)
+class COMasterTabularInline(admin.TabularInline):
+    model = COMaster
+    extra = 0
+
+class ProfileAdmin(admin.ModelAdmin):
+    model = Profile
+    inlines = [COMasterTabularInline, ]
+
+site.register(Profile, ProfileAdmin)
+
+#=========================================================================================
+# 
+#=========================================================================================
+
+
 class COMasterAdmin(admin.ModelAdmin):
     list_display = ('profile', 'ip_address', 'enabled', 'port', 'poll_interval',
                     'rs485_source', 'rs485_destination',)
     list_display_links = ('ip_address',)
-
 site.register(COMaster, COMasterAdmin)
 
+class AITabularInline(admin.TabularInline):
+    model = AI
+    extra = 0
+
+class DITabularInline(admin.TabularInline):
+    model = DI
+    extra = 0
+
+class SVTabularInline(admin.TabularInline):
+    model = SV
+    extra = 0
+
 class IEDAdmin(admin.ModelAdmin):
-    list_display = ('co_master', 'offset', 'rs485_address')
-    list_filter = ('co_master',)
+    list_display = ('__unicode__', 'offset', 'rs485_address', 'co_master')
+    list_filter = ('co_master', 'offset', 'rs485_address')
+
+    inlines = [AITabularInline, DITabularInline, SVTabularInline]
 
 site.register(IED, IEDAdmin)
 
