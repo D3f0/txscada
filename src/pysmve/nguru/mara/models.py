@@ -56,12 +56,13 @@ class IED(models.Model):
     rs485_address = models.SmallIntegerField(default=0)
 
     def __unicode__(self):
-        return u"%s[%s]" % (self.co_master.ip_address, self.rs485_address)
+        return u"%s:IED:%s" % (self.co_master.ip_address, self.rs485_address)
 
     class Meta:
         verbose_name = "IED"
         verbose_name_plural = "IEDs"
         unique_together = ('co_master', 'rs485_address')
+        ordering = ('offset',)
 
 
     def create_dis(self, ports, bit_width=16):
