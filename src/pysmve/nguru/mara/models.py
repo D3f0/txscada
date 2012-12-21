@@ -40,6 +40,24 @@ class COMaster(models.Model):
                                             )
     rs485_destination = models.SmallIntegerField(default=0)
 
+
+    @property
+    def dis(self):
+        dis = DI.objects.filter(ied__co_master=self)
+        dis = dis.order_by('ied__offset', 'port', 'bit')
+        return dis
+
+    @property
+    def ais(self):
+        ais = AI.objects.filter(ied__co_master=self)
+        ais = ais.order_by('ied__offset', 'offset')
+        print ais.count()
+        return ais
+
+    @property
+    def svs(self):
+        pass
+
     def __unicode__(self):
         return u"%s" % self.ip_address
 
@@ -161,6 +179,7 @@ class AI(MV):
     rel_ti = models.FloatField(db_column="relti", default=1)
     rel_33_13 = models.FloatField(db_column="rel33-13", default=1)
     q = models.IntegerField(db_column="calif", default=0)
+    value = models.SmallIntegerField(default= -1)
 
     class Meta:
         unique_together = ('offset', 'ied',)
