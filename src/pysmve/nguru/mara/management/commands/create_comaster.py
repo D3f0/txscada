@@ -91,33 +91,37 @@ class Command(NoArgsCommand):
                 pass
         profile, _created = Profile.objects.get_or_create(name=profile_name)
         for ip_address in co_ips:
-            comaster = profile.comasters.create(ip_address=ip_address)
+            comaster = profile.comasters.create(ip_address=ip_address,
+                                                enabled=True)
 
             for offset, canvarsys, candis, canais, rs485_address in EXCEL_CONFIG:
                 # Create Comaster with Config
                 ied = comaster.ieds.create(offset=offset,
                                            rs485_address=rs485_address,
                                            )
+                # Var Sys are common to all
+                # TODO: Better offset handling
+                ied.sv_set.create(param='ComError',
+                                  width=16,
+                                  description="Flag de errores",
+                                  unit=unidad,
+                                  offset=0)
+                ied.sv_set.create(param='Sesgo',
+                                  width=16,
+                                  unit=unidad,
+                                  offset=1)
+                ied.sv_set.create(param='ClockError',
+                                  width=8,
+                                  unit=unidad,
+                                  offset=2)
+                ied.sv_set.create(param='UartError',
+                                  width=8,
+                                  unit=unidad,
+                                  offset=3)
+
+                # First IED is special, it holds more information
+
                 if rs485_address == 1:
-                    # Create frist
-                    # Var Sys
-                    ied.sv_set.create(param='ComError',
-                                      width=16,
-                                      description="Flag de errores",
-                                      unit=unidad,
-                                      offset=0)
-                    ied.sv_set.create(param='Sesgo',
-                                      width=16,
-                                      unit=unidad,
-                                      offset=2)
-                    ied.sv_set.create(param='ClockError',
-                                      width=8,
-                                      unit=unidad,
-                                      offset=3)
-                    ied.sv_set.create(param='UartError',
-                                      width=8,
-                                      unit=unidad,
-                                      offset=4)
                     # AI
                     ied.ai_set.create(param='V',
                                       description='Tensión de Barra 33KV',
