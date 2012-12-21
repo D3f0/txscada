@@ -54,7 +54,7 @@ class SVAdmin(admin.ModelAdmin):
 site.register(SV, SVAdmin)
 
 class DIAdmin(admin.ModelAdmin):
-    list_display = ('param', 'port', 'bit', 'description', 'ied')
+    list_display = ('param', 'port', 'bit', 'value', 'description', 'ied')
     list_filter = ('ied',)
     #list_display_links = ()
 
@@ -63,7 +63,7 @@ site.register(DI, DIAdmin)
 site.register(Event)
 
 class AIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'unit', 'description', 'ied')
+    list_display = ('__unicode__', 'unit', 'description', 'ied', 'offset', 'value',)
     list_filter = ('ied',)
 
 site.register(AI, AIAdmin)
