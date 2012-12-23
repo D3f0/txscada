@@ -11,6 +11,8 @@ cyclone==1.0-rc15
 distribute==0.6.28
 django-debug-toolbar==0.9.4
 django-extensions==1.0.2
+django-grappelli==2.4.3
+django-jsonfield==0.8.12
 django-socketio==0.3.5
 gevent==0.13.7
 gevent-socketio==0.2.1
