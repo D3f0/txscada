@@ -61,12 +61,14 @@ class MaraServer(protocol.Protocol):
     def makeResponse10(self):
         self.output = copy(self.input)
         self.output.source, self.output.dest = self.output.dest, self.output.source
-
+        cant_ieds = 5
+        svs = [random.randrange(0, 254) for _ in range(cant_ieds)]
         ais = [ random.randrange(0, 254) for _ in xrange(9) ]
 
+
         self.output.payload_10 = Container(
-            canvarsys=5,
-            varsys=[0x1234, 0xfeda],
+            canvarsys=11,
+            varsys=svs,
             candis=4,
             dis=[0x45AA, 0xFF],
             canais=2 * len(ais) + 1, # Two byte vars

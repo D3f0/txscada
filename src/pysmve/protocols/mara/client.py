@@ -5,7 +5,7 @@ from construct import Container
 from construct.core import FieldError, Struct
 from twisted.internet.protocol import ClientFactory
 from ..constructs import (MaraFrame, Event)
-from protocols.constants import MAX_SEQ, MIN_SEQ
+from protocols.constants import MAX_SEQ, MIN_SEQ, INPUT, OUTPUT
 from twisted.internet.task import LoopingCall
 from twisted.internet.threads import deferToThread
 from datetime import datetime
@@ -14,6 +14,8 @@ from ..constructs import upperhexstr
 import models
 from protocols.utils import format_buffer
 from protocols.utils.bitfield import iterbits
+from time import time
+import json
 
 logger = getLogger(__name__)
 
@@ -91,15 +93,31 @@ class MaraClientProtocol(protocol.Protocol):
         self.state = 'RESPONSE_WAIT'
         self.pending += 1
 
+    def logData(self, data, direction=INPUT, contents=None,):
+        '''Data logger creation'''
+        log_manager = self.factory.comaster.profile.logs
+        log = log_manager.create(data=data, contents=contents,
+                                 direction='i')
+        return log
+
+    def logInputData(self, data, contents):
+        return self.logData(direction=INPUT, data=data, contents=contents)
+
+    def logOutputData(self, data, coontents):
+        return self.logData(direction=OUTPUT, data=data, contents=contents)
 
     def dataReceived(self, data):
+        
+
         if self.state == 'IDLE':
             logger.warning("Discarding data in IDLE state %d bytes" % len(data))
         elif self.state == 'RESPONSE_WAIT':
             try:
                 self.input = MaraFrame.parse(data)
+                log.update(payload=json.dumps(self.input))
             except FieldError:
                 print "Error de paquete!"
+                self.logData('i', data)
                 return
             # FIXME: Hacerlos con todos los campos o con ninguno
             #if self.input.command != self.output.command:
@@ -233,22 +251,26 @@ class MaraClientDBUpdater(MaraClientProtocol):
     in the future.
     '''
     def saveInDatabase(self):
+        t0 = time()
         payload = self.input.payload_10
-        di_count, ai_count = 0, 0
-
+        di_count, ai_count, sv_count = 0, 0, 0
+        timestamp = datetime.now()
         for value, di in zip(iterbits(payload.dis),
                                          self.factory.comaster.dis):
-            di.value = value
-            di.save()
+            di.update_value(value, timestamp=timestamp)
             di_count += 1
 
         for value, ai in zip(payload.ais,
                             self.factory.comaster.ais):
-            ai.value = value
-            ai.save()
+            ai.update_value(value, timestamp=timestamp)
             ai_count += 1
+            
+        for value, sv in zip(payload.varsys, self.factory.comaster.svs):
+            sv.update_value(value, timestamp=timestamp)
+            sv_count += 1
 
-        print "Update DB: DI: %d AI: %d" % (di_count, ai_count)
+        print "Update DB: DI: %d AI: %d SV: %d in %sS" % (di_count, ai_count, sv_count,
+                                                          time() - t0)
 
 
 class MaraClientProtocolFactory(protocol.ClientFactory):
