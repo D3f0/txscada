@@ -8,17 +8,23 @@ from protocols.mara.client import MaraClientProtocolFactory, MaraClientDBUpdater
 
 class Command(NoArgsCommand):
     option_list = NoArgsCommand.option_list + (
-        make_option('-p', '--profile', default='default'),
+        make_option('-p', '--profile', default=None),
         make_option('-r', '--reconnect', default=False,
                     action='store_true'),
     )
-    def handle_noargs(self, **options):
+
+    def get_profile(self, name):
         from mara.models import Profile
-        try:
-            name = options.get('profile')
-            profile = Profile.objects.get(name__iexact=name)
-        except Profile.DoesNotExist:
-            raise CommandError("Profile named %s does not exist" % name)
+        if not name:
+            return Profile.objects.get(default=True)
+        else:
+            try:
+                return Profile.objects.get(name__iexact=name)        
+            except Profile.DoesNotExist:
+                raise CommandError("Profile named %s does not exist" % name)
+                
+    def handle_noargs(self, **options):
+        profile = self.get_profile(options.get('profile'))
 
         MaraClientProtocolFactory.protocol = MaraClientDBUpdater
 
