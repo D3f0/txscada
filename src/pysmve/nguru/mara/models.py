@@ -2,6 +2,10 @@
 
 from django.db import models
 from protocols import constants
+from jsonfield import JSONField
+from datetime import datetime
+
+from django.db.models import signals
 
 # Create your models here.
 class Profile(models.Model):
@@ -13,11 +17,26 @@ class Profile(models.Model):
     # Date of creation
     date = models.DateField(auto_now=True)
 
+    default = models.BooleanField(default=False)
+
     def __unicode__(self):
         return u"%s" % self.name
 
     class Meta:
         unique_together = ('name',)
+
+    @classmethod
+    def check_default(cls, instance, **kwargs):
+        if instance.default:
+            if not instance.pk:
+                # New and default = True
+                cls.objects.update(default=False)
+            else:    
+                cls.objects.exclude(pk=instance.pk).update(default=False)
+        elif cls.objects.all().count() == 0:
+            instance.default = True
+
+signals.pre_save.connect(Profile.check_default, sender=Profile, )
 
 
 class COMaster(models.Model):
@@ -56,7 +75,9 @@ class COMaster(models.Model):
 
     @property
     def svs(self):
-        pass
+        svs = SV.objects.filter(ied__co_master=self)
+        svs = svs.order_by('ied', 'offset')
+        return svs
 
     def __unicode__(self):
         return u"%s" % self.ip_address
@@ -109,6 +130,7 @@ class MV(models.Model):
     param = models.CharField(max_length=10,
                              null=True,
                              blank=True)
+    last_update = models.DateTimeField(blank=True, null=True)
 
     description = models.CharField(max_length=100,
                                    null=True,
@@ -120,6 +142,14 @@ class MV(models.Model):
 
     class Meta:
         abstract = True
+
+    def update_value(self, value, timestap=None, q=None):
+        self.value = value
+        if not timestap:
+            timestap = datetime.now()
+        self.last_update = timestap
+        # TODO: Emit singal
+        self.save()
 
 
 class SV(MV):
@@ -215,3 +245,23 @@ class Energy(models.Model):
     class Meta:
         verbose_name = "Energy Measure"
         verbose_name_plural = "Energy Measures"
+
+
+class FrameLog(models.Model):
+
+    SOURCES = (
+               (constants.INPUT, 'INPUT'),
+               (constants.OUTPUT, 'OUTPUT'),
+    )
+    data = models.TextField(blank=True, null=True)
+    payload = JSONField(blank=True, null=True)
+    date = models.DateTimeField(auto_now=True)
+    profile = models.ForeignKey('profile', related_name='logs')
+    source = models.CharField(max_length=1, choices=SOURCES)
+    class Meta:
+        ordering = ('date',)
+
+    def __unicode__(self):
+        return "Data Log %s" % (self.raw_buff[:30])
+
+
