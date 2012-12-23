@@ -48,7 +48,7 @@ site.register(IED, IEDAdmin)
 site.register(Unit)
 
 class SVAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'unit', 'width', 'value', 'ied',)
+    list_display = ('__unicode__', 'unit', 'width', 'value', 'ied', 'offset', 'value')
     list_filter = ('ied',)
 
 site.register(SV, SVAdmin)
