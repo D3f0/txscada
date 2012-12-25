@@ -1,5 +1,5 @@
 # encoding: utf-8
-
+import operator
 from django.db import models
 from protocols import constants
 from jsonfield import JSONField
@@ -143,11 +143,11 @@ class MV(models.Model):
     class Meta:
         abstract = True
 
-    def update_value(self, value, timestap=None, q=None):
+    def update_value(self, value, timestamp=None, q=None):
         self.value = value
-        if not timestap:
-            timestap = datetime.now()
-        self.last_update = timestap
+        if not timestamp:
+            timestamp = datetime.now()
+        self.last_update = timestamp
         # TODO: Emit singal
         self.save()
 
@@ -215,6 +215,16 @@ class AI(MV):
         unique_together = ('offset', 'ied',)
         verbose_name = "Analog Input"
         verbose_name_plural = "Analog Inputs"
+
+    def human_value(self):
+        values = [self.multip_asm,
+            self.divider,
+            self.rel_tv,
+            self.rel_ti,
+            self.rel_33_13,
+            self.value
+        ]
+        return "%.2f %s" % (reduce(operator.mul, values), self.unit)
 
 class EnergyPoint(MV):
     #ied = models.ForeignKey(IED)

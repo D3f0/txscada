@@ -63,7 +63,7 @@ site.register(DI, DIAdmin)
 site.register(Event)
 
 class AIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'unit', 'description', 'ied', 'offset', 'value',)
+    list_display = ('__unicode__', 'unit', 'description', 'ied', 'offset', 'value', 'human_value')
     list_filter = ('ied',)
 
 site.register(AI, AIAdmin)
