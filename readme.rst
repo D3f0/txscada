@@ -1,7 +1,8 @@
 Proyecto de SCADA con Python
 ============================
 
-Código de proyecto de investigación **Microcontroladores e Internet** (2008-2010) y **Procesamiento digital de Señales Eléctricas, Protocolos y Aplicaciones WEB** (2013-2015).
+Código de proyecto de investigación **Microcontroladores e Internet** (2008-2010) y **Procesamiento digital de Señales Eléctricas, Protocolos y Aplicaciones WEB** (2013-2015) desarrollados en la Universidad Nacional
+de la Patagonia, San Juan Bosco.
 
 La carpeta ``src/pysmve`` contiene el código fuente del proyecto Medición de Variables Eléctricas y
 la carpeta ``src/dsem`` del sistema de semaforización.
@@ -13,7 +14,11 @@ SMVE
 Obtención del código fuente
 ***************************
 
-El repositorio se encuentra mantenido mediante la herramineta Git
+El repositorio se encuentra mantenido mediante la herramineta Git, para obtenerlo es necesario
+disponer de la utilidad ``git`` y ejecutar la siguiente orden::
+
+	git clone https://github.com/D3f0/txscada.git
+
 
 Base de datos
 *************
@@ -79,10 +84,48 @@ los unicos donde usaremos privilegios de administrador mediante sudo)::
 	# de usuario
 
 Luego cerrar la terminal con ``^-D`` y inicar una nueva para que tome los cambios y luego::
-
+	
 	mkvirtualenv txscada
+	whcih python  # debería dar una ruta en nuestro $HOME
+
+Para entrar en el virtualen nuevamente::
+
+	workon txscada
+
+Para salir del virtualenv (y volver al intérprete de Python del sistema)::
+
+	deactivate 
+
+Para instalar un paquete dentro del virutalenv::
+
+	pip install paquete
 
 
+Un paso opcinal es editar el archivo ``~/.virtualenvs/txscada/bin/postactivate``
+y agregar la linea cd ``/lugar/donde/tengo/el/codigo/del/proyecto/src/txscada`` para
+que cada vez que hagamos ``workon txscada`` se cambie de manera automática a la carpeta
+del proyecto.
 
-Para instalar 
+Instalación de los paquetes en el virtualenv
+********************************************
+
+Para instalar los paquetes del proyecto en el virtualenv se debe reazliar la siguiente
+orden::
+
+	workon txscada
+	cd /ruta/del/hacia/txscada/src/pysmve
+	pip install -r requirements/develop.txt
+
+Esto debería instalar todas las librerías necesarias para el proyecto en el virtualenv
+``txscada``.
+
+
+Freezado de librerías
+*********************
+
+Cuando se instala una librería en el virtualenv fuera de las que están en develop.txt
+es recomendable ejecutar fab freeze para que el archivo se actualice y luego commitearlo
+al repositorio para que el resto de los desarrolladores puedan instalarla, sobre todo
+cuando se trabajan con paquetes *editables*, es decir que son tomados de un repositrio
+git/svn/hg.
 
