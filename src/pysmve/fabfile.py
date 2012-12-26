@@ -1,6 +1,9 @@
-from fabric.api import *
+# encoding: utf-8
+from fabric.api import local
+from os.path import join, dirname
 
-DEV_REQUIEREMENTS_FILE = 'requirements/develop.txt'
+FAB_PATH = dirname(__file__)
+DEV_REQUIEREMENTS_FILE = join(FAB_PATH, 'requirements/develop.txt')
 
 def freeze():
     '''Freezar los requerimientos del virtualenv'''
@@ -9,4 +12,7 @@ def freeze():
         f.write(reqs)
     print "Requirements written to %s" % DEV_REQUIEREMENTS_FILE
         
-    
+
+def docs():
+	'''Muestra la documentación'''
+	local('restview README.rst')
