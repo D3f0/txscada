@@ -10,7 +10,7 @@ from .. import constants
 from adapters import (EnergyValueAdapter,
                       MaraDateTimeAdapter,
                       SubSecondAdapter)
-from protocols.constructs.adapters import PEHAdapter
+from adapters import PEHAdapter
 
 #===============================================================================
 # Mara protocol SubConstructs
@@ -51,6 +51,12 @@ IdleCan = BitStruct('idlecan',
     BitField('channel', 3)
 )
 
+CodeCan = BitStruct('codecan',
+    BitField('idle', 2),
+    BitField('code', 3),
+    BitField('channel', 3)
+)
+
 TimerTicks = Struct('ticks',
     #UBInt8('cseg'),
     #UBInt8('dmseg'),
@@ -78,7 +84,7 @@ Event = Struct("event",
     Embed(TCD),
     Switch("evdetail", lambda ctx: ctx.evtype,
            {
-            "DIGITAL": Embed(BPE),
+            "DIGITAL": Embed(EPB),
             "ENERGY":  Embed(IdleCan),
             }
     ),
@@ -235,7 +241,7 @@ def dtime2dict(dtime=None):
     d['minute'] = dtime.minute
     d['second'] = dtime.second
     # Ticks de cristal que va de 0 a 32K-1 en un segundo
-    d['ticks'] = dtime.microsecond * (float(2 << 14) - 1) / 1000000
+    d['subsec'] = float(dtime.microsecond) / 1000000
     return d
 
 
@@ -310,65 +316,7 @@ def format_frame(buff, as_hex_string=False, show_header=True, show_bcc=True):
 
 int2str = lambda l: ''.join(map(chr, l))
 
-def test():
-    '''Testing de tramas y subtramas'''
 
-    #int2strgen = lambda *l: (chr(i) for i in l)
-    result = MaraFrame.parse(any2buffer('FE    08    01    40    80    10    80    A7'))
-    print result
-    r = TCD.build(Container(evtype="ENERGY", q=1, addr485=1))
-    print r
-    #result.data = range(1, 10)
-    event_data = Container(evtype="DIGITAL",
-                            q=0, addr485=5,
-                            bit=0, port=3, status=0,
-                            year=12, month=1, day=1,
-                            hour=12, minute=24,
-                            second=10,
-                            ticks=4212)
-
-    print "Construyendo un evento digital de puerto con puerto 3, bit 0, estado 0" #event_data
-    pkg = Event.build(event_data)
-    print upperhexstr(pkg)
-    print "Evento de energía"
-    energy_data = Container(evtype="ENERGY", q=0, addr485=4,
-                            idle=0, channel=0,
-                            value=0x032F,
-                            **dtime2dict())
-    pkg = Event.build(energy_data)
-    print upperhexstr(pkg)
-
-    print "Construyendo payload del comando 10"
-    payload_10_data = Container(canvarsys=5, varsys=[0x1234, 0xfeda], candis=3, dis=[0x4567], canais=0, ais=[], canevs=31, event=[event_data, event_data, energy_data])
-
-    pkg = Payload_10.build(payload_10_data)
-    print upperhexstr(pkg)
-    frame_data = Container(sof=0xFE, length=0, source=1, dest=2, sequence=0x80, command=0x10,
-                                    payload_10=payload_10_data,
-                                    bcc=0)
-    pkg = MaraFrame.build(frame_data)
-
-    print "Trama Mara c/QTY=0 y sin CS: ", upperhexstr(pkg)
-    print "Trama completa:", upperhexstr(build_frame(frame_data))
-
-def test_events():
-    '''
-    Testing events
-    '''
-    ev = 0x40, 0x12, 0xC, 0x8, 0x7, 0x9, 0x30, 0x0, 0x00, 0x40
-    print Event.parse(''.join(map(chr, ev)))
-
-    ev = 0x00, 0x12, 0xC, 0x8, 0x7, 0x9, 0x30, 0x0, 0x00, 0x40
-    print Event.parse(''.join(map(chr, ev)))
-
-def test_frames():
-    from ..sample_data import FRAMES
-    for n, frame in enumerate(FRAMES):
-        print "-"*80
-        print "Trama %d" % (n + 1)
-        print "-"*80
-
-        format_frame(frame, as_hex_string=True)
 
 def test_peh():
     '''Puesta en hora'''
@@ -384,8 +332,6 @@ def test_peh():
                          ))
     print " ".join([("%.2x" % ord(x)).upper() for x in frame])
 
-
-    print MaraFrame.parse(any2buffer('FE 11 FF 40 22 12 0C 0A 10 00 37 0D 50 3D 02 3B 48'))
 if __name__ == '__main__':
     #===========================================================================
     # Debug with ipython --pdb -c "%run constructs.py"

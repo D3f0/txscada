@@ -43,12 +43,15 @@ class MaraDateTimeAdapter(Adapter):
 class SubSecondAdapter(Adapter):
     '''Mara timestamp sub-second data is measured in 1/32 second steps,
     and its value is given by a counter which goes from 0 to 0x7FFF'''
+
+    FRACTIONS = 2**14
+
     def _encode(self, obj, context):
-        raise AdaptationError("Cant encode yet :(")
+        return int(obj * self.FRACTIONS)
     
     def _decode(self, obj, context):
         K = 1
-        return obj * K / float(32768) 
+        return obj * K / float(self.FRACTIONS) 
     
     
 class PEHAdapter(Adapter):
@@ -64,5 +67,4 @@ class PEHAdapter(Adapter):
                          fsegh=0, fsegl=0,
                          day_of_week = obj.weekday(),
                          )
-    
     
