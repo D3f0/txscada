@@ -64,8 +64,9 @@ class MaraServer(protocol.Protocol):
         svs = self.createSystemVariables(cant_ieds)
 
         ais = [ random.randrange(0, 254) for _ in xrange(9) ]
-        dis = [1, 2, 3, 4, 5, 6]
+        dis = self.createDIs(ieds=1, ports=3, port_width=16)
         
+
 
         self.output.payload_10 = Container(
             # VarSys
@@ -86,6 +87,7 @@ class MaraServer(protocol.Protocol):
 
     @staticmethod
     def length(elements):
+        '''Length for variables (DI, SV, AI)'''
         return len(elements) * 2 + 1
         
 
@@ -93,20 +95,28 @@ class MaraServer(protocol.Protocol):
         '''Emula Variables de sistema'''
         base = [ 0xaabb, 0xccdd, 0xeeff]
         output = []
-        for i in range(cant_ieds):
+        for i in range(cant_ieds):  
             output.extend(base)
         return output
 
-    def createDIs(self):
+    def createDIs(self, ieds=1, ports=3, port_width=16, ):
         '''Emula digital inputs'''
-        output = [ random.randint(0, 2**16), 
-                 random.randint(0, 2**16), 
-                 random.randint(0, 2**16)]
-
+        output = []
+        for ied in range(ieds):
+            for port in range(ports):
+                output.exend([random.randrange(0, 2**port_width)])
         return output
 
     def connectionLost(self, reason):
         print "Conexion con %s:%s terminada" % self.transport.client
+
+
+    def createDigitalEvent(self, qty=0, ports=3, port_width=16):
+        for i in range(qty):
+            output = Container(
+
+
+            )
 
 
 class MaraServerFactory(protocol.Factory):
