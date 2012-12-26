@@ -133,6 +133,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'django_socketio',
     'debug_toolbar',
+    'django_nose', 
 
     'mara',
 
@@ -213,3 +214,16 @@ if DEBUG:
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
+
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+             #'--nologcapture', '--nocapture', 
+             '--with-id', '--logging-clear-handlers',
+             '--with-progressive', '--progressive-function-color=1', '--progressive-bar-filled=2',
+             #'--with-noseprofhooks', 
+             #'--cprofile-stats-erase',
+             #'--cprofile-stats-file=stats.stats',
+             #'--processes=8'
+             ]
