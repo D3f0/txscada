@@ -63,8 +63,12 @@ site.register(DI, DIAdmin)
 site.register(Event)
 
 class AIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'unit', 'description', 'ied', 'offset', 'value', 'human_value')
+    list_display = ('__unicode__', 'unit', 'description', 'ied', 'offset', 'value', 'human_value', 'hex')
     list_filter = ('ied',)
+
+    def hex(self, object):
+        return ("%.4x" % object.value).upper()
+
 
 site.register(AI, AIAdmin)
 

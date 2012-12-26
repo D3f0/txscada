@@ -101,23 +101,28 @@ class Command(NoArgsCommand):
                                            )
                 # Var Sys are common to all
                 # TODO: Better offset handling
-                ied.sv_set.create(param='ComError',
-                                  width=16,
+                ied.sv_set.create(param='ComErrorL',
+                                  width=8,
                                   description="Flag de errores",
                                   unit=unidad,
                                   offset=0)
+                ied.sv_set.create(param='ComErrorH',
+                                  width=8,
+                                  description="Flag de errores",
+                                  unit=unidad,
+                                  offset=1)
                 ied.sv_set.create(param='Sesgo',
                                   width=16,
                                   unit=unidad,
-                                  offset=1)
+                                  offset=2)
                 ied.sv_set.create(param='ClockError',
                                   width=8,
                                   unit=unidad,
-                                  offset=2)
+                                  offset=4)
                 ied.sv_set.create(param='UartError',
                                   width=8,
                                   unit=unidad,
-                                  offset=3)
+                                  offset=5)
 
                 # First IED is special, it holds more information
 
@@ -134,7 +139,7 @@ class Command(NoArgsCommand):
                             param = "D%.2d" % n
                             try:
                                 desc = DI_DESCRIPTION[n]
-                            except IndexError as error:
+                            except IndexError:
                                 desc = None
                             ied.di_set.create(port=port,
                                               bit=bit,

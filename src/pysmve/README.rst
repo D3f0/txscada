@@ -35,6 +35,37 @@ El proyecto inicial se compone de
 		Automatización de tareas
 
 
+Proyecto basado en Django: Ngürü
+********************************
+
+Debido a que peewee como ORM resultó poco eficiente para el manejo de la estructura 
+tipo árbol que propone MARA y a que existen demaciadas dependencias que imitan 
+de manera reducida la funcionalidad del framework web Django, se decide migrar a 
+Django el acceso a datos y la presentación web.
+
+El proceso de recolección de datos SCADA se implementa en un comando utilizando 
+la capacidad de Django de definir comandos. Se comparte la definición de la base
+de datos mediante la importación de modelos.
+
+El nombre de la aplicación Ngürü_ proviene de la traducción de la palabra zorro,
+predador natural de la Mara_.
+
+
+.. _Mara: http://es.wikipedia.org/wiki/Dolichotis_patagonum
+.. _Ngürü: http://es.wiktionary.org/wiki/ng%C3%BCr%C3%BC
+
+Comandos
+********
+
+- maraclient
+
+	Inicia el cliente mara.
+
+- comaster_emu
+
+
+
+
 
 
 Configuración para el desarrollador
@@ -149,12 +180,19 @@ Esto debería instalar todas las librerías necesarias para el proyecto en el vi
 ``txscada``.
 
 
-Freezado de librerías
-*********************
+Comandos de Fabric
+******************
 
-Cuando se instala una librería en el virtualenv fuera de las que están en develop.txt
-es recomendable ejecutar fab freeze para que el archivo se actualice y luego commitearlo
-al repositorio para que el resto de los desarrolladores puedan instalarla, sobre todo
-cuando se trabajan con paquetes *editables*, es decir que son tomados de un repositrio
-git/svn/hg.
+- fab freeze
+	
+	**Freezado de librerías**
 
+	Cuando se instala una librería en el virtualenv fuera de las que están en develop.txt
+	es recomendable ejecutar fab freeze para que el archivo se actualice y luego commitearlo
+	al repositorio para que el resto de los desarrolladores puedan instalarla, sobre todo
+	cuando se trabajan con paquetes *editables*, es decir que son tomados de un repositrio
+	git/svn/hg.
+
+- fab docs
+	
+	**Visualización de documentación**

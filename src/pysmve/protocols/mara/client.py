@@ -1,23 +1,21 @@
 # encoding: utf-8
-from twisted.internet import protocol, reactor
-from logging import getLogger
-from construct import Container
-from construct.core import FieldError, Struct
-from twisted.internet.protocol import ClientFactory
-from ..constructs import (MaraFrame, Event)
-from protocols.constants import MAX_SEQ, MIN_SEQ, INPUT, OUTPUT
-from twisted.internet.task import LoopingCall
-from twisted.internet.threads import deferToThread
-from datetime import datetime
-from ..utils.bitfield import bitfield
-from ..constructs import upperhexstr
-import models
-from protocols.utils import format_buffer
-from protocols.utils.bitfield import iterbits
+import logging
 from time import time
 import json
+from twisted.internet import protocol, reactor
+from twisted.internet.task import LoopingCall
+from twisted.internet.threads import deferToThread
+from twisted.internet.protocol import ClientFactory
 
-logger = getLogger(__name__)
+from construct import Container
+from construct.core import FieldError, Struct
+from ..constructs import (MaraFrame, Event)
+from protocols.constants import MAX_SEQ, MIN_SEQ
+from datetime import datetime
+from ..constructs import upperhexstr
+from protocols.utils import format_buffer
+from protocols.utils.bitfield import iterbits
+from protocols.utils.words import worditer
 
 
 class MaraClientProtocol(protocol.Protocol):
@@ -53,10 +51,26 @@ class MaraClientProtocol(protocol.Protocol):
         self.peh_timer.start(interval=self.factory.comaster.poll_interval * 0.5, now=False)
 
         reactor.callLater(0.1, self.pehTimerEvent)
+        
+        self.dataLogger = self.getDataLogger()
+        self.logger = self.getLogger()
 
+    def getDataLogger(self):
+        '''Build logger where all communication will be printed'''
+        comaster = self.factory.comaster
+        profile_name = comaster.profile.name
+        ip = comaster.ip_address.replace('.', '_')
+        return logging.getLogger('datalogger.%s.%s' % (profile_name, ip))
+
+    def getLogger(self):
+        '''General logger'''
+        comaster = self.factory.comaster
+        profile_name = comaster.profile.name
+        ip = comaster.ip_address.replace('.', '_')
+        return logging.getLogger('protocol.%s.%s' % (profile_name, ip))
 
     def connectionMade(self):
-        logger.debug("Conection made to %s:%s" % self.transport.addr)
+        self.logger.debug("Conection made to %s:%s" % self.transport.addr)
         reactor.callLater(0.01, self.sendCommand) #@UndefinedVariable
 
     def getPEHContainer(self):
@@ -92,49 +106,40 @@ class MaraClientProtocol(protocol.Protocol):
         self.transport.write(frame)
         self.state = 'RESPONSE_WAIT'
         self.pending += 1
+    
+    def logPackage(self, package):
+        pass
 
-    def logData(self, data, direction=INPUT, contents=None,):
-        '''Data logger creation'''
-        log_manager = self.factory.comaster.profile.logs
-        log = log_manager.create(data=data, contents=contents,
-                                 direction='i')
-        return log
-
-    def logInputData(self, data, contents):
-        return self.logData(direction=INPUT, data=data, contents=contents)
-
-    def logOutputData(self, data, coontents):
-        return self.logData(direction=OUTPUT, data=data, contents=contents)
+    def incrementSequenceNumber(self):
+        next_seq = self.input.sequence + 1
+        if next_seq >= MAX_SEQ:
+            next_seq = MIN_SEQ
+        self.factory.comaster.sequence = self.output.sequence = next_seq
+        self.logger.info("Sequence incremented to %d" % next_seq)
+        return next_seq
 
     def dataReceived(self, data):
-        
-
+        self.dataLogger.debug('received: %s' % upperhexstr(data))
         if self.state == 'IDLE':
-            logger.warning("Discarding data in IDLE state %d bytes" % len(data))
+            self.logger.warning("Discarding data in IDLE state %d bytes" % len(data))
         elif self.state == 'RESPONSE_WAIT':
             try:
                 self.input = MaraFrame.parse(data)
-                log.update(payload=json.dumps(self.input))
             except FieldError:
-                print "Error de paquete!"
-                self.logData('i', data)
+                self.logger.error("Bad package")
                 return
             # FIXME: Hacerlos con todos los campos o con ninguno
             #if self.input.command != self.output.command:
             #    logger.warn("Command not does not match with sent command %d" % self.input.command)
-            logger.debug("Message OK")
             # Calcular próxima sequencia
             # FIXME: Checkear que la secuencia sea == a self.output.sequence
-            next_seq = self.input.sequence + 1
-            if next_seq >= MAX_SEQ:
-                next_seq = MIN_SEQ
-            self.factory.comaster.sequence = self.output.sequence = next_seq
-            print "Seq", next_seq
+            self.logger.debug("Message OK")
+            seq = self.incrementSequenceNumber()
+            
             self.pending = 0
-            #from IPython import embed; embed()
+            
             deferToThread(self.saveInDatabase)
 
-            #print self.input
             print self.transport.addr, format_buffer(data)
             MaraFrame.pretty_print(self.input, show_header=False, show_bcc=False)
             self.state = 'IDLE'
@@ -255,22 +260,24 @@ class MaraClientDBUpdater(MaraClientProtocol):
         payload = self.input.payload_10
         di_count, ai_count, sv_count = 0, 0, 0
         timestamp = datetime.now()
-        for value, di in zip(iterbits(payload.dis),
-                                         self.factory.comaster.dis):
+        comaster = self.factory.comaster
+        for value, di in zip(iterbits(payload.dis), comaster.dis):
             di.update_value(value, timestamp=timestamp)
             di_count += 1
 
-        for value, ai in zip(payload.ais,
-                            self.factory.comaster.ais):
+        for value, ai in zip(payload.ais, comaster.ais):
             ai.update_value(value, timestamp=timestamp)
             ai_count += 1
-            
-        for value, sv in zip(payload.varsys, self.factory.comaster.svs):
+
+        variable_widths = [ v['width'] for v in comaster.svs.values('width') ] 
+        print variable_widths, len(variable_widths)
+        for value, sv in zip(worditer(payload.varsys, variable_widths), self.factory.comaster.svs):
             sv.update_value(value, timestamp=timestamp)
             sv_count += 1
 
         print "Update DB: DI: %d AI: %d SV: %d in %sS" % (di_count, ai_count, sv_count,
                                                           time() - t0)
+
 
 
 class MaraClientProtocolFactory(protocol.ClientFactory):
@@ -281,6 +288,10 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
     def __init__(self, comaster, reconnect=True):
         self.comaster = comaster
         self.reconnect = reconnect
+        self.logger = self.getLogger()
+
+    def getLogger(self):
+        return logging.getLogger("factory.%s" % (self.comaster.profile.name, ))
 
     def buildProtocol(self, *largs):
         p = self.protocol(factory=self)
@@ -291,15 +302,15 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         #logger.warn("Connection failed: %s" % reason)
         print "Connection failed: %s" % reason
-        print "Restarting"
         if self.reconnect:
             connector.connect()
+            print "Restarting"
         else:
             reactor.stop()
 
     def clientConnectionLost(self, connector, reason):
         from twisted.internet import error
-        logger.warn("Connection lost: %s" % reason)
+        self.logger.warn("Connection lost: %s" % reason)
         if reason.type == error.ConnectionLost:
             return
         if self.reconnect:

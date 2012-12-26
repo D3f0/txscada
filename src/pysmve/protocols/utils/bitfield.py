@@ -76,6 +76,8 @@ def iterbits(ints, length=16):
             #print retval
             yield retval
 
+def multibitfield_iter(bitfields, slices, input_length=16):
+    pass
 
 bin = lambda i: bitfield.bin(i)
 

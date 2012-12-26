@@ -2,7 +2,7 @@
 import operator
 from django.db import models
 from protocols import constants
-from jsonfield import JSONField
+#from jsonfield import JSONField
 from datetime import datetime
 
 from django.db.models import signals
@@ -162,12 +162,14 @@ class SV(MV):
     )
     unit = models.ForeignKey(Unit)
     width = models.IntegerField(choices=SV_WIDTHS)
-    value = models.SmallIntegerField(default=0)
+    value = models.IntegerField(default=0)
 
     class Meta:
         unique_together = ('offset', 'ied',)
         verbose_name = "System Variable"
         verbose_name_plural = "System Variables"
+        # Default ordering
+        ordering = ('ied__offset', 'offset')
 
 class DI(MV):
     '''
@@ -257,21 +259,21 @@ class Energy(models.Model):
         verbose_name_plural = "Energy Measures"
 
 
-class FrameLog(models.Model):
+# class FrameLog(models.Model):
 
-    SOURCES = (
-               (constants.INPUT, 'INPUT'),
-               (constants.OUTPUT, 'OUTPUT'),
-    )
-    data = models.TextField(blank=True, null=True)
-    payload = JSONField(blank=True, null=True)
-    date = models.DateTimeField(auto_now=True)
-    profile = models.ForeignKey('profile', related_name='logs')
-    source = models.CharField(max_length=1, choices=SOURCES)
-    class Meta:
-        ordering = ('date',)
+#     SOURCES = (
+#                (constants.INPUT, 'INPUT'),
+#                (constants.OUTPUT, 'OUTPUT'),
+#     )
+#     data = models.TextField(blank=True, null=True)
+#     payload = JSONField(blank=True, null=True)
+#     date = models.DateTimeField(auto_now=True)
+#     profile = models.ForeignKey('profile', related_name='logs')
+#     source = models.CharField(max_length=1, choices=SOURCES)
+#     class Meta:
+#         ordering = ('date',)
 
-    def __unicode__(self):
-        return "Data Log %s" % (self.raw_buff[:30])
+#     def __unicode__(self):
+#         return "Data Log %s" % (self.raw_buff[:30])
 
 

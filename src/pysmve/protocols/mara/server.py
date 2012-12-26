@@ -1,18 +1,16 @@
 # encoding: utf-8
 
-from twisted.internet import protocol, reactor
+from twisted.internet import protocol
 from logging import getLogger
 from construct import Container
-from construct.core import FieldError, Struct
-from twisted.internet.protocol import ClientFactory
-from ..constructs import (MaraFrame, Event)
-from protocols.constants import MAX_SEQ, MIN_SEQ
-from twisted.internet.task import LoopingCall
-from twisted.internet.threads import deferToThread
-from datetime import datetime
-from ..utils.bitfield import bitfield
+from construct.core import FieldError
+from ..constructs import (MaraFrame, )
+#from protocols.constants import MAX_SEQ, MIN_SEQ
+#from twisted.internet.task import LoopingCall
+#from twisted.internet.threads import deferToThread
+#from datetime import datetime
+#from ..utils.bitfield import bitfield
 from ..constructs import upperhexstr
-import models
 from copy import copy
 import random
 
@@ -44,7 +42,7 @@ class MaraServer(protocol.Protocol):
         """Recepción de datos"""
         try:
             self.input = MaraFrame.parse(data)
-        except FieldError as e:
+        except FieldError:
             # If the server has no data, it does not matter
             logger.warn("Error de pareso: %s" % upperhexstr(data))
         self.maraPackageReceived()
@@ -62,25 +60,50 @@ class MaraServer(protocol.Protocol):
         self.output = copy(self.input)
         self.output.source, self.output.dest = self.output.dest, self.output.source
         cant_ieds = 5
-        svs = [random.randrange(0, 254) for _ in range(cant_ieds)]
-        ais = [ random.randrange(0, 254) for _ in xrange(9) ]
 
+        svs = self.createSystemVariables(cant_ieds)
+
+        ais = [ random.randrange(0, 254) for _ in xrange(9) ]
+        dis = [1, 2, 3, 4, 5, 6]
+        
 
         self.output.payload_10 = Container(
-            canvarsys=11,
+            # VarSys
+            canvarsys=self.length(svs),
             varsys=svs,
-            candis=4,
-            dis=[0x45AA, 0xFF],
-            canais=2 * len(ais) + 1, # Two byte vars
+
+            candis=self.length(dis),
+            dis=dis,
+            
+            canais= self.length(ais),
             ais=ais,
+            
             canevs=0,
             event=[]
         )
 
         return MaraFrame.build(self.output)
 
+    @staticmethod
+    def length(elements):
+        return len(elements) * 2 + 1
+        
 
+    def createSystemVariables(self, cant_ieds):
+        '''Emula Variables de sistema'''
+        base = [ 0xaabb, 0xccdd, 0xeeff]
+        output = []
+        for i in range(cant_ieds):
+            output.extend(base)
+        return output
 
+    def createDIs(self):
+        '''Emula digital inputs'''
+        output = [ random.randint(0, 2**16), 
+                 random.randint(0, 2**16), 
+                 random.randint(0, 2**16)]
+
+        return output
 
     def connectionLost(self, reason):
         print "Conexion con %s:%s terminada" % self.transport.client
