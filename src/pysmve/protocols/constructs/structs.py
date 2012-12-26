@@ -318,29 +318,4 @@ int2str = lambda l: ''.join(map(chr, l))
 
 
 
-def test_peh():
-    '''Puesta en hora'''
-    from datetime import datetime
-    frame = MaraFrame.build(Container(
-                         sof=0xFE,
-                         dest=1,
-                         source=0,
-                         sequence=32,
-                         command=0x12,
-                         peh=datetime.now(),
-                         payload_10=None,
-                         ))
-    print " ".join([("%.2x" % ord(x)).upper() for x in frame])
-
-if __name__ == '__main__':
-    #===========================================================================
-    # Debug with ipython --pdb -c "%run constructs.py"
-    #===========================================================================
-
-    import sys
-    #aa
-    #sys.exit(test_events())
-    #sys.exit(test_frames())
-    from IPython import embed; embed()
-
 

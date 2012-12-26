@@ -87,6 +87,25 @@ class PEHTestCase(TestCase):
 		self.assertEqual(r.peh, date)
 
 
+	def test_encoding(self):
+	    '''Puesta en hora'''
+	    from datetime import datetime
+	    frame = MaraFrame.build(Container(
+	                         sof=0xFE,
+	                         dest=1,
+	                         source=0,
+	                         sequence=32,
+	                         command=0x12,
+	                         peh=datetime.now(),
+	                         payload_10=None,
+	                         ))
+	    print " ".join([("%.2x" % ord(x)).upper() for x in frame])
+
+
+
+
+
+
 class SampledDataTestCase(TestCase):
 	FRAMES = [
 		"""
