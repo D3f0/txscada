@@ -48,12 +48,15 @@
             <li><a href="#tab-diagrama">Unifilar</a></li>
             <li><a href="#tab-eventos">Eventos</a></li>
             <li><a href="#tab-curvas">Curvas</a></li>
-            <!--<li><a href="#tab-conexion">Conexiones</a></li>-->
-            <!--<li><a href="#tab-develop">Desarrollo</a></li>-->
+            {% if tab_conexiones %}
+            <li><a href="#tab-conexion">Conexiones</a></li>
+            {% endif %}
+            {% if tab_devel %}
+            <li><a href="#tab-develop">Desarrollo</a></li>
+            {% endif %}
         </ul>
         <div id="tab-diagrama">
             <div id="svg" style="width: 900px; height: 600px;">
-
             </div>
             <!--
             <div style="float: right; position: absolute; top: 2px; right: 2px; ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
@@ -105,7 +108,7 @@
         	</div>
         	
         </div>
-        <div id="tab-conexion" style="display: none;">
+        <div id="tab-conexion" style="">
             <h3 id="">Concentradores Master</h3>
             {{ COMaster|draw_table("id=co-master")|safe }}
             
@@ -113,13 +116,13 @@
             
             {#{ UC|draw_table("id=ucs")|safe}#}
         </div>
-        <!--
-        <div id="tab-develop" style="display: none;">
+        
+        <div id="tab-develop" >
             <h3>AI</h3>
             {{ AI|draw_table|safe }}
         </div>
-        -->
     </div>
+    <div>Development</div>
     
     
 </body>
