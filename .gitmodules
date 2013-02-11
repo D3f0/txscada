@@ -1,0 +1,3 @@
+[submodule "src/pysmve/nguru/static/jquery-ui-bootstrap"]
+	path = src/pysmve/nguru/static/jquery-ui-bootstrap
+	url = https://github.com/addyosmani/jquery-ui-bootstrap
