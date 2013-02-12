@@ -1,3 +1,6 @@
 [submodule "src/pysmve/nguru/static/jquery-ui-bootstrap"]
 	path = src/pysmve/nguru/static/jquery-ui-bootstrap
 	url = https://github.com/addyosmani/jquery-ui-bootstrap
+[submodule "src/pysmve/nguru/static/pretty-json"]
+	path = src/pysmve/nguru/static/pretty-json
+	url = https://github.com/warfares/pretty-json.git
