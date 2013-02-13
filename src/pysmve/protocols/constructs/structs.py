@@ -6,10 +6,8 @@ from construct import *
 from datetime import datetime
 from ..utils.checksum import make_cs_bigendian
 from .. import constants
-from adapters import (EnergyValueAdapter,
-                      MaraDateTimeAdapter,
-                      SubSecondAdapter)
-from adapters import PEHAdapter
+from operator import add
+from struct import pack
 
 #===============================================================================
 # Mara protocol SubConstructs
@@ -87,6 +85,59 @@ DateTime = Struct('datetime',
                   UBInt8('minute'),
                   UBInt8('second'),
                   )
+GenericTimeStamp = Struct('generic_time_stamp',
+    Byte('year'),
+    Byte('month'),
+    Byte('day'),
+    Byte('hour'),
+    Byte('minute'),
+)
+
+
+GenericEventTail = Struct('generic_event_tail',
+                                Embed(GenericTimeStamp),
+                                Byte('second'),
+                                UBInt16('fraction')
+                                )
+
+
+class GenericEventTailAdapter(Adapter):
+
+    SECONDS_FRACTION = 2 ** 15
+
+    def _decode(self, obj, context):
+        fraction = obj.fraction % self.SECONDS_FRACTION
+        microseconds = float(fraction) / self.SECONDS_FRACTION * 1000000
+        return datetime(obj.year + 2000, obj.month, obj.day, obj.hour, obj.minute,
+                        obj.second, int(microseconds))
+
+    def _encode(self, obj, context):
+        fraction = obj.microsecond * (self.SECONDS_FRACTION / float(1000000))
+        return Container(year=obj.year - 2000, month=obj.month, day=obj.day,
+                         hour=obj.hour, minute=obj.minute, second=obj.second,
+                         fraction=int(fraction))
+
+EnergyEventTail = Struct('energy_event_tail',
+    Embed(GenericTimeStamp),
+    Array(3, Byte('data'))
+)
+
+
+class EnergyEventTailAdapter(Adapter):
+
+    def _decode(self, obj, context):
+        print 'value'
+        daystamp = datetime(obj.year + 2000, obj.month, obj.day, obj.hour, obj.minute,)
+        data = obj.data
+        data.reverse()
+        value = reduce(add, map(lambda (e, v): v << 8 * e, enumerate(data)))
+        return Container(datetime=daystamp, value=value)
+
+    def _encode(self, obj, context):
+        dtime = obj['datetime']
+        data = map(ord, tuple(pack('!I', obj['value']))[1:])
+        return Container(year=dtime.year - 2000, month=dtime.month, day=dtime.day,
+                         hour=dtime.hour, minute=dtime.minute, data=data)
 
 
 Event = Struct("event",
@@ -100,36 +151,12 @@ Event = Struct("event",
         }
     ),
 
-    UBInt8('year'),
-    UBInt8('month'),
-    UBInt8('day'),
-    UBInt8('hour'),
-    UBInt8('minute'),
-    UBInt8('second'),
-
-    Switch('_', lambda ctx: ctx.evtype,
-        {
-            'ENERGY': EnergyValueAdapter(ULInt16('value')),
-
-            #'DIGITAL': SubSecondAdapter(ULInt16('subsec')),
-            #'IDLE': SubSecondAdapter(ULInt16('subsec')),
-            #'DIAG': SubSecondAdapter(ULInt16('subsec')),
-
-        },
-        default=
+    If(lambda ctx: ctx['evtype'] == "ENERGY",
+        Embed(EnergyEventTailAdapter(EnergyEventTail)),
+        # Si el evento es diferente
+        GenericEventTailAdapter(Embed(GenericEventTail)),
     )
 
-
-    # If(lambda ctx: ctx['evtype'] == "DIGITAL",
-    #     # Embed(SubSecondAdapter(ULInt16('ticks'))),
-    #     SubSecondAdapter(ULInt16('subsec'))
-    # ),
-
-    #If(lambda ctx: ctx.evtype == "ENERGY",
-    #    EnergyValueAdapter(ULInt16('value')),
-    #    # ELSE (DIGITAL, IDLE, DIAG)
-    #    SubSecondAdapter(ULInt16('subsec'))
-    #),
 )
 
 #===============================================================================
@@ -160,6 +187,70 @@ Payload_PEH = Struct("peh",
     # Day of week
     ULInt8('day_of_week'),
 )
+
+
+class EnergyValueAdapter(Adapter):
+    """Energy qualifier is stored in it's first two bits"""
+    MAX_ENERGY_VALUE = 2 ** 15  # Sganas in crescendo?olo 14 bits posibles
+    MAX_Q_VALUE = 5  # Solo 5 bits
+
+    def _encode(self, obj, context):
+        '''Validates input values'''
+        try:
+            val, q = obj['val'], obj['q']
+        except (AttributeError, TypeError):
+            raise ValueError("Can't get item 'val' or 'q' from %s, is it a construct.Container?" % obj)
+        assert 0 <= val < self.MAX_ENERGY_VALUE
+        assert 0 <= q <= self.MAX_Q_VALUE
+        data = bitfield(0)
+        data[0:14] = obj['val']
+        data[14:16] = obj['q']
+        return int(data)
+
+    def _decode(self, int_val, context):
+        data = bitfield(int_val)
+        retval = Container(val=data[0:14], q=data[14:16])
+        return retval
+
+
+class MaraDateTimeAdapter(Adapter):
+    '''
+    Mara bytes <--> datetime.datetime
+    '''
+    def _decode(self, obj, context):
+        return datetime(obj.year + 2000, obj.month, obj.day, obj.hour, obj.minute, obj.second)
+
+    def _encode(self, obj, context):
+        return Container(year=obj.year - 2000, month=obj.month, day=obj.day,
+                         hour=obj.hour, minute=obj.minute, second=obj.second)
+
+
+class SubSecondAdapter(Adapter):
+    '''Mara timestamp sub-second data is measured in 1/32 second steps,
+    and its value is given by a counter which goes from 0 to 0x7FFF'''
+
+    FRACTIONS = 2 ** 14
+
+    def _encode(self, obj, context):
+        return int(obj * self.FRACTIONS)
+
+    def _decode(self, obj, context):
+        K = 1
+        return obj * K / float(self.FRACTIONS)
+
+
+class PEHAdapter(Adapter):
+    def _decode(self, obj, context):
+        return datetime(obj.year + 2000, obj.month, obj.day, obj.hour, obj.minute, obj.second)
+
+    def _encode(self, obj, context):
+        '''bytes->datetime'''
+        return Container(year=obj.year - 2000, month=obj.month, day=obj.day,
+                         hour=obj.hour, minute=obj.minute, second=obj.second,
+                         fsegh=0, fsegl=0,
+                         day_of_week=obj.weekday(),
+                         )
+
 #===============================================================================
 # Paquete Mara 14.10
 #===============================================================================
