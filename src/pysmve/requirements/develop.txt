@@ -7,11 +7,12 @@ South==0.7.6
 Twisted==12.0.0
 Werkzeug==0.8.3
 bitarray==0.8.0
+bitstring==3.0.2
 blessings==1.5
 -e git+https://github.com/aobo711/bootstrap-django-admin.git@ed3237d7d11d10c01ebde838e5463c8b5eba3f66#egg=bootstrap_django_admin-dev
 ## FIXME: could not find svn URL in dependency_links for this package:
 cElementTree==1.0.5-20051216
-construct==2.06
+-e git+https://github.com/construct/construct.git@63b966c871e608350f0d2733076e25f46b68412f#egg=construct-dev
 cssselect==0.7.1
 cyclone==1.0-rc15
 distribute==0.6.28
@@ -46,6 +47,7 @@ pyzmq==2.2.0
 -e git+https://github.com/ghtdak/qtreactor.git@82ec1802f04fbe54527884a55dafc859cd997c49#egg=qt4reactor-dev
 restview==1.2.2
 simplejson==2.6.2
+six==1.2.0
 sockjs-cyclone==0.0.2
 sphinx-me==0.1.2
 ssh==1.7.14
