@@ -2,6 +2,7 @@
 from construct import *
 from datetime import datetime
 from operator import add
+from struct import pack
 
 GenericTimeStamp = Struct('generic_time_stamp',
     Byte('year'),
@@ -49,10 +50,10 @@ class EnergyEventTailAdapter(Adapter):
         return {'datetime': daystamp, 'value': value}
 
     def _encode(self, obj, context):
-        assert hasattr(obj, 'datetime') and hasattr(obj, 'value'), "Missing data"
-
-        return Container(year=obj.year - 2000, month=obj.month, day=obj.day,
-                         hour=obj.hour, minute=obj.minute, data=data)
+        dtime = obj['datetime']
+        data = map(ord, tuple(pack('!I', obj['value']))[1:])
+        return Container(year=dtime.year - 2000, month=dtime.month, day=dtime.day,
+                         hour=dtime.hour, minute=dtime.minute, data=data)
 
 #
 def str2hexa(data):
@@ -67,4 +68,7 @@ v = adp.parse(value)
 print v
 print str2hexa(adp.build(datetime.now()))
 
-print EnergyEventTailAdapter(EnergyEventTail).parse(value[:-3]+'\x02\x01\xFF')
+adp1 = EnergyEventTailAdapter(EnergyEventTail)
+print adp1.parse(value[:-3]+'\x02\x01\xFF')
+v = adp1.build({'datetime': datetime(2012, 1, 1, 1, 1, 1, ), 'value': 131583})
+print str2hexa(v)
