@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{# Librerías para el renderizado de JSON #}
+{# https://github.com/warfares/pretty-json #}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}pretty-json/css/pretty-json.css">
+{% endblock %}
+
+{% block content %}
+        <div class="hero-unit">
+                <h2>Análisis de Tramas Mara</h2>
+                <p>Ingrese el frame a analizar en formato hexadecimal ASCII</p>
+                <textarea id="frame" style="width: 100%;"></textarea>
+                <p><a class="btn btn-primary btn-large" id="analizar">Analizar &raquo;</a></p>
+            </div>
+{% endblock %}
+
+
+
+{% block endscripts %}
+{{ block.super}}
+
+{# Librerías para el renderizado de JSON #}
+{# https://github.com/warfares/pretty-json #}
+
+<script type="text/javascript" src="{{ STATIC_URL }}pretty-json/libs/underscore-min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}pretty-json/libs/backbone-min.js"></script>
+
+<script type="text/javascript">
+(function ($){
+    'use strict';
+
+    var frame = $('#frame'); // Frame container
+
+    var dlg = $('<div/>').dialog({
+        autoOpen: false,
+        close: function () {
+            $(this).html('');
+            var $analizar = $('#analizar');
+            // Quitar clase y volver al texto original
+            $analizar.removeClass('disabled').text($analizar.data('text'));
+        },
+        modal: true,
+        buttons: [
+            {
+                text: "Cerrar",
+                click: function () {
+                    $(this).dialog('close');
+                }
+            }
+        ]
+    });
+
+    $('#analizar').click(function (){
+        var that = this;
+        var value = frame.val();
+        if ($(this).hasClass('disabled') || !value) {
+            return
+        }
+        // Almacenamiento del texto original
+        $(this).data('text', $(this).text())
+            // Camibo al texto de petición AJAX
+            .text('Analizando...')
+            // Desactivar el botón
+            .addClass('disabled');
+
+        $.ajax('', {
+            method: 'POST',
+            data: {data: value},
+            success: function (data){
+                var json = $.parseJSON(json);
+                console.log(json);
+                $(dlg).dialog('option', 'title', 'Resultado del análisis');
+                $(dlg).dialog('open');
+            },
+            error: function (xhr, error, msg) {
+                console.error(arguments);
+                $(dlg).dialog('option', 'title', 'Error')
+                        .dialog('open').html('Error en el desentramado'+
+                            'de la secuencia: <b>' + error + ' ' + msg+'</b>');
+            }
+        })
+
+    });
+})(jQuery);
+</script>
+{% endblock %}
