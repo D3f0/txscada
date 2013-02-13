@@ -20,8 +20,10 @@ TCD = BitStruct('TCD',
                 BitField("evtype", 2),
                 DIGITAL=0,
                 ENERGY=1,
-                # INVALID_2=2,
-                # INVALID_3=3
+                # Evento no definido aún
+                IDLE=2,
+                # Eventos de diagnóstico
+                DIAG=3,
                 ),
                 BitField("q", 2),
                 BitField("addr485", 4),
@@ -31,29 +33,38 @@ TCD = BitStruct('TCD',
 # Old Bit Port Status
 # Deprecated since mara 1.4v11
 #=========================================================================================
+#
+# BPE = BitStruct('BPE',
+#                 BitField("bit", 4),
+#                 BitField("port", 3),
+#                 BitField("status", 1),
+#                 )
 
-BPE = BitStruct('BPE',
-                BitField("bit", 4),
-                BitField("port", 3),
-                BitField("status", 1),
-                )
-
+# Segundo byte de del evento digital
 EPB = BitStruct('BPE',
                 BitField("status", 1),
                 BitField("port", 3),
                 BitField("bit", 4),
                 )
 
-
-IdleCan = BitStruct('idlecan',
-                    BitField('idle', 5),
-                    BitField('channel', 3)
-                    )
-
-CodeCan = BitStruct('codecan',
+# Segundo byte del evento de energía
+CodeCan = BitStruct('idlecan',
                     BitField('idle', 2),
                     BitField('code', 3),
                     BitField('channel', 3)
+                    )
+
+# Segudno byte del evento IDLE
+CodeIdle = BitStruct('codeidle',
+                    BitField('idle', 2),
+                    BitField('code', 3),
+                    BitField('idle2', 3)
+                    )
+
+# Segundo byte del evento de diangóstico
+CodeMotiv = BitStruct('codemotiv',
+                    BitField('code', 4),
+                    BitField('motiv', 4),
                     )
 
 TimerTicks = Struct('ticks',
@@ -79,37 +90,32 @@ DateTime = Struct('datetime',
 
 
 Event = Struct("event",
-               Embed(TCD),
-               Switch("evdetail", lambda ctx: ctx.evtype,
+                Embed(TCD),
+                Switch("evdetail", lambda ctx: ctx.evtype,
                       {
                       "DIGITAL": Embed(EPB),
-                      "ENERGY": Embed(IdleCan),
+                      "ENERGY": Embed(CodeCan),
+                      "DIAG": Embed(CodeMotiv),
                       }
-                      ),
+                ),
 
-               UBInt8('year'),
-               UBInt8('month'),
-               UBInt8('day'),
-               UBInt8('hour'),
-               UBInt8('minute'),
+                UBInt8('year'),
+                UBInt8('month'),
+                UBInt8('day'),
+                UBInt8('hour'),
+                UBInt8('minute'),
 
-               UBInt8('second'),
+                UBInt8('second'),
 
-               If(lambda ctx: ctx['evtype'] == "DIGITAL",
-                  # Embed(SubSecondAdapter(ULInt16('ticks'))),
-                  SubSecondAdapter(ULInt16('subsec'))
-                  ),
+                If(lambda ctx: ctx['evtype'] == "DIGITAL",
+                    # Embed(SubSecondAdapter(ULInt16('ticks'))),
+                    SubSecondAdapter(ULInt16('subsec'))
+                ),
 
-               If(lambda ctx: ctx.evtype == "ENERGY",
-       EnergyValueAdapter(ULInt16('value')),
+                If(lambda ctx: ctx.evtype == "ENERGY",
+                    EnergyValueAdapter(ULInt16('value')
+                ),
     ),
-
-
-    # Switch("taildata", lambda ctx: ctx.evtype, {
-    #    "DIGITAL": ULInt16('ticks'),
-    #    #"ENERGY":  EnergyValueAdapter(ULInt16('copete')),
-    #    "ENERGY":  ULInt16('value'),
-    #}, default = Pass),
 )
 
 #===============================================================================

@@ -1,3 +1,4 @@
+# coding: utf-8
 
 import sys
 from datetime import datetime
@@ -24,8 +25,8 @@ class ConstructTestCase(TestCase):
         self.assertEqual(builded.payload_10, None)
         self.assertEqual(builded.length, 8)
         self.assertEqual(builded.sequence, 128)
-        
-        
+
+
     def test_tcd(self):
         r = TCD.build(Container(evtype="ENERGY", q=1, addr485=1))
         s = TCD.parse(r)
@@ -58,12 +59,12 @@ class ConstructTestCase(TestCase):
 
 
     def test_build_event_with_datetime(self):
-            pass
-        
+        pass
+
     def test_energy_event(self):
-        energy_data = Container(evtype="ENERGY", q=0, 
+        energy_data = Container(evtype="ENERGY", q=0,
                                 addr485=4,
-                                idle=0, 
+                                idle=0, code=0, # Energía de 15 minutos
                                 channel=0,
                                 value=Container(val=0x33, q=1),
                                 **dtime2dict())
@@ -72,7 +73,21 @@ class ConstructTestCase(TestCase):
         self.assertEqual(s.value.val,  0x33)
         self.assertEqual(s.value.q,  0x1)
         self.assertEqual(s.channel,  0)
-        #_debug(pkg)
+
+    def test_event_type_3(self):
+        code = 2
+        motiv = 2
+        diag_data = Container(
+            # 1 byte (TCD)
+            evtype="DIAG", q=0, addr485=4,
+            # 2 byte
+            code=code, motiv=motiv,
+            **dtime2dict()
+        )
+        r = Event.build(diag_data)
+        s = Event.parse(r)
+        self.assertEqual(s.code, code)
+        self.assertEqual(s.motiv, motiv)
 
 
 class _AdaterTestCase(TestCase):
@@ -120,19 +135,19 @@ class SampledDataTestCase(TestCase):
 
 
         """
-            FE 44 40 01 4C 10 19 00 00 85 1D 01 00 00 00 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 0F 
-            00 00 43 00 00 00 00 04 00 04 00 04 00 04 13 4C 05 51 00 51 00 51 00 51 00 51 00 51 00 51 00 51 
+            FE 44 40 01 4C 10 19 00 00 85 1D 01 00 00 00 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 0F
+            00 00 43 00 00 00 00 04 00 04 00 04 00 04 13 4C 05 51 00 51 00 51 00 51 00 51 00 51 00 51 00 51
             00 01 DD 30
         """,
 
         """
             FE F8 40 01 4D 10 19 00 00 8D 1D 01 00 00 00 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 0F
             00 00 43 00 00 00 00 04 00 04 00 04 00 04 13 81 09 51 00 51 00 51 00 51 00 51 00 51 00 51 00 51
-            00 B5 01 93 0C 01 01 01 08 22 00 14 01 E3 0C 01 01 01 08 22 00 14 01 05 0C 01 01 01 08 22 00 14 
-            01 92 0C 01 01 01 08 22 00 18 01 E2 0C 01 01 01 08 22 00 18 01 04 0C 01 01 01 08 22 00 18 01 F1 
-            0C 01 01 01 08 22 00 1C 01 93 0C 01 01 01 08 22 00 1C 01 F3 0C 01 01 01 08 22 00 1C 01 05 0C 01 
-            01 01 08 22 00 1C 01 F2 0C 01 01 01 08 22 00 20 01 04 0C 01 01 01 08 22 00 20 01 F0 0C 01 01 01 
-            08 22 00 24 01 92 0C 01 01 01 08 22 00 24 01 15 0C 01 01 01 08 22 00 60 01 14 0C 01 01 01 08 22 
+            00 B5 01 93 0C 01 01 01 08 22 00 14 01 E3 0C 01 01 01 08 22 00 14 01 05 0C 01 01 01 08 22 00 14
+            01 92 0C 01 01 01 08 22 00 18 01 E2 0C 01 01 01 08 22 00 18 01 04 0C 01 01 01 08 22 00 18 01 F1
+            0C 01 01 01 08 22 00 1C 01 93 0C 01 01 01 08 22 00 1C 01 F3 0C 01 01 01 08 22 00 1C 01 05 0C 01
+            01 01 08 22 00 1C 01 F2 0C 01 01 01 08 22 00 20 01 04 0C 01 01 01 08 22 00 20 01 F0 0C 01 01 01
+            08 22 00 24 01 92 0C 01 01 01 08 22 00 24 01 15 0C 01 01 01 08 22 00 60 01 14 0C 01 01 01 08 22
             00 7C 01 F3 0C 01 01 01 08 23 00 00 01 15 0C 01 01 01 08 23 00 00 3C 91
         """,
 
@@ -140,33 +155,33 @@ class SampledDataTestCase(TestCase):
         """
             FE E4 40 01 F1 10 19 00 00 86 1D 01 00 00 00 00 EF 00 03 00 00 00 04 00 00 80 80 00 00 80 80 0F
             00 00 43 00 00 00 40 F6 40 F6 00 F4 00 3A 13 7F 09 00 40 00 40 00 40 00 40 00 40 00 40 00 40 00
-            40 A1 45 00 0C 08 03 0F 00 00 00 00 45 01 0C 08 03 0F 00 00 00 00 
+            40 A1 45 00 0C 08 03 0F 00 00 00 00 45 01 0C 08 03 0F 00 00 00 00
             42 00 0C 08 03 0F 00 00 00 00
-            42 01 0C 08 03 0F 00 00 00 00 
-            43 00 0C 08 03 0F 00 00 00 00 
-            43 01 0C 08 03 0F 00 00 00 00 
-            44 00 0C 08 03 0F 00 00 00 00 
-            44 01 0C 08 03 0F 00 00 00 00 
-            43 00 0C 08 03 0F 0F 00 00 00 
-            43 01 0C 08 03 0F 0F 00 00 00 
-            44 00 0C 08 03 0F 0F 00 00 00 
-            44 01 0C 08 03 0F 0F 00 00 00 
-            45 00 0C 08 03 0F 0F 00 00 00 
-            45 01 0C 08 03 0F 0F 00 00 00 
-            42 00 0C 08 03 0F 0F 00 00 00 
-            42 01 0C 08 03 0F 0F 00 00 00 
+            42 01 0C 08 03 0F 00 00 00 00
+            43 00 0C 08 03 0F 00 00 00 00
+            43 01 0C 08 03 0F 00 00 00 00
+            44 00 0C 08 03 0F 00 00 00 00
+            44 01 0C 08 03 0F 00 00 00 00
+            43 00 0C 08 03 0F 0F 00 00 00
+            43 01 0C 08 03 0F 0F 00 00 00
+            44 00 0C 08 03 0F 0F 00 00 00
+            44 01 0C 08 03 0F 0F 00 00 00
+            45 00 0C 08 03 0F 0F 00 00 00
+            45 01 0C 08 03 0F 0F 00 00 00
+            42 00 0C 08 03 0F 0F 00 00 00
+            42 01 0C 08 03 0F 0F 00 00 00
             1D C2
         """,
 
         """
-            FE 58 40 01 20 10 19 00 00 8D 1D 01 00 00 00 00 EF 00 04 00 00 00 04 00 00 80 80 00 00 80 80 0F 00 00 
-            43 00 00 00 40 F6 00 F6 40 F6 40 B6 13 83 09 00 40 00 40 00 40 00 40 00 40 00 40 24 00 1E 00 15 42 00 
+            FE 58 40 01 20 10 19 00 00 8D 1D 01 00 00 00 00 EF 00 04 00 00 00 04 00 00 80 80 00 00 80 80 0F 00 00
+            43 00 00 00 40 F6 00 F6 40 F6 40 B6 13 83 09 00 40 00 40 00 40 00 40 00 40 00 40 24 00 1E 00 15 42 00
             0C 08 03 0E 2D 00 06 00 42 01 0C 08 03 0E 2D 00 06 00 C7 5A
         """,
 
         """
-            FE 58 40 01 21 10 19 00 00 8D 1D 01 00 00 00 00 EF 00 04 00 00 00 04 00 00 80 80 00 00 80 80 0F 00 00 
-            43 00 00 00 40 F6 40 F6 40 F6 40 B6 13 83 09 00 40 00 40 00 40 00 40 00 40 00 40 24 00 1E 00 15 43 00 
+            FE 58 40 01 21 10 19 00 00 8D 1D 01 00 00 00 00 EF 00 04 00 00 00 04 00 00 80 80 00 00 80 80 0F 00 00
+            43 00 00 00 40 F6 40 F6 40 F6 40 B6 13 83 09 00 40 00 40 00 40 00 40 00 40 00 40 24 00 1E 00 15 43 00
             0C 08 03 0E 2D 00 00 00 43 01 0C 08 03 0E 2D 00 00 00 90 5A
         """,
 
@@ -188,4 +203,3 @@ class SampledDataTestCase(TestCase):
     def test_sampled_data(self):
         for n, sample in enumerate(self.FRAMES):
             MaraFrame.parse(any2buffer(sample))
-
