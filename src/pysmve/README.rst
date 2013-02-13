@@ -1,11 +1,32 @@
 Proyecto de medición de variables eléctricas
 ============================================
 
+Estructura de directorios
+=========================
 
-General
--------
+Esta es la estructura de directorios del proyecto::
 
-Proyecto Inicial
+	demo/
+
+		Demostración anterior de demostración para una único CoMaster
+
+	nguru/
+
+		Proyecto nuevo, utiliza manage.py para hacer la diferentes funcionalidades
+
+	protocols/
+
+		Definiciones de los protocols
+
+	requirements/
+
+		Requisitos de configuracion
+
+	svg/
+
+		Pruebas de trabajo sobre SVG
+
+Proyecto Demo
 ****************
 
 El proyecto inicial se compone de
@@ -33,6 +54,15 @@ El proyecto inicial se compone de
 	* Fabric
 
 		Automatización de tareas
+
+Es una prueba de concepto de los elementos utilizando un único CoMaster.
+
+Comandos
+--------
+
+::
+
+	python main.py startserver
 
 
 Proyecto basado en Django: Ngürü
@@ -74,10 +104,13 @@ Comandos
 		python manage.py server
 
 
+- runserver
 
+	Inicial el servidor web en el puerto 8000 por defecto::
 
+		python manage.py runserver
 
-
+	En esta se encuentra la administración en la url /admin
 
 
 Configuración para el desarrollador o tester
