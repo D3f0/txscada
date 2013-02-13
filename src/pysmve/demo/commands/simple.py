@@ -3,7 +3,7 @@
 
 import functools
 from operator import itemgetter
-from errors import ImproperlyConfigured 
+from errors import ImproperlyConfigured
 from logging import getLogger
 from prettytable import PrettyTable
 logger = getLogger(__name__)
@@ -17,10 +17,7 @@ import sys, os
 PROJECT_PATH = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(os.path.join(PROJECT_PATH, '..'))
 
-
 from protocols.mara import MaraServerFactory, MaraClientProtocolFactory
-
-
 
 
 COMMANDS = {}
@@ -29,8 +26,8 @@ def command(obj):
     global COMMANDS
     if not callable(obj):
         raise ImproperlyConfigured("Task should be callable objects")
-    
-    
+
+
     @functools.wraps(obj)
     def wrapped(*largs, **kwargs):
         # ------------------------------------------------------------
@@ -39,7 +36,7 @@ def command(obj):
         return obj(*largs, **kwargs)
     COMMANDS[obj.func_name] = obj
     return wrapped
-    
+
 def open_local_browser(port):
     print "Lanzando browser"
     import webbrowser
@@ -56,7 +53,7 @@ def webserver(options, reload=False):
         import gevent.wsgi
         from gevent import monkey
         import werkzeug.serving
-        werkzeug.serving    
+        werkzeug.serving
         # http://flask.pocoo.org/snippets/34/ (2nd comment)
         monkey.patch_all()
 
@@ -65,18 +62,18 @@ def webserver(options, reload=False):
             app.debug = True
             ws = gevent.wsgi.WSGIServer(('', options.port), app)
             ws.serve_forever()
-        
+
         app.run()
 
     else:
         # Con Twisted
         from resources import site
         from twisted.internet import reactor
-        
+
         from models import COMaster
         for x in COMaster.select():
             print x
-        
+
         reactor.listenTCP(options.port, site) #@UndefinedVariable
         reactor.callLater(1, functools.partial(open_local_browser, port=options.port))    #@UndefinedVariable
         print "Iniciando servidor en http://0.0.0.0:%s" % options.port
@@ -99,7 +96,7 @@ def maraserver(options):
         from traceback import format_exc
         print format_exc()
         raise
-    
+
 @command
 def maraclient(options):
     '''
@@ -110,11 +107,11 @@ def maraclient(options):
         from models import database, Profile
         database.connect()
         profile = Profile.get(name=options.profile)
-        
+
         for comaster in profile.comaster_set.filter(enabled=True):
             print "Conectando con %s" % comaster
-            reactor.connectTCP(comaster.address, 
-                               comaster.port, 
+            reactor.connectTCP(comaster.address,
+                               comaster.port,
                                MaraClientProtocolFactory(comaster),
                                timeout=comaster.timeout,
                                #bindAddress=None,
@@ -125,20 +122,20 @@ def maraclient(options):
         from traceback import format_exc
         print format_exc()
         print e
-    
+
 @command
 def cloneprofile(options, dest):
     print "Copying profile %s to %s" % (options.profile, dest)
     print "Not implemented yet"
-    
+
 @command
 def dbshell(options):
     from models import Profile, COMaster, IED, VarSys, DI, Event, AI, Energy
     print "Importing: Perfil, COMaster, IED, VarSys, DI, Evento, AI, Energia"
-    
+
     from IPython import embed
     embed()
-    
+
 @command
 def syncdb(options, reset=False, create=False):
     from models import DB_FILE, database, create_tables, populate_tables
@@ -154,8 +151,8 @@ def syncdb(options, reset=False, create=False):
 
     else:
         dbshell(options)
-    
-    
+
+
 @command
 def help(options, **kwargs):
     from inspect import getargspec
@@ -166,16 +163,16 @@ def help(options, **kwargs):
                 print "%s does not exist!"
                 return -1
             # Function names
-            print 
-        
+            print
+
     print "Available commands:\n"
     for name, command in sorted(COMMANDS.items(), key=itemgetter(0)):
         print "    *", name
         arguments = getargspec(command).args[1:]
         if arguments:
             print "        %s" % ", ".join(arguments)
-    
-    
+
+
 @command
 def emulator(options, listen=None):
     listen_port = 9736 if listen == None else int(listen)
@@ -207,7 +204,7 @@ def rebuilddb(options):
     print "Populating..."
     for name, list_of_comaster_cfg in CONFIG.iteritems():
         populate_tables(name, list_of_comaster_cfg)
-        
+
 @command
 def shell(options):
     '''
@@ -234,7 +231,7 @@ def shell(options):
     for model in models:
         print "Importing model %s" % model.__name__
     embed()
-    
+
 @command
 def enableone(options, comaster='192.168.1.98', profile='default'):
     '''Hablita un comaster en particular %s''' % comaster
@@ -253,11 +250,11 @@ def listenabled(options, profile='default', all=False):
         cos = Profile.get(name=profile).comaster_set
     else:
         cos = COMaster.select()
-        
+
     for co in Profile.get(name=profile).comaster_set:
         print co.address, co.enabled
-    
-    
+
+
 @command
 def profilelist(options):
     from models import Profile
@@ -270,8 +267,8 @@ def profilelist(options):
                " - ".join(map(unicode, profile.comaster_set))
                )
         x.add_row(row)
-        
+
     print x
-    
-    
-    
+
+
+
