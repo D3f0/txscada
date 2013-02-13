@@ -8,7 +8,7 @@ General
 Proyecto Inicial
 ****************
 
-El proyecto inicial se compone de 
+El proyecto inicial se compone de
 
 	* Twisted
 
@@ -38,12 +38,15 @@ El proyecto inicial se compone de
 Proyecto basado en Django: Ngürü
 ********************************
 
-Debido a que peewee como ORM resultó poco eficiente para el manejo de la estructura 
-tipo árbol que propone MARA y a que existen demaciadas dependencias que imitan 
-de manera reducida la funcionalidad del framework web Django, se decide migrar a 
+Debido a que peewee como ORM resultó poco eficiente para el manejo de la estructura
+tipo árbol que propone MARA y a que existen demaciadas dependencias que imitan
+de manera reducida la funcionalidad del framework web Django, se decide migrar a
 Django el acceso a datos y la presentación web.
 
-El proceso de recolección de datos SCADA se implementa en un comando utilizando 
+Además la migración provee estrucutura de usuarios, administración via web de manera
+sencilla con permissos y logging, entre otras cosas.
+
+El proceso de recolección de datos SCADA se implementa en un comando utilizando
 la capacidad de Django de definir comandos. Se comparte la definición de la base
 de datos mediante la importación de modelos.
 
@@ -68,8 +71,8 @@ Comandos
 
 
 
-Configuración para el desarrollador
------------------------------------
+Configuración para el desarrollador o tester
+--------------------------------------------
 
 Obtención del código fuente
 ***************************
@@ -111,7 +114,7 @@ crear la base de datos como sigue::
 	psql (9.2.2, servidor 9.1.4)
 	Digite «help» para obtener ayuda.
 
-	postgres=# 
+	postgres=#
 
 Luego podemos crear una base de datos como sigue::
 
@@ -131,8 +134,8 @@ y deslindar del desarrollo el uso del superusuario.
 Para instalar *virtualenv* en Ubunutu realizar los siguientes pasos (serán
 los unicos donde usaremos privilegios de administrador mediante sudo)::
 
-	
-	sudo apt-get install python-setuptools 
+
+	sudo apt-get install python-setuptools
 
 	sudo easy_install pip
 
@@ -144,7 +147,7 @@ los unicos donde usaremos privilegios de administrador mediante sudo)::
 	# de usuario
 
 Luego cerrar la terminal con ``^-D`` y inicar una nueva para que tome los cambios y luego::
-	
+
 	mkvirtualenv txscada
 	whcih python  # debería dar una ruta en nuestro $HOME
 
@@ -154,7 +157,7 @@ Para entrar en el virtualen nuevamente::
 
 Para salir del virtualenv (y volver al intérprete de Python del sistema)::
 
-	deactivate 
+	deactivate
 
 Para instalar un paquete dentro del virutalenv::
 
@@ -184,7 +187,7 @@ Comandos de Fabric
 ******************
 
 - fab freeze
-	
+
 	**Freezado de librerías**
 
 	Cuando se instala una librería en el virtualenv fuera de las que están en develop.txt
@@ -194,5 +197,5 @@ Comandos de Fabric
 	git/svn/hg.
 
 - fab docs
-	
+
 	**Visualización de documentación**
