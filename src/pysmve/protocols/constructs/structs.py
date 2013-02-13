@@ -21,7 +21,7 @@ TCD = BitStruct('TCD',
                 # Evento no definido aún
                 IDLE=2,
                 # Eventos de diagnóstico
-                DIAG=3,
+                COMSYS=3,
                 ),
                 BitField("q", 2),
                 BitField("addr485", 4),
@@ -100,19 +100,28 @@ GenericEventTail = Struct('generic_event_tail',
                                 UBInt16('fraction')
                                 )
 
+SECONDS_FRACTION = 2 ** 15
 
-class GenericEventTailAdapter(Adapter):
 
-    SECONDS_FRACTION = 2 ** 15
-
-    def _decode(self, obj, context):
-        fraction = obj.fraction % self.SECONDS_FRACTION
-        microseconds = float(fraction) / self.SECONDS_FRACTION * 1000000
-        return datetime(obj.year + 2000, obj.month, obj.day, obj.hour, obj.minute,
+def container_to_datetime(obj):
+    '''
+    year, month, day, hour, minute, second, faction -> datetime instance
+    Función auxiliar debido a que los adapters no funcionan como tales cuando están
+    embebidos y para no crear una función extra'''
+    fraction = obj.fraction % SECONDS_FRACTION
+    microseconds = float(fraction) / SECONDS_FRACTION * 1000000
+    return datetime(obj.year + 2000, obj.month, obj.day, obj.hour, obj.minute,
                         obj.second, int(microseconds))
 
+
+class GenericEventTailAdapter(Adapter):
+    '''Adapter para loe eventos'''
+    def _decode(self, obj, context):
+        return container_to_datetime(obj)
+
     def _encode(self, obj, context):
-        fraction = obj.microsecond * (self.SECONDS_FRACTION / float(1000000))
+        obj = obj.timestamp
+        fraction = obj.microsecond * (SECONDS_FRACTION / float(1000000))
         return Container(year=obj.year - 2000, month=obj.month, day=obj.day,
                          hour=obj.hour, minute=obj.minute, second=obj.second,
                          fraction=int(fraction))
@@ -126,15 +135,14 @@ EnergyEventTail = Struct('energy_event_tail',
 class EnergyEventTailAdapter(Adapter):
 
     def _decode(self, obj, context):
-        print 'value'
-        daystamp = datetime(obj.year + 2000, obj.month, obj.day, obj.hour, obj.minute,)
+        timestamp = datetime(obj.year + 2000, obj.month, obj.day, obj.hour, obj.minute,)
         data = obj.data
         data.reverse()
         value = reduce(add, map(lambda (e, v): v << 8 * e, enumerate(data)))
-        return Container(datetime=daystamp, value=value)
+        return Container(timestamp=timestamp, value=value)
 
     def _encode(self, obj, context):
-        dtime = obj['datetime']
+        dtime = obj['timestamp']
         data = map(ord, tuple(pack('!I', obj['value']))[1:])
         return Container(year=dtime.year - 2000, month=dtime.month, day=dtime.day,
                          hour=dtime.hour, minute=dtime.minute, data=data)
@@ -147,16 +155,16 @@ Event = Struct("event",
             "DIGITAL": Embed(EPB),
             "ENERGY":  Embed(CodeCan),
             "IDLE":    Embed(CodeIdle),
-            "DIAG":    Embed(CodeMotiv),
+            "COMSYS":  Embed(CodeMotiv),
         }
     ),
-
-    If(lambda ctx: ctx['evtype'] == "ENERGY",
-        Embed(EnergyEventTailAdapter(EnergyEventTail)),
-        # Si el evento es diferente
-        GenericEventTailAdapter(Embed(GenericEventTail)),
-    )
-
+    Switch('tail', lambda ctx: ctx.evtype, {
+        'ENERGY':   Embed(EnergyEventTailAdapter(EnergyEventTail)),
+        'DIGITAL':  Embed(GenericEventTailAdapter(GenericEventTail)),
+        'IDLE':     Embed(GenericEventTailAdapter(GenericEventTail)),
+        'COMSYS':   Embed(GenericEventTailAdapter(GenericEventTail)),
+        }
+    ) # Switch
 )
 
 #===============================================================================
