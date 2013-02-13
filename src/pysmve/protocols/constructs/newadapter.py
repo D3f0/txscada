@@ -70,5 +70,23 @@ print str2hexa(adp.build(datetime.now()))
 
 adp1 = EnergyEventTailAdapter(EnergyEventTail)
 print adp1.parse(value[:-3]+'\x02\x01\xFF')
-v = adp1.build({'datetime': datetime(2012, 1, 1, 1, 1, 1, ), 'value': 131583})
+a_value = 131583
+a_date = datetime(2012, 1, 1, 1, 1, 1, )
+v = adp1.build({'datetime': a_date, 'value': a_value})
 print str2hexa(v)
+
+EmbedAdapterStruct = Struct("foo",
+    Byte('alfa'),
+    Embed(EnergyEventTailAdapter(EnergyEventTail))
+    )
+
+
+v = EmbedAdapterStruct.build(
+    Container(
+        alfa=0x18,
+        datetime=a_date,
+        value=a_value
+        )
+    )
+print str2hexa(v)
+print EmbedAdapterStruct.parse(v)
