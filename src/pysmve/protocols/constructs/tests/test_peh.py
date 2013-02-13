@@ -1,5 +1,5 @@
 from unittest import TestCase
-from ..struct import MaraFrame, any2buffer
+from ..structs import MaraFrame, any2buffer
 from datetime import datetime
 from construct import Container
 
@@ -20,6 +20,6 @@ class PEHTestCase(TestCase):
                              sequence=32,
                              command=0x12,
                              peh=datetime.now(),
-                             payload_10=None,
                              ))
-        print " ".join([("%.2x" % ord(x)).upper() for x in frame])
+        parsed = MaraFrame.parse(frame)
+        self.assertIn('peh', parsed)

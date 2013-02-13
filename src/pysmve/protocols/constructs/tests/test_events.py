@@ -2,62 +2,86 @@
 
 from construct import Container
 from unittest import TestCase
-from ..structs import Event
+from ..structs import Event, container_to_datetime
 from datetime import datetime
 
 
-class EventTestCase(TestCase):
-    def test_digital_event(self):
-        event_data = Container(evtype="DIGITAL",
-                                addr485=5,
-                                bit=0,
-                                port=3,
-                                status=0,
-                                year=12,
-                                month=1,
-                                day=1,
-                                hour=12,
-                                minute=24,
-                                second=10,
-                                subsec=.33,
-                                value=None,
-                                q=0,
-                                )
+MARA_RESOLUTION = (float(1024) / 32768) * 1000000
+
+
+class DateTimeComparisionTestCase(TestCase):
+    def assertAlmostEqual(self, first, second, delta=MARA_RESOLUTION, **kwargs):
+        '''Compraision datetime aware'''
+        if isinstance(first, datetime) and isinstance(second, datetime):
+            all_but_micro = lambda d: (d.year, d.month, d.day, d.hour, d.minute, d.second)
+            self.assertEqual(all_but_micro(first), all_but_micro(second),
+                ("%s and %s are not have the same year, month, day, hour, minute or "
+                    "second data") %
+                    (first, second))
+            super(DateTimeComparisionTestCase, self).assertAlmostEqual(first.microsecond,
+                second.microsecond, delta=delta,
+                msg="%s and %s differ in microseconds" % (first, second)
+                )
+        else:
+            super(DateTimeComparisionTestCase, self).assertAlmostEqual(first, second,
+                delta=delta, **kwargs)
+
+
+class EventTestCase(DateTimeComparisionTestCase):
+    def test_digital_event_dont_lose_time_data(self):
+        '''Event can be created from bytes'''
+        event_data = Container(evtype="DIGITAL", q=0,
+                               addr485=5, bit=0, port=3, status=0,
+                               # Timestamp bytes
+                               timestamp=datetime.now()
+                               )
         r = Event.build(event_data)
         s = Event.parse(r)
 
-        assert False
+        self.assertIn('year', s)
+        self.assertIn('month', s)
+        self.assertIn('day', s)
+        self.assertIn('hour', s)
+        self.assertIn('minute', s)
+        self.assertIn('second', s)
+        self.assertIn('fraction', s)
 
-        self.assertEqual(s.evtype,  'DIGITAL')
-        self.assertEqual(s.port, 3)
-        self.assertEqual(s.bit,  0)
-        self.assertEqual(s.status,  0)
+    def test_digital_event_using_adapter(self):
+        '''But it's easier to use the adapter'''
+        timestamp = datetime.now()
+        event_data = Container(evtype="DIGITAL", addr485=5, bit=0, port=0, status=0, q=0,
+                               timestamp=timestamp,
+
+                               )
+        build = Event.build(event_data)
+        parsed = Event.parse(build)
+
+        self.assertAlmostEqual(container_to_datetime(parsed), timestamp)
 
     def test_energy_event(self):
         energy_data = Container(evtype="ENERGY", q=0,
                                 addr485=4,
-                                idle=0, code=0, # Energía de 15 minutos
+                                idle=0, code=0,  # Energía de 15 minutos
                                 channel=0,
                                 value=131583,
-                                datetime=datetime.now())
+                                timestamp=datetime.now())
         r = Event.build(energy_data)
         s = Event.parse(r)
-        self.assertEqual(s.value.val,  0x33)
-        self.assertEqual(s.value.q,  0x1)
-        self.assertEqual(s.channel,  0)
 
-    def test_event_type_3(self):
+    def test_comsys_event(self):
+        '''Eventos de tipo 3'''
+
         code = 2
         motiv = 2
         diag_data = Container(
             # 1 byte (TCD)
-            evtype="DIAG", q=0, addr485=4,
+            evtype="COMSYS", q=0, addr485=4,
             # 2 byte
             code=code, motiv=motiv,
-            **dtime2dict()
+            timestamp=datetime(2012, 1, 1, 1, 1, 1, 50000)
         )
+
         r = Event.build(diag_data)
         s = Event.parse(r)
         self.assertEqual(s.code, code)
         self.assertEqual(s.motiv, motiv)
-

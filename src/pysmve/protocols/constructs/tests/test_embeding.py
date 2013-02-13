@@ -22,3 +22,5 @@ class TestEmbedingBranch(TestCase):
         self.assertIn('a_enum', contents)
         self.assertEqual(contents['a_enum'], 'ALFA')
         self.assertIn('byte_alfa', contents)
+
+
