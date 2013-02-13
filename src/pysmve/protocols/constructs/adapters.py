@@ -6,11 +6,12 @@ from ..utils.bitfield import bitfield
 from construct.lib.container import Container
 from datetime import datetime
 
+
 class EnergyValueAdapter(Adapter):
     """Energy qualifier is stored in it's first two bits"""
-    MAX_ENERGY_VALUE = 2**15 # Sganas in crescendo?olo 14 bits posibles
-    MAX_Q_VALUE = 5 # Solo 5 bits
-    
+    MAX_ENERGY_VALUE = 2 ** 15  # Sganas in crescendo?olo 14 bits posibles
+    MAX_Q_VALUE = 5  # Solo 5 bits
+
     def _encode(self, obj, context):
         '''Validates input values'''
         try:
@@ -23,48 +24,47 @@ class EnergyValueAdapter(Adapter):
         data[0:14] = obj['val']
         data[14:16] = obj['q']
         return int(data)
-    
+
     def _decode(self, int_val, context):
         data = bitfield(int_val)
-        retval = Container(val=data[0:14], q=data[14:16]) 
+        retval = Container(val=data[0:14], q=data[14:16])
         return retval
+
 
 class MaraDateTimeAdapter(Adapter):
     '''
     Mara bytes <--> datetime.datetime
     '''
     def _decode(self, obj, context):
-        return datetime(obj.year+2000, obj.month, obj.day, obj.hour, obj.minute, obj.second)
-    
+        return datetime(obj.year + 2000, obj.month, obj.day, obj.hour, obj.minute, obj.second)
+
     def _encode(self, obj, context):
-        return Container(year=obj.year-2000, month=obj.month, day=obj.day, 
+        return Container(year=obj.year - 2000, month=obj.month, day=obj.day,
                          hour=obj.hour, minute=obj.minute, second=obj.second)
-        
+
+
 class SubSecondAdapter(Adapter):
     '''Mara timestamp sub-second data is measured in 1/32 second steps,
     and its value is given by a counter which goes from 0 to 0x7FFF'''
 
-    FRACTIONS = 2**14
+    FRACTIONS = 2 ** 14
 
     def _encode(self, obj, context):
         return int(obj * self.FRACTIONS)
-    
+
     def _decode(self, obj, context):
         K = 1
-        return obj * K / float(self.FRACTIONS) 
-    
-    
+        return obj * K / float(self.FRACTIONS)
+
+
 class PEHAdapter(Adapter):
     def _decode(self, obj, context):
-        return datetime(obj.year+2000, obj.month, obj.day, obj.hour, obj.minute, obj.second)
-        
-    
-    
+        return datetime(obj.year + 2000, obj.month, obj.day, obj.hour, obj.minute, obj.second)
+
     def _encode(self, obj, context):
         '''bytes->datetime'''
-        return Container(year=obj.year-2000, month=obj.month, day=obj.day,
+        return Container(year=obj.year - 2000, month=obj.month, day=obj.day,
                          hour=obj.hour, minute=obj.minute, second=obj.second,
                          fsegh=0, fsegl=0,
-                         day_of_week = obj.weekday(),
+                         day_of_week=obj.weekday(),
                          )
-    
