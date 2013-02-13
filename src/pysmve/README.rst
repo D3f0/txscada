@@ -60,11 +60,20 @@ predador natural de la Mara_.
 Comandos
 ********
 
-- maraclient
+- poll
 
-	Inicia el cliente mara.
+	Inicia el cliente mara::
 
-- comaster_emu
+		python manage.py poll
+
+- server
+
+	Inicia el servidor de pruebas que intenta imitar el comportamiento de un CoMaster
+	con sus IEDs para prueba::
+
+		python manage.py server
+
+
 
 
 
