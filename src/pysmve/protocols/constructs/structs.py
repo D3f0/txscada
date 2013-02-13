@@ -90,32 +90,46 @@ DateTime = Struct('datetime',
 
 
 Event = Struct("event",
-                Embed(TCD),
-                Switch("evdetail", lambda ctx: ctx.evtype,
-                      {
-                      "DIGITAL": Embed(EPB),
-                      "ENERGY": Embed(CodeCan),
-                      "DIAG": Embed(CodeMotiv),
-                      }
-                ),
-
-                UBInt8('year'),
-                UBInt8('month'),
-                UBInt8('day'),
-                UBInt8('hour'),
-                UBInt8('minute'),
-
-                UBInt8('second'),
-
-                If(lambda ctx: ctx['evtype'] == "DIGITAL",
-                    # Embed(SubSecondAdapter(ULInt16('ticks'))),
-                    SubSecondAdapter(ULInt16('subsec'))
-                ),
-
-                If(lambda ctx: ctx.evtype == "ENERGY",
-                    EnergyValueAdapter(ULInt16('value')
-                ),
+    Embed(TCD),
+    Switch("evdetail", lambda ctx: ctx.evtype,
+        {
+            "DIGITAL": Embed(EPB),
+            "ENERGY":  Embed(CodeCan),
+            "IDLE":    Embed(CodeIdle),
+            "DIAG":    Embed(CodeMotiv),
+        }
     ),
+
+    UBInt8('year'),
+    UBInt8('month'),
+    UBInt8('day'),
+    UBInt8('hour'),
+    UBInt8('minute'),
+    UBInt8('second'),
+
+    Switch('_', lambda ctx: ctx.evtype,
+        {
+            'ENERGY': EnergyValueAdapter(ULInt16('value')),
+
+            #'DIGITAL': SubSecondAdapter(ULInt16('subsec')),
+            #'IDLE': SubSecondAdapter(ULInt16('subsec')),
+            #'DIAG': SubSecondAdapter(ULInt16('subsec')),
+
+        },
+        default=
+    )
+
+
+    # If(lambda ctx: ctx['evtype'] == "DIGITAL",
+    #     # Embed(SubSecondAdapter(ULInt16('ticks'))),
+    #     SubSecondAdapter(ULInt16('subsec'))
+    # ),
+
+    #If(lambda ctx: ctx.evtype == "ENERGY",
+    #    EnergyValueAdapter(ULInt16('value')),
+    #    # ELSE (DIGITAL, IDLE, DIAG)
+    #    SubSecondAdapter(ULInt16('subsec'))
+    #),
 )
 
 #===============================================================================
