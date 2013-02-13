@@ -4,7 +4,6 @@ import sys
 from os.path import abspath, dirname, join
 
 PROJECT_ROOT = dirname(abspath(__file__))
-print PROJECT_ROOT
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -76,6 +75,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    'static',
 )
 
 # List of finder classes that know how to find static files in
@@ -133,9 +133,10 @@ INSTALLED_APPS = (
     'django_extensions',
     'django_socketio',
     'debug_toolbar',
-    'django_nose', 
+    'django_nose',
 
     'mara',
+    'hmi',
 
     #'admin_bootstrap',
     'grappelli',
@@ -151,7 +152,7 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    
+
     'formatters': {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
@@ -219,10 +220,10 @@ DEBUG_TOOLBAR_CONFIG = {
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 NOSE_ARGS = [
-             #'--nologcapture', '--nocapture', 
+             #'--nologcapture', '--nocapture',
              '--with-id', '--logging-clear-handlers',
              '--with-progressive', '--progressive-function-color=1', '--progressive-bar-filled=2',
-             #'--with-noseprofhooks', 
+             #'--with-noseprofhooks',
              #'--cprofile-stats-erase',
              #'--cprofile-stats-file=stats.stats',
              #'--processes=8'

@@ -76,7 +76,11 @@ def draw_table(table=None, attributes = None, hide_columns = None, name = None):
 @app.route("/")
 #@stacktraceable
 def index():
-    return render_template("index.html")
+    """Renders index template"""
+    return render_template("index.html", **{
+        'tab_conexiones': True,
+        'tab_devel': True, 
+    })
 
 
 

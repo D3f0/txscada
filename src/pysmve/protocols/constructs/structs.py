@@ -5,7 +5,6 @@
 from construct import *
 from datetime import datetime
 from ..utils.checksum import make_cs_bigendian
-from ..utils.bitfield import bitfield
 from .. import constants
 from adapters import (EnergyValueAdapter,
                       MaraDateTimeAdapter,
@@ -17,16 +16,16 @@ from adapters import PEHAdapter
 #===============================================================================
 
 TCD = BitStruct('TCD',
-    Enum(
-         BitField("evtype", 2),
-            DIGITAL=0,
-            ENERGY=1,
-            #INVALID_2=2,
-            #INVALID_3=3
-    ),
-    BitField("q", 2),
-    BitField("addr485", 4),
-)
+                Enum(
+                BitField("evtype", 2),
+                DIGITAL=0,
+                ENERGY=1,
+                # INVALID_2=2,
+                # INVALID_3=3
+                ),
+                BitField("q", 2),
+                BitField("addr485", 4),
+                )
 
 #=========================================================================================
 # Old Bit Port Status
@@ -34,80 +33,79 @@ TCD = BitStruct('TCD',
 #=========================================================================================
 
 BPE = BitStruct('BPE',
-    BitField("bit", 4),
-    BitField("port", 3),
-    BitField("status", 1),
-)
+                BitField("bit", 4),
+                BitField("port", 3),
+                BitField("status", 1),
+                )
 
 EPB = BitStruct('BPE',
-    BitField("status", 1),
-    BitField("port", 3),
-    BitField("bit", 4),
-)
+                BitField("status", 1),
+                BitField("port", 3),
+                BitField("bit", 4),
+                )
 
 
 IdleCan = BitStruct('idlecan',
-    BitField('idle', 5),
-    BitField('channel', 3)
-)
+                    BitField('idle', 5),
+                    BitField('channel', 3)
+                    )
 
 CodeCan = BitStruct('codecan',
-    BitField('idle', 2),
-    BitField('code', 3),
-    BitField('channel', 3)
-)
+                    BitField('idle', 2),
+                    BitField('code', 3),
+                    BitField('channel', 3)
+                    )
 
 TimerTicks = Struct('ticks',
-    #UBInt8('cseg'),
-    #UBInt8('dmseg'),
-    ULInt16('ticks')
-)
+                    # UBInt8('cseg'),
+                    # UBInt8('dmseg'),
+                    ULInt16('ticks')
+                    )
 
 Value = BitStruct('val',
-    BitField('q', length=2,),
-    BitField('value', length=14,)
-)
+                  BitField('q', length=2,),
+                  BitField('value', length=14,)
+                  )
 
 
 DateTime = Struct('datetime',
-    UBInt8('year'),
-    UBInt8('month'),
-    UBInt8('day'),
-    UBInt8('hour'),
-    UBInt8('minute'),
-    UBInt8('second'),
-)
-
+                  UBInt8('year'),
+                  UBInt8('month'),
+                  UBInt8('day'),
+                  UBInt8('hour'),
+                  UBInt8('minute'),
+                  UBInt8('second'),
+                  )
 
 
 Event = Struct("event",
-    Embed(TCD),
-    Switch("evdetail", lambda ctx: ctx.evtype,
-           {
-            "DIGITAL": Embed(EPB),
-            "ENERGY":  Embed(IdleCan),
-            }
-    ),
+               Embed(TCD),
+               Switch("evdetail", lambda ctx: ctx.evtype,
+                      {
+                      "DIGITAL": Embed(EPB),
+                      "ENERGY": Embed(IdleCan),
+                      }
+                      ),
 
-    UBInt8('year'),
-    UBInt8('month'),
-    UBInt8('day'),
-    UBInt8('hour'),
-    UBInt8('minute'),
+               UBInt8('year'),
+               UBInt8('month'),
+               UBInt8('day'),
+               UBInt8('hour'),
+               UBInt8('minute'),
 
-    UBInt8('second'),
+               UBInt8('second'),
 
-    If(lambda ctx: ctx['evtype'] == "DIGITAL",
-       #Embed(SubSecondAdapter(ULInt16('ticks'))),
-       SubSecondAdapter(ULInt16('subsec'))
-    ),
+               If(lambda ctx: ctx['evtype'] == "DIGITAL",
+                  # Embed(SubSecondAdapter(ULInt16('ticks'))),
+                  SubSecondAdapter(ULInt16('subsec'))
+                  ),
 
-    If(lambda ctx: ctx.evtype == "ENERGY",
+               If(lambda ctx: ctx.evtype == "ENERGY",
        EnergyValueAdapter(ULInt16('value')),
     ),
 
 
-    #Switch("taildata", lambda ctx: ctx.evtype, {
+    # Switch("taildata", lambda ctx: ctx.evtype, {
     #    "DIGITAL": ULInt16('ticks'),
     #    #"ENERGY":  EnergyValueAdapter(ULInt16('copete')),
     #    "ENERGY":  ULInt16('value'),
@@ -145,6 +143,8 @@ Payload_PEH = Struct("peh",
 #===============================================================================
 # Paquete Mara 14.10
 #===============================================================================
+
+
 class BaseMaraStruct(Struct):
     def _parse(self, stream, context):
         # TODO: Check checksum
@@ -154,7 +154,7 @@ class BaseMaraStruct(Struct):
         '''Builds frame'''
         # This code ain't no pythonic, shall make it better some time...
         obj.setdefault('sof', constants.SOF)
-        obj.setdefault('length', 0) # Don't care right now
+        obj.setdefault('length', 0)  # Don't care right now
         obj.setdefault('bcc', 0)    # Don't care right now
         #=================================================================================
         # TODO: Don't rely on this payloads
@@ -162,18 +162,18 @@ class BaseMaraStruct(Struct):
         obj.setdefault('peh', None)
         obj.setdefault('payload_10', None)
 
-        super(BaseMaraStruct, self)._build(obj, stream, context) # stream is an I/O var
-        stream.seek(0, 2) # Go to end
-        length = stream.tell() # Get length
-        stream.seek(1) # Seek mara length position (second byte)
-        stream.write(ULInt8('length').build(length)) # Write length as ULInt8
-        stream.seek(0) # Back to the beginging
+        super(BaseMaraStruct, self)._build(obj, stream, context)  # stream is an I/O var
+        stream.seek(0, 2)  # Go to end
+        length = stream.tell()  # Get length
+        stream.seek(1)  # Seek mara length position (second byte)
+        stream.write(ULInt8('length').build(length))  # Write length as ULInt8
+        stream.seek(0)  # Back to the beginging
         data_to_checksum = stream.read(length - 2)
-        #print map(lambda c: "%.2x" % ord(c), data_to_checksum) 
-        #print stream.tell()
-        stream.truncate() # Discard old checksum
+        # print map(lambda c: "%.2x" % ord(c), data_to_checksum)
+        # print stream.tell()
+        stream.truncate()  # Discard old checksum
         cs = make_cs_bigendian(data_to_checksum)
-        stream.seek(length - 2) # Go to BCC position
+        stream.seek(length - 2)  # Go to BCC position
         stream.write(Array(2, ULInt8('foo')).build(cs))
 
     @classmethod
@@ -189,6 +189,7 @@ MaraFrame = BaseMaraStruct('Mara',
             ULInt8('source'),
             ULInt8('sequence'),
             ULInt8('command'),
+            #Probe(),
             If(lambda ctx: ctx.command == 0x10,
                Optional(Payload_10),
             ),
@@ -202,8 +203,9 @@ MaraFrame = BaseMaraStruct('Mara',
 def ints2buffer(hexstr):
     '''
     '''
-    parts = [ chr(an_int) for an_int in hexstr ]
+    parts = [chr(an_int) for an_int in hexstr]
     return ''.join(parts)
+
 
 def hexstr2buffer(a_str):
     '''
@@ -211,8 +213,9 @@ def hexstr2buffer(a_str):
     '''
     import re
     a_str = a_str.strip().replace('\n', ' ')
-    a_list = [ chr(int(bytestr, 16)) for bytestr in  re.split('[:\s]', a_str) if len(bytestr) ]
+    a_list = [chr(int(bytestr, 16)) for bytestr in re.split('[:\s]', a_str) if len(bytestr)]
     return ''.join(a_list)
+
 
 def any2buffer(data):
     if isinstance(data, list):
@@ -222,17 +225,18 @@ def any2buffer(data):
     raise Exception("%s can't be converted to string buffer")
 
 # Buffer -> Upper Human Readable Hex String
-upperhexstr = lambda buff: ' '.join([ ("%.2x" % ord(c)).upper() for c in buff])
-#aa
+upperhexstr = lambda buff: ' '.join([("%.2x" % ord(c)).upper() for c in buff])
+# aa
+
+
 def dtime2dict(dtime=None):
     '''
     Converts a datetime.datetime instance into
     a dictionary suitable for ENERGY event
     timestamp
     '''
-    import datetime
     if not dtime:
-        dtime = datetime.datetime.now()
+        dtime = datetime.now()
     d = {}
     d['year'] = dtime.year % 100
     d['month'] = dtime.month
@@ -257,11 +261,13 @@ def build_frame(obj, subcon=MaraFrame):
     cs_str = Array(2, Byte('cs')).build(cs)
     return "".join((data, cs_str))
 
+
 def parse_frame(buff, as_hex_string=False):
     if as_hex_string:
         buff = hexstr2buffer(buff)
     data = MaraFrame.parse(buff)
     return data
+
 
 def format_frame(buff, as_hex_string=False, show_header=True, show_bcc=True):
 
@@ -297,8 +303,7 @@ def format_frame(buff, as_hex_string=False, show_header=True, show_bcc=True):
                 print "PORT:", ev.port,
                 print "STATUS:", ev.status,
                 print "%d/%d/%d %2d:%.2d:%2.2f" % (ev.year + 2000, ev.month, ev.day, ev.hour, ev.minute, ev.second + ev.subsec)
-                #print "%.2f" % ev.subsec
-
+                # print "%.2f" % ev.subsec
 
             elif ev.evtype == "ENERGY":
                 print "\t",
@@ -315,7 +320,3 @@ def format_frame(buff, as_hex_string=False, show_header=True, show_bcc=True):
 
 
 int2str = lambda l: ''.join(map(chr, l))
-
-
-
-
