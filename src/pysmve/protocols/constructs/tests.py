@@ -203,3 +203,25 @@ class SampledDataTestCase(TestCase):
     def test_sampled_data(self):
         for n, sample in enumerate(self.FRAMES):
             MaraFrame.parse(any2buffer(sample))
+
+
+class TestEmbedingBranch(TestCase):
+
+    def setUp(self):
+        from construct import *
+
+        self.cons = Struct('foo',
+            Enum(Byte("a_enum"),
+                ALFA=1,
+                BETA=2
+                ),
+                Switch('switch', lambda ctx: ctx.a_enum, {
+                    'ALFA': Embed(Struct('struct_alfa', Byte('byte_alfa'))),
+                    'BETA': Embed(Struct('struct_beta', Byte('byte_beta'))),
+                })
+            )
+
+
+    def test_construct(self):
+        value = self.cons.parse('\x01\x03\xee\x33')
+        assert False
