@@ -2,41 +2,41 @@
 import operator
 from django.db import models
 from protocols import constants
-#from jsonfield import JSONField
-from datetime import datetime
+# from jsonfield import JSONField
+from datetime import datetime, time
+
 
 from django.db.models import signals
 
-# Create your models here.
-class Profile(models.Model):
-    # Name of the 
-    name = models.CharField(max_length=100)
-    enabled = models.BooleanField(default=True)
-    # Version, something relevant for the user
-    version = models.CharField(default='1', max_length=1)
-    # Date of creation
-    date = models.DateField(auto_now=True)
 
-    default = models.BooleanField(default=False)
+class Profile(models.Model):
+    name = models.CharField(max_length=80)
+    version = models.IntegerField(default=1)
+    default = models.BooleanField()
 
     def __unicode__(self):
-        return u"%s" % self.name
+        return "'%s' v.%s" % (self.name, self.version)
+
+    def clone(self):
+        '''Clone profile'''
+        raise NotImplementedError("Not implemented yet")
 
     class Meta:
-        unique_together = ('name',)
+        unique_together = (('name', 'version'))
 
     @classmethod
-    def check_default(cls, instance, **kwargs):
-        if instance.default:
-            if not instance.pk:
-                # New and default = True
+    def ensure_default(cls, instance, **kwargs):
+        '''Signal handler to ensure default profile'''
+        if not instance.pk:
+            if instance.default:
+                # New instance wants to be default
                 cls.objects.update(default=False)
-            else:    
-                cls.objects.exclude(pk=instance.pk).update(default=False)
-        elif cls.objects.all().count() == 0:
-            instance.default = True
+            else:
+                # Does not want to be default, the only one?
+                if cls.objects.count() == 0:
+                    instance.default = True
 
-signals.pre_save.connect(Profile.check_default, sender=Profile, )
+signals.pre_save.connect(Profile.ensure_default, sender=Profile)
 
 
 class COMaster(models.Model):
@@ -44,21 +44,38 @@ class COMaster(models.Model):
     A gateway with mara IEDs that also performs other
     tasks such time synchronization with slaves.
     '''
-    profile = models.ForeignKey(Profile, related_name='comasters')
+    profile = models.ForeignKey(Profile,
+        related_name='comasters')
     ip_address = models.IPAddressField()
     enabled = models.BooleanField(default=False)
     port = models.IntegerField(verbose_name="TCP port for connection",
                                default=constants.DEFAULT_COMASTER_PORT)
+    # ------------------------------------------------------------------------------------
+    # Timing values
+    # ------------------------------------------------------------------------------------
     poll_interval = models.FloatField(verbose_name="Poll interval in seconds",
                                       default=5)
+    exponential_backoff = models.BooleanField(default=False,
+        help_text="Make queries")
+
+    max_retry_before_offline = models.IntegerField(default=3)
+
     sequence = models.IntegerField(help_text=u"Current sequence number",
                                    default=0)
+
     rs485_source = models.SmallIntegerField(
-                                            default=0,
-                                            help_text='RS485 source address'
-                                            )
+        default=0,
+        help_text='RS485 source address'
+    )
     rs485_destination = models.SmallIntegerField(default=0)
 
+    process_pid = models.IntegerField(blank=True, null=True,
+        default=None,
+        editable=False,
+        help_text="PID del proceso que se encuentra utilizando el proceso")
+
+    peh_time = models.TimeField(default=time(1,0,0),
+        help_text="Tiempo entre puesta en hora")
 
     @property
     def dis(self):
@@ -86,6 +103,7 @@ class COMaster(models.Model):
         verbose_name = "CO Master"
         verbose_name_plural = "CO Masters"
 
+
 class IED(models.Model):
     '''
     Inteligent Electronic Device.
@@ -103,12 +121,12 @@ class IED(models.Model):
         unique_together = ('co_master', 'rs485_address')
         ordering = ('offset',)
 
-
     def create_dis(self, ports, bit_width=16):
         for port in range(0, ports):
             for bit in range(0, bit_width):
                 param = "D%.2d" % ((port * self.PORT_WIDTH) + bit)
                 self.ied_set.create(port=port, bit=bit, param=param)
+
 
 class Unit(models.Model):
     '''
@@ -119,6 +137,7 @@ class Unit(models.Model):
 
     def __unicode__(self):
         return self.name
+
 
 class MV(models.Model):
     '''
@@ -157,8 +176,8 @@ class SV(MV):
     System variable
     '''
     SV_WIDTHS = (
-                 (8, '8'),
-                 (16, '16')
+        (8, '8'),
+        (16, '16')
     )
     unit = models.ForeignKey(Unit)
     width = models.IntegerField(choices=SV_WIDTHS)
@@ -170,6 +189,7 @@ class SV(MV):
         verbose_name_plural = "System Variables"
         # Default ordering
         ordering = ('ied__offset', 'offset')
+
 
 class DI(MV):
     '''
@@ -188,6 +208,20 @@ class DI(MV):
         unique_together = ('offset', 'ied', 'port', 'bit')
         verbose_name = "Digital Input"
         verbose_name_plural = "Digital Inputs"
+
+
+class GenericEvent(models.Model):
+    """Clase genérica que agrupa a todos los eventos
+    """
+    timestamp = models.DateTimeField()
+
+    def descripcion(self):
+        '''Retorna la descripción'''
+        return None
+
+    class Meta:
+        abstract = True
+
 
 class Event(models.Model):
     '''
@@ -211,7 +245,7 @@ class AI(MV):
     rel_ti = models.FloatField(db_column="relti", default=1)
     rel_33_13 = models.FloatField(db_column="rel33-13", default=1)
     q = models.IntegerField(db_column="calif", default=0)
-    value = models.SmallIntegerField(default= -1)
+    value = models.SmallIntegerField(default=-1)
 
     class Meta:
         unique_together = ('offset', 'ied',)
@@ -220,19 +254,20 @@ class AI(MV):
 
     def human_value(self):
         values = [self.multip_asm,
-            self.divider,
-            self.rel_tv,
-            self.rel_ti,
-            self.rel_33_13,
-            self.value
-        ]
+                  self.divider,
+                  self.rel_tv,
+                  self.rel_ti,
+                  self.rel_33_13,
+                  self.value
+                  ]
         return "%.2f %s" % (reduce(operator.mul, values), self.unit)
 
+
 class EnergyPoint(MV):
-    #ied = models.ForeignKey(IED)
-    #offset = models.IntegerField()
-    #param = models.CharField()
-    #description = models.CharField()
+    # ied = models.ForeignKey(IED)
+    # offset = models.IntegerField()
+    # param = models.CharField()
+    # description = models.CharField()
     channel = models.IntegerField(default=0)
     unit = models.ForeignKey(Unit)
     ke = models.FloatField(default=0.025)
@@ -244,6 +279,7 @@ class EnergyPoint(MV):
     def __unicode__(self):
         return "%s %s %s" % (self.description, self.ied.rs485_address, self.param)
 
+
 class Energy(models.Model):
     '''
     Energy Measure. Every day has 96 energy values taken from the energy meter
@@ -252,7 +288,6 @@ class Energy(models.Model):
     timestamp = models.DateTimeField()
     value = models.IntegerField()
     q = models.IntegerField(verbose_name="Quality")
-
 
     class Meta:
         verbose_name = "Energy Measure"
@@ -275,5 +310,3 @@ class Energy(models.Model):
 
 #     def __unicode__(self):
 #         return "Data Log %s" % (self.raw_buff[:30])
-
-
