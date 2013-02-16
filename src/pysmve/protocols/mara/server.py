@@ -8,8 +8,9 @@ from ..constructs import (MaraFrame, )
 # from protocols.constants import MAX_SEQ, MIN_SEQ
 # from twisted.internet.task import LoopingCall
 # from twisted.internet.threads import deferToThread
-# from datetime import datetime
 # from ..utils.bitfield import bitfield
+from protocols.constructs import Event
+from datetime import datetime
 from ..constructs import upperhexstr, dtime2dict
 from copy import copy
 import random
@@ -114,17 +115,23 @@ class MaraServer(protocol.Protocol):
     def createDigitalEvents(self, qty=1, ports=3, port_width=16):
         output = []
         for i in range(qty):
-            output.append(
-                Container(evtype="DIGITAL",
-                          q=0,
-                          value=None,
-                          addr485=4,
-                          bit=random.randrange(0, 1),
-                          port=random.randrange(0, ports),
-                          status=0,
-                          **dtime2dict()
+
+            ev_data = Container(
+                            evtype="DIGITAL",
+                            q=0,
+                            addr485=4,
+                            bit=random.randrange(0, 1),
+                            port=random.randrange(0, ports),
+                            status=0,
+                            timestamp=datetime.now()
                           )
-            )
+            try:
+                Event.build(ev_data)
+            except Exception, e:
+                print "Error construyendo evento", e
+            else:
+                print "OK"
+                output.append(ev_data)
         return output
 
 

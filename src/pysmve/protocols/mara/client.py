@@ -51,7 +51,7 @@ class MaraClientProtocol(protocol.Protocol):
         self.peh_timer.start(interval=self.factory.comaster.poll_interval * 0.5, now=False)
 
         reactor.callLater(0.1, self.pehTimerEvent)
-        
+
         self.dataLogger = self.getDataLogger()
         self.logger = self.getLogger()
 
@@ -106,7 +106,7 @@ class MaraClientProtocol(protocol.Protocol):
         self.transport.write(frame)
         self.state = 'RESPONSE_WAIT'
         self.pending += 1
-    
+
     def logPackage(self, package):
         pass
 
@@ -135,9 +135,9 @@ class MaraClientProtocol(protocol.Protocol):
             # FIXME: Checkear que la secuencia sea == a self.output.sequence
             self.logger.debug("Message OK")
             seq = self.incrementSequenceNumber()
-            
+
             self.pending = 0
-            
+
             deferToThread(self.saveInDatabase)
 
             print self.transport.addr, format_buffer(data)
@@ -269,7 +269,7 @@ class MaraClientDBUpdater(MaraClientProtocol):
             ai.update_value(value, timestamp=timestamp)
             ai_count += 1
 
-        variable_widths = [ v['width'] for v in comaster.svs.values('width') ] 
+        variable_widths = [ v['width'] for v in comaster.svs.values('width') ]
         print variable_widths, len(variable_widths)
         for value, sv in zip(worditer(payload.varsys, variable_widths), self.factory.comaster.svs):
             sv.update_value(value, timestamp=timestamp)
@@ -303,18 +303,23 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
         #logger.warn("Connection failed: %s" % reason)
         print "Connection failed: %s" % reason
         if self.reconnect:
-            connector.connect()
-            print "Restarting"
+            reactor.callLater(5, self.restart_connector, connector=connector)
         else:
             reactor.stop()
 
     def clientConnectionLost(self, connector, reason):
         from twisted.internet import error
         self.logger.warn("Connection lost: %s" % reason)
-        if reason.type == error.ConnectionLost:
-            return
+        print "Connection lost: %s. Restarting..." % reason
+        # if reason.type == error.ConnectionLost:
+        #     return
         if self.reconnect:
-            print "Connection lost: %s. Restarting..." % reason
-            connector.connect()
+            print "Recconnection in 5"
+            reactor.callLater(5, self.restart_connector, connector=connector)
         else:
             reactor.stop()
+
+    def restart_connector(self, connector):
+        print "Reconnecting"
+        connector.connect()
+
