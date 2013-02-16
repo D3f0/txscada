@@ -2,7 +2,7 @@
 
 from construct import Container
 from unittest import TestCase
-from ..structs import Event, container_to_datetime
+from ..structs import MaraFrame, Event, container_to_datetime
 from datetime import datetime
 
 
@@ -85,3 +85,27 @@ class EventTestCase(DateTimeComparisionTestCase):
         s = Event.parse(r)
         self.assertEqual(s.code, code)
         self.assertEqual(s.motiv, motiv)
+
+
+    def test_command_10_with_events(self):
+        data = Container(
+            sof=0xFE,
+            length=0,
+            dest=1,
+            source=2,
+            sequence=0x33,
+            command=0x10,
+            payload_10=Container(
+                    canvarsys=2,
+                    varsys=[33],
+                    candis=0,
+                    dis=[],
+                    canais=0,
+                    ais=[],
+                    canevs=1,
+                    event=[]
+                )
+            )
+        stream = MaraFrame.build(data)
+
+        assert False

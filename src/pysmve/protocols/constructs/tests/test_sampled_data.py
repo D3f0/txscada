@@ -79,5 +79,6 @@ class SampledDataTestCase(TestCase):
 
     def test_sampled_data(self):
         for n, sample in enumerate(self.FRAMES):
-            MaraFrame.parse(any2buffer(sample))
-
+            parsed = MaraFrame.parse(any2buffer(sample))
+            #if n == 2:
+            #    assert False
