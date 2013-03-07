@@ -5,6 +5,7 @@ from ..structs import MaraFrame, TCD, any2buffer, Payload_10
 from construct import Container
 from ...constants import SOF
 from copy import copy
+from datetime import datetime
 
 
 class ConstructTestCase(TestCase):
@@ -35,14 +36,22 @@ class ConstructTestCase(TestCase):
         self.assertEqual(s.q, 1)
         self.assertEqual(s.addr485, 1)
 
-
     def test_build_payload_10(self):
         s = Payload_10.build(self.base_payload)
         self.assertEqual(len(s), 4, "No se pude generar el payload nulo."
             "Sin DI, AI, VarSys ni eventos")
 
     def test_build_payload_10_with_energy_event(self):
-        payload = copy(payload)  # Make a copy
-        event = Event.build(
-            evtype=
+        '''Test energy energy to a payload with events'''
+        event_size = 10  # Bytes
+        payload = copy(self.base_payload)  # Make a copy
+        event = Container(
+            evtype="ENERGY", q=0, addr485=1,
+            idle=0, code=0, channel=0,
+            value=1 << 17,
+            timestamp=datetime(2012, 1, 1, 12, 30)
         )
+        payload.event.append(event)
+        payload.canevs = event_size + 1
+        s = Payload_10.build(payload)
+        self.assertGreater(len(s), 8)
