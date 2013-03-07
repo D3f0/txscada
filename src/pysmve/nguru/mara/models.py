@@ -240,7 +240,7 @@ class AI(MV):
     '''
     unit = models.ForeignKey(Unit)
     multip_asm = models.FloatField(default=1.09)
-    divider = models.FloatField(default=1)
+    c_factor = models.FloatField(default=1)
     rel_tv = models.FloatField(db_column="reltv", default=1)
     rel_ti = models.FloatField(db_column="relti", default=1)
     rel_33_13 = models.FloatField(db_column="rel33-13", default=1)
