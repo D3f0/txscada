@@ -199,14 +199,6 @@ LOGGING = {
     }
 }
 
-try:
-    from local_settings import *
-except ImportError as error:
-    print("Error loading local_settings.py: %s" % error)
-
-# Monkey patch local path
-if DEBUG:
-    sys.path.append(join(PROJECT_ROOT, '..', '..',))
 
 #=========================================================================================
 # Debug Toolbar
