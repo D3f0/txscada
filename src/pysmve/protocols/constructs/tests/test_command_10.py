@@ -41,17 +41,33 @@ class ConstructTestCase(TestCase):
         self.assertEqual(len(s), 4, "No se pude generar el payload nulo."
             "Sin DI, AI, VarSys ni eventos")
 
-    def test_build_payload_10_with_energy_event(self):
-        '''Test energy energy to a payload with events'''
-        event_size = 10  # Bytes
-        payload = copy(self.base_payload)  # Make a copy
+
+    def _build_energy_event_container(self, **kwargs):
         event = Container(
             evtype="ENERGY", q=0, addr485=1,
             idle=0, code=0, channel=0,
             value=1 << 17,
-            timestamp=datetime(2012, 1, 1, 12, 30)
+            timestamp=datetime(2012, 1, 1, 12, 30, 12)
         )
+        event.update(kwargs)
+        return event
+
+    def test_build_payload_10_with_energy_event(self):
+        '''Test energy energy to a payload with events'''
+        event_size = 10  # Bytes
+        payload = copy(self.base_payload)  # Make a copy
+        event = self._build_energy_event_container()
+        # Update event count
         payload.event.append(event)
         payload.canevs = event_size + 1
+        # Build payload
         s = Payload_10.build(payload)
         self.assertGreater(len(s), 8)
+        # Back to container
+        r = Payload_10.parse(s)
+        self.assertEqual(len(r.event), 1)
+        # Test if all values are the same
+        for key, value in event.iteritems():
+
+            self.assertEqual(value, event[key], "Payload should not be mangled in "
+                                                    "construct")
