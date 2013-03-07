@@ -6,7 +6,8 @@ Generate intial dabtase entities based on mara XLS file
 from django.core.management.base import NoArgsCommand, CommandError
 from optparse import make_option
 
-DI_DESCRIPTION = '''Tension ALTA Bateria
+DI_DESCRIPTION =\
+'''Tension ALTA Bateria
 Tension BAJA Bateria
 Int Campo 1
 Int Campo 2
@@ -52,6 +53,7 @@ EXCEL_CONFIG = (
                     (4, 6, 2, 4, 5),
 
 )
+
 
 PORT_WIDTH = 16 # 16 bits per port
 
@@ -131,7 +133,10 @@ class Command(NoArgsCommand):
                     ied.ai_set.create(param='V',
                                       description='Tensión de Barra 33KV',
                                       offset=0,
-                                      unit=kv)
+                                      unit=kv,
+                                      multip_asm=1,
+                                      c_factor=1, rel_tv=1, rel_ti=0,
+                                      rel_33_13=2.5, )
                     # DIs
                     for port in range(candis / 2):
                         for bit in range(0, PORT_WIDTH):

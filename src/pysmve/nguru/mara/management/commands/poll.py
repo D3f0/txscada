@@ -34,13 +34,14 @@ class Command(NoArgsCommand):
 
         for comaster in profile.comasters.filter(enabled=True):
             print "Conectando con %s" % comaster
-            reactor.connectTCP(comaster.ip_address,
-                               comaster.port,
-                               MaraClientProtocolFactory(
-                               comaster,
-                               reconnect=options.get('reconnect')
-                               ),
+            client_fatory = MaraClientProtocolFactory(
+                                comaster,
+                                reconnect=options.get('reconnect')
+                            )
+            reactor.connectTCP(host=comaster.ip_address,
+                               port=comaster.port,
+                               factory=client_fatory,
                                timeout=comaster.poll_interval,
                                )
             # Una vez que está conectado todo, debemos funcionar...
-        reactor.run()  # @UndefinedVariable
+        reactor.run()
