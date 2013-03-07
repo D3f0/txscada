@@ -4,7 +4,7 @@ Flask==0.8
 Jinja2==2.6
 Pygments==1.6
 South==0.7.6
-Twisted==12.0.0
+Twisted==12.3.0
 Werkzeug==0.8.3
 bitarray==0.8.0
 bitstring==3.0.2
@@ -15,7 +15,7 @@ cElementTree==1.0.5-20051216
 -e git+https://github.com/construct/construct.git@63b966c871e608350f0d2733076e25f46b68412f#egg=construct-dev
 cssselect==0.7.1
 cyclone==1.0-rc15
-distribute==0.6.28
+distribute==0.6.35
 django-debug-toolbar==0.9.4
 django-extensions==1.0.2
 django-grappelli==2.4.3
@@ -43,7 +43,8 @@ pygraphviz==1.1
 pyparsing==1.5.6
 pyquery==1.2.4
 pyrepl==0.8.4
-pyzmq==2.2.0
+pytz==2012j
+pyzmq==13.0.0
 -e git+https://github.com/ghtdak/qtreactor.git@82ec1802f04fbe54527884a55dafc859cd997c49#egg=qt4reactor-dev
 restview==1.2.2
 simplejson==2.6.2
@@ -51,7 +52,8 @@ six==1.2.0
 sockjs-cyclone==0.0.2
 sphinx-me==0.1.2
 ssh==1.7.14
-txZMQ==0.5.0
+-e git+https://github.com/D3f0/txZMQ.git@54391e5f6685913c8f2b8219f1ad784a187b89c3#egg=txZMQ-dev
+txsockjs==1.0.0
 wmctrl==0.1
 wsgiref==0.1.2
-zope.interface==3.8.0
+zope.interface==4.0.5
