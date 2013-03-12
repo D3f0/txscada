@@ -24,4 +24,8 @@ urlpatterns = patterns('',
 # Mara application
 #=========================================================================================
     ('^mara/', include('mara.urls')),
+
+    url('^sockjsdemo/', 'django.views.generic.simple.direct_to_template', {
+            'template': 'websocket-demo.html'
+        }, name='websocket_demo'),
 )
