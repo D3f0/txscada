@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Prueba de Web Sockets con SockJS{%endblock%}
+
+{% block content %}
+    <h1>Prueba de websockets</h1>
+    <hr/>
+    <div class="row">
+        <div class="span4">
+            <h2>SockJS</h2>
+            <p>
+                SockJS es una abstracción sobre WebScokets, que prove una solución
+                cross-browser para el envío ascrónico de mensajes entre ambas partes.
+            </p>
+        </div>
+        <div class="span7">
+            <h2>Cómo probar esta demo</h2>
+            <p>
+                Debe estar en ejeucción el comando <code>socketserver</code>
+                y enviar datos desde algún comando de prueba.
+                <hr>
+                <input type="text" id="id_echo"> <br><button class="btn" id="btn_echo">Echo</button>
+            </p>
+        </div>
+    </div>
+    </p>
+    <h3>Datos enviados de manera asícrona desde el servidor</h3>
+    <p style="text-align: center;">
+        <textarea name="" id="output" cols="80" rows="10" style="width: 80%;"
+        readonly="readonly"></textarea>
+    </p>
+{% endblock content %}
+
+
+{% block endscripts %}
+    <script src="{{ STATIC_URL }}sockjs/sockjs-0.3.js"></script>
+    <script>
+        (function (){
+            var $output = $('#output');
+            function onMessage(e){
+                var data = JSON.parse(e.data);
+                $output.text(e.data);
+            }
+            var sockjs_url = 'http://localhost:8888';
+            try {
+                sockjs = new SockJS(sockjs_url);
+                sockjs.onmessage = onMessage;
+            } catch (e) {
+                console.error("Fuu")
+            }
+            var $echo_text = $('#id_echo');
+
+            $('#btn_echo').click(function(){
+
+                var text = $echo_text.val();
+                if (!text.length) {
+                    return;
+                }
+                sockjs.send(JSON.stringify({type: "echo", data: text}));
+            })
+        })();
+
+    </script>
+{% endblock endscripts %}
+
