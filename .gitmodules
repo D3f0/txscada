@@ -4,3 +4,6 @@
 [submodule "src/pysmve/nguru/static/pretty-json"]
 	path = src/pysmve/nguru/static/pretty-json
 	url = https://github.com/warfares/pretty-json.git
+[submodule "src/pysmve/nguru/static/slickgrid"]
+	path = src/pysmve/nguru/static/slickgrid
+	url = https://github.com/mleibman/SlickGrid.git
