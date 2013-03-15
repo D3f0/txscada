@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<a class="btn" href="/">&laquo; Inicio</a>
+<div id="tabs">
+    <ul>
+        <li><a href="#mimic-tab-1">Tiempo Real</a></li>
+        <li><a href="#mimic-tab-2">Alarmas</a></li>
+        <li><a href="#mimic-tab-3">Configuración</a></li>
+    </ul>
+    <div id="mimic-tab-1">a</div>
+    <div id="mimic-tab-2">b</div>
+    <div id="mimic-tab-3">c</div>
+
+</div>
+{% endblock content %}
+
+{% block endscripts %}
+    <script>
+        (function ($){
+            $(function (){
+                $("body").animate({ 'padding-top': 0}, 'slow');
+                $('#tabs').tabs();
+                $('.navbar-fixed-top').slideUp('slow');
+            });
+        })(jQuery)
+    </script>
+{% endblock endscripts %}

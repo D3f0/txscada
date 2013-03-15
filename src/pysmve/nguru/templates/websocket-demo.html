@@ -36,18 +36,43 @@
     <script src="{{ STATIC_URL }}sockjs/sockjs-0.3.js"></script>
     <script>
         (function (){
+
+            var sockjs_url = 'http://localhost:8888';
+            var reconnect = true;
+            var sockjs;
+
             var $output = $('#output');
-            function onMessage(e){
+
+            function onWSMessage(e){
                 var data = JSON.parse(e.data);
                 $output.text(e.data);
             }
-            var sockjs_url = 'http://localhost:8888';
-            try {
-                sockjs = new SockJS(sockjs_url);
-                sockjs.onmessage = onMessage;
-            } catch (e) {
-                console.error("Fuu")
+
+            function onWSClose (e) {
+                console.error("Desconexión a las ", new Date());
+                if (reconnect) {
+                    console.debug("Conectando...")
+                    window.setTimeout(connectSockJS, 500);
+                }
             }
+
+            function onWSConnect (e) {
+                console.debug("Conectado", new Date());
+            }
+
+            function onWSError (e) {
+                console.error("Error", e);
+
+            }
+            function connectSockJS() {
+                sockjs = new SockJS(sockjs_url);
+                sockjs.onopen = onWSConnect;
+                sockjs.onmessage = onWSMessage;
+                sockjs.onclose = onWSClose;
+            }
+
+            connectSockJS();
+
             var $echo_text = $('#id_echo');
 
             $('#btn_echo').click(function(){
