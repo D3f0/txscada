@@ -3,7 +3,8 @@
 import sys
 from os.path import abspath, dirname, join
 
-PROJECT_ROOT = dirname(abspath(__file__))
+SETTINGS_PATH = dirname(__file__)  # Settings es un modulo
+PROJECT_ROOT = abspath(join(SETTINGS_PATH, '../..'))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -96,6 +97,9 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+
+
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -116,7 +120,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    'templates',
+    join(PROJECT_ROOT, 'templates'),
 )
 
 INSTALLED_APPS = (
