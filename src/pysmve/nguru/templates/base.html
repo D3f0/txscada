@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -10,7 +11,7 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
 
-        <link rel="stylesheet" href="{{ STATIC_URL }}jquery-ui-bootstrap/assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{% static "jquery-ui-bootstrap/assets/css/bootstrap.min.css" %}">
         <style>
             body {
                 padding-top: 60px;
@@ -18,11 +19,12 @@
             }
         </style>
         <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.min.css">
-        <link rel="stylesheet" type="text/css"
+        <link rel="stylesheet" type="text/css" href="{% static "jquery-ui-bootstrap/css/custom-theme/jquery-ui-1.9.2.custom.css" %}">
+        <script src="{% static "initializr/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js" %}"></script>
 
-        href="{{ STATIC_URL}}jquery-ui-bootstrap/css/custom-theme/jquery-ui-1.9.2.custom.css">
+        {% block extraheader %}
 
-        <script src="{{ STATIC_URL }}initializr/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+        {% endblock extraheader %}
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -73,7 +75,7 @@
             <div class="hero-unit">
                 <h1>Sistema de Medición de Variables Eléctricas</h1>
                 <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-                <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+                <p><a class="btn btn-primary btn-large">Documentación &raquo;</a></p>
             </div>
 
             <!-- Example row of columns -->
@@ -96,19 +98,24 @@
             </div-->
 
             <hr>
-            {% endblock %}
+            {% endblock content %}
             <footer>
-                <p>Ngürü</p>
+                <p>Sistema de Medición de Variables</p>
             </footer>
 
         </div> <!-- /container -->
 
-        <script src="{{STATIC_URL}}jquery-ui-bootstrap/assets/js/jquery-1.9.0.min.js"></script>
-        <script src="{{STATIC_URL}}jquery-ui-bootstrap/assets/js/bootstrap.min.js"></script>
-        <script src="{{STATIC_URL}}jquery-ui-bootstrap/assets/js/holder.js"></script>
-        <script src="{{STATIC_URL}}jquery-ui-bootstrap/assets/js/jquery-ui-1.10.0.custom.min.js"></script>
+        {% comment %}
+        # ================================================================================
+        jQuery, jQueryUI, Bootstrap Widgets, Clident side Image placeholder
+        # ================================================================================
+        {% endcomment %}
+        <script src="{% static "jquery-ui-bootstrap/assets/js/jquery-1.9.0.min.js" %}"></script>
+        <script src="{% static "jquery-ui-bootstrap/assets/js/bootstrap.min.js" %}"></script>
+        <script src="{% static "jquery-ui-bootstrap/assets/js/holder.js" %}"></script>
+        <script src="{% static "jquery-ui-bootstrap/assets/js/jquery-ui-1.10.0.custom.min.js" %}"></script>
 
         {% block endscripts %}
-        {% endblock %} {# endscripts #}
+        {% endblock endscripts %}
     </body>
 </html>
