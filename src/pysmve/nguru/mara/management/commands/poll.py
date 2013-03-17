@@ -5,7 +5,7 @@ from mara.models import Profile
 from twisted.internet import reactor
 from optparse import make_option
 from protocols.mara.client import MaraClientProtocolFactory, MaraClientDBUpdater
-
+import logging
 
 class Command(NoArgsCommand):
     option_list = NoArgsCommand.option_list + (
@@ -25,6 +25,8 @@ class Command(NoArgsCommand):
                 raise CommandError("Profile named %s does not exist" % name)
 
     def handle_noargs(self, **options):
+        self.logger = logging.getLogger('commands')
+
 
         profile = self.get_profile(options.get('profile'))
 
@@ -33,7 +35,7 @@ class Command(NoArgsCommand):
         MaraClientProtocolFactory.protocol = MaraClientDBUpdater
 
         for comaster in profile.comasters.filter(enabled=True):
-            print "Conectando con %s" % comaster
+            self.logger.debug("Conectando con %s" % comaster)
             client_fatory = MaraClientProtocolFactory(
                                 comaster,
                                 reconnect=options.get('reconnect')
