@@ -1,6 +1,8 @@
 # encoding: utf-8
 from django.conf.urls import patterns, include, url
 
+from django.conf import settings
+
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
@@ -32,3 +34,10 @@ urlpatterns = patterns('',
     (r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', site.urls),
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        (r'^(?P<template>.*)/?$', 'django.views.generic.simple.direct_to_template', ),
+    )
+# from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+# urlpatterns += staticfiles_urlpatterns()
