@@ -7,7 +7,9 @@ from django.conf import settings
 # from django.contrib import admin
 # admin.autodiscover()
 
-from mara.admin import site
+from apps.mara.admin import site
+from apps.api.resources import api
+
 urlpatterns = patterns('',
     #=========================================================================================
     # Index
@@ -19,8 +21,9 @@ urlpatterns = patterns('',
     #=========================================================================================
     # Mara application
     #=========================================================================================
-    ('^mara/', include('mara.urls')),
-    ('^hmi/', include('hmi.urls')),
+    ('^mara/', include('apps.mara.urls')),
+    ('^hmi/', include('apps.hmi.urls')),
+    ('^api/', include(api.urls)),
 
     #=========================================================================================
     # Mapeo directo a templates
@@ -35,7 +38,7 @@ urlpatterns = patterns('',
     url(r'^admin/', site.urls),
 )
 
-if settings.DEBUG:
+if settings.DEBUG and False:
     urlpatterns += patterns('',
         (r'^(?P<template>.*)/?$', 'django.views.generic.simple.direct_to_template', ),
     )

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extraheader %}
-<link rel="stylesheet" href="{% static "slickgrid/slick.grid.css"%}" type="text/css"/>
+
 {% endblock %}
 
 
@@ -28,11 +28,7 @@
 {% block endscripts %}
 
     <!-- Includes SlickGrid -->
-    <script src="{% static "slickgrid/lib/jquery.event.drag-2.0.min.js" %}"></script>
-    <script src="{% static "slickgrid/slick.core.js" %}"></script>
-    <script src="{% static "slickgrid/slick.grid.js" %}"></script>
 
-    <script src="{% static "hmi/js/grid_eventos.js" %}"></script>
 
     <script>
         (function ($){
@@ -42,7 +38,7 @@
                   activate: function (event, ui){
 
                     if (ui.newPanel.attr('id') == 'mimic-tab-2') {
-                        SMVE.crearGrillaEventos('#grid-eventos');
+                        // SMVE.crearGrillaEventos('#grid-eventos');
                     }
                     console.log($(this).attr('id'));
                     console.log("Cambio", event, ui, this);
@@ -50,11 +46,7 @@
                 });
                 $('.navbar-fixed-top').slideUp('slow');
 
-                $('.ui-widget-overlay').live('click', function (event){
 
-                    event.preventDefault();
-
-                });
             });
 
 

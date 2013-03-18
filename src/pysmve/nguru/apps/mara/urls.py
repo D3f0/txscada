@@ -6,6 +6,6 @@ urlpatterns = patterns('',
 
     # Análisis de tramas mara
     url(r'mara_frame_analizer',
-        'mara.views.mara_frame_analizer',
+        'apps.mara.views.mara_frame_analizer',
         name='mara_frame_analizer'),
 )

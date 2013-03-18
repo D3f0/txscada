@@ -137,8 +137,9 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'django_nose',
 
-    'mara',
-    'hmi',
+    'apps.mara',
+    'apps.hmi',
+    'apps.api',
 
     #'admin_bootstrap',
     'grappelli',

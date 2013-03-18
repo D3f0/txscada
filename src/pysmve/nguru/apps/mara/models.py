@@ -229,7 +229,6 @@ class Event(models.Model):
     '''
     di = models.ForeignKey(DI)
     timestamp = models.DateTimeField()
-    subsecond = models.FloatField()
     q = models.IntegerField()
     value = models.IntegerField()
 

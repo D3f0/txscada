@@ -112,9 +112,10 @@ def sockjs_server(**options):
     factory = protocol.ServerFactory()
     factory.protocol = SockJSProtocol
     reactor.listenTCP(8888, SockJSFactory(factory, options))
-
-    reactor.run()
-    print "Closing bridge"
+    try:
+        reactor.run()
+    except error.ReactorNotRunning:
+        print "Closing bridge"
 
 
 class Command(NoArgsCommand):

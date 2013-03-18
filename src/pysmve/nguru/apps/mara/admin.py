@@ -3,7 +3,7 @@
 from django.contrib import admin
 
 from models import COMaster, IED, Unit, SV, DI, AI, Event, EnergyPoint, Energy
-from hmi.models import SVGScreen
+from apps.hmi.models import SVGScreen
 
 
 site = admin.AdminSite('mara')

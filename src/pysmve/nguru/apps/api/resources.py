@@ -1,0 +1,109 @@
+
+from tastypie.api import Api
+from tastypie.resources import ModelResource
+
+from apps.mara.models import (Profile, COMaster, IED, Unit, SV, DI, AI, Energy,
+                              EnergyPoint, Event)
+from apps.hmi.models import SVGScreen
+
+
+class ProfileResource(ModelResource):
+    """REST resource for Profile"""
+    class Meta:
+        resource_name = 'profile'
+        queryset = Profile.objects.all()
+        allowed_methods = ['get', ]
+
+
+class COMasterResource(ModelResource):
+    """REST resource for COMaster"""
+    class Meta:
+        resource_name = 'comaster'
+        queryset = COMaster.objects.all()
+        allowed_methods = ['get', ]
+
+
+class IEDResource(ModelResource):
+    """REST resource for IED"""
+    class Meta:
+        resource_name = 'ied'
+        queryset = IED.objects.all()
+        allowed_methods = ['get', ]
+
+
+class UnitResource(ModelResource):
+    """REST resource for Unit"""
+    class Meta:
+        resource_name = 'unit'
+        queryset = Unit.objects.all()
+        allowed_methods = ['get', ]
+
+
+class SVResource(ModelResource):
+    """REST resource for SV"""
+    class Meta:
+        resource_name = 'sv'
+        queryset = SV.objects.all()
+        allowed_methods = ['get', ]
+
+
+class DIResource(ModelResource):
+    """REST resource for DI"""
+    class Meta:
+        resource_name = 'di'
+        queryset = DI.objects.all()
+        allowed_methods = ['get', ]
+
+
+class EventResource(ModelResource):
+    """REST resource for Event"""
+    class Meta:
+        resource_name = 'event'
+        queryset = Event.objects.all()
+        allowed_methods = ['get', ]
+
+
+class AIResource(ModelResource):
+    """REST resource for AI"""
+    class Meta:
+        resource_name = 'ai'
+        queryset = AI.objects.all()
+        allowed_methods = ['get', ]
+
+
+class EnergyPointResource(ModelResource):
+    """REST resource for EnergyPoint"""
+    class Meta:
+        resource_name = 'energypoint'
+        queryset = EnergyPoint.objects.all()
+        allowed_methods = ['get', ]
+
+
+class EnergyResource(ModelResource):
+    """REST resource for Energy"""
+    class Meta:
+        resource_name = 'energy'
+        queryset = Energy.objects.all()
+        allowed_methods = ['get', ]
+
+
+class SVGScreenResource(ModelResource):
+    """REST resource for SVGScreen"""
+    class Meta:
+        resource_name = 'svgscreen'
+        queryset = SVGScreen.objects.all()
+        allowed_methods = ['get', ]
+
+api = Api(api_name='v1')
+
+api.register(ProfileResource())
+api.register(COMasterResource())
+api.register(IEDResource())
+api.register(UnitResource())
+api.register(SVResource())
+api.register(DIResource())
+api.register(EventResource())
+api.register(AIResource())
+api.register(EnergyPointResource())
+api.register(EnergyResource())
+api.register(SVGScreenResource())

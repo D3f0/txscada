@@ -44,6 +44,7 @@
                     <a class="brand" href="#" title="Sistema de Medición de Variables Eléctricas">S.M.V.E</a>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
+                            {% block navbar %}
                             <li class="active"><a href="#">Inicio</a></li>
                             <li><a href="{% url realtime_watch %}">Monitoreo</a></li>
                             <li><a href="#contact">Curvas de Energía</a></li>
@@ -58,6 +59,7 @@
                                     <li><a href="{% url mara:logout %}">Cerrar Sesión</a></li>
                                 </ul>
                             </li>
+                            {% endblock navbar %}
                         </ul>
                         <form class="navbar-form pull-right">
                             <input class="span2" type="text" placeholder="Usuario">
