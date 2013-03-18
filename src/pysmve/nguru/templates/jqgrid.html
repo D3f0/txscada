@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extraheader %}
+    <link rel="stylesheet" href="{% static "jqGrid/css/ui.jqgrid.css" %}">
+{% endblock extraheader %}
+
+
+{% block navbar %}
+    <li class="active"><a href="">jqGrid</a></li>
+    {{ block.super }}
+{% endblock navbar %}
+
+
+{% block content %}
+    <table id="alarmas" style="width: 100%;"></table>
+    <div id="pager"></div>
+{% endblock content %}
+
+{% block endscripts %}
+    <script>
+        jQuery.browser = {safari: false};
+    </script>
+
+    <script src="{% static "jqGrid/js/i18n/grid.locale-es.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.base.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.common.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.formedit.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.inlinedit.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.celledit.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.subgrid.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.treegrid.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.grouping.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.custom.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.tbltogrid.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.import.js" %}"></script>
+    <script src="{% static "jqGrid/js/jquery.fmatter.js" %}"></script>
+    <script src="{% static "jqGrid/js/JsonXml.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.jqueryui.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.filter.js" %}"></script>
+
+    {#<script src="{% static "jqGrid/jquery.jqGrid.js" %}"></script>#}
+    <script>
+        (function ($) {
+            $(function (){
+                var grid = $('#alarmas').jqGrid({
+                    colModel:[
+                        {name:'id',index:'id', width:"20%", sorttype:"int", label: "ID"},
+                        {name:'text',index:'text', width:"80%", label: "Texto"},
+                        {name:'actions',index:'text', width:"80%", label: "Atención",
+                        formatter: function (){
+                            console.log(this);
+                            return "<a class='atencion btn btn-mini'>Atención!</a>"+
+                            "<a class='btn btn-mini'>Reportar</a>";
+                        }},
+                    ],
+                    multiselect: true,
+                    caption: "Eventos",
+                    forceFit: true,
+                    width: 900,
+
+                    rowNum:10,
+                    rowList:[10,20,30],
+                    pager: '#pager',
+                    afterInsertRow: function (rowid, adata) {
+                        //console.log(rowid, adata);
+                        //$(this).setCell(rowid, 'actions', 'Actions', adata.actions);
+                        $('a.atencion').not('.bounded').addClass('bounded').on('click', function (){
+                            alert(this);
+                        });
+                    },
+
+
+
+                });
+
+                grid.jqGrid('gridResize',{minWidth:"50%",maxWidth:800,minHeight:80, maxHeight:350});
+
+
+                $('a.atencion').on('click', function (){
+                    alert(this);
+                });
+
+                var mydata = [{id: 1, text: "Cuchuflo"}, {id:2, text: "Cochoto"}];
+
+                $.each(mydata, function (index, value){
+
+                    value.actions = "<a class='btn-mini>Atender</a>";
+                    console.log(value);
+                    grid.jqGrid('addRowData', index, value);
+                })
+            });
+        })(jQuery);
+
+    </script>
+{% endblock endscripts %}
