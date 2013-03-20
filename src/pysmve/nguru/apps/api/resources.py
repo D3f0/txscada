@@ -62,6 +62,11 @@ class EventResource(ModelResource):
         queryset = Event.objects.all()
         allowed_methods = ['get', ]
 
+    def dehydrate(self, bundle):
+        bundle.data['tag'] = bundle.obj.di.tag
+        bundle.data['texto'] = "Un buen texto"
+        return bundle
+
 
 class AIResource(ModelResource):
     """REST resource for AI"""

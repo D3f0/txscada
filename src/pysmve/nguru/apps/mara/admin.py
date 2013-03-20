@@ -53,8 +53,9 @@ site.register(Unit)
 
 
 class SVAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'unit', 'width', 'value', 'ied', 'offset', 'value')
+    list_display = ('__unicode__', 'value', 'ied', 'offset', 'value')
     list_filter = ('ied',)
+    exclude = ('last_update', )
 
 site.register(SV, SVAdmin)
 

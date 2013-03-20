@@ -56,7 +56,7 @@ class COMaster(models.Model):
     poll_interval = models.FloatField(verbose_name="Poll interval in seconds",
                                       default=5)
     exponential_backoff = models.BooleanField(default=False,
-        help_text="Make queries")
+                                              help_text="Make queries")
 
     max_retry_before_offline = models.IntegerField(default=3)
 
@@ -70,12 +70,12 @@ class COMaster(models.Model):
     rs485_destination = models.SmallIntegerField(default=0)
 
     process_pid = models.IntegerField(blank=True, null=True,
-        default=None,
-        editable=False,
-        help_text="PID del proceso que se encuentra utilizando el proceso")
+                                      default=None,
+                                      editable=False,
+                                      help_text="PID del proceso que se encuentra utilizando el proceso")
 
-    peh_time = models.TimeField(default=time(1,0,0),
-        help_text="Tiempo entre puesta en hora")
+    peh_time = models.TimeField(default=time(1, 0, 0),
+                                help_text="Tiempo entre puesta en hora")
 
     @property
     def dis(self):
@@ -156,6 +156,8 @@ class MV(models.Model):
                                    blank=True
                                    )
 
+    tag = models.CharField(max_length=16)
+
     def __unicode__(self):
         return "%s %s" % (self.param, self.description or '')
 
@@ -175,16 +177,12 @@ class SV(MV):
     '''
     System variable
     '''
-    SV_WIDTHS = (
-        (8, '8'),
-        (16, '16')
-    )
-    unit = models.ForeignKey(Unit)
-    width = models.IntegerField(choices=SV_WIDTHS)
+    BIT_CHOICES = [(None, 'Palabra Completa'), ] + [(n, 'Bit %d' % n) for n in range(8)]
+    bit = models.IntegerField(default=0, null=True, blank=True, choices=BIT_CHOICES)
     value = models.IntegerField(default=0)
 
     class Meta:
-        unique_together = ('offset', 'ied',)
+        unique_together = ('offset', 'ied', 'bit')
         verbose_name = "System Variable"
         verbose_name_plural = "System Variables"
         # Default ordering
@@ -200,6 +198,7 @@ class DI(MV):
     bit = models.IntegerField(default=0)
     value = models.IntegerField(default=0)
     q = models.IntegerField(default=0)
+
 
     def __unicode__(self):
         return u"DI %2d:%2d (%s)" % (self.port, self.bit, self.param)
@@ -229,8 +228,18 @@ class Event(models.Model):
     '''
     di = models.ForeignKey(DI)
     timestamp = models.DateTimeField()
+    timestamp_ack = models.DateTimeField(null=True, blank=True, )
     q = models.IntegerField()
     value = models.IntegerField()
+    kind = models.ForeignKey('EventKind', null=True, blank=True)
+
+
+class EventKind(models.Model):
+    '''
+    '''
+    name = models.CharField(max_length=50)
+    trigger_up = models.BooleanField(default=True)
+    trigger_down = models.BooleanField(default=True)
 
 
 class AI(MV):
@@ -291,21 +300,5 @@ class Energy(models.Model):
     class Meta:
         verbose_name = "Energy Measure"
         verbose_name_plural = "Energy Measures"
+        db_table = 'energy'
 
-
-# class FrameLog(models.Model):
-
-#     SOURCES = (
-#                (constants.INPUT, 'INPUT'),
-#                (constants.OUTPUT, 'OUTPUT'),
-#     )
-#     data = models.TextField(blank=True, null=True)
-#     payload = JSONField(blank=True, null=True)
-#     date = models.DateTimeField(auto_now=True)
-#     profile = models.ForeignKey('profile', related_name='logs')
-#     source = models.CharField(max_length=1, choices=SOURCES)
-#     class Meta:
-#         ordering = ('date',)
-
-#     def __unicode__(self):
-#         return "Data Log %s" % (self.raw_buff[:30])

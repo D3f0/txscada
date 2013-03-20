@@ -38,7 +38,7 @@ urlpatterns = patterns('',
     url(r'^admin/', site.urls),
 )
 
-if settings.DEBUG and False:
+if settings.DEBUG:
     urlpatterns += patterns('',
         (r'^(?P<template>.*)/?$', 'django.views.generic.simple.direct_to_template', ),
     )

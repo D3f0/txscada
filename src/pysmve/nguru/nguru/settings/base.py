@@ -141,6 +141,8 @@ INSTALLED_APPS = (
     'apps.hmi',
     'apps.api',
 
+    'apps.research',
+
     #'admin_bootstrap',
     'grappelli',
     'django.contrib.admin',
