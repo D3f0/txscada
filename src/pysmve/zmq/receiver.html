@@ -1,0 +1,68 @@
+<html>
+    <head>
+        <title>Prueba de sockjs</title>
+        <script src="https://d1fxtkz8shb9d2.cloudfront.net/sockjs-0.3.js"></script>
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script src="js/gauge.min.js"></script>
+        <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js#overrideConsoe=false,startOpened=true">
+        // {
+        //     overrideConsole: false,
+        //     startInNewWindow: false,
+        //     startOpened: true,
+        //     enableTrace: true
+        // }
+        </script-->
+    </head>
+    <body>
+        <h1>Prueba de SockJS</h1>
+        <ul id="messages" style="height: 80%; overflow-y: scroll;">
+
+        </ul>
+        <canvas id="gauge"></canvas>
+        <h2>Debug<h2>
+        <canvas id="debug" width="100" height="100"></canvas>
+        <script type="text/javascript">
+            $(document).ready(function (){
+
+                    var $debug = $('#debug');
+                    console.log("debug");
+                    var sockjs_url = 'http://localhost:8888';
+                    var sockjs = new SockJS(sockjs_url);
+                    var $messages = $('#messages');
+
+                    sockjs.onmessage = function (e) {
+                        try {
+                            if ($messages.find('li:visible').length >= 10) {
+                                $messages.find('li:first').remove();
+                            }
+                            $messages.append('<li>'+e.data+'</li>');
+                        } catch (e) {
+                            var li = $('<li></li>').text(''+e);
+                            li.appendTo($debug);
+                        }
+                    }
+
+                    var opts = {
+                      lines: 12, // The number of lines to draw
+                      angle: 0.15, // The length of each line
+                      lineWidth: 0.44, // The line thickness
+                      pointer: {
+                        length: 0.9, // The radius of the inner circle
+                        strokeWidth: 0.035, // The rotation offset
+                        color: '#000000' // Fill color
+                      },
+                      colorStart: '#6FADCF',   // Colors
+                      colorStop: '#8FC0DA',    // just experiment with them
+                      strokeColor: '#E0E0E0',   // to see which ones work best for you
+                      generateGradient: true
+                    };
+
+                    var gauge = new Gauge($('#gauge').get(0)).setOptions(opts); // create sexy gauge!
+                    gauge.maxValue = 3000; // set max gauge value
+                    gauge.animationSpeed = 32; // set animation speed (32 is default value)
+                    gauge.set(1250);
+
+            });
+        </script>
+    </body>
+</html>
