@@ -112,7 +112,9 @@
         jQuery, jQueryUI, Bootstrap Widgets, Clident side Image placeholder
         # ================================================================================
         {% endcomment %}
-        <script src="{% static "jquery-ui-bootstrap/assets/js/jquery-1.9.0.min.js" %}"></script>
+
+        {#<script src="{% static "jquery-ui-bootstrap/assets/js/jquery-1.9.0.min.js" %}"></script>#}
+        <script src="{% static "js/jquery-ui-1.10.0.custom/js/jquery-1.9.0-svg.js" %}"></script>
         <script src="{% static "jquery-ui-bootstrap/assets/js/bootstrap.min.js" %}"></script>
         <script src="{% static "jquery-ui-bootstrap/assets/js/holder.js" %}"></script>
         <script src="{% static "jquery-ui-bootstrap/assets/js/jquery-ui-1.10.0.custom.min.js" %}"></script>
@@ -121,3 +123,4 @@
         {% endblock endscripts %}
     </body>
 </html>
+
