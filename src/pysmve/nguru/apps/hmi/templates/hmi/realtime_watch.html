@@ -2,25 +2,28 @@
 {% load static %}
 
 {% block extraheader %}
-
 {% endblock %}
 
 
 {% block content %}
-<a class="btn" href="/">&laquo; Inicio</a>
 <div id="tabs">
     <ul>
         <li><a href="#mimic-tab-1">Tiempo Real</a></li>
         <li><a href="#mimic-tab-2">Alarmas</a></li>
         <li><a href="#mimic-tab-3">Configuración</a></li>
+        <li><a href="#mimic-tab-4" clas="btn">Volver</a></li>
     </ul>
     <div id="mimic-tab-1">
+        <div id="svg" style="height: {{ svg.height }}px; width: {{ svg.width }}px">
+
+        </div>
     </div>
     <div id="mimic-tab-2">
         <div id="grid-eventos" style="width:100%;height:500px;"></div>
 
     </div>
-    <div id="mimic-tab-3">c</div>
+    <div id="mimic-tab-3"></div>
+    <div id="mimic-tab-4"></div>
 
 </div>
 {% endblock content %}
@@ -28,6 +31,15 @@
 {% block endscripts %}
 
     <!-- Includes SlickGrid -->
+
+    <script type="text/javascript" src="{% static "js/jquery-migrate/jquery-migrate-1.1.1.js" %}"></script>
+    <script type="text/javascript" src="{% static "jquery.svg/jquery.svg.js" %}"></script>
+    <script type="text/javascript" src="{% static "jquery.svg/jquery.svganim.js" %}"></script>
+    <script type="text/javascript" src="{% static "jquery.svg/jquery.svgdom.js" %}"></script>
+    <script type="text/javascript" src="{% static "jquery.svg/jquery.svgfilter.js" %}"></script>
+    <script type="text/javascript" src="{% static "jquery.svg/jquery.svggraph.js" %}"></script>
+    <script type="text/javascript" src="{% static "jquery.svg/jquery.svgplot.js" %}"></script>
+    <script type="text/javascript" src="{% static "jquery.svg/jquery.svg.js" %}"></script>
 
 
     <script>
@@ -45,8 +57,66 @@
                   }
                 });
                 $('.navbar-fixed-top').slideUp('slow');
+                var svg = null;
+                $('#svg').svg({
+                    loadURL: "{{ svg.svg.url }}",
+                    onLoad: function (loadedSVG) {
+                        svg = loadedSVG;
+                        $('[tag]', svg.root()).click(function (){
+                            var dlg = $('<div/>').dialog({
+                                autoOpen: false,
+                                title: $(this).attr('tag'),
+                                modal: true,
+                                buttons: [
+                                    {text: "Close",
+                                    click: function (){
+                                        $(dlg).dialog('close').dialog('destroy');
+                                    }}
+                                ]
+                            });
+                            $(dlg).dialog('open');
+                        });
+                    }
+                });
+                function isGroup(elem) {
+                    try {
+                        return (elem.get(0).tagName == 'g');
+                    } catch (e) {}
+                    return false;
+                }
+                function applyChanges(node, updates) {
+                    $node = $(node);
+                    if (isGroup($node)) {
+                        return $.each($('path, rect', $node), function (index, elem){
+                            applyChanges(elem, updates);
+                        });
+                    }
+                    $.each(updates, function (attribute, value){
+                        if (attribute == 'text') {
+                            $node.text(value);
+                        } else {
+                            $.each(updates, function (key, value){
+                                $node.css(key, value);
+                                //node.css('fill-opacity', 1);
+                            })
+                        }
+                    });
+                }
 
-
+                function update(){
+                    //return;
+                    //var tags = $('[tag]', svg.root());
+                    //console.log(tags);
+                    $.ajax('/hmi/ajax_update/{{ svg.pk }}/', {
+                        success: function(data){
+                            $.each(data, function (tag, updates){
+                                var node = $('[tag='+tag+']', svg.root());
+                                applyChanges(node, updates);
+                            });
+                        }
+                    })
+                };
+                window.setInterval(update, 1000);
             });
 
 

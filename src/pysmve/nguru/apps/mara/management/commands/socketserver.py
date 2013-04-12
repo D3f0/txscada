@@ -38,7 +38,10 @@ def forwarder(**options):
 
 
 def sockjs_server(**options):
-    options = {
+    configure = options.get('configure', False)
+    port = options.get('port', 8888)
+
+    sockjs_options = {
         'websocket': True,
         'cookie_needed': False,
         'heartbeat': 25,
@@ -111,11 +114,13 @@ def sockjs_server(**options):
 
     factory = protocol.ServerFactory()
     factory.protocol = SockJSProtocol
-    reactor.listenTCP(8888, SockJSFactory(factory, options))
-    try:
-        reactor.run()
-    except error.ReactorNotRunning:
-        print "Closing bridge"
+    reactor.listenTCP(port, SockJSFactory(factory, sockjs_options))
+    print "SocketServer running on %d" % port
+    if not configure:
+        try:
+            reactor.run()
+        except error.ReactorNotRunning:
+            print "Closing bridge"
 
 
 class Command(NoArgsCommand):

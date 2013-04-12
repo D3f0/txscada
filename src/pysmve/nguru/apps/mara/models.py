@@ -5,7 +5,6 @@ from protocols import constants
 # from jsonfield import JSONField
 from datetime import datetime, time
 
-
 from django.db.models import signals
 
 
@@ -35,7 +34,7 @@ class Profile(models.Model):
                 # Does not want to be default, the only one?
                 if cls.objects.count() == 0:
                     instance.default = True
-
+    a = True
 signals.pre_save.connect(Profile.ensure_default, sender=Profile)
 
 
