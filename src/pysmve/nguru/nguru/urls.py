@@ -1,6 +1,7 @@
 # encoding: utf-8
 from django.conf.urls import patterns, include, url
-
+from django.conf.urls.static import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf import settings
 
 # Uncomment the next two lines to enable the admin:
@@ -11,6 +12,7 @@ from apps.mara.admin import site
 from apps.api.resources import api
 
 urlpatterns = patterns('',
+
     #=========================================================================================
     # Index
     #=========================================================================================
@@ -36,11 +38,25 @@ urlpatterns = patterns('',
     #=========================================================================================
     (r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', site.urls),
+    #=========================================================================================
+    # Graphical Query Browser
+    #=========================================================================================
+    url(r'^qbe/', include('django_qbe.urls')),
+
 )
 
 if settings.DEBUG:
-    urlpatterns += patterns('',
-        (r'^(?P<template>.*)/?$', 'django.views.generic.simple.direct_to_template', ),
-    )
-# from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-# urlpatterns += staticfiles_urlpatterns()
+
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT,
+                          show_indexes=True
+                          )
+
+    urlpatterns += staticfiles_urlpatterns()
+
+# if settings.DEBUG:
+#     urlpatterns += patterns('',
+#         (r'^(?P<template>.*)/?$', 'django.views.generic.simple.direct_to_template', ),
+#     )
+
+
