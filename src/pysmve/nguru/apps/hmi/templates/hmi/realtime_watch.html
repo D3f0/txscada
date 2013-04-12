@@ -52,29 +52,34 @@
                     if (ui.newPanel.attr('id') == 'mimic-tab-2') {
                         // SMVE.crearGrillaEventos('#grid-eventos');
                     }
-                    console.log($(this).attr('id'));
-                    console.log("Cambio", event, ui, this);
+                    if (ui.newPanel.is('> :last')){
+                        window.location = '/';
+                    }
                   }
                 });
                 $('.navbar-fixed-top').slideUp('slow');
                 var svg = null;
+
+                function showDialogForNode(node) {
+                    var dlg = $('<div/>').dialog({
+                        autoOpen: false,
+                        title: $(node).attr('tag'),
+                        modal: true,
+                        buttons: [
+                            {text: "Close",
+                            click: function (){
+                                $(dlg).dialog('close').dialog('destroy');
+                            }}
+                        ]
+                    });
+                    $(dlg).dialog('open');
+                }
                 $('#svg').svg({
                     loadURL: "{{ svg.svg.url }}",
                     onLoad: function (loadedSVG) {
                         svg = loadedSVG;
                         $('[tag]', svg.root()).click(function (){
-                            var dlg = $('<div/>').dialog({
-                                autoOpen: false,
-                                title: $(this).attr('tag'),
-                                modal: true,
-                                buttons: [
-                                    {text: "Close",
-                                    click: function (){
-                                        $(dlg).dialog('close').dialog('destroy');
-                                    }}
-                                ]
-                            });
-                            $(dlg).dialog('open');
+                            showDialogForNode(this);
                         });
                     }
                 });
@@ -104,9 +109,6 @@
                 }
 
                 function update(){
-                    //return;
-                    //var tags = $('[tag]', svg.root());
-                    //console.log(tags);
                     $.ajax('/hmi/ajax_update/{{ svg.pk }}/', {
                         success: function(data){
                             $.each(data, function (tag, updates){
