@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block extraheader %}
+<link rel="stylesheet" href="{% static "jqGrid/css/ui.jqgrid.css" %}">
 {% endblock %}
 
 
@@ -15,7 +16,10 @@
     </ul>
     <div id="mimic-tab-1">
         <div id="svg" style="height: {{ svg.height }}px; width: {{ svg.width }}px">
-
+        </div>
+        <div>
+            <table id="mini-alarm" style="width: 100%;">
+            </table>
         </div>
     </div>
     <div id="mimic-tab-2">
@@ -33,6 +37,24 @@
     <!-- Includes SlickGrid -->
 
     <script type="text/javascript" src="{% static "js/jquery-migrate/jquery-migrate-1.1.1.js" %}"></script>
+    <!-- jqGrid -->
+    <script src="{% static "jqGrid/js/i18n/grid.locale-es.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.base.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.common.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.formedit.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.inlinedit.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.celledit.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.subgrid.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.treegrid.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.grouping.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.custom.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.tbltogrid.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.import.js" %}"></script>
+    <script src="{% static "jqGrid/js/jquery.fmatter.js" %}"></script>
+    <script src="{% static "jqGrid/js/JsonXml.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.jqueryui.js" %}"></script>
+    <script src="{% static "jqGrid/js/grid.filter.js" %}"></script>
+    <!-- jQuery SVG -->
     <script type="text/javascript" src="{% static "jquery.svg/jquery.svg.js" %}"></script>
     <script type="text/javascript" src="{% static "jquery.svg/jquery.svganim.js" %}"></script>
     <script type="text/javascript" src="{% static "jquery.svg/jquery.svgdom.js" %}"></script>
@@ -40,88 +62,18 @@
     <script type="text/javascript" src="{% static "jquery.svg/jquery.svggraph.js" %}"></script>
     <script type="text/javascript" src="{% static "jquery.svg/jquery.svgplot.js" %}"></script>
     <script type="text/javascript" src="{% static "jquery.svg/jquery.svg.js" %}"></script>
+    <script type="text/javascript">
+        // Espacio de nombres global
+        if (typeof(SMVE) == 'undefined') {
+            SMVE = {};
+        }
+        jQuery.extend(SMVE, {
+            svgURL: "{{ svg.svg.url }}",
+            svg_pk: "/hmi/ajax_update/{{ svg.pk }}/",
+            update: true
+        });
 
-
-    <script>
-        (function ($){
-            $(function (){
-                $("body").animate({ 'padding-top': 0}, 'slow');
-                $('#tabs').tabs({
-                  activate: function (event, ui){
-
-                    if (ui.newPanel.attr('id') == 'mimic-tab-2') {
-                        // SMVE.crearGrillaEventos('#grid-eventos');
-                    }
-                    if (ui.newPanel.is('> :last')){
-                        window.location = '/';
-                    }
-                  }
-                });
-                $('.navbar-fixed-top').slideUp('slow');
-                var svg = null;
-
-                function showDialogForNode(node) {
-                    var dlg = $('<div/>').dialog({
-                        autoOpen: false,
-                        title: $(node).attr('tag'),
-                        modal: true,
-                        buttons: [
-                            {text: "Close",
-                            click: function (){
-                                $(dlg).dialog('close').dialog('destroy');
-                            }}
-                        ]
-                    });
-                    $(dlg).dialog('open');
-                }
-                $('#svg').svg({
-                    loadURL: "{{ svg.svg.url }}",
-                    onLoad: function (loadedSVG) {
-                        svg = loadedSVG;
-                        $('[tag]', svg.root()).click(function (){
-                            showDialogForNode(this);
-                        });
-                    }
-                });
-                function isGroup(elem) {
-                    try {
-                        return (elem.get(0).tagName == 'g');
-                    } catch (e) {}
-                    return false;
-                }
-                function applyChanges(node, updates) {
-                    $node = $(node);
-                    if (isGroup($node)) {
-                        return $.each($('path, rect', $node), function (index, elem){
-                            applyChanges(elem, updates);
-                        });
-                    }
-                    $.each(updates, function (attribute, value){
-                        if (attribute == 'text') {
-                            $node.text(value);
-                        } else {
-                            $.each(updates, function (key, value){
-                                $node.css(key, value);
-                                //node.css('fill-opacity', 1);
-                            })
-                        }
-                    });
-                }
-
-                function update(){
-                    $.ajax('/hmi/ajax_update/{{ svg.pk }}/', {
-                        success: function(data){
-                            $.each(data, function (tag, updates){
-                                var node = $('[tag='+tag+']', svg.root());
-                                applyChanges(node, updates);
-                            });
-                        }
-                    })
-                };
-                window.setInterval(update, 1000);
-            });
-
-
-        })(jQuery)
     </script>
+    <script type="text/javascript" src="{% static "hmi/js/realtime_watch.js" %}"></script>
+
 {% endblock endscripts %}
