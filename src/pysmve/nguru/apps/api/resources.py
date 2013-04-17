@@ -3,7 +3,7 @@ from tastypie.api import Api
 from tastypie.resources import ModelResource
 
 from apps.mara.models import (Profile, COMaster, IED, Unit, SV, DI, AI, Energy,
-                              EnergyPoint, Event)
+                              Event)
 from apps.hmi.models import SVGScreen
 
 
@@ -76,12 +76,12 @@ class AIResource(ModelResource):
         allowed_methods = ['get', ]
 
 
-class EnergyPointResource(ModelResource):
-    """REST resource for EnergyPoint"""
-    class Meta:
-        resource_name = 'energypoint'
-        queryset = EnergyPoint.objects.all()
-        allowed_methods = ['get', ]
+# class EnergyPointResource(ModelResource):
+#     """REST resource for EnergyPoint"""
+#     class Meta:
+#         resource_name = 'energypoint'
+#         queryset = EnergyPoint.objects.all()
+#         allowed_methods = ['get', ]
 
 
 class EnergyResource(ModelResource):
@@ -109,6 +109,6 @@ api.register(SVResource())
 api.register(DIResource())
 api.register(EventResource())
 api.register(AIResource())
-api.register(EnergyPointResource())
+#api.register(EnergyPointResource())
 api.register(EnergyResource())
 api.register(SVGScreenResource())

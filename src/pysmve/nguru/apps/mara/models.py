@@ -1,11 +1,11 @@
 # encoding: utf-8
 import operator
 from django.db import models
+from django.contrib.auth.models import User
+from django.db.models import signals
 from protocols import constants
 # from jsonfield import JSONField
 from datetime import datetime, time
-
-from django.db.models import signals
 
 
 class Profile(models.Model):
@@ -39,12 +39,13 @@ signals.pre_save.connect(Profile.ensure_default, sender=Profile)
 
 
 class COMaster(models.Model):
+
     '''
     A gateway with mara IEDs that also performs other
     tasks such time synchronization with slaves.
     '''
     profile = models.ForeignKey(Profile,
-        related_name='comasters')
+                                related_name='comasters')
     ip_address = models.IPAddressField()
     enabled = models.BooleanField(default=False)
     port = models.IntegerField(verbose_name="TCP port for connection",
@@ -104,6 +105,7 @@ class COMaster(models.Model):
 
 
 class IED(models.Model):
+
     '''
     Inteligent Electronic Device.
     '''
@@ -128,6 +130,7 @@ class IED(models.Model):
 
 
 class Unit(models.Model):
+
     '''
     Unit of measure
     '''
@@ -139,13 +142,14 @@ class Unit(models.Model):
 
 
 class MV(models.Model):
+
     '''
     IEC Meassured Value
     '''
     ied = models.ForeignKey(IED)
     offset = models.SmallIntegerField(default=0,
                                       verbose_name="Byte offset in mara frame")
-    param = models.CharField(max_length=10,
+    param = models.CharField(max_length=50,
                              null=True,
                              blank=True)
     last_update = models.DateTimeField(blank=True, null=True)
@@ -154,6 +158,7 @@ class MV(models.Model):
                                    null=True,
                                    blank=True
                                    )
+    trasducer = models.CharField(max_length=50, null=True, blank=True)
 
     tag = models.CharField(max_length=16)
 
@@ -173,6 +178,7 @@ class MV(models.Model):
 
 
 class SV(MV):
+
     '''
     System variable
     '''
@@ -189,6 +195,7 @@ class SV(MV):
 
 
 class DI(MV):
+
     '''
     Digital input, each row represents a bit in a port
     Every port is virtualized in mara device
@@ -197,6 +204,11 @@ class DI(MV):
     bit = models.IntegerField(default=0)
     value = models.IntegerField(default=0)
     q = models.IntegerField(default=0)
+    maskinv = models.IntegerField(default=0)
+    nrodi = models.IntegerField(default=0)
+    idtextoev2 = models.IntegerField(default=0)
+    persoaccinoh = models.IntegerField(default=0)
+    pesoaccionl = models.IntegerField(default=0)
 
 
     def __unicode__(self):
@@ -204,14 +216,18 @@ class DI(MV):
 
     class Meta:
         unique_together = ('offset', 'ied', 'port', 'bit')
+        ordering = ('port', 'bit')
         verbose_name = "Digital Input"
         verbose_name_plural = "Digital Inputs"
 
 
 class GenericEvent(models.Model):
+
     """Clase genérica que agrupa a todos los eventos
     """
     timestamp = models.DateTimeField()
+    timestamp_ack = models.DateTimeField(null=True, blank=True, editable=False)
+    user = models.ForeignKey(User, null=True, blank=True, editable=False)
 
     def descripcion(self):
         '''Retorna la descripción'''
@@ -222,6 +238,7 @@ class GenericEvent(models.Model):
 
 
 class Event(models.Model):
+
     '''
     Digital Event, it's always related with a bit and a port.
     '''
@@ -230,29 +247,64 @@ class Event(models.Model):
     timestamp_ack = models.DateTimeField(null=True, blank=True, )
     q = models.IntegerField()
     value = models.IntegerField()
-    kind = models.ForeignKey('EventKind', null=True, blank=True)
 
 
-class EventKind(models.Model):
-    '''
-    '''
-    name = models.CharField(max_length=50)
-    trigger_up = models.BooleanField(default=True)
-    trigger_down = models.BooleanField(default=True)
+class ComEventKind(models.Model):
+
+    '''Gives a type to communication event'''
+    code = models.IntegerField()
+    description = models.CharField(max_length=50)
+    texto_2 = models.IntegerField()
+    pesoaccion = models.IntegerField()
+
+    def __unicode__(self):
+        return self.description
+
+    class Meta:
+        db_table = 'com'
+        ordering = ('code', )
+
+
+class ComEvent(GenericEvent):
+    ied = models.ForeignKey(IED)
+    kind = models.ForeignKey(ComEventKind)
+    motiv = models.IntegerField()
+
+    @property
+    def description(self):
+        return self.kind.description
+
+    class Meta:
+        db_table = 'eventcom'
+
 
 
 class AI(MV):
     '''
     Analog Input
     '''
-    unit = models.ForeignKey(Unit)
+    channel = models.IntegerField(default=0)
+    unit = models.CharField(max_length=5)
     multip_asm = models.FloatField(default=1.09)
-    c_factor = models.FloatField(default=1)
+    divider = models.FloatField(default=1)
     rel_tv = models.FloatField(db_column="reltv", default=1)
     rel_ti = models.FloatField(db_column="relti", default=1)
     rel_33_13 = models.FloatField(db_column="rel33-13", default=1)
-    q = models.IntegerField(db_column="calif", default=0)
+    q = models.IntegerField(db_column="q", default=0)
     value = models.SmallIntegerField(default=-1)
+
+    escala = models.FloatField(help_text="Precalculo de multip_asm, divider, reltv, "
+                               "relti y rel33-13", default=0)
+
+    noroai = models.IntegerField(default=0)
+    idtextoevm = models.IntegerField(null=True, blank=True)
+
+    value_max = models.IntegerField(null=True, blank=True)
+    value_min = models.IntegerField(null=True, blank=True)
+    delta_h = models.IntegerField(null=True, blank=True)
+    delta_l = models.IntegerField(null=True, blank=True)
+    pesoaccion_h = models.IntegerField(null=True, blank=True)
+    pesoaccion_l = models.IntegerField(null=True, blank=True)
 
     class Meta:
         unique_together = ('offset', 'ied',)
@@ -270,34 +322,19 @@ class AI(MV):
         return "%.2f %s" % (reduce(operator.mul, values), self.unit)
 
 
-class EnergyPoint(MV):
-    # ied = models.ForeignKey(IED)
-    # offset = models.IntegerField()
-    # param = models.CharField()
-    # description = models.CharField()
-    channel = models.IntegerField(default=0)
-    unit = models.ForeignKey(Unit)
-    ke = models.FloatField(default=0.025)
-    divider = models.FloatField(default=1)
-    rel_tv = models.FloatField(default=1)
-    rel_ti = models.FloatField(default=1)
-    rel_33_13 = models.FloatField(default=2.5)
-
-    def __unicode__(self):
-        return "%s %s %s" % (self.description, self.ied.rs485_address, self.param)
-
-
 class Energy(models.Model):
     '''
     Energy Measure. Every day has 96 energy values taken from the energy meter
     '''
-    energy_point = models.ForeignKey(EnergyPoint)
+    hnn = models.BooleanField(help_text='Hora no normalizada', default=False)
+    ai = models.ForeignKey(AI)
+
     timestamp = models.DateTimeField()
     value = models.IntegerField()
+    code = models.IntegerField()
     q = models.IntegerField(verbose_name="Quality")
 
     class Meta:
         verbose_name = "Energy Measure"
         verbose_name_plural = "Energy Measures"
-        db_table = 'energy'
-
+        #db_table = 'energy'

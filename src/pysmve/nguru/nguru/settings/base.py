@@ -125,6 +125,12 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    # Django admin tools
+    #'admin_tools',
+    #'admin_tools.theming',
+    #'admin_tools.menu',
+    #'admin_tools.dashboard',
+    'crispy_forms',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

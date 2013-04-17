@@ -1,21 +1,6 @@
 (function ($){
     $(function (){
 
-        function createTabs() {
-            $("body").animate({ 'padding-top': 0}, 'slow');
-            $('#tabs').tabs({
-              activate: function (event, ui){
-
-                if (ui.newPanel.attr('id') == 'mimic-tab-2') {
-                    // SMVE.crearGrillaEventos('#grid-eventos');
-                }
-                if (ui.newPanel.is('> :last')){
-                    window.location = '/';
-                }
-              }
-            });
-            $('.navbar-fixed-top').slideUp('slow');
-        }
         var svg = null;
 
         function showDialogForNode(node) {
@@ -72,6 +57,10 @@
         }
 
         function update(){
+            if (typeof(SMVE.updateInterval) == 'undefined') {
+                SMVE.updateInterval = 1000;
+            }
+            window.setTimeout(update, SMVE.updateInterval);
             if (!SMVE.update) {
                 return;
             }
@@ -105,14 +94,89 @@
                 caption: "Manipulating Array Data"
             });
         }
+
+        function createAlarmGrid() {
+            var alarmGrid = $('#alarm-grid').jqGrid({
+                datatype: "local",
+                height: 60,
+                autowidth: true,
+                hidegrid: false,
+                colNames:['Inv No','Date', 'Client', 'Amount','Tax','Total','Fecha Atención'],
+                colModel:[
+                    {name:'id',index:'id', width:60, sorttype:"int"},
+                    {name:'invdate',index:'F', width:90, sorttype:"date"},
+                    {name:'name',index:'name', width:100},
+                    {name:'amount',index:'amount', width:80, align:"right",sorttype:"float"},
+                    {name:'tax',index:'tax', width:80, align:"right",sorttype:"float"},
+                    {name:'total',index:'total', width:80,align:"right",sorttype:"float"},
+                    {name:'notes',index:'notes', width:150, sortable:false, }
+                ],
+                multiselect: true,
+                caption: "Manipulating Array Data"
+            });
+            return alarmGrid;
+        }
+
+        function createUpdateIntervalSlider() {
+
+            $( "#SMVE-update-interval" ).slider({
+                value: 1000,
+                min: 250,
+                max: 10000,
+                step: 250,
+                value: SMVE.updateInterval,
+                slide: function( event, ui ) {
+                    //$( "#amount" ).val( "$" + ui.value );
+                    $('#update_interval').text(ui.value);
+                    SMVE.updateInterval = ui.value;
+                }
+            });
+            console.log($( "#SMVE-update-interval" ));
+            return false;
+        }
+
+        function createTabs() {
+            $("body").animate({ 'padding-top': 0}, 'slow');
+            $('#tabs').tabs({
+              activate: function (event, ui){
+                var tab_id = ui.newPanel.attr('id');
+
+                switch (tab_id) {
+
+                    case 'tab-alarmas':
+                        if (typeof(SMVE.alarmGrid) == 'undefined') {
+                            SMVE.alarmGrid = createAlarmGrid();
+                        }
+                        break;
+
+                    case 'tab-configuracion':
+                        createUpdateIntervalSlider();
+                        break;
+
+                    case 'tab-volver':
+                        window.location = '/';
+                        break;
+                }
+              }
+            });
+            $('.navbar-fixed-top').slideUp('slow');
+        }
+
         function init() {
+            // AMD Namespace
+            if (typeof(SMVE) == "undefined"){
+                SMVE = {};
+            }
+
             createTabs();
             setupSVGScreeen();
             //$('#svg').hide();
             createMiniAlarmGrid();
-            window.setInterval(update, 1000);
-        };
-        $(init)
+
+            update();
+        }
+
+        $(init);
     });
 
 

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div>
+
+        {% crispy form form.helper %}
+
+    </div>
+    <div id="chart">
+    </div>
+{% endblock content %}
+
+{% block endscripts %}
+    <script type="text/javascript" src="{% static "js/jquery-ui-1.10.0.custom/js/jquery.ui.datepicker-es.js" %}"></script>
+    <script type="text/javascript" src="{% static "highcharts/js/highcharts.js" %}"></script>
+    <script type="text/javascript">
+        $('#id_date').datepicker();
+        new Highcharts.Chart({
+            chart: {
+                renderTo: "chart"
+            },
+            title: {
+                text: "Curva de potencia"
+            },
+            yAxis: {
+                title: {text:"KW/h - KVA/h"},
+
+            },
+            xAxis: {
+                type: 'datetime',
+                /*dateTimeLabelFormats: {
+                    month: '%e. %b',
+                    day: '%b %e',
+                    hour: '%b %e',
+                    year: '%b'
+                }*/
+                //, tickInterval: 24 * 3600 * 1000
+            },
+            series: [
+                // {
+                //     data: [[Date.UTC(2011, 4, 23), 194.0], [Date.UTC(2011, 4, 24), 195.00000000000003], [Date.UTC(2011, 4, 25), 192.00000000000003], ],
+                //     name: "Potencia Activa"
+                // }
+
+            ]
+        });
+    </script>
+{% endblock endscripts %}

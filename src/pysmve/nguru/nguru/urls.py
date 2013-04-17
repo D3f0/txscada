@@ -43,6 +43,8 @@ urlpatterns = patterns('',
     #=========================================================================================
     url(r'^qbe/', include('django_qbe.urls')),
 
+    url(r'^admin_tools/', include('admin_tools.urls')),
+
 )
 
 if settings.DEBUG:

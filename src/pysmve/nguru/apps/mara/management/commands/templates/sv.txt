@@ -1,0 +1,14 @@
+offset	bit	param	description
+1	0	Boreset0	BOR
+1	1	POReset1 	POR
+1	2	WDTReset2	WDT
+1	3	IEDArr3	Bandera IED/UART
+1	4	CalifNoResp4	No respuesta de IED
+1	5	OvfPilaEv5	
+1	6	PrimeraPeH6	Flags de errores
+1	7	WDTReset	Sesgo (Entero)
+2	0	ArranquesIED	Cant Arranques IED
+3	0	Sesgo L	Flags de errores
+4	0	Sesgo H	Sesgo (Entero)
+5	0	ClockError	GaP del clock
+6	0	ComErrorL	Arranques UART

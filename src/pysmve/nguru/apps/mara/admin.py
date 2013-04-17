@@ -2,8 +2,9 @@
 
 from django.contrib import admin
 
-from models import COMaster, IED, Unit, SV, DI, AI, Event, EnergyPoint, Energy
-from apps.hmi.models import SVGScreen
+from models import (COMaster, IED, Unit, SV, DI, AI, Event, Energy,
+                    ComEventKind, ComEvent)
+from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet
 
 
 site = admin.AdminSite('mara')
@@ -61,7 +62,7 @@ site.register(SV, SVAdmin)
 
 
 class DIAdmin(admin.ModelAdmin):
-    list_display = ('param', 'port', 'bit', 'value', 'description', 'ied')
+    list_display = ('tag', 'description', 'port', 'bit', 'trasducer', 'value',  'ied')
     list_filter = ('ied',)
     #list_display_links = ()
 
@@ -71,7 +72,7 @@ site.register(Event)
 
 
 class AIAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'unit', 'description', 'ied', 'offset', 'value', 'human_value', 'hex')
+    list_display = ('tag', 'description', 'unit', 'channel', 'ied', 'offset', 'value', 'human_value', 'hex')
     list_filter = ('ied',)
 
     def hex(self, object):
@@ -83,11 +84,11 @@ site.register(AI, AIAdmin)
 site.register(Energy)
 
 
-class EnergyPointAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'channel', 'description', 'offset', 'param',
-                    'ke', 'divider', 'rel_tv', 'rel_ti', 'rel_33_13', 'ied',)
-    list_filter = ('ied', 'channel',)
-site.register(EnergyPoint, EnergyPointAdmin)
+# class EnergyPointAdmin(admin.ModelAdmin):
+#     list_display = ('__unicode__', 'channel', 'description', 'offset', 'param',
+#                     'ke', 'divider', 'rel_tv', 'rel_ti', 'rel_33_13', 'ied',)
+#     list_filter = ('ied', 'channel',)
+# site.register(EnergyPoint, EnergyPointAdmin)
 
 
 
@@ -106,3 +107,39 @@ class SVGScreenAdmin(admin.ModelAdmin):
         js = ("hmi/js/admin_svgscreen.js",)
 
 site.register(SVGScreen, SVGScreenAdmin)
+class ColorAdmin(admin.ModelAdmin):
+    list_display = ['name', 'sample']
+
+    def sample(self, color_instance):
+        color = color_instance.color
+        return '<span style="display: block; width: 15px; height: 15px; background: %s"></span>' % color
+
+    sample.allow_tags = True
+
+site.register(Color, ColorAdmin)
+
+class SVGPropertyChangeSetAdmin(admin.ModelAdmin):
+    list_display = ('description', 'index', 'example', 'background', 'foreground', )
+
+    def example(self, svgprop):
+        css = {}
+        if svgprop.background:
+            css['background-color'] = svgprop.background.color
+        if svgprop.foreground:
+            css['color'] = svgprop.foreground.color
+        style = ';'.join(["%s: %s" % (k, v) for k, v in css.items()])
+        return '<span style="{}">{}</span>'.format(style, svgprop.description or 'example')
+
+    example.allow_tags = True
+
+site.register(SVGPropertyChangeSet, SVGPropertyChangeSetAdmin)
+
+class ComEventKindAdmin(admin.ModelAdmin):
+    list_display = ('description', 'code', 'texto_2', 'pesoaccion')
+
+site.register(ComEventKind, ComEventKindAdmin)
+
+class ComEventAdmin(admin.ModelAdmin):
+    list_display = ('ied', 'description', 'motiv', 'timestamp', 'timestamp_ack', 'user')
+    list_display_links = ('description', )
+site.register(ComEvent, ComEventAdmin)

@@ -1,4 +1,5 @@
 from django.db import models
+from colorful.fields import RGBColorField
 from lxml.etree import ElementTree as ET
 import re
 
@@ -52,3 +53,38 @@ class SVGScreen(Screen):
 def get_elements(et):
     tag = lambda t: re.sub('\{.*\}', '', t)
     return dict([(elem.attrib['tag'], tag(elem.tag)) for elem in et.findall('//*[@tag]')])
+
+
+class Color(models.Model):
+    name = models.CharField(max_length=30)
+    color = RGBColorField()
+
+    def __unicode__(self):
+        return self.name
+
+
+class SVGPropertyChangeSet(models.Model):
+
+    '''Formula evaluation result'''
+    index = models.IntegerField()
+    background = models.ForeignKey(Color,
+                                   blank=True,
+                                   null=True,
+                                   related_name='backgrounds'
+                                   )
+    foreground = models.ForeignKey(Color,
+                                   blank=True,
+                                   null=True,
+                                   related_name='foregrounds'
+                                   )
+    description = models.CharField(max_length=50,
+                                   blank=True,
+                                   null=True,
+                                   )
+
+    def __unicode__(self):
+        return self.description
+
+
+    class Meta:
+        db_table = 'color'

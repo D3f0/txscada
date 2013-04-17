@@ -8,4 +8,7 @@ urlpatterns = patterns('',
                        url('^ajax_update/(?P<svg_pk>\d+)/?$',
                            'apps.hmi.views.ajax_update',
                            name='ajax_update'),
+                       url('^energy_plot/$',
+                           'apps.hmi.views.energy_plot',
+                           name='energy_plot'),
                        )

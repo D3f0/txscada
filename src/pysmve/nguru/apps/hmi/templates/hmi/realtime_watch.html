@@ -9,12 +9,12 @@
 {% block content %}
 <div id="tabs">
     <ul>
-        <li><a href="#mimic-tab-1">Tiempo Real</a></li>
-        <li><a href="#mimic-tab-2">Alarmas</a></li>
-        <li><a href="#mimic-tab-3">Configuración</a></li>
-        <li><a href="#mimic-tab-4" clas="btn">Volver</a></li>
+        <li><a href="#tab-real-time">Tiempo Real</a></li>
+        <li><a href="#tab-alarmas">Alarmas</a></li>
+        <li><a href="#tab-configuracion">Configuración</a></li>
+        <li><a href="#tab-volver">Volver</a></li>
     </ul>
-    <div id="mimic-tab-1">
+    <div id="tab-real-time">
         <div id="svg" style="height: {{ svg.height }}px; width: {{ svg.width }}px">
         </div>
         <div>
@@ -22,12 +22,28 @@
             </table>
         </div>
     </div>
-    <div id="mimic-tab-2">
-        <div id="grid-eventos" style="width:100%;height:500px;"></div>
+    <div id="tab-alarmas">
+        <table id="alarm-grid"></table>
 
     </div>
-    <div id="mimic-tab-3"></div>
-    <div id="mimic-tab-4"></div>
+    <div id="tab-configuracion">
+        {# Configuración #}
+        <div class="btn-group" data-toggle="buttons-checkbox">
+            <button type="button" class="btn btn-primary">Sonido</button>
+        </div>
+
+
+        <h3>Intervalo de actualización</h3>
+        <p>
+            <div id="SMVE-update-interval" style="width: 500px; height: 10px;"/>
+            </div>
+        </p>
+        <div class="alert alert-info">
+            Refresco de interfase de tiempo real: <strong id="update_interval">1000</strong> milisegundos.
+        </div>
+
+    </div>
+    <div id="tab-volver" class="volver"></div>
 
 </div>
 {% endblock content %}

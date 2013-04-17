@@ -1,0 +1,49 @@
+id	ied_id	offset	port	bit	tag	trasducer	description
+	1	1	0	0	E4252B05	RL1	Interruptor Alimentador Linea 1 33 KV Entrada Anillo
+	1	1	0	1	E4251_05	RL2	Prot.Max.Corriente Alimentador Linea 1 33 KV Entrada Anillo
+	1	1	0	2	E4252B06	RL3	Interruptor Alimentador Linea 2 33 KV Salida Anillo
+	1	1	0	3	E4251_06	RL4	Prot.Max.Corriente Alimentador Linea 2 33 KV Salida Anillo
+	1	1	0	4	E4252B02	RL5	Interruptor Alimentador Trafo 1 33KV
+	1	1	0	5	E4251_02	RL6	Prot.Max.Corriente Alimentador Trafo 1 33KV
+	1	1	0	6	E4252B03	RL7	Interruptor Alimentador Trafo 2 33KV
+	1	1	0	7	E4251_03	RL8	Prot.Max.Corriente Alimentador Trafo 2 33KV
+	1	1	0	8	E4264_02	RL9	Prot.Cuba Disparo Transformador TR1
+	1	1	0	9	E42PID02	RL10	Prot.Int. Trafo Disparo Transformador TR1
+	1	1	0	10	E42RBD02	RL11	Prot.Int.RBC Disparo Transformador TR1
+	1	1	0	11	E42PIA02	RL12	Prot.Int.Trafo Alarma Transformador TR1
+	1	1	0	12	E42RBA02	RL13	Prot.Int.RBC Alarma Transformador TR1
+	1	1	0	13	E4264_03	RL14	Prot.Cuba Disparo Transformador TR2
+	1	1	0	14	E42PID03	RL15	Prot.Int. Trafo Disparo Transformador TR2
+	1	1	0	15	E42RBD03	RL16	Prot.Int.RBC Disparo Transformador TR2
+	1	2	1	0	E42PIA03	RL17	Prot.Int.Trafo Alarma Transformador TR2
+	1	2	1	1	E42RBA03	RL18	Prot.Int.RBC Alarma Transformador TR2
+	1	2	1	2	E4252B01	RL19	Interruptor Transformador SSAA
+	1	2	1	3	E4251_01	RL20	Prot.Max.Corriente Transformador SSAA
+	1	2	1	4	E4152B07	RL21	Interruptor Alimentador TR1 13.2KV
+	1	2	1	5	E4151_07	RL22	Prot.Max.Corriente Alimentador TR1 13.2KV
+	1	2	1	6	E4152B01	RL23	Interruptor Alimentador TR2 13.2KV
+	1	2	1	7	E4151_01	RL24	Prot.Max.Corriente Alimentador TR2 13.2KV
+	1	2	1	8	E4152B02	RL25	Interruptor Distribuidor 1 Barra 2- E.Rios (calle)
+	1	2	1	9	E4151_02	RL26	Prot.Max.Corriente Distribuidor 1 Barra 2- E.Rios (calle)
+	1	2	1	10	E4152B03	RL27	Interruptor Distribuidor 2 Barra 2: Calle
+	1	2	1	11	E4151_03	RL28	Prot.Max.Corriente Distribuidor 2 Barra 2: Calle
+	1	2	1	12	E4152B05	RL29	Interruptor Distribuidor 3 Barra 1- E.Rios (vereda)
+	1	2	1	13	E4151_05	RL30	Prot.Max.Corriente Distribuidor 3 Barra 1- E.Rios (vereda)
+	1	2	1	14	E4152B06	RL31	Interruptor Distribuidor 4 Barra 1- Parana (vereda)
+	1	2	1	15	E4151_06	RL32	Prot.Max.Corriente Distribuidor 4 Barra 1- Parana (vereda)
+	1	3	2	0	E4152B04	RL33	Interruptor Acoplamiento Barra 1-2 13,2KV
+	1	3	2	1	E4181_04	RL34	Relé de Frecuencia Acoplamiento Barra 1-2 13,2KV
+	1	3	2	2	E4127_04	RL35	Relé Mínima tensión Acoplamiento Barra 1-2 13,2KV
+	1	3	2	3	E4CREC01	RL36	Alarma tensión Alta/Baja VCC SSAA
+	1	3	2	4	E4BREC01	RL37	Alarma alimentación VCA SSAA
+	1	3	2	5	E4CTSA 01	RL38	Falta Tensión Comando 13.2KV
+	1	3	2	6	E4CTSA 01	RL39	Falta Tensión Comando 33KV
+	1	3	2	7			reserva
+	1	3	2	8			reserva
+	1	3	2	9			reserva
+	1	3	2	10			reserva
+	1	3	2	11			reserva
+	1	3	2	12			reserva
+	1	3	2	13			reserva
+	1	3	2	14			reserva
+	1	3	2	15			reserva
