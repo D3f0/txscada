@@ -1,7 +1,6 @@
 # encoding: utf-8
 import logging
 from time import time
-import json
 from twisted.internet import protocol, reactor
 from twisted.internet.task import LoopingCall
 from twisted.internet.threads import deferToThread
@@ -9,7 +8,7 @@ from twisted.internet.protocol import ClientFactory
 
 from construct import Container
 from construct.core import FieldError, Struct
-from ..constructs import (MaraFrame, Event)
+from ..constructs import MaraFrame
 from protocols.constants import MAX_SEQ, MIN_SEQ
 from datetime import datetime
 from ..constructs import upperhexstr
@@ -35,25 +34,31 @@ class MaraClientProtocol(protocol.Protocol):
         self.timeouts = 0
         # Data to be sent to COMaster
         self.output = Container(
-                                source=self.factory.comaster.rs485_source,
-                                dest=self.factory.comaster.rs485_destination,
-                                sequence=self.factory.comaster.sequence,
-                                command=0x10,
-                                payload_10=None, # No payload,
-                                #peh=None,
-                                )
+            source=self.factory.comaster.rs485_source,
+            dest=self.factory.comaster.rs485_destination,
+            sequence=self.factory.comaster.sequence,
+            command=0x10,
+            payload_10=None,  # No payload,
+            # peh=None,
+        )
         # Data to be received from COMaster
         self.input = Container()
         self.poll_timer = LoopingCall(self.pollTimerEvent)
         self.poll_timer.start(interval=self.factory.comaster.poll_interval, now=False)
 
-        self.peh_timer = LoopingCall(self.pehTimerEvent)
-        self.peh_timer.start(interval=self.factory.comaster.poll_interval * 0.5, now=False)
-
-        reactor.callLater(0.1, self.pehTimerEvent)
+        self.setupPEH()
 
         self.dataLogger = self.getDataLogger()
         self.logger = self.getLogger()
+
+    def setupPEH(self, initial_delay=0.1):
+        # Puesta en hora
+        self.peh_timer = LoopingCall(self.pehTimerEvent)
+        interval = self.factory.comaster.peh_time
+        interval = interval.hour * 60 * 60 + interval.minute * 60 + interval.second
+        self.peh_timer.start(interval=interval, now=False)
+        # Puesta en hora inmediata
+        reactor.callLater(initial_delay, self.pehTimerEvent)
 
     def getDataLogger(self):
         '''Build logger where all communication will be printed'''
@@ -71,16 +76,16 @@ class MaraClientProtocol(protocol.Protocol):
 
     def connectionMade(self):
         self.logger.debug("Conection made to %s:%s" % self.transport.addr)
-        reactor.callLater(0.01, self.sendCommand) #@UndefinedVariable
+        reactor.callLater(0.01, self.sendCommand)  # @UndefinedVariable
 
     def getPEHContainer(self):
         return Container(
-                         source=self.output.source,
-                         dest=0xFF,
-                         sequence=self.output.sequence,
-                         command=0x12,
-                         peh=datetime.now()
-                         )
+            source=self.output.source,
+            dest=0xFF,
+            sequence=self.output.sequence,
+            command=0x12,
+            peh=datetime.now()
+        )
 
     def pehTimerEvent(self):
         '''Evento que inidica que se debe enviar la puesta en hora'''
@@ -129,7 +134,7 @@ class MaraClientProtocol(protocol.Protocol):
                 self.logger.error("Bad package")
                 return
             # FIXME: Hacerlos con todos los campos o con ninguno
-            #if self.input.command != self.output.command:
+            # if self.input.command != self.output.command:
             #    logger.warn("Command not does not match with sent command %d" % self.input.command)
             # Calcular próxima sequencia
             # FIXME: Checkear que la secuencia sea == a self.output.sequence
@@ -146,7 +151,7 @@ class MaraClientProtocol(protocol.Protocol):
 
     def saveInDatabase(self):
         print "Acutalizando DB"
-        #print self.input
+        # print self.input
         from models import DI, AI, VarSys, Energy, Event
         payload = self.input.payload_10
         comaster = self.factory.comaster
@@ -159,6 +164,7 @@ class MaraClientProtocol(protocol.Protocol):
                 # Ordenar por puerto y por bit
                 for di in DI.filter(ied=ied).order_by(('port', 'asc'), ('bit', 'asc')):
                     yield di
+
         def iterais():
             # Iterar ieds
             for ied in self.factory.comaster.ied_set.order_by('offset'):
@@ -192,14 +198,14 @@ class MaraClientProtocol(protocol.Protocol):
                 if ev.evtype == "DIGITAL":
                     ied = self.factory.comaster.ied_set.get(addr_485_IED=ev.addr485)
                     di = DI.get(ied=ied, port=ev.port, bit=ev.bit)
-                    #di = comaster.dis.get(port = ev.port, bit = ev.bit)
-                    timestamp = datetime(ev.year + 2000, ev.month, ev.day, ev.hour, ev.minute, ev.second, int(ev.subsec * 100000))
+                    # di = comaster.dis.get(port = ev.port, bit = ev.bit)
+                    timestamp = datetime(
+                        ev.year + 2000, ev.month, ev.day, ev.hour, ev.minute, ev.second, int(ev.subsec * 100000))
                     Event(di=di,
                           timestamp=timestamp,
                           subsec=ev.subsec,
                           q=0,
                           value=ev.status).save()
-
 
                 elif ev.evtype == "ENERGY":
                     timestamp = datetime(ev.year + 2000, ev.month, ev.day, ev.hour, ev.minute, ev.second)
@@ -214,6 +220,7 @@ class MaraClientProtocol(protocol.Protocol):
             print ("Guardados %d eventos" % len(payload.event))
 
     __state = 'IDLE'
+
     @property
     def state(self):
         return self.__state
@@ -230,6 +237,7 @@ class MaraClientProtocol(protocol.Protocol):
                 self.queued = None
 
     __factory = None
+
     @property
     def factory(self):
         return self.__factory
@@ -240,6 +248,7 @@ class MaraClientProtocol(protocol.Protocol):
         self.__factory = value
 
     __construct = None
+
     @property
     def construct(self):
         return self.__construct
@@ -249,7 +258,9 @@ class MaraClientProtocol(protocol.Protocol):
         assert issubclass(value, Struct), "Se esperaba un Struct"
         self.__construct = value
 
+
 class MaraClientDBUpdater(MaraClientProtocol):
+
     '''
     This protocols saves data from scans into the
     database using Peewee ORM. This may change
@@ -269,7 +280,7 @@ class MaraClientDBUpdater(MaraClientProtocol):
             ai.update_value(value, timestamp=timestamp)
             ai_count += 1
 
-        variable_widths = [ v['width'] for v in comaster.svs.values('width') ]
+        variable_widths = [v['width'] for v in comaster.svs.values('width')]
         print variable_widths, len(variable_widths)
         for value, sv in zip(worditer(payload.varsys, variable_widths), self.factory.comaster.svs):
             sv.update_value(value, timestamp=timestamp)
@@ -279,8 +290,8 @@ class MaraClientDBUpdater(MaraClientProtocol):
                                                           time() - t0)
 
 
-
 class MaraClientProtocolFactory(protocol.ClientFactory):
+
     '''Creates Protocol instances to interact with mara servers'''
 
     protocol = MaraClientProtocol
@@ -300,7 +311,7 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
         return p
 
     def clientConnectionFailed(self, connector, reason):
-        #logger.warn("Connection failed: %s" % reason)
+        # logger.warn("Connection failed: %s" % reason)
         print "Connection failed: %s" % reason
         if self.reconnect:
             reactor.callLater(5, self.restart_connector, connector=connector)
@@ -322,4 +333,3 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
     def restart_connector(self, connector):
         print "Reconnecting"
         connector.connect()
-

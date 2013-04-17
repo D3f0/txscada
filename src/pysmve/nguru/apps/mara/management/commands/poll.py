@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from django.core.management.base import NoArgsCommand, CommandError
-from mara.models import Profile
+from apps.mara.models import Profile
 from twisted.internet import reactor
 from optparse import make_option
 from protocols.mara.client import MaraClientProtocolFactory, MaraClientDBUpdater
