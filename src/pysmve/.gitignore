@@ -1,0 +1,5 @@
+*sublime*
+node_modules/*
+build/*
+local_settings.py
+nguru/media
