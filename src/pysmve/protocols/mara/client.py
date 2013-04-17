@@ -9,12 +9,14 @@ from twisted.internet.protocol import ClientFactory
 from construct import Container
 from construct.core import FieldError, Struct
 from ..constructs import MaraFrame
+from ..constructs import upperhexstr
+from ..constructs.structs import container_to_datetime
 from protocols.constants import MAX_SEQ, MIN_SEQ
 from datetime import datetime
-from ..constructs import upperhexstr
 from protocols.utils import format_buffer
 from protocols.utils.bitfield import iterbits
 from protocols.utils.words import worditer
+from pprint import pprint
 
 
 class MaraClientProtocol(protocol.Protocol):
@@ -26,6 +28,7 @@ class MaraClientProtocol(protocol.Protocol):
     CLIENT_STATES = set(['IDLE', 'RESPONSE_WAIT', ])
 
     save_events = True
+
 
     def __init__(self, factory):
         self.factory = factory
@@ -139,11 +142,14 @@ class MaraClientProtocol(protocol.Protocol):
             # Calcular próxima sequencia
             # FIXME: Checkear que la secuencia sea == a self.output.sequence
             self.logger.debug("Message OK")
-            seq = self.incrementSequenceNumber()
+            self.incrementSequenceNumber()
 
             self.pending = 0
 
-            deferToThread(self.saveInDatabase)
+            if self.factory.defer_db_save:
+                deferToThread(self.saveInDatabase)
+            else:
+                self.saveInDatabase()
 
             print self.transport.addr, format_buffer(data)
             MaraFrame.pretty_print(self.input, show_header=False, show_bcc=False)
@@ -153,9 +159,8 @@ class MaraClientProtocol(protocol.Protocol):
         print "Acutalizando DB"
         # print self.input
         from models import DI, AI, VarSys, Energy, Event
-        payload = self.input.payload_10
-        comaster = self.factory.comaster
 
+        payload = self.input.payload_10
         # Iterar de a bit
 
         def iterdis():
@@ -267,11 +272,18 @@ class MaraClientDBUpdater(MaraClientProtocol):
     in the future.
     '''
     def saveInDatabase(self):
+        from apps.mara.models import DI
         t0 = time()
         payload = self.input.payload_10
+        if not payload:
+            print "No se detecto payload!!!"
+            pprint(self.input)
+            return
+
         di_count, ai_count, sv_count = 0, 0, 0
         timestamp = datetime.now()
         comaster = self.factory.comaster
+
         for value, di in zip(iterbits(payload.dis), comaster.dis):
             di.update_value(value, timestamp=timestamp)
             di_count += 1
@@ -280,11 +292,29 @@ class MaraClientDBUpdater(MaraClientProtocol):
             ai.update_value(value, timestamp=timestamp)
             ai_count += 1
 
-        variable_widths = [v['width'] for v in comaster.svs.values('width')]
+        variable_widths = [v.width for v in comaster.svs]
         print variable_widths, len(variable_widths)
         for value, sv in zip(worditer(payload.varsys, variable_widths), self.factory.comaster.svs):
             sv.update_value(value, timestamp=timestamp)
             sv_count += 1
+
+        for event in payload.event:
+            if event.evtype == 'DIGITAL':
+                # Los eventos digitales van con una DI
+                try:
+                    di = DI.objects.get(ied__rs485_address = event.addr485, port=event.port,
+                                        bit=event.bit)
+                    fecha = container_to_datetime(event)
+                    di.events.create(
+                        timestamp=container_to_datetime(event),
+                        q=event.q,
+                        value=event.status
+                        )
+                    #di.events.create()
+                except DI.DoesNotExist:
+                    print "Evento para una DI que no existe!!!"
+
+
 
         print "Update DB: DI: %d AI: %d SV: %d in %sS" % (di_count, ai_count, sv_count,
                                                           time() - t0)
@@ -295,6 +325,7 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
     '''Creates Protocol instances to interact with mara servers'''
 
     protocol = MaraClientProtocol
+    defer_db_save = False
 
     def __init__(self, comaster, reconnect=True):
         self.comaster = comaster

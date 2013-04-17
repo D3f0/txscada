@@ -28,14 +28,15 @@ class DateTimeComparisionTestCase(TestCase):
 
 
 class EventTestCase(DateTimeComparisionTestCase):
-    def test_digital_event_dont_lose_time_data(self):
-        '''Event can be created from bytes'''
-        event_data = Container(evtype="DIGITAL", q=0,
+    event_data = Container(evtype="DIGITAL", q=0,
                                addr485=5, bit=0, port=3, status=0,
                                # Timestamp bytes
                                timestamp=datetime.now()
                                )
-        r = Event.build(event_data)
+    def test_digital_event_dont_lose_time_data(self):
+        '''Event can be created from bytes'''
+
+        r = Event.build(self.event_data)
         s = Event.parse(r)
 
         self.assertIn('year', s)
@@ -88,6 +89,12 @@ class EventTestCase(DateTimeComparisionTestCase):
 
 
     def test_command_10_with_events(self):
+        # Cut and paste from parsed
+
+        # digital_event = {'status': 0, 'addr485': 1, 'hour': 1, 'year': 12, 'month': 1,
+        # 'q': 0, 'second': 34, 'minute': 8, 'fraction': 124, 'evtype': 'DIGITAL',
+        # 'bit': 4, 'port': 1, 'day': 1}
+
         data = Container(
             sof=0xFE,
             length=0,
@@ -102,10 +109,12 @@ class EventTestCase(DateTimeComparisionTestCase):
                     dis=[],
                     canais=0,
                     ais=[],
-                    canevs=1,
-                    event=[]
+                    canevs=11,
+                    event=[self.event_data, ]
                 )
             )
         stream = MaraFrame.build(data)
 
-        assert False
+        import sys
+        sys.stdout.write(stream)
+

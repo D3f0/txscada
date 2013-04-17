@@ -68,7 +68,7 @@ class MaraServer(protocol.Protocol):
         ais = [random.randrange(0, 254) for _ in xrange(9)]
         dis = self.createDIs(ieds=1, ports=3, port_width=16)
 
-        events = self.createDigitalEvents(0)
+        events = self.createDigitalEvents(1)
 
         self.output.payload_10 = Container(
             # VarSys
@@ -81,11 +81,11 @@ class MaraServer(protocol.Protocol):
             canais=self.length(ais),
             ais=ais,
 
-            canevs=len(events) + 1,
+            canevs=len(events) * 10 + 1,
             event=events,
         )
-        #from pprint import pprint
-        #pprint(self.output)
+        from pprint import pprint
+        pprint(self.output)
         return MaraFrame.build(self.output)
 
     @staticmethod
@@ -115,24 +115,26 @@ class MaraServer(protocol.Protocol):
     def createDigitalEvents(self, qty=1, ports=3, port_width=16):
         output = []
         for i in range(qty):
+            ev = Container(evtype="DIGITAL", q=0,
+                               addr485=1, # Siempre es el 1
+                               bit=random.randrange(1,16),
+                               port=random.randrange(1,3),
+                               status=random.randrange(0, 1),
+                               # Timestamp bytes
+                               timestamp=datetime.now()
+                               )
 
-            ev_data = Container(
-                            evtype="DIGITAL",
-                            q=0,
-                            addr485=4,
-                            bit=random.randrange(0, 1),
-                            port=random.randrange(0, ports),
-                            status=0,
-                            timestamp=datetime.now()
-                          )
             try:
-                Event.build(ev_data)
+                Event.build(ev)
             except Exception, e:
                 print "Error construyendo evento", e
             else:
                 print "OK"
-                output.append(ev_data)
+                output.append(ev)
         return output
+
+    def createAnalogEvent(self, qty=1):
+        pass
 
 
 class MaraServerFactory(protocol.Factory):

@@ -62,13 +62,35 @@ site.register(SV, SVAdmin)
 
 
 class DIAdmin(admin.ModelAdmin):
-    list_display = ('tag', 'description', 'port', 'bit', 'trasducer', 'value',  'ied')
+    list_display = ('get_tag', 'description', 'port', 'bit', 'trasducer', 'value',  'ied')
     list_filter = ('ied',)
-    #list_display_links = ()
+
+
+    def get_tag(self, di):
+        tag = di.tag
+        if not tag:
+            tag = "Sin tag"
+        return tag
+
+    get_tag.short_description = "Tag"
 
 
 site.register(DI, DIAdmin)
-site.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('tag', 'bit', 'port', 'value', 'timestamp', 'timestamp_ack')
+
+    def tag(self, event):
+        tag = event.di.tag
+        if not tag:
+            tag = "Sin Tag"
+        return tag
+
+    def bit(self, event):
+        return event.di.bit
+
+    def port(self, event):
+        return event.di.port
+site.register(Event, EventAdmin)
 
 
 class AIAdmin(admin.ModelAdmin):
@@ -82,14 +104,6 @@ class AIAdmin(admin.ModelAdmin):
 site.register(AI, AIAdmin)
 
 site.register(Energy)
-
-
-# class EnergyPointAdmin(admin.ModelAdmin):
-#     list_display = ('__unicode__', 'channel', 'description', 'offset', 'param',
-#                     'ke', 'divider', 'rel_tv', 'rel_ti', 'rel_33_13', 'ied',)
-#     list_filter = ('ied', 'channel',)
-# site.register(EnergyPoint, EnergyPointAdmin)
-
 
 
 class SVGScreenAdmin(admin.ModelAdmin):

@@ -309,8 +309,11 @@ MaraFrame = BaseMaraStruct('Mara',
             ULInt8('sequence'),
             ULInt8('command'),
             #Probe(),
-            If(lambda ctx: ctx.command == 0x10 and ctx.length > 8,
-               Payload_10,
+
+            If(lambda ctx: ctx.command == 0x10,
+               #Probe(),
+               Optional(Payload_10),
+
             ),
             If(lambda ctx: ctx.command == 0x12,
                PEHAdapter(Payload_PEH),
@@ -421,7 +424,8 @@ def format_frame(buff, as_hex_string=False, show_header=True, show_bcc=True):
                 print "BIT: %2d" % ev.bit,
                 print "PORT:", ev.port,
                 print "STATUS:", ev.status,
-                print "%d/%d/%d %2d:%.2d:%2.2f" % (ev.year + 2000, ev.month, ev.day, ev.hour, ev.minute, ev.second + ev.subsec)
+                print "%d/%d/%d %2d:%.2d:%2.2f" % (ev.year + 2000, ev.month, ev.day, ev.hour,
+                                                   ev.minute, ev.second + ev.fraction)
                 # print "%.2f" % ev.subsec
 
             elif ev.evtype == "ENERGY":
@@ -439,3 +443,5 @@ def format_frame(buff, as_hex_string=False, show_header=True, show_bcc=True):
 
 
 int2str = lambda l: ''.join(map(chr, l))
+
+

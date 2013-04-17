@@ -12,6 +12,9 @@ class Command(NoArgsCommand):
         make_option('-p', '--profile', default=None),
         make_option('-r', '--reconnect', default=False,
                     action='store_true'),
+        make_option('-n', '--no-defer-db', default=True,
+                    action='store_false', dest='defer_db_save'
+                    )
     )
 
     def get_profile(self, name):
@@ -33,6 +36,7 @@ class Command(NoArgsCommand):
         Profile.objects.get()
 
         MaraClientProtocolFactory.protocol = MaraClientDBUpdater
+        MaraClientProtocolFactory.defer_db_save = options.get('defer_db_save')
 
         for comaster in profile.comasters.filter(enabled=True):
             self.logger.debug("Conectando con %s" % comaster)

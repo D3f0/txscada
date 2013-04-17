@@ -93,7 +93,7 @@ class COMaster(models.Model):
     @property
     def svs(self):
         svs = SV.objects.filter(ied__co_master=self)
-        svs = svs.order_by('ied', 'offset')
+        svs = svs.order_by('ied', 'offset', 'bit')
         return svs
 
     def __unicode__(self):
@@ -193,6 +193,18 @@ class SV(MV):
         # Default ordering
         ordering = ('ied__offset', 'offset')
 
+    BIT = 1
+    BYTE = 8
+    # TODO Optimize
+    @property
+    def width(self):
+        '''Returns width 1 or 8'''
+        sv_in_same_offset = self.ied.sv_set.filter(offset=self.offset)
+        if sv_in_same_offset == 8:
+            return self.BIT
+        else:
+            return self.BYTE
+
 
 class DI(MV):
 
@@ -212,7 +224,7 @@ class DI(MV):
 
 
     def __unicode__(self):
-        return u"DI %2d:%2d (%s)" % (self.port, self.bit, self.param)
+        return u"DI %2d:%2d (%s)" % (self.port, self.bit, (self.tag or "Sin Tag"))
 
     class Meta:
         unique_together = ('offset', 'ied', 'port', 'bit')
@@ -242,7 +254,7 @@ class Event(models.Model):
     '''
     Digital Event, it's always related with a bit and a port.
     '''
-    di = models.ForeignKey(DI)
+    di = models.ForeignKey(DI, related_name='events')
     timestamp = models.DateTimeField()
     timestamp_ack = models.DateTimeField(null=True, blank=True, )
     q = models.IntegerField()

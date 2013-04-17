@@ -78,7 +78,10 @@ class SampledDataTestCase(TestCase):
     ]
 
     def test_sampled_data(self):
+        import sys
+        from pprint import pformat
         for n, sample in enumerate(self.FRAMES):
             parsed = MaraFrame.parse(any2buffer(sample))
+            sys.stderr.write(pformat(parsed) + '\n')
             #if n == 2:
             #    assert False
