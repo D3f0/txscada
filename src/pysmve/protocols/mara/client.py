@@ -151,8 +151,7 @@ class MaraClientProtocol(protocol.Protocol):
             else:
                 self.saveInDatabase()
 
-            print self.transport.addr, format_buffer(data)
-            MaraFrame.pretty_print(self.input, show_header=False, show_bcc=False)
+            #MaraFrame.pretty_print(self.input, show_header=False, show_bcc=False)
             self.state = 'IDLE'
 
     def saveInDatabase(self):
@@ -293,7 +292,7 @@ class MaraClientDBUpdater(MaraClientProtocol):
             ai_count += 1
 
         variable_widths = [v.width for v in comaster.svs]
-        print variable_widths, len(variable_widths)
+        #print variable_widths, len(variable_widths)
         for value, sv in zip(worditer(payload.varsys, variable_widths), self.factory.comaster.svs):
             sv.update_value(value, timestamp=timestamp)
             sv_count += 1
@@ -313,6 +312,8 @@ class MaraClientDBUpdater(MaraClientProtocol):
                     #di.events.create()
                 except DI.DoesNotExist:
                     print "Evento para una DI que no existe!!!"
+            elif event.evtype == 'ENERGY':
+                pass
 
 
 
@@ -363,4 +364,8 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
 
     def restart_connector(self, connector):
         print "Reconnecting"
-        connector.connect()
+        try:
+
+            connector.connect()
+        except Exception as e:
+            print e
