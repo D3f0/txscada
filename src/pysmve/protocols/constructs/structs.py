@@ -48,7 +48,8 @@ EPB = BitStruct('BPE',
 # Segundo byte del evento de energía
 CodeCan = BitStruct('idlecan',
                     BitField('idle', 2),
-                    BitField('code', 3),
+                    BitField('code', 2),
+                    BitField('hnn', 1),
                     BitField('channel', 3)
                     )
 

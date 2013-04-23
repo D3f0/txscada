@@ -87,6 +87,27 @@ class EventTestCase(DateTimeComparisionTestCase):
         self.assertEqual(s.code, code)
         self.assertEqual(s.motiv, motiv)
 
+    def test_energy_event(self):
+        ev = Container()
+        ev.evtype = "ENERGY"
+        ev.addr485 = 0
+        ev.idle = 0
+        ev.code = 1
+        ev.channel = 0
+        ev.timestamp = datetime.now()
+        ev.value = 1 << 16
+        ev.hnn=0
+        ev.q = 0
+        stream = Event.build(ev)
+        result = Event.parse(stream)
+        def dec(vs):
+            output = 0
+            for i, v in enumerate(vs):
+                output += v << (i * 8)
+            return output
+        self.assertEqual(dec(result.data), ev.value)
+
+
 
     def test_command_10_with_events(self):
         # Cut and paste from parsed

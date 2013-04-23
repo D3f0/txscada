@@ -60,6 +60,7 @@ class MaraServer(protocol.Protocol):
 
     def makeResponse10(self):
         self.output = copy(self.input)
+        # Swap Source by Destination
         self.output.source, self.output.dest = self.output.dest, self.output.source
         cant_ieds = 5
 
@@ -69,6 +70,7 @@ class MaraServer(protocol.Protocol):
         dis = self.createDIs(ieds=1, ports=3, port_width=16)
 
         events = self.createDigitalEvents(1)
+        events.extend(self.createEnergyEvents(1))
 
         self.output.payload_10 = Container(
             # VarSys
@@ -86,6 +88,7 @@ class MaraServer(protocol.Protocol):
         )
         from pprint import pprint
         pprint(self.output)
+
         return MaraFrame.build(self.output)
 
     @staticmethod
@@ -133,8 +136,29 @@ class MaraServer(protocol.Protocol):
                 output.append(ev)
         return output
 
-    def createAnalogEvent(self, qty=1):
-        pass
+    def createEnergyEvents(self, qty=1):
+        output = []
+        for i in range(qty):
+
+            ev = Container()
+            ev.evtype = "ENERGY"
+            ev.addr485 = 1
+            ev.idle = 0
+            ev.code = 1
+            ev.channel = 0
+            ev.timestamp = datetime.now()
+            ev.value = 1 << 16
+            ev.hnn = 0
+            ev.q = 0
+            try:
+                Event.build(ev)
+            except Exception:
+                print "Error creando energía"
+            else:
+                print "OK"
+                output.append(ev)
+        return output
+
 
 
 class MaraServerFactory(protocol.Factory):

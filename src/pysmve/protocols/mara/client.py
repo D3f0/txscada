@@ -35,11 +35,14 @@ class MaraClientProtocol(protocol.Protocol):
         self.state = 'IDLE'
         self.pending = 0
         self.timeouts = 0
+        seq = self.factory.comaster.sequence
+        if seq < MIN_SEQ or seq > MAX_SEQ:
+            seq = MIN_SEQ
         # Data to be sent to COMaster
         self.output = Container(
             source=self.factory.comaster.rs485_source,
             dest=self.factory.comaster.rs485_destination,
-            sequence=self.factory.comaster.sequence,
+            sequence=seq,
             command=0x10,
             payload_10=None,  # No payload,
             # peh=None,
@@ -123,7 +126,7 @@ class MaraClientProtocol(protocol.Protocol):
         if next_seq >= MAX_SEQ:
             next_seq = MIN_SEQ
         self.factory.comaster.sequence = self.output.sequence = next_seq
-        self.logger.info("Sequence incremented to %d" % next_seq)
+        self.factory.comaster.save()
         return next_seq
 
     def dataReceived(self, data):
@@ -262,7 +265,7 @@ class MaraClientProtocol(protocol.Protocol):
         assert issubclass(value, Struct), "Se esperaba un Struct"
         self.__construct = value
 
-
+from django.db import transaction
 class MaraClientDBUpdater(MaraClientProtocol):
 
     '''
@@ -270,9 +273,10 @@ class MaraClientDBUpdater(MaraClientProtocol):
     database using Peewee ORM. This may change
     in the future.
     '''
+    @transaction.commit_manually
     def saveInDatabase(self):
         from apps.mara.models import DI
-        t0 = time()
+
         payload = self.input.payload_10
         if not payload:
             print "No se detecto payload!!!"
@@ -280,7 +284,7 @@ class MaraClientDBUpdater(MaraClientProtocol):
             return
 
         di_count, ai_count, sv_count = 0, 0, 0
-        timestamp = datetime.now()
+        t0, timestamp = time(), datetime.now()
         comaster = self.factory.comaster
 
         for value, di in zip(iterbits(payload.dis), comaster.dis):
@@ -309,13 +313,23 @@ class MaraClientDBUpdater(MaraClientProtocol):
                         q=event.q,
                         value=event.status
                         )
-                    #di.events.create()
+
                 except DI.DoesNotExist:
                     print "Evento para una DI que no existe!!!"
             elif event.evtype == 'ENERGY':
-                pass
+                try:
+                    ai = AI.objects.get(ied__rs485_address = event.addr485,
+                                        channel=event.channel)
+                    ai.energy_set.create(
+                        timestamp=event.timestamp,
+                        code=event.code,
+                        q=event.q,
+                        hnn=event.hnn,
+                        )
+                except AI.DoesNotExist:
+                    print "Medicion de energia no reconcible", event
 
-
+        transaction.commit()
 
         print "Update DB: DI: %d AI: %d SV: %d in %sS" % (di_count, ai_count, sv_count,
                                                           time() - t0)
