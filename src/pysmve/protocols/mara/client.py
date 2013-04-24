@@ -146,7 +146,12 @@ class MaraClientProtocol(protocol.Protocol):
             # Calcular próxima sequencia
             # FIXME: Checkear que la secuencia sea == a self.output.sequence
             self.logger.debug("Message OK")
-            self.incrementSequenceNumber()
+            #self.incrementSequenceNumber()
+            self.output.sequence += 1
+            if self.output.sequence > 127:
+                self.output.sequence = 32
+            self.factory.comaster.sequence = self.output.sequence
+            self.factory.comaster.save()
 
             self.pending = 0
 

@@ -161,6 +161,6 @@ class Formula(models.Model):
                 print "Error parseando la formula: %s" % texto_formula
                 print e
             else:
-                print "Setenado", eg.tag, formula.attribute, value
+                #print "Setenado", eg.tag, formula.attribute, value
                 setattr(eg, formula.attribute, value)
                 eg.save()
