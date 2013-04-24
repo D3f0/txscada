@@ -40,8 +40,8 @@ class MaraClientProtocol(protocol.Protocol):
             seq = MIN_SEQ
         # Data to be sent to COMaster
         self.output = Container(
-            source=self.factory.comaster.rs485_source,
-            dest=self.factory.comaster.rs485_destination,
+            source=64,
+            dest=1,
             sequence=seq,
             command=0x10,
             payload_10=None,  # No payload,
