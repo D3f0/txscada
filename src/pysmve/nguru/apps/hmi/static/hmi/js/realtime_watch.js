@@ -80,18 +80,15 @@
                 height: 60,
                 autowidth: true,
                 hidegrid: false,
-                colNames:['Inv No','Date', 'Client', 'Amount','Tax','Total','Fecha Atención'],
+                colNames:['ID','Fecha', 'Descripción', 'Atención',],
                 colModel:[
                     {name:'id',index:'id', width:60, sorttype:"int"},
                     {name:'invdate',index:'F', width:90, sorttype:"date"},
                     {name:'name',index:'name', width:100},
-                    {name:'amount',index:'amount', width:80, align:"right",sorttype:"float"},
-                    {name:'tax',index:'tax', width:80, align:"right",sorttype:"float"},
-                    {name:'total',index:'total', width:80,align:"right",sorttype:"float"},
-                    {name:'notes',index:'notes', width:150, sortable:false, }
+                    {name:'amount',index:'amount', width:80, align:"right",sorttype:"float"}
                 ],
                 multiselect: true,
-                caption: "Manipulating Array Data"
+                caption: "Últimas alarmas"
             });
         }
 
@@ -101,18 +98,15 @@
                 height: 60,
                 autowidth: true,
                 hidegrid: false,
-                colNames:['Inv No','Date', 'Client', 'Amount','Tax','Total','Fecha Atención'],
+                colNames:['ID','Fecha', 'Descripción', 'Atención',],
                 colModel:[
                     {name:'id',index:'id', width:60, sorttype:"int"},
                     {name:'invdate',index:'F', width:90, sorttype:"date"},
                     {name:'name',index:'name', width:100},
-                    {name:'amount',index:'amount', width:80, align:"right",sorttype:"float"},
-                    {name:'tax',index:'tax', width:80, align:"right",sorttype:"float"},
-                    {name:'total',index:'total', width:80,align:"right",sorttype:"float"},
-                    {name:'notes',index:'notes', width:150, sortable:false, }
+                    {name:'amount',index:'amount', width:80, align:"right",sorttype:"float"}
                 ],
                 multiselect: true,
-                caption: "Manipulating Array Data"
+                caption: "Alarmas del Sistema de Medición de Variables Eléctricas"
             });
             return alarmGrid;
         }
