@@ -136,7 +136,6 @@ class Formula(models.Model):
         eg = tag_dict(SVGElement.objects.values('tag', 'text'))
 
         def SI(cond, t, f):
-            print "Ejecutando SI con ", cond, t, f
             if cond:
                 return t
             else:
