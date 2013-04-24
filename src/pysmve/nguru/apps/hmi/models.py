@@ -136,6 +136,7 @@ class Formula(models.Model):
         eg = tag_dict(SVGElement.objects.values('tag', 'text'))
 
         def SI(cond, t, f):
+            print "Ejecutando SI con ", cond, t, f
             if cond:
                 return t
             else:
@@ -160,5 +161,6 @@ class Formula(models.Model):
                 print "Error parseando la formula: %s" % texto_formula
                 print e
             else:
+                print "Setenado", eg.tag, formula.attribute, value
                 setattr(eg, formula.attribute, value)
                 eg.save()
