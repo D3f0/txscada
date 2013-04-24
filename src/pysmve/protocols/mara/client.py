@@ -114,6 +114,7 @@ class MaraClientProtocol(protocol.Protocol):
         # Send command
 
         frame = MaraFrame.build(self.output)
+        self.dataLogger.debug('Sent: %s' % upperhexstr(frame))
         self.transport.write(frame)
         self.state = 'RESPONSE_WAIT'
         self.pending += 1
