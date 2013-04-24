@@ -275,64 +275,72 @@ class MaraClientDBUpdater(MaraClientProtocol):
     '''
     @transaction.commit_manually
     def saveInDatabase(self):
-        from apps.mara.models import DI
+        from apps.mara.models import DI, AI
+        from apps.hmi.models import Formula
+        try:
+            payload = self.input.payload_10
+            if not payload:
+                print "No se detecto payload!!!"
+                pprint(self.input)
+                return
 
-        payload = self.input.payload_10
-        if not payload:
-            print "No se detecto payload!!!"
-            pprint(self.input)
-            return
+            di_count, ai_count, sv_count = 0, 0, 0
+            t0, timestamp = time(), datetime.now()
+            comaster = self.factory.comaster
 
-        di_count, ai_count, sv_count = 0, 0, 0
-        t0, timestamp = time(), datetime.now()
-        comaster = self.factory.comaster
+            for value, di in zip(iterbits(payload.dis), comaster.dis):
+                di.update_value(value, timestamp=timestamp)
+                di_count += 1
 
-        for value, di in zip(iterbits(payload.dis), comaster.dis):
-            di.update_value(value, timestamp=timestamp)
-            di_count += 1
+            for value, ai in zip(payload.ais, comaster.ais):
+                ai.update_value(value, timestamp=timestamp)
+                ai_count += 1
 
-        for value, ai in zip(payload.ais, comaster.ais):
-            ai.update_value(value, timestamp=timestamp)
-            ai_count += 1
+            variable_widths = [v.width for v in comaster.svs]
+            #print variable_widths, len(variable_widths)
+            for value, sv in zip(worditer(payload.varsys, variable_widths), self.factory.comaster.svs):
+                sv.update_value(value, timestamp=timestamp)
+                sv_count += 1
 
-        variable_widths = [v.width for v in comaster.svs]
-        #print variable_widths, len(variable_widths)
-        for value, sv in zip(worditer(payload.varsys, variable_widths), self.factory.comaster.svs):
-            sv.update_value(value, timestamp=timestamp)
-            sv_count += 1
+            for event in payload.event:
+                if event.evtype == 'DIGITAL':
+                    # Los eventos digitales van con una DI
+                    try:
+                        di = DI.objects.get(ied__rs485_address = event.addr485,
+                                            port=event.port,
+                                            bit=event.bit)
+                        fecha = container_to_datetime(event)
+                        di.events.create(
+                            timestamp=container_to_datetime(event),
+                            q=event.q,
+                            value=event.status
+                            )
 
-        for event in payload.event:
-            if event.evtype == 'DIGITAL':
-                # Los eventos digitales van con una DI
-                try:
-                    di = DI.objects.get(ied__rs485_address = event.addr485, port=event.port,
-                                        bit=event.bit)
-                    fecha = container_to_datetime(event)
-                    di.events.create(
-                        timestamp=container_to_datetime(event),
-                        q=event.q,
-                        value=event.status
-                        )
+                    except DI.DoesNotExist:
+                        print "Evento para una DI que no existe!!!"
+                elif event.evtype == 'ENERGY':
+                    try:
+                        query = dict(ied__rs485_address = event.addr485, channel=event.channel)
+                        ai = AI.objects.get(**query)
+                        ai.energy_set.create(
+                            timestamp=event.timestamp,
+                            code=event.code,
+                            q=event.q,
+                            hnn=event.hnn,
+                            )
+                    except AI.DoesNotExist:
+                        print "Medicion de energia no reconcible", event
+                    except AI.MultipleObjectsReturned:
+                        print "No se pudo identificar la DI con ", query
 
-                except DI.DoesNotExist:
-                    print "Evento para una DI que no existe!!!"
-            elif event.evtype == 'ENERGY':
-                try:
-                    ai = AI.objects.get(ied__rs485_address = event.addr485,
-                                        channel=event.channel)
-                    ai.energy_set.create(
-                        timestamp=event.timestamp,
-                        code=event.code,
-                        q=event.q,
-                        hnn=event.hnn,
-                        )
-                except AI.DoesNotExist:
-                    print "Medicion de energia no reconcible", event
+            print "Recalculo de las formulas"
+            Formula.calculate()
+            transaction.commit()
 
-        transaction.commit()
-
-        print "Update DB: DI: %d AI: %d SV: %d in %sS" % (di_count, ai_count, sv_count,
-                                                          time() - t0)
+            print "Update DB: DI: %d AI: %d SV: %d in %sS" % (di_count, ai_count, sv_count,
+                                                              time() - t0)
+        except Exception as e:
+            print e
 
 
 class MaraClientProtocolFactory(protocol.ClientFactory):
