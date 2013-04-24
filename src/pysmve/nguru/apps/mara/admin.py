@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from models import (COMaster, IED, Unit, SV, DI, AI, Event, Energy,
                     ComEventKind, ComEvent)
-from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet
+from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
 
 
 site = admin.AdminSite('mara')
@@ -64,6 +64,7 @@ site.register(SV, SVAdmin)
 class DIAdmin(admin.ModelAdmin):
     list_display = ('get_tag', 'description', 'port', 'bit', 'trasducer', 'value',  'ied')
     list_filter = ('ied',)
+    search_fields = ('tag', 'description')
 
 
     def get_tag(self, di):
@@ -96,6 +97,7 @@ site.register(Event, EventAdmin)
 class AIAdmin(admin.ModelAdmin):
     list_display = ('tag', 'description', 'unit', 'channel', 'ied', 'offset', 'value', 'human_value', 'hex')
     list_filter = ('ied',)
+    search_fields = ('tag', 'description')
 
     def hex(self, object):
         return ("%.4x" % object.value).upper()
@@ -157,3 +159,12 @@ class ComEventAdmin(admin.ModelAdmin):
     list_display = ('ied', 'description', 'motiv', 'timestamp', 'timestamp_ack', 'user')
     list_display_links = ('description', )
 site.register(ComEvent, ComEventAdmin)
+class FormulaAdmin(admin.ModelAdmin):
+    list_display = ('tag', 'attribute', 'formula')
+site.register(Formula, FormulaAdmin)
+class SVGElementAdmin(admin.ModelAdmin):
+    search_fields = ('tag', )
+    list_display = ('tag', 'description', 'text', 'background', 'mark',
+            'enabled', 'last_update')
+
+site.register(SVGElement, SVGElementAdmin)

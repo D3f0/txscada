@@ -338,15 +338,15 @@ class Energy(models.Model):
     '''
     Energy Measure. Every day has 96 energy values taken from the energy meter
     '''
-    hnn = models.BooleanField(help_text='Hora no normalizada', default=False)
     ai = models.ForeignKey(AI)
 
     timestamp = models.DateTimeField()
     value = models.IntegerField()
     code = models.IntegerField()
+    hnn = models.BooleanField(help_text='Hora no normalizada', default=False)
     q = models.IntegerField(verbose_name="Quality")
 
     class Meta:
         verbose_name = "Energy Measure"
         verbose_name_plural = "Energy Measures"
-        #db_table = 'energy'
+

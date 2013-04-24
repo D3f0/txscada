@@ -1,6 +1,8 @@
 from django.db import models
 from colorful.fields import RGBColorField
 from lxml.etree import ElementTree as ET
+from apps.mara.models import AI, DI
+from bunch import bunchify
 import re
 
 
@@ -88,3 +90,45 @@ class SVGPropertyChangeSet(models.Model):
 
     class Meta:
         db_table = 'color'
+
+
+class SVGElement(models.Model):
+    MARK_CHOICES = [ ("%s" % i, i) for i in xrange(16)]
+    tag = models.CharField(max_length=16)
+    description = models.CharField(max_length=120)
+    text = models.CharField(max_length=20, null=True, blank=True)
+    background = models.CharField(max_length=20, null=True, blank=True)
+    mark = models.IntegerField(null=True, blank=True, choices=MARK_CHOICES)
+    enabled = models.BooleanField(default=False)
+    last_update = models.DateField(null=True, blank=True)
+
+    def __unicode__(self):
+        return self.tag
+
+class Formula(models.Model):
+    ATTR_TEXT = 'text'
+    ATTR_BACK = 'colback'
+    ATTR_FORE = 'colfore'
+    ATTRIBUTE_CHOICES = (
+        ('Text', ATTR_TEXT),
+        ('Background', ATTR_BACK, ),
+        ('Foreground', ATTR_FORE, ),
+    )
+    tag = models.CharField(max_length=16)
+    attribute = models.CharField(max_length=16,)#hoices=ATTRIBUTE_CHOICES)
+    formula = models.TextField()
+
+    def __unicode__(self):
+      return ":".join([self.tag, self.attribute])
+
+    @classmethod
+    def calculate(cls):
+        ai = AI.objects.values('escala', 'value')
+        di = DI.objects.values('value')
+        context = bunchify(dict(ai=ai, di=di,
+                                RAIZ=lambda v: v ** .5,))
+        for formula in cls.objects.all():
+            eg = SVGElement.objects.get(tag=formula.tag)
+            value = eval(formula.formula, {}, context)
+            setattr(eg, formula.attribute, value)
+            eg.save()
