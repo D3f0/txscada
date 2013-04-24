@@ -290,6 +290,9 @@ class MaraClientDBUpdater(MaraClientProtocol):
             comaster = self.factory.comaster
 
             for value, di in zip(iterbits(payload.dis), comaster.dis):
+                old_value = DI.objects.filter(pk=di.pk).values_list('value')[0][0]
+                if old_value != value:
+                    print "Cambio de valor de DI", di.tag, di.port, di.bit
                 di.update_value(value, timestamp=timestamp)
                 di_count += 1
 
