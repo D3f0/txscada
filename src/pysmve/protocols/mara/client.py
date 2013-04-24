@@ -315,7 +315,7 @@ class MaraClientDBUpdater(MaraClientProtocol):
                             q=event.q,
                             value=event.status
                             )
-
+                        print "Evento recibido de", di.port, di.bit
                     except DI.DoesNotExist:
                         print "Evento para una DI que no existe!!!"
                 elif event.evtype == 'ENERGY':
