@@ -301,6 +301,9 @@ class MaraClientDBUpdater(MaraClientProtocol):
             for value, sv in zip(worditer(payload.varsys, variable_widths), self.factory.comaster.svs):
                 sv.update_value(value, timestamp=timestamp)
                 sv_count += 1
+            print "-"*10
+            print "La cantidad de ventos es:", len(payload.event)
+            print "-"*10
 
             for event in payload.event:
                 if event.evtype == 'DIGITAL':
