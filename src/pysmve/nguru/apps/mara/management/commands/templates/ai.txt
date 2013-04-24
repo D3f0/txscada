@@ -1,4 +1,4 @@
-id	ied_id	offset	channel	trasducer	description	tag	unit	multip_asm	divider	RelTV	RelTI	Rel33-13	escala	q	value	nroai	valuemax	valuemin	idTextoEvM	deltah	deltal	idTextoEv2	pesoaccionH	pesoaccionL
+id	ied_id	offset	Channel	trasducer	description	tag	unit	multip_asm	divider	RelTV	RelTI	Rel33-13	escala	q	value	nroai	valuemax	valuemin	idTextoEvM	deltah	deltal	idTextoEv2	pesoaccionH	pesoaccionL
 	1	1	0	TRA1	Tensión Barra 33 KV	E42VV_04	Kv	1	1	1	1	2,5	2,5	0	0	1			7			6
 	1	2	0	TRA2	Tensión Barra 1 13.2KV	E41VV_07	Kv	1	1	1	1	2,5	2,5	0	0	2			7			6
 	1	3	0	TRA3	Tensión Barra 2 13.2KV	E41VV_08	Kv	1	1	1	1	2,5	2,5	0	0	3			7			6

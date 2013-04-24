@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.db import models
 from colorful.fields import RGBColorField
 from lxml.etree import ElementTree as ET
@@ -123,12 +124,41 @@ class Formula(models.Model):
 
     @classmethod
     def calculate(cls):
-        ai = AI.objects.values('escala', 'value')
-        di = DI.objects.values('value')
-        context = bunchify(dict(ai=ai, di=di,
-                                RAIZ=lambda v: v ** .5,))
+        def tag_dict(qs):
+            result = {}
+            for d in qs:
+                key = d.pop('tag', None)
+                if key:
+                    result[key] = d
+            return result
+        ai = tag_dict(AI.objects.values('tag', 'escala', 'value'))
+        di = tag_dict(DI.objects.values('tag', 'value'))
+        eg = tag_dict(SVGElement.objects.values('tag', 'text'))
+
+        def SI(cond, t, f):
+            if cond:
+                return t
+            else:
+                return f
+        context = bunchify(dict(
+                                # Datos
+                                ai=ai,
+                                di=di,
+                                eg=eg,
+                                # Funciones
+                                RAIZ=lambda v: v ** .5,
+                                SI=SI,
+                                )
+                        )
         for formula in cls.objects.all():
+            # Fila donde se guarda el cálculo
             eg = SVGElement.objects.get(tag=formula.tag)
-            value = eval(formula.formula, {}, context)
-            setattr(eg, formula.attribute, value)
-            eg.save()
+            texto_formula = formula.formula
+            try:
+                value = eval(texto_formula, {}, context)
+            except Exception as e:
+                print "Error parseando la formula: %s" % texto_formula
+                print e
+            else:
+                setattr(eg, formula.attribute, value)
+                eg.save()
