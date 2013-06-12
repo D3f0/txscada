@@ -1,5 +1,7 @@
+# encoding: utf-8
+
 from django_fasttest import TestCase
-from ..models import Profile, Event
+from ..models import Profile, Event, Energy
 from pysmve.protocols.constructs import MaraFrame
 from construct import Container
 from copy import copy
@@ -146,15 +148,31 @@ class TestCOMasterFrame(TestBaseCOMaster):
         with self.tempComaster(self.profile, ieds=2, di_ports=1) as comaster:
             comaster.process_frame(frame)
             evs = Event.objects.filter(di__ied__co_master=comaster,
-                                       di__ied__rs485_address=events[0].addr485,
+                                       di__ied__rs485_address=events[
+                                           0].addr485,
                                        di__port=events[0].port,
                                        di__bit=events[0].bit)
             self.assertEqual(evs.count(), 1)
             evs = Event.objects.filter(di__ied__co_master=comaster,
-                                       di__ied__rs485_address=events[1].addr485,
+                                       di__ied__rs485_address=events[
+                                           1].addr485,
                                        di__port=events[1].port,
                                        di__bit=events[1].bit)
             self.assertEqual(evs.count(), 1)
 
+    def test_process_frame_with_analog_events(self):
+        events = [
+            Container(evtype="ENERGY", q=0,
+                      addr485=1,
+                      idle=0, code=0,  # Energía de 15 minutos
+                      hnn=0,
+                      channel=0,
+                      value=131583,
+                      timestamp=datetime.now()
+                      ),
+        ]
+        frame = self.buildFrame10(events=events)
+        with self.tempComaster(self.profile, ieds=2, di_ports=1, ais=1) as comaster:
+            comaster.process_frame(frame)
 
-
+            self.assertEqual(Energy.objects.get().value, events[0].value)

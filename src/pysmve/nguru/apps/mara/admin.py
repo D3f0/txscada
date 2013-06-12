@@ -106,6 +106,7 @@ class AIAdmin(admin.ModelAdmin):
 site.register(AI, AIAdmin)
 class EnergyAdmin(admin.ModelAdmin):
     list_display = ('timestamp', 'ai', 'value', 'q', 'hnn', 'code')
+    list_filter = ('timestamp', 'ai', 'hnn', 'q')
 site.register(Energy, EnergyAdmin)
 
 

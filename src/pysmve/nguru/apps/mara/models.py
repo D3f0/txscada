@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 from protocols.utils.bitfield import iterbits
 from protocols import constants
 from protocols.utils.words import expand
-from pysmve.protocols.constructs.structs import container_to_datetime
+from protocols.constructs.structs import container_to_datetime
 
 
 class Profile(models.Model):
@@ -150,18 +150,26 @@ class COMaster(models.Model):
             elif event.evtype == 'ENERGY':
                 try:
                     query = dict(
-                        ied__rs485_address=event.addr485, channel=event.channel)
+                        ied__rs485_address=event.addr485,
+                        ied__co_master=self,
+                        channel=event.channel,
+                        )
                     ai = AI.objects.get(**query)
+                    timestamp = container_to_datetime(event)
+                    value = 0
+                    for i, v in enumerate(event.data):
+                        value += v << (8 * i)
                     ai.energy_set.create(
-                        timestamp=event.timestamp,
+                        timestamp=timestamp,
                         code=event.code,
                         q=event.q,
                         hnn=event.hnn,
+                        value=value
                     )
                 except AI.DoesNotExist:
                     print "Medicion de energia no reconcible", event
                 except AI.MultipleObjectsReturned:
-                    print "No se pudo identificar la AI con ", query
+                    print "Demaciadas AI con ", query
 
         return di_count, ai_count, sv_count, event_count
 
