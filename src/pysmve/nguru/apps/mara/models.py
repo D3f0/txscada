@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 from protocols.utils.bitfield import iterbits
 from protocols import constants
 from protocols.utils.words import expand
+from pysmve.protocols.constructs.structs import container_to_datetime
 
 
 class Profile(models.Model):
@@ -98,17 +99,12 @@ class COMaster(models.Model):
         svs = svs.order_by('ied__offset', 'offset', 'bit')
         return svs
 
-
     def __unicode__(self):
         return u"%s" % self.ip_address
 
     class Meta:
         verbose_name = "CO Master"
         verbose_name_plural = "CO Masters"
-
-
-
-
 
     def process_frame(self, mara_frame):
         '''Takes a Mara frame and saves it into the DB model'''
@@ -133,6 +129,39 @@ class COMaster(models.Model):
         for value, sv in zip(expand(payload.varsys, variable_widths), self.svs):
             sv.update_value(value, timestamp=timestamp)
             sv_count += 1
+
+        for event in payload.event:
+            if event.evtype == 'DIGITAL':
+                # Los eventos digitales van con una DI
+                try:
+                    di = DI.objects.get(
+                                        ied__rs485_address=event.addr485,
+                                        ied__co_master=self,
+                                        port=event.port,
+                                        bit=event.bit)
+                    di.events.create(
+                        timestamp=container_to_datetime(event),
+                        q=event.q,
+                        value=event.status
+                    )
+                    print "Evento recibido de", di.port, di.bit
+                except DI.DoesNotExist:
+                    print "Evento para una DI que no existe!!!"
+            elif event.evtype == 'ENERGY':
+                try:
+                    query = dict(
+                        ied__rs485_address=event.addr485, channel=event.channel)
+                    ai = AI.objects.get(**query)
+                    ai.energy_set.create(
+                        timestamp=event.timestamp,
+                        code=event.code,
+                        q=event.q,
+                        hnn=event.hnn,
+                    )
+                except AI.DoesNotExist:
+                    print "Medicion de energia no reconcible", event
+                except AI.MultipleObjectsReturned:
+                    print "No se pudo identificar la AI con ", query
 
         return di_count, ai_count, sv_count, event_count
 
@@ -247,11 +276,8 @@ class SV(MV):
         except SV.DoesNotExist:
             return self.BYTE
 
-
-
     class Meta:
         ordering = ('ied', 'offset', 'bit')
-
 
 
 class DI(MV):

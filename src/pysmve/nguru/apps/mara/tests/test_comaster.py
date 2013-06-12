@@ -1,5 +1,5 @@
 from django_fasttest import TestCase
-from ..models import Profile
+from ..models import Profile, Event
 from pysmve.protocols.constructs import MaraFrame
 from construct import Container
 from copy import copy
@@ -7,14 +7,15 @@ from itertools import izip
 from contextlib import contextmanager
 from datetime import datetime
 
-#from pysmve.protocols.constructs.tests import *
+# from pysmve.protocols.constructs.tests import *
+
 
 class TestBaseCOMaster(TestCase):
 
     def createCoMaster(self, profile, ieds=1, di_ports=2, di_bis=16, ais=0):
         comaster = profile.comasters.create(ip_address='127.0.0.1')
         for offset in range(ieds):
-            ied = comaster.ieds.create(offset=offset, rs485_address=offset+1)
+            ied = comaster.ieds.create(offset=offset, rs485_address=offset + 1)
             for port_num in range(di_ports):
                 for bit_num in range(di_bis):
                     ied.di_set.create(port=port_num, bit=bit_num)
@@ -72,8 +73,6 @@ class TestCOMasterProperties(TestBaseCOMaster):
         self.profile = Profile.objects.create(name='test')
         self.comaster = self.createCoMaster(profile=self.profile)
 
-
-
     def test_comaster_di_order(self):
         def generator(cant, ports, bits):
             for offset in range(cant):
@@ -126,15 +125,36 @@ class TestCOMasterFrame(TestBaseCOMaster):
 
             frame = self.buildFrame10(svs=[0xFF, 0x2])
             comaster.process_frame(frame)
-            self.assertEqual([1, ]* 8 + [2,],
+            self.assertEqual([1, ] * 8 + [2, ],
                              [sv[0] for sv in comaster.svs.values_list('value')])
 
-    def test_process_frame_with_events(self):
-        event_data = Container(evtype="DIGITAL", q=0,
-                               addr485=5, bit=0, port=3, status=0,
-                               # Timestamp bytes
-                               timestamp=datetime.now()
-                               )
-        frame = self.buildFrame10(events=[event_data])
+    def test_process_frame_with_digital_events(self):
+        events = [
+            Container(evtype="DIGITAL", q=0,
+                      addr485=1, port=0, bit=7, status=0,
+                      # Timestamp bytes
+                      timestamp=datetime.now()
+                              ),
+            Container(evtype="DIGITAL", q=0,
+                      addr485=2, port=0, bit=6, status=0,
+                      # Timestamp bytes
+                      timestamp=datetime.now()
+                              ),
+
+        ]
+        frame = self.buildFrame10(events=events)
+        with self.tempComaster(self.profile, ieds=2, di_ports=1) as comaster:
+            comaster.process_frame(frame)
+            evs = Event.objects.filter(di__ied__co_master=comaster,
+                                       di__ied__rs485_address=events[0].addr485,
+                                       di__port=events[0].port,
+                                       di__bit=events[0].bit)
+            self.assertEqual(evs.count(), 1)
+            evs = Event.objects.filter(di__ied__co_master=comaster,
+                                       di__ied__rs485_address=events[1].addr485,
+                                       di__port=events[1].port,
+                                       di__bit=events[1].bit)
+            self.assertEqual(evs.count(), 1)
+
 
 
