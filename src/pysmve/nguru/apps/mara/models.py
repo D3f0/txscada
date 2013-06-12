@@ -8,6 +8,7 @@ from django.db.models import signals
 from django.utils.translation import ugettext as _
 from protocols.utils.bitfield import iterbits
 from protocols import constants
+from protocols.utils.words import expand
 
 
 class Profile(models.Model):
@@ -94,7 +95,7 @@ class COMaster(models.Model):
     @property
     def svs(self):
         svs = SV.objects.filter(ied__co_master=self)
-        svs = svs.order_by('ied', 'offset', 'bit')
+        svs = svs.order_by('ied__offset', 'offset', 'bit')
         return svs
 
 
@@ -104,6 +105,10 @@ class COMaster(models.Model):
     class Meta:
         verbose_name = "CO Master"
         verbose_name_plural = "CO Masters"
+
+
+
+
 
     def process_frame(self, mara_frame):
         '''Takes a Mara frame and saves it into the DB model'''
@@ -122,8 +127,12 @@ class COMaster(models.Model):
         for value, ai in zip(payload.ais, self.ais):
             ai.update_value(value, timestamp=timestamp)
             ai_count += 1
-        for sv in self.svs:
-            print sv, sv.width
+
+        variable_widths = [v.width for v in self.svs]
+
+        for value, sv in zip(expand(payload.varsys, variable_widths), self.svs):
+            sv.update_value(value, timestamp=timestamp)
+            sv_count += 1
 
         return di_count, ai_count, sv_count, event_count
 
