@@ -104,8 +104,9 @@ class AIAdmin(admin.ModelAdmin):
 
 
 site.register(AI, AIAdmin)
-
-site.register(Energy)
+class EnergyAdmin(admin.ModelAdmin):
+    list_display = ('timestamp', 'ai', 'value', 'q', 'hnn', 'code')
+site.register(Energy, EnergyAdmin)
 
 
 class SVGScreenAdmin(admin.ModelAdmin):
