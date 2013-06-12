@@ -3,7 +3,7 @@
 from django.contrib import admin
 
 from models import (COMaster, IED, Unit, SV, DI, AI, Event, Energy,
-                    ComEventKind, ComEvent, EventKind)
+                    ComEventKind, ComEvent, EventKind, Action)
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
 
 
@@ -154,7 +154,7 @@ class SVGPropertyChangeSetAdmin(admin.ModelAdmin):
 site.register(SVGPropertyChangeSet, SVGPropertyChangeSetAdmin)
 
 class ComEventKindAdmin(admin.ModelAdmin):
-    list_display = ('description', 'code', 'texto_2', 'pesoaccion')
+    list_display = ('code', 'texto_2', 'pesoaccion')
 
 site.register(ComEventKind, ComEventKindAdmin)
 
@@ -171,3 +171,8 @@ class SVGElementAdmin(admin.ModelAdmin):
             'enabled', 'last_update')
 
 site.register(SVGElement, SVGElementAdmin)
+
+class ActionAdmin(admin.ModelAdmin):
+    list_display = ('bit', 'descripcion', 'script', 'argumentos')
+
+site.register(Action, ActionAdmin)

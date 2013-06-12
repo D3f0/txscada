@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from django_fasttest import TestCase
-from ..models import Profile, Event, Energy, EventKind, DI
+from ..models import Profile, Event, Energy, EventKind, DI, Action, ComEventKind
 from pysmve.protocols.constructs import MaraFrame
 from construct import Container
 from copy import copy
@@ -178,6 +178,27 @@ class TestCOMasterFrame(TestBaseCOMaster):
 
             self.assertEqual(Energy.objects.get().value, events[0].value)
 
+    def test_process_frame_with_com_events(self):
+        events = [
+            Container(
+            # 1 byte (TCD)
+            evtype="COMSYS", q=0, addr485=1,
+            # 2 byte
+            code=0,
+            motiv=0,
+            timestamp=datetime(2012, 1, 1, 1, 1, 1, 50000)
+            )
+        ]
+
+        EventKind.objects.create(idtextoev2=1, text="Com1", value=1)
+        EventKind.objects.create(idtextoev2=2, text="Com2", value=1)
+        #ComEventKind.objects.create(texto_2=1, code)
+        frame = self.buildFrame10(events=events)
+        with self.tempComaster(self.profile, ieds=1, di_ports=1) as comaster:
+            comaster.process_frame(frame)
+            self.assertEqual(comaster.ieds.get().comevent_set.count(), 1)
+            event = comaster.ieds.get().comevent_set.get()
+            print event
 
 class TestEventText2(TestBaseCOMaster):
 
@@ -204,3 +225,23 @@ class TestEventText2(TestBaseCOMaster):
                                        di__port=events[0].port,
                                        di__bit=events[0].bit)
             self.assertEqual(unicode(evs.get()), "Interruptor Cerrado")
+
+
+class TestPesoAccion(TestCase):
+
+    def test_peso_accion(self):
+        for i in range(8):
+            Action.objects.create(bit=i,
+                                  descripcion='Accion bit %d' % i,
+                                  script='',
+                                  argumentos='')
+
+        def pks(objs):
+            [obj.pk for obj in objs]
+
+
+
+        self.assertEqual(
+                        pks(Action.get_actions_for_peso(3)),
+                        pks(Action.objects.filter(bit__in = [1,2]))
+                        )

@@ -170,7 +170,21 @@ class COMaster(models.Model):
                     print "Medicion de energia no reconcible", event
                 except AI.MultipleObjectsReturned:
                     print "Demaciadas AI con ", query
-
+            elif event.evtype == 'COMSYS':
+                try:
+                    ied = self.ieds.get(rs485_address=event.addr485)
+                    timestamp = container_to_datetime(event)
+                    try:
+                        kind = ComEventKind.objects.get(code=event.code)
+                    except ComEventKind.DoesNotExist:
+                        kind = None
+                    ied.comevent_set.create(
+                        kind=kind,
+                        motiv=event.motiv,
+                        timestamp=timestamp
+                    )
+                except ComEvent.DoesNotExist:
+                    print "No se puede crear el Evento tipo 3"
         return di_count, ai_count, sv_count, event_count
 
     def set_ai_quality(self, value):
@@ -378,11 +392,10 @@ class EventKind(models.Model):
         dis = dis or 'No DI'
         return '%s value=%s text=%s' % (dis, self.value or u'Vacio', self.text)
 
-class ComEventKind(models.Model):
 
+class ComEventKind(models.Model):
     '''Gives a type to communication event'''
     code = models.IntegerField()
-    description = models.CharField(max_length=50)
     texto_2 = models.IntegerField()
     pesoaccion = models.IntegerField()
 
@@ -395,13 +408,19 @@ class ComEventKind(models.Model):
 
 
 class ComEvent(GenericEvent):
-    ied = models.ForeignKey(IED)
-    kind = models.ForeignKey(ComEventKind)
     motiv = models.IntegerField()
+    ied = models.ForeignKey(IED)
+    kind = models.ForeignKey(ComEventKind, blank=True, null=True)
 
     @property
     def description(self):
         return self.kind.description
+
+    def __unicode__(self):
+        if not self.kind:
+            return "No description"
+        else:
+            return EventKind.objects.get(idtextoev2=self.kind.texto_2)
 
     class Meta:
         db_table = 'eventcom'
@@ -467,3 +486,25 @@ class Energy(models.Model):
     class Meta:
         verbose_name = "Energy Measure"
         verbose_name_plural = "Energy Measures"
+
+
+class Action(models.Model):
+    bit = models.IntegerField()
+    descripcion = models.CharField(max_length=50)
+    script = models.CharField(max_length=50)
+    argumentos = models.CharField(max_length=50)
+
+    @classmethod
+    def get_actions_for_peso(cls, peso):
+        bit_values = []
+        for i in range(32):
+            bit_val = 1 << i
+            if peso & bit_val:
+                bit_values.append(bit_val)
+        return cls.objects.filter(bit__in=bit_values)
+
+    def __unicode__(self):
+        return self.descripcion
+
+    class Meta:
+        unique_together = ('bit', )
