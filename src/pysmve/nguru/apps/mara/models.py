@@ -115,7 +115,7 @@ class COMaster(models.Model):
         # Some counters
         di_count, ai_count, sv_count = 0, 0, 0
         t0, timestamp = time(), datetime.now()
-        for value, di in zip(iterbits(payload.dis, length=8), self.dis):
+        for value, di in zip(iterbits(payload.dis, length=16), self.dis):
             di.update_value(value, timestamp=timestamp)
             di_count += 1
         for value, ai in zip(payload.ais, self.ais):
