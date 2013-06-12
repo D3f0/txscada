@@ -19,10 +19,11 @@ logger = getLogger(__name__)
 
 #===============================================================================
 # COMaster emulation
-#===============================================================================
+#=========================================================================
 
 
 class MaraServer(protocol.Protocol):
+
     '''
     Works as COMaster development board
     It replies commands 0x10 based on the definition
@@ -119,13 +120,13 @@ class MaraServer(protocol.Protocol):
         output = []
         for i in range(qty):
             ev = Container(evtype="DIGITAL", q=0,
-                               addr485=1, # Siempre es el 1
-                               bit=random.randrange(1,16),
-                               port=random.randrange(1,3),
-                               status=random.randrange(0, 1),
-                               # Timestamp bytes
-                               timestamp=datetime.now()
-                               )
+                           addr485=1,  # Siempre es el 1
+                           bit=random.randrange(1, 16),
+                           port=random.randrange(1, 3),
+                           status=random.randrange(0, 1),
+                           # Timestamp bytes
+                           timestamp=datetime.now()
+                           )
 
             try:
                 Event.build(ev)
@@ -142,23 +143,22 @@ class MaraServer(protocol.Protocol):
 
             ev = Container()
             ev.evtype = "ENERGY"
-            ev.addr485 = 1
+            ev.addr485 = random.choice([2, 3, 4, 5])
             ev.idle = 0
-            ev.code = 1
-            ev.channel = 0
+            ev.code = random.choice([1, 2, 3, 4])
+            ev.channel = random.choice([0, 1])
             ev.timestamp = datetime.now()
-            ev.value = 1 << 16
-            ev.hnn = 0
-            ev.q = 0
+            ev.value = random.randrange(1, 1 << 16)
+            ev.hnn = random.choice([0, 1])
+            ev.q = random.choice([0, 1])
             try:
                 Event.build(ev)
-            except Exception:
-                print "Error creando energía"
+            except Exception as e:
+                print "Error creando energía %s" % e
             else:
                 print "OK"
                 output.append(ev)
         return output
-
 
 
 class MaraServerFactory(protocol.Factory):

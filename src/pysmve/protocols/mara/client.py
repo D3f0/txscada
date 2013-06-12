@@ -279,81 +279,10 @@ class MaraClientDBUpdater(MaraClientProtocol):
     database using Peewee ORM. This may change
     in the future.
     '''
-    @transaction.commit_manually
+    #@transaction.commit_manually
     def saveInDatabase(self):
-        from apps.mara.models import DI, AI
-        from apps.hmi.models import Formula
-        try:
-            payload = self.input.payload_10
-            if not payload:
-                print "No se detecto payload!!!"
-                pprint(self.input)
-                return
-
-            di_count, ai_count, sv_count = 0, 0, 0
-            t0, timestamp = time(), datetime.now()
-            comaster = self.factory.comaster
-
-            for value, di in zip(iterbits(payload.dis), comaster.dis):
-                old_value = DI.objects.filter(pk=di.pk).values_list('value')[0][0]
-                if old_value != value:
-                    print "Cambio de valor de DI", di.tag, di.port, di.bit
-                di.update_value(value, timestamp=timestamp)
-                di_count += 1
-
-            for value, ai in zip(payload.ais, comaster.ais):
-                ai.update_value(value, timestamp=timestamp)
-                ai_count += 1
-
-            variable_widths = [v.width for v in comaster.svs]
-            #print variable_widths, len(variable_widths)
-            for value, sv in zip(worditer(payload.varsys, variable_widths), self.factory.comaster.svs):
-                sv.update_value(value, timestamp=timestamp)
-                sv_count += 1
-            print "-"*10
-            print "La cantidad de ventos es:", len(payload.event)
-            print "-"*10
-
-            for event in payload.event:
-                if event.evtype == 'DIGITAL':
-                    # Los eventos digitales van con una DI
-                    try:
-                        di = DI.objects.get(ied__rs485_address = event.addr485,
-                                            port=event.port,
-                                            bit=event.bit)
-                        fecha = container_to_datetime(event)
-                        di.events.create(
-                            timestamp=container_to_datetime(event),
-                            q=event.q,
-                            value=event.status
-                            )
-                        print "Evento recibido de", di.port, di.bit
-                    except DI.DoesNotExist:
-                        print "Evento para una DI que no existe!!!"
-                elif event.evtype == 'ENERGY':
-                    try:
-                        query = dict(ied__rs485_address = event.addr485, channel=event.channel)
-                        ai = AI.objects.get(**query)
-                        ai.energy_set.create(
-                            timestamp=event.timestamp,
-                            code=event.code,
-                            q=event.q,
-                            hnn=event.hnn,
-                            )
-                    except AI.DoesNotExist:
-                        print "Medicion de energia no reconcible", event
-                    except AI.MultipleObjectsReturned:
-                        print "No se pudo identificar la DI con ", query
-
-            print "Recalculo de las formulas"
-            Formula.calculate()
-            transaction.commit()
-
-            print "Update DB: DI: %d AI: %d SV: %d in %sS" % (di_count, ai_count, sv_count,
-                                                              time() - t0)
-        except Exception as e:
-            print e
-
+        self.factory.comaster.process_frame(self.input)
+        #transaction.commit()
 
 class MaraClientProtocolFactory(protocol.ClientFactory):
 

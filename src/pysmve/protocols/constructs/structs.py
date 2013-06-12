@@ -109,10 +109,10 @@ def container_to_datetime(obj):
     year, month, day, hour, minute, second, faction -> datetime instance
     Función auxiliar debido a que los adapters no funcionan como tales cuando están
     embebidos y para no crear una función extra'''
-    fraction = obj.fraction % SECONDS_FRACTION
+    fraction = getattr(obj, 'fraction', 0) % SECONDS_FRACTION
     microseconds = float(fraction) / SECONDS_FRACTION * 1000000
     return datetime(obj.year + 2000, obj.month, obj.day, obj.hour, obj.minute,
-                        obj.second, int(microseconds))
+                    getattr(obj, 'second', 0), int(microseconds))
 
 
 class GenericEventTailAdapter(Adapter):
