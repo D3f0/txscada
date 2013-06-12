@@ -97,6 +97,7 @@ class COMaster(models.Model):
         svs = svs.order_by('ied', 'offset', 'bit')
         return svs
 
+
     def __unicode__(self):
         return u"%s" % self.ip_address
 
@@ -113,7 +114,7 @@ class COMaster(models.Model):
                 mara_frame
             )
         # Some counters
-        di_count, ai_count, sv_count = 0, 0, 0
+        di_count, ai_count, sv_count, event_count = 0, 0, 0, 0
         t0, timestamp = time(), datetime.now()
         for value, di in zip(iterbits(payload.dis, length=16), self.dis):
             di.update_value(value, timestamp=timestamp)
@@ -121,8 +122,10 @@ class COMaster(models.Model):
         for value, ai in zip(payload.ais, self.ais):
             ai.update_value(value, timestamp=timestamp)
             ai_count += 1
+        for sv in self.svs:
+            print sv, sv.width
 
-        return
+        return di_count, ai_count, sv_count, event_count
 
     def set_ai_quality(self, value):
         pass
@@ -229,11 +232,17 @@ class SV(MV):
     @property
     def width(self):
         '''Returns width 1 or 8'''
-        sv_in_same_offset = self.ied.sv_set.filter(offset=self.offset)
-        if sv_in_same_offset == 8:
+        try:
+            self.ied.sv_set.get(offset=self.offset, bit=2)
             return self.BIT
-        else:
+        except SV.DoesNotExist:
             return self.BYTE
+
+
+
+    class Meta:
+        ordering = ('ied', 'offset', 'bit')
+
 
 
 class DI(MV):
