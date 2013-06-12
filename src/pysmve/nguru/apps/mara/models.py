@@ -1,11 +1,13 @@
 # encoding: utf-8
 import operator
+from datetime import datetime, time
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import signals
-from protocols import constants
 # from jsonfield import JSONField
-from datetime import datetime, time
+from django.utils.translation import ugettext as _
+from protocols.utils.bitfield import iterbits
+from protocols import constants
 
 
 class Profile(models.Model):
@@ -34,7 +36,7 @@ class Profile(models.Model):
                 # Does not want to be default, the only one?
                 if cls.objects.count() == 0:
                     instance.default = True
-    a = True
+
 signals.pre_save.connect(Profile.ensure_default, sender=Profile)
 
 
@@ -52,7 +54,7 @@ class COMaster(models.Model):
                                default=constants.DEFAULT_COMASTER_PORT)
     # ------------------------------------------------------------------------------------
     # Timing values
-    # ------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------
     poll_interval = models.FloatField(verbose_name="Poll interval in seconds",
                                       default=5)
     exponential_backoff = models.BooleanField(default=False,
@@ -80,14 +82,13 @@ class COMaster(models.Model):
     @property
     def dis(self):
         dis = DI.objects.filter(ied__co_master=self)
-        dis = dis.order_by('ied__offset', 'port', 'bit')
+        dis = dis.order_by('ied__offset', 'offset', 'port', 'bit')
         return dis
 
     @property
     def ais(self):
         ais = AI.objects.filter(ied__co_master=self)
         ais = ais.order_by('ied__offset', 'offset')
-        print ais.count()
         return ais
 
     @property
@@ -102,6 +103,32 @@ class COMaster(models.Model):
     class Meta:
         verbose_name = "CO Master"
         verbose_name_plural = "CO Masters"
+
+    def process_frame(self, mara_frame):
+        '''Takes a Mara frame and saves it into the DB model'''
+        payload = getattr(mara_frame, 'payload_10', None)
+        if not payload:
+            raise ValueError(
+                _("Mara payload not present. %s does not look like a frame") %
+                mara_frame
+            )
+        # Some counters
+        di_count, ai_count, sv_count = 0, 0, 0
+        t0, timestamp = time(), datetime.now()
+        for value, di in zip(iterbits(payload.dis, length=8), self.dis):
+            di.update_value(value, timestamp=timestamp)
+            di_count += 1
+        for value, ai in zip(payload.ais, self.ais):
+            ai.update_value(value, timestamp=timestamp)
+            ai_count += 1
+
+        return
+
+    def set_ai_quality(self, value):
+        pass
+
+    def set_sv_quality(self, value):
+        pass
 
 
 class IED(models.Model):
@@ -182,8 +209,10 @@ class SV(MV):
     '''
     System variable
     '''
-    BIT_CHOICES = [(None, 'Palabra Completa'), ] + [(n, 'Bit %d' % n) for n in range(8)]
-    bit = models.IntegerField(default=0, null=True, blank=True, choices=BIT_CHOICES)
+    BIT_CHOICES = [(None, 'Palabra Completa'), ] + [(n, 'Bit %d' % n)
+                                                    for n in range(8)]
+    bit = models.IntegerField(
+        default=0, null=True, blank=True, choices=BIT_CHOICES)
     value = models.IntegerField(default=0)
 
     class Meta:
@@ -196,6 +225,7 @@ class SV(MV):
     BIT = 1
     BYTE = 8
     # TODO Optimize
+
     @property
     def width(self):
         '''Returns width 1 or 8'''
@@ -222,7 +252,6 @@ class DI(MV):
     persoaccinoh = models.IntegerField(default=0)
     pesoaccionl = models.IntegerField(default=0)
 
-
     def __unicode__(self):
         return u"DI %2d:%2d (%s)" % (self.port, self.bit, (self.tag or "Sin Tag"))
 
@@ -231,6 +260,18 @@ class DI(MV):
         ordering = ('port', 'bit')
         verbose_name = "Digital Input"
         verbose_name_plural = "Digital Inputs"
+
+    @classmethod
+    def check_value_change(cls, instance=None, **kwargs):
+        if instance.pk:
+            old_value = DI.objects.get(pk=instance.pk).value
+            if old_value != instance.value:
+                print "%s change from %s -> %s at %s" % (instance,
+                                                         old_value,
+                                                         instance.value,
+                                                         instance.last_update)
+
+signals.pre_save.connect(DI.check_value_change, sender=DI)
 
 
 class GenericEvent(models.Model):
@@ -290,8 +331,8 @@ class ComEvent(GenericEvent):
         db_table = 'eventcom'
 
 
-
 class AI(MV):
+
     '''
     Analog Input
     '''
@@ -335,6 +376,7 @@ class AI(MV):
 
 
 class Energy(models.Model):
+
     '''
     Energy Measure. Every day has 96 energy values taken from the energy meter
     '''
@@ -349,4 +391,3 @@ class Energy(models.Model):
     class Meta:
         verbose_name = "Energy Measure"
         verbose_name_plural = "Energy Measures"
-
