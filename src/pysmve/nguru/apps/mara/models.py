@@ -353,6 +353,30 @@ class Event(models.Model):
     q = models.IntegerField()
     value = models.IntegerField()
 
+    def __unicode__(self):
+        text2 = None
+        kinds = EventKind.objects.filter(idtextoev2=self.di.idtextoev2)
+        if kinds.filter(value=self.value).count() == 1:
+            try:
+                text2 = kinds.get(value=self.value).text
+            except EventKind.DoesNotExist:
+                text2 = kinds.get().text
+        return "%s %s" % (self.di.description or "No description", text2 or "No Text 2")
+
+
+class EventKind(models.Model):
+    '''Abstracción de textoev2'''
+    text = models.CharField(max_length=50)
+    value = models.IntegerField(blank=True, null=True)
+    idtextoev2 = models.IntegerField()
+    class Meta:
+        unique_together = ('idtextoev2', 'value')
+
+    def __unicode__(self):
+        dis = ','.join([di.description or 'Sin Descripcion' for di in
+                    DI.objects.filter(idtextoev2=self.idtextoev2)])
+        dis = dis or 'No DI'
+        return '%s value=%s text=%s' % (dis, self.value or u'Vacio', self.text)
 
 class ComEventKind(models.Model):
 

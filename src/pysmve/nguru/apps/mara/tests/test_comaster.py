@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from django_fasttest import TestCase
-from ..models import Profile, Event, Energy
+from ..models import Profile, Event, Energy, EventKind, DI
 from pysmve.protocols.constructs import MaraFrame
 from construct import Container
 from copy import copy
@@ -145,6 +145,7 @@ class TestCOMasterFrame(TestBaseCOMaster):
 
         ]
         frame = self.buildFrame10(events=events)
+
         with self.tempComaster(self.profile, ieds=2, di_ports=1) as comaster:
             comaster.process_frame(frame)
             evs = Event.objects.filter(di__ied__co_master=comaster,
@@ -176,3 +177,30 @@ class TestCOMasterFrame(TestBaseCOMaster):
             comaster.process_frame(frame)
 
             self.assertEqual(Energy.objects.get().value, events[0].value)
+
+
+class TestEventText2(TestBaseCOMaster):
+
+    def setUp(self):
+        self.profile = Profile.objects.create(name='test')
+
+    def test_process_frame_with_digital_events(self):
+        events = [
+            Container(evtype="DIGITAL", q=0,
+                      addr485=1, port=0, bit=7, status=0,
+                      # Timestamp bytes
+                      timestamp=datetime.now()
+                              ),
+        ]
+        frame = self.buildFrame10(events=events)
+
+        with self.tempComaster(self.profile, ieds=1, di_ports=1) as comaster:
+            DI.objects.update(idtextoev2=0, description="Interruptor", )
+            EventKind.objects.create(text="Cerrado", idtextoev2=0, value=0)
+            comaster.process_frame(frame)
+            evs = Event.objects.filter(di__ied__co_master=comaster,
+                                       di__ied__rs485_address=events[
+                                           0].addr485,
+                                       di__port=events[0].port,
+                                       di__bit=events[0].bit)
+            self.assertEqual(unicode(evs.get()), "Interruptor Cerrado")

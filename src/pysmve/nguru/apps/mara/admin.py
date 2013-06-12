@@ -3,7 +3,7 @@
 from django.contrib import admin
 
 from models import (COMaster, IED, Unit, SV, DI, AI, Event, Energy,
-                    ComEventKind, ComEvent)
+                    ComEventKind, ComEvent, EventKind)
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
 
 
@@ -78,7 +78,7 @@ class DIAdmin(admin.ModelAdmin):
 
 site.register(DI, DIAdmin)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('tag', 'bit', 'port', 'value', 'timestamp', 'timestamp_ack')
+    list_display = ('tag', '__unicode__', 'bit', 'port', 'value', 'timestamp', 'timestamp_ack')
 
     def tag(self, event):
         tag = event.di.tag
@@ -109,6 +109,7 @@ class EnergyAdmin(admin.ModelAdmin):
     list_filter = ('timestamp', 'ai', 'hnn', 'q')
 site.register(Energy, EnergyAdmin)
 
+site.register(EventKind)
 
 class SVGScreenAdmin(admin.ModelAdmin):
     list_display = ['name', 'show_svg']
