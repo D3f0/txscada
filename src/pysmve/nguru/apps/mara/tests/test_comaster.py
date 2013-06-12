@@ -5,7 +5,9 @@ from construct import Container
 from copy import copy
 from itertools import izip
 from contextlib import contextmanager
+from datetime import datetime
 
+#from pysmve.protocols.constructs.tests import *
 
 class TestBaseCOMaster(TestCase):
 
@@ -35,25 +37,54 @@ class TestBaseCOMaster(TestCase):
         sequence=0x33,
         command=0x10,
         payload_10=Container(
-            canvarsys=2,
-            varsys=[33],
+            canvarsys=0,
+            varsys=[],
             candis=0,
             dis=[],
             canais=0,
             ais=[],
-            canevs=11,
-            event=[ ]
+            canevs=0,
+            event=[]
         )
     )
 
     @classmethod
-    def buildFrame10(cls, dis=[], ais=[]):
-        frame = copy(cls.BASE_CONTAINER)
-        frame.payload_10.dis = dis
-        frame.payload_10.candis = len(dis) + 1
-        frame.payload_10.ais = ais
-        frame.payload_10.canais = len(ais) + 1
-        return frame
+    def buildFrame10(cls, dis=[], ais=[], varsys=[], events=[], through_construct=True):
+        data = copy(cls.BASE_CONTAINER)
+        data.payload_10.dis = dis
+        data.payload_10.candis = len(dis) * 2 + 1
+        data.payload_10.ais = ais
+        data.payload_10.canais = len(ais) * 2 + 1
+        data.payload_10.event = events
+        data.payload_10.canevs = (len(events) * 10) + 1
+        data.payload_10.varsys = varsys
+        data.payload_10.canvarsys = len(varsys) * 2 + 1
+
+        if through_construct:
+            build = MaraFrame.build(data)
+            data = MaraFrame.parse(build)
+        return data
+
+# class TestFrameBuilder(TestBaseCOMaster):
+#     def test_construct_are_bidirectional(self):
+#         data = Container(
+#             sof=0xFE,
+#             length=0,
+#             dest=1,
+#             source=2,
+#             sequence=0x33,
+#             command=0x10,
+#             payload_10=Container(
+#                     canvarsys=2,
+#                     varsys=[33],
+#                     candis=0,
+#                     dis=[],
+#                     canais=0,
+#                     ais=[],
+#                     canevs=11,
+#                     event=[self.event_data, ]
+#                 )
+#             )
 
 
 class TestCOMasterProperties(TestBaseCOMaster):
@@ -101,4 +132,10 @@ class TestCOMasterFrame(TestBaseCOMaster):
             self.assertEqual(comaster.ais[0].value, 10)
             self.assertEqual(comaster.ais[1].value, 20)
 
-
+    def test_process_frame_with_events(self):
+        event_data = Container(evtype="DIGITAL", q=0,
+                               addr485=5, bit=0, port=3, status=0,
+                               # Timestamp bytes
+                               timestamp=datetime.now()
+                               )
+        frame = self.buildFrame10(events=[event_data])
