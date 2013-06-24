@@ -1,5 +1,4 @@
 from django.core.management.base import NoArgsCommand, CommandError
-from twisted.internet import reactor
 from optparse import make_option
 
 class TwistedNoArgsCommand(NoArgsCommand):
@@ -15,6 +14,6 @@ class TwistedNoArgsCommand(NoArgsCommand):
         if args:
             raise CommandError("Command doesn't accept any arguments")
         self.handle_noargs(**options)
-
+        from twisted.internet import reactor
         if not options.get('dont_run_reactor'):
             reactor.run()

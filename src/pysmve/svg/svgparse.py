@@ -19,3 +19,4 @@ find = partial(tree.xpath, namespaces=nsmap)
 
 
 print find('//svg:rect[@class="electric"]')
+from IPython import embed; embed()

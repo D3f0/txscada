@@ -118,16 +118,18 @@ class COMaster(models.Model):
         di_count, ai_count, sv_count, event_count = 0, 0, 0, 0
         t0, timestamp = time(), datetime.now()
         for value, di in zip(iterbits(payload.dis, length=16), self.dis):
-            di.update_value(value, timestamp=timestamp)
+            # Poener en 0 en
+            di.update_value(value, q=0, last_update=timestamp)
             di_count += 1
         for value, ai in zip(payload.ais, self.ais):
-            ai.update_value(value, timestamp=timestamp)
+            # TODO: Copiar Q
+            ai.update_value(value, last_update=timestamp)
             ai_count += 1
 
         variable_widths = [v.width for v in self.svs]
 
         for value, sv in zip(expand(payload.varsys, variable_widths), self.svs):
-            sv.update_value(value, timestamp=timestamp)
+            sv.update_value(value, last_update=timestamp)
             sv_count += 1
 
         for event in payload.event:
@@ -153,7 +155,7 @@ class COMaster(models.Model):
                         ied__rs485_address=event.addr485,
                         ied__co_master=self,
                         channel=event.channel,
-                        )
+                    )
                     ai = AI.objects.get(**query)
                     timestamp = container_to_datetime(event)
                     value = 0
@@ -185,6 +187,8 @@ class COMaster(models.Model):
                     )
                 except ComEvent.DoesNotExist:
                     print "No se puede crear el Evento tipo 3"
+        from apps.hmi.models import Formula
+        Formula.calculate()
         return di_count, ai_count, sv_count, event_count
 
     def set_ai_quality(self, value):
@@ -258,11 +262,13 @@ class MV(models.Model):
     class Meta:
         abstract = True
 
-    def update_value(self, value, timestamp=None, q=None):
+    def update_value(self, value, **kwargs):
+        '''Actualiza el valor'''
         self.value = value
-        if not timestamp:
-            timestamp = datetime.now()
-        self.last_update = timestamp
+
+        self.last_update = kwargs.pop('last_update', datetime.now())
+        for k, v in kwargs.items():
+            setattr(self, k, v)
         # TODO: Emit singal
         self.save()
 

@@ -1,0 +1,4 @@
+1. Calificador de AI:
+    2 bits mas altos != 0 indican medida calificda
+    Chckear
+2. VarSys 1.4 si vienen en 1 at todas AIs de IED q=1

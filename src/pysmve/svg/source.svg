@@ -24,18 +24,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="323.64255"
-     inkscape:cy="625.47322"
+     inkscape:zoom="0.49497475"
+     inkscape:cx="248.51553"
+     inkscape:cy="396.55059"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:window-width="1366"
-     inkscape:window-height="717"
-     inkscape:window-x="-4"
-     inkscape:window-y="-4"
+     inkscape:window-height="698"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
      inkscape:window-maximized="1">
     <sodipodi:guide
        orientation="0,1"
@@ -50,7 +50,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -102,5 +102,16 @@
        sodipodi:rx="48.57143"
        sodipodi:ry="48.57143"
        d="m 346.42858,293.07648 a 48.57143,48.57143 0 1 1 -97.14286,0 48.57143,48.57143 0 1 1 97.14286,0 z" />
-  </g>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot2989"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Montez;-inkscape-font-specification:Montez"><flowRegion
+         id="flowRegion2991"><rect
+           id="rect2993"
+           width="492.95444"
+           height="234.35539"
+           x="181.82745"
+           y="658.40271" /></flowRegion><flowPara
+         id="flowPara2995"
+         style="-inkscape-font-specification:ABeeZee;font-family:ABeeZee;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal">Testo</flowPara></flowRoot>  </g>
 </svg>
