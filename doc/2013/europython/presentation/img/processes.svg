@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="738.42859"
+   height="498.44238"
+   id="svg5466"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="processes.svg">
+  <defs
+     id="defs5468" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.49497475"
+     inkscape:cx="186.63468"
+     inkscape:cy="433.764"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     fit-margin-top="5"
+     fit-margin-left="30"
+     fit-margin-right="5"
+     fit-margin-bottom="5"
+     inkscape:window-width="1366"
+     inkscape:window-height="713"
+     inkscape:window-x="0"
+     inkscape:window-y="31"
+     inkscape:window-maximized="1">
+    <sodipodi:guide
+       orientation="0,1"
+       position="234.57143,66.630182"
+       id="guide5572" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5471">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(18.142857,113.02145)">
+    <g
+       id="g5680"
+       transform="translate(0,-15.44816)">
+      <path
+         sodipodi:nodetypes="ccccc"
+         inkscape:connector-curvature="0"
+         id="rect5492"
+         d="m 252.85715,53.79076 221.42857,0 0,195.71429 -221.42857,0 z"
+         style="color:#000000;fill:#dbdee3;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.99999988;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:12.00000018, 2.00000004;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <path
+         sodipodi:nodetypes="cccccc"
+         inkscape:connector-curvature="0"
+         id="rect5568"
+         d="m 264.57141,168.14789 197.14285,0 0,62.14286 -197.14285,0 40,-31.5 z"
+         style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <text
+         xml:space="preserve"
+         style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Montserrat Alternates;-inkscape-font-specification:Montserrat Alternates"
+         x="330.17606"
+         y="213.5162"
+         id="text5586"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan5588"
+           x="330.17606"
+           y="213.5162">SUB</tspan></text>
+      <path
+         style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         d="m 264.57143,76.14789 157.14285,0 40,31.35715 -40,30.78571 -157.14285,0 z"
+         id="path5590"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cccccc" />
+      <text
+         xml:space="preserve"
+         style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Montserrat Alternates;-inkscape-font-specification:Montserrat Alternates"
+         x="322.17606"
+         y="121.5162"
+         id="text5592"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan5594"
+           x="322.17606"
+           y="121.5162">PUB</tspan></text>
+    </g>
+    <text
+       sodipodi:linespacing="125%"
+       id="text5600"
+       y="103.34572"
+       x="572.83063"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Montserrat Alternates;-inkscape-font-specification:Montserrat Alternates"
+       xml:space="preserve"><tspan
+         y="103.34572"
+         x="572.83063"
+         id="tspan5602"
+         sodipodi:role="line" /></text>
+    <g
+       id="g5689"
+       transform="translate(0,8.4873276)">
+      <rect
+         y="-115.50877"
+         x="12.857143"
+         height="486.44238"
+         width="221.42857"
+         id="rect5490"
+         style="color:#000000;fill:#aade87;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.99999988;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:12.00000016, 2.00000004;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <rect
+         y="37.362183"
+         x="25.714287"
+         height="102.14286"
+         width="197.14285"
+         id="rect5474"
+         style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text5476"
+         y="103.34572"
+         x="52.830635"
+         style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Montserrat Alternates;-inkscape-font-specification:Montserrat Alternates"
+         xml:space="preserve"><tspan
+           y="103.34572"
+           x="52.830635"
+           id="tspan5478"
+           sodipodi:role="line">Models</tspan></text>
+      <rect
+         style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="rect5480"
+         width="197.14285"
+         height="102.14286"
+         x="25.579575"
+         y="162.97754" />
+      <text
+         xml:space="preserve"
+         style="font-size:30.14198303px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Montserrat Alternates;-inkscape-font-specification:Montserrat Alternates"
+         x="61.365013"
+         y="205.98364"
+         id="text5482"
+         sodipodi:linespacing="125%"><tspan
+           sodipodi:role="line"
+           id="tspan5484"
+           x="61.365013"
+           y="205.98364">pre/post</tspan><tspan
+           id="tspan5486"
+           sodipodi:role="line"
+           x="61.365013"
+           y="243.66112">save</tspan></text>
+      <path
+         sodipodi:nodetypes="cccccc"
+         inkscape:connector-curvature="0"
+         id="rect5480-5"
+         d="m 24.57143,288.14789 157.14285,0 40,31.35715 -40,30.78571 -157.14285,0 z"
+         style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text5476-2"
+         y="333.5162"
+         x="82.176064"
+         style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Montserrat Alternates;-inkscape-font-specification:Montserrat Alternates"
+         xml:space="preserve"><tspan
+           y="333.5162"
+           x="82.176064"
+           id="tspan5478-1"
+           sodipodi:role="line">PUB</tspan></text>
+      <rect
+         style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="rect5618"
+         width="197.14285"
+         height="102.14286"
+         x="25.714287"
+         y="-90.637817" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text5476-23"
+         y="-24.654278"
+         x="89.500557"
+         style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Montserrat Alternates;-inkscape-font-specification:Montserrat Alternates"
+         xml:space="preserve"><tspan
+           y="-24.654278"
+           x="89.500557"
+           id="tspan5478-4"
+           sodipodi:role="line">Poll</tspan></text>
+    </g>
+    <rect
+       y="-58.534126"
+       x="492.85718"
+       height="389.46774"
+       width="221.42857"
+       id="rect5596"
+       style="color:#000000;fill:#aa87de;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.99999976;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:12.00000023, 2.00000005;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <rect
+       style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect5604"
+       width="197.14285"
+       height="140.52866"
+       x="505.57959"
+       y="84.591743" />
+    <text
+       xml:space="preserve"
+       style="font-size:30.14198303px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Montserrat Alternates;-inkscape-font-specification:Montserrat Alternates"
+       x="604.01117"
+       y="128.4156"
+       id="text5606"
+       sodipodi:linespacing="125%"><tspan
+         id="tspan5610"
+         sodipodi:role="line"
+         x="604.01117"
+         y="128.4156">Forward</tspan><tspan
+         sodipodi:role="line"
+         x="608.80182"
+         y="166.09308"
+         id="tspan5656">to </tspan><tspan
+         sodipodi:role="line"
+         x="604.01117"
+         y="203.77057"
+         id="tspan5658">WebSocket</tspan></text>
+    <path
+       style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m 504.57143,240.14789 157.14285,0 40,31.35715 -40,30.78571 -157.14285,0 z"
+       id="path5648"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc" />
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Montserrat Alternates;-inkscape-font-specification:Montserrat Alternates"
+       x="562.17603"
+       y="285.5162"
+       id="text5650"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan5652"
+         x="562.17603"
+         y="285.5162">SUB</tspan></text>
+    <rect
+       y="-38.637817"
+       x="505.71429"
+       height="102.14286"
+       width="197.14285"
+       id="rect5660"
+       style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:2;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Montserrat Alternates;-inkscape-font-specification:Montserrat Alternates"
+       x="537.97711"
+       y="23.625019"
+       id="text5662"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan5664"
+         x="537.97711"
+         y="23.625019">SockJS</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:31.28171158px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Montserrat Alternates;-inkscape-font-specification:Montserrat Alternates"
+       x="288.37802"
+       y="29.389124"
+       id="text5736"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan5738"
+         x="288.37802"
+         y="29.389124">ZMQ Fwdr</tspan></text>
+  </g>
+</svg>

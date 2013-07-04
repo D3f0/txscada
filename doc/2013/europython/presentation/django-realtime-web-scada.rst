@@ -8,9 +8,9 @@ $ whoami
 ========
 
 
-    - Python advocate for +6 years
-    - Teacher at **Univerisdad Nacional de la Patagonia**
-    - Devop at **Machinalis**
+* Python advocate for +6 years
+* Head of practical assignments at **Univerisdad Nacional de la Patagonia**
+* Devop at **Machinalis**
 
 
 .. image:: img/logos.svg
@@ -23,9 +23,9 @@ The SMVE project
 
 This talk will cover the SVME project, an attemp to build
 an UI (HMI) for a Power Substation monitoring system using HTML5 (SVG, WebSockets)
-and Python!
+and Python in a lab at University where I work.
 
-We de
+Software is *not finished* though it's quite functional.
 
 ----
 
@@ -47,6 +47,32 @@ HMI
 
 ----
 
+Python really?
+==============================================
+
+At first Python was seen as a very high level language, in an enviroment where
+C and specific assembler were predominant.
+
+But as complexity raises, Python is a **grat tool for this job**.
+
+----
+
+We were not the first!
+======================
+
+.. image:: img/book.jpg
+
+----
+
+Why Django
+==========
+
+* Settings (with logging)
+* Commands
+* Easy to learn ORM (with Signals)
+
+
+----
 
 Where do data come from?
 ========================
@@ -55,10 +81,8 @@ Where do data come from?
 
 ----
 
-
-
 Measurement
-============
+===========
 
 .. image:: img/alpha2.jpg
 
@@ -117,6 +141,7 @@ Concentrators also...
 * Communication status variables
 
 
+
 -----
 
 SCADA Deamon
@@ -130,6 +155,17 @@ and **Construct** for dict to stream/stream to bits conversion.
 It talks to the database through **Django models**.
 
 It's implemented as a **django management command**.
+
+-----
+
+Django Models
+=============
+
+* Concentrator
+    * IED
+        * DI
+        * AI
+        * Events
 
 
 ----
@@ -188,6 +224,50 @@ Let us define Mara frame as follows:
 
 ----
 
+Let's go back to the real time thing
+====================================
+
+----
+
+Sending updates
+===============
+
+Detecting model changes is relatively easy with signals.
+
+The SCADA deamon is a process that run in a different address space
+than the webserver or any other process.
+
+----
+
+.. image:: img/zmq.png
+
+ZMQ provides many different communication patterns.
+
+We need something that supports the **publisher/subscriber** pattern.
+
+
+----
+
+ZMQ Forwarder
+=============
+
+
+.. image:: img/forwarder.png
+    :width: 100%
+
+
+----
+
+IPC wiht ZMQ
+============
+
+
+
+.. image:: img/processes.svg
+
+
+
+----
 
 Showing the data in the web
 ===========================
@@ -198,59 +278,65 @@ Showing the data in the web
 Diagrams
 ========
 
-SVG
+The user of this monitoring systems needs an overview of the system.
+This overview must contain **useful** information.
 
+SVG is a great tool for this job, it's supported on major browsers and works
+well on mid/high end mobile devices.
 
-
-------
-
-SCADA Software
-==============
-
-
-SCADA software monitors and controls industrial processes. They provide an "nice"
-UI overview of the process and allow to interect with dedicated hardware (PLC, RTU, IED, etc)
+* DOM
+* Properties and IDs
+* jQuery SVG
 
 ----
 
+Example SVG Diagram
+===================
 
 
-
-----
-
-Python really?
-==============================================
-
-At first Python was seen as a very high level language, in an enviroment where
-C and specific assembler where predominant.
-
-
+.. image:: img/diagram.svg
 
 ----
 
-We were not the first!
-======================
-
-.. image:: img/book.jpg
-
-
+Formulas
+========
 
 ----
 
-Why Django
-==========
+Dynamic SVG
+===========
+
+DI, AI updates do not directly change properties in the diagrams,
+sometimes we need 2 or 3 values in a formula to calcualate the SVG properties.
 
 
-- Settings (with logging)
-- Commands
-- Easy to learn ORM (with Signals)
+So, **every** element in SVG has an ID and an **assosiated model** in the server side.
 
+Everytime something changes, affected formulas (elements), get recalculated
+and properties updates are pushed to clients.
 
+----
+
+.. image:: img/formulas_pipe.svg
+
+----
+
+Infraestructure
+===============
+
+* SaaS (scada as a service)
+* Use open hardware
+* VPN connection to hardware
 
 ----
 
 Questions?
 ==========
+
+----
+
+The End
+=======
 
 ----
 
