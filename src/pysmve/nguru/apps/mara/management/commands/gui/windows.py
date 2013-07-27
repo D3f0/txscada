@@ -1,7 +1,3 @@
-import sys
-import qt4reactor
-qt4reactor.install()
-from twisted.internet import reactor
 from PyQt4 import QtGui
 
 class EmulatorWindow(QtGui.QWidget):
@@ -34,13 +30,7 @@ class EmulatorWindow(QtGui.QWidget):
         widget.setLayout(layout)
         return widget
 
-    @classmethod
-    def launch(cls, obj=None):
-        app = QtGui.QApplication(sys.argv)
-        #import qt4reactor
-        #qt4reactor.install()
+    def closeEvent(self, event):
+        from twisted.internet import reactor
+        reactor.stop()
 
-        window = QtGui.QLabel("HOHO")
-        window.show()
-        print "Showing..."
-        reactor.run()

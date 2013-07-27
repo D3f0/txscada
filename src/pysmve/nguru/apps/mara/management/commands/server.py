@@ -1,19 +1,15 @@
-try:
-    from .gui import EmulatorWindow
-    GUI_AVALIABLE = True
-except ImportError:
-    GUI_AVALIABLE = False
+
+
 import sys
 from django.core.management.base import NoArgsCommand, CommandError
 from optparse import make_option
-from protocols import constants, mara
-from twisted.internet import reactor
+
 
 class Command(NoArgsCommand):
 
     option_list = NoArgsCommand.option_list + (
         make_option('-p', '--port',
-                    default=constants.DEFAULT_COMASTER_PORT,
+                    default=9761,
                     help='TCP Port',
                     ),
         make_option('-g', '--gui',
@@ -27,15 +23,19 @@ class Command(NoArgsCommand):
 
     def handle_noargs(self, **options):
         if options.get('gui'):
-            return self.buildGui()
-
+            self.buildGui()
         port = options.get('port')
+        from twisted.internet import reactor
+        from protocols import mara
         print "Iniciando el emulador de CoMaster en el puerto %s" % port
         reactor.listenTCP(port, mara.server.MaraServerFactory())
         reactor.run()
 
     def buildGui(self):
-        if not GUI_AVALIABLE:
-            raise CommandError("Qt not available (virtualenv?)")
-        EmulatorWindow.launch()
-
+        from PyQt4 import QtCore, QtGui
+        import qt4reactor
+        app = QtGui.QApplication(sys.argv)
+        qt4reactor.install()
+        from .gui import EmulatorWindow
+        self.window = EmulatorWindow()
+        self.window.show()
