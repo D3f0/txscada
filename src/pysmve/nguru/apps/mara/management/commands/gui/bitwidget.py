@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-from PyQt4 import QtCore, QtGui
 import sys
+import os
+from PyQt4 import QtCore, QtGui
+from pycante import E
+
+PATH = os.path.dirname(__file__)
 
 class HexSpinBox(QtGui.QSpinBox):
     # http://www.qtforum.org/article/15059/qspinbox-in-hex.html
@@ -61,7 +65,7 @@ class QBitWidget(QtGui.QWidget):
         #self.spinner = HexSpinBox()
 
         self.spinner.setMinimum(0)
-        self.spinner.setMaximum(2**self.bits -1)
+        self.spinner.setMaximum(2**self.bits - 1)
         self.spinner.valueChanged.connect(self.spinBox_valueChanged)
         self.spinner.value
         bottom = QtGui.QHBoxLayout()
@@ -110,7 +114,7 @@ class QBitWidget(QtGui.QWidget):
     def add_bit_event(self, bit, callable, state=None):
         raise NotImplementedError("Does not support this feature yet")
 
-class BitBlockWidget(QtGui.QWidget):
+class QBitBlockWidget(QtGui.QWidget):
     '''A bit block'''
     def __init__(self, title=None, width=16, count=1):
         QtGui.QWidget.__init__(self)
@@ -153,17 +157,29 @@ class QAnalogWidget(QtGui.QWidget):
         self.setupUi()
 
     def setupUi(self):
-        layout = QtGui.QHBoxLayout()
+        layout = QtGui.QVBoxLayout()
+        layout.setSpacing(0)
+
+        layout_up = QtGui.QHBoxLayout()
         self.checkbox = QtGui.QCheckBox()
-        layout.addWidget(self.checkbox)
+        layout_up.addWidget(self.checkbox)
         self.slider = QtGui.QSlider(QtCore.Qt.Horizontal)
 
         self.slider.setMinimum(0)
         self.slider.setMaximum(2**self.bits)
+        self.slider.valueChanged.connect(self.slider_valueChanged)
 
-        layout.addWidget(self.slider)
-        #layout.addWidget()
+        layout_up.addWidget(self.slider)
+
+        self.label = QtGui.QLabel()
+        self.label.setText('0000 <b>(0000)</b>')
+        layout.addLayout(layout_up)
+        layout.addWidget(self.label)
         self.setLayout(layout)
+
+    def slider_valueChanged(self, value):
+        text = '%.4d <b>%.4x</b>' % (value, value)
+        self.label.setText(text.upper())
 
     @property
     def value(self):
@@ -173,7 +189,7 @@ class QAnalogWidget(QtGui.QWidget):
     def value(self, new):
         self.slider.setValue(new)
 
-class AnalogBlockWidget(QtGui.QWidget):
+class QAnalogBlockWidget(QtGui.QWidget):
     def __init__(self, title, width=14, count=1):
         QtGui.QWidget.__init__(self)
         self.title = title
@@ -207,10 +223,7 @@ class Simulator(QtGui.QWidget):
 
     def setupUi(self):
         layout = QtGui.QVBoxLayout()
-        layout_buttons = QtGui.QHBoxLayout()
-        layout_buttons.addSpacing(1)
-        layout_buttons.addWidget(QtGui.QPushButton("Read DB"))
-        layout_buttons.addWidget(QtGui.QPushButton("Random!"))
+        layout_buttons = self.buildButtonLayout()
         layout.addLayout(layout_buttons)
 
         layout_controls = QtGui.QHBoxLayout()
@@ -219,7 +232,28 @@ class Simulator(QtGui.QWidget):
         layout_controls.addWidget(self.dis)
         layout_controls.addWidget(self.ais)
         layout.addLayout(layout_controls)
+
+        self.log = QtGui.QPlainTextEdit()
+        self.log.setReadOnly(True)
+        layout.addWidget(self.log)
+
         self.setLayout(layout)
+
+    def buildButtonLayout(self):
+        layout = QtGui.QHBoxLayout()
+        self.buttonReadDB = QtGui.QPushButton("Read DB")
+        layout.addWidget(self.buttonReadDB)
+        self.buttonWriteDB = QtGui.QPushButton("Write DB")
+        layout.addWidget(self.buttonWriteDB)
+        self.buttonRandom = QtGui.QPushButton("Random")
+        layout.addWidget(self.buttonRandom)
+        self.buttonListen = QtGui.QPushButton("Listen!")
+        self.buttonListen.setToolTip("Listen TCP Port")
+        self.buttonListen.setCheckable(True)
+        layout.addWidget(self.buttonListen)
+
+        return layout
+
 
     def createControls(self):
         self.createSVS()
@@ -227,13 +261,13 @@ class Simulator(QtGui.QWidget):
         self.createAIS()
 
     def createSVS(self):
-        self._svs = BitBlockWidget(title='VarSys', width=16, count=12)
+        self._svs = QBitBlockWidget(title='VarSys', width=16, count=12)
 
     def createDIS(self):
-        self._dis = BitBlockWidget(title='DIs', width=16, count=6)
+        self._dis = QBitBlockWidget(title='DIs', width=16, count=6)
 
     def createAIS(self):
-        self._ais = AnalogBlockWidget(title='AI', count=10)
+        self._ais = QAnalogBlockWidget(title='AI', count=10)
 
     @property
     def svs(self):
@@ -247,6 +281,14 @@ class Simulator(QtGui.QWidget):
     def ais(self):
         return self._ais
 
+class SimulatorWidget(E(os.path.join(PATH, 'uis/sim.ui'))):
+    def __init__(self):
+        super(SimulatorWidget, self).__init__()
+        #self.buildBlocks()
+        #import settings
+
+
+# Mainly for testing purpouses
 def main():
     from random import randint, seed
     from os import getpid
@@ -257,12 +299,15 @@ def main():
             yield 'Bit N#%d' % i
 
     app = QtGui.QApplication(sys.argv)
-    #win = BitBlockWidget(title='DIs', width=16, count=6)
+    #win = QBitBlockWidget(title='DIs', width=16, count=6)
     win = Simulator()
 
     win.setWindowTitle("Simulación de un COMaster")
+    win.log.appendPlainText("Simulator started\n")
     #win = QBitWidget(8)
     win.show()
+    w2 = Ventana()
+    w2.show()
     app.exec_()
 
 
