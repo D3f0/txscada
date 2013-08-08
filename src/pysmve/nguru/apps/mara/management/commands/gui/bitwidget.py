@@ -287,6 +287,8 @@ class SimulatorWidget(E(os.path.join(PATH, 'uis/sim.ui'))):
         #self.buildBlocks()
         #import settings
 
+    def add_di(self, width=None):
+        pass
 
 # Mainly for testing purpouses
 def main():
@@ -306,7 +308,7 @@ def main():
     win.log.appendPlainText("Simulator started\n")
     #win = QBitWidget(8)
     win.show()
-    w2 = Ventana()
+    w2 = SimulatorWidget()
     w2.show()
     app.exec_()
 
