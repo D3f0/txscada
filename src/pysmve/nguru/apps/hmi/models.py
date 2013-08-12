@@ -6,10 +6,15 @@ from lxml.etree import ElementTree as ET
 from colorful.fields import RGBColorField
 
 from django.db import models
-from apps.mara.models import AI, DI
+from apps.mara.models import Profile, AI, DI
 
+class ProfileBound(models.Model):
+    profile = models.ForeignKey(Profile)
 
-class Screen(models.Model):
+    class Meta:
+        abstract = True
+
+class Screen(ProfileBound):
     parent = models.ForeignKey('self',
                                related_name='children',
                                null=True,
@@ -60,7 +65,7 @@ def get_elements(et):
     return dict([(elem.attrib['tag'], tag(elem.tag)) for elem in et.findall('//*[@tag]')])
 
 
-class Color(models.Model):
+class Color(ProfileBound):
     name = models.CharField(max_length=30)
     color = RGBColorField()
 
@@ -68,7 +73,7 @@ class Color(models.Model):
         return self.name
 
 
-class SVGPropertyChangeSet(models.Model):
+class SVGPropertyChangeSet(ProfileBound):
 
     '''Formula evaluation result'''
     index = models.IntegerField()
@@ -95,7 +100,7 @@ class SVGPropertyChangeSet(models.Model):
         db_table = 'color'
 
 
-class SVGElement(models.Model):
+class SVGElement(ProfileBound):
     MARK_CHOICES = [ ("%s" % i, i) for i in xrange(16)]
     tag = models.CharField(max_length=16)
     description = models.CharField(max_length=120)
@@ -108,7 +113,7 @@ class SVGElement(models.Model):
     def __unicode__(self):
         return self.tag
 
-class Formula(models.Model):
+class Formula(ProfileBound):
     ATTR_TEXT = 'text'
     ATTR_BACK = 'colback'
     ATTR_FORE = 'colfore'

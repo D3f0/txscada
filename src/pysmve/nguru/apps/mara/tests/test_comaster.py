@@ -104,7 +104,7 @@ class TestCOMasterFrame(TestBaseCOMaster):
             di_values = [di.value for di in comaster.dis[:16]]
             self.assertEqual([1 for _ in di_values], di_values)
 
-    def test_process_frame_with_ais(self):
+    def test_process_frame_with_ais(self):le
         ais = [10, 20]
         frame = self.buildFrame10(ais=ais)
         with self.tempComaster(self.profile, ais=2, ieds=1) as comaster:
@@ -198,7 +198,7 @@ class TestCOMasterFrame(TestBaseCOMaster):
             comaster.process_frame(frame)
             self.assertEqual(comaster.ieds.get().comevent_set.count(), 1)
             event = comaster.ieds.get().comevent_set.get()
-            print event
+            print eventp
 
 class TestEventText2(TestBaseCOMaster):
 
