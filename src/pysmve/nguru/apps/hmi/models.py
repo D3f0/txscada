@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-from django.db import models
-from colorful.fields import RGBColorField
-from lxml.etree import ElementTree as ET
-from apps.mara.models import AI, DI
-from bunch import bunchify
 import re
+from bunch import bunchify
+from datetime import datetime
+from lxml.etree import ElementTree as ET
+from colorful.fields import RGBColorField
+
+from django.db import models
+from apps.mara.models import AI, DI
 
 
 class Screen(models.Model):
@@ -101,7 +103,7 @@ class SVGElement(models.Model):
     background = models.CharField(max_length=20, null=True, blank=True)
     mark = models.IntegerField(null=True, blank=True, choices=MARK_CHOICES)
     enabled = models.BooleanField(default=False)
-    last_update = models.DateField(null=True, blank=True)
+    last_update = models.DateTimeField(null=True, blank=True)
 
     def __unicode__(self):
         return self.tag
@@ -161,5 +163,10 @@ class Formula(models.Model):
                 print e
             else:
                 #print "Setenado", eg.tag, formula.attribute, value
-                setattr(eg, formula.attribute, value)
-                eg.save()
+                attribute = formula.attribute
+                prev_value = getattr(eg, attribute)
+                if prev_value != value:
+                    # Update
+                    setattr(eg, attribute, value)
+                    eg.last_update = datetime.now()
+                    eg.save()
