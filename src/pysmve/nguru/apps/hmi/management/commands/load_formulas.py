@@ -4,6 +4,9 @@ from optparse import make_option
 from collections import namedtuple, OrderedDict
 import xlrd
 from django.core.management.base import NoArgsCommand, CommandError
+from apps.hmi.models import Formula
+from apps.mara.models import Profile
+
 
 sanitize_row_name = lambda name: name.lower().replace(' ', '_')
 
@@ -18,6 +21,32 @@ def extract(row, fields=None):
         result.append(getattr(row, name))
     return tuple(result)
 
+FIELD_LABELS_ROW = 0
+FIRST_DATA_ROW = 1
+
+
+def iter_rows(sheet, fields=None, first_data_row=FIRST_DATA_ROW):
+    '''Iterates sheet returing named tuple for each row'''
+    col_names = get_col_names(sheet)
+    col_type = namedtuple('Row', col_names)
+    #print col_names
+    for i in range(first_data_row, sheet.nrows):
+        values = sheet.row_values(i)
+        yield extract(col_type._make(values), fields=fields)
+
+def get_col_names(sheet, field_labels_row=FIELD_LABELS_ROW):
+    '''Validates column names, takes care of repeated column names'''
+    names = OrderedDict()
+    for new_name in sheet.row_values(field_labels_row):
+        new_name = sanitize_row_name(new_name)
+        if not new_name in names:
+            names[new_name] = 0
+        else:
+            names[new_name] += 1
+            extra_name = "%s_%d" % (new_name, names[new_name])
+            names[extra_name] = 0
+
+    return names.keys()
 
 class Command(NoArgsCommand):
     option_list = (
@@ -25,7 +54,8 @@ class Command(NoArgsCommand):
                     help="Archivo excel", default=None),
         make_option(
             '-p', '--profile', help='Profile donde cargar las formulas'),
-        make_option('-c', '--clear', help="Quitar formulas previas")
+        make_option('-c', '--clear', help="Quitar formulas previas", default=False,
+            action='store_true', ),
         #
     ) + NoArgsCommand.option_list
 
@@ -46,9 +76,45 @@ class Command(NoArgsCommand):
         except IOError:
             raise CommandError("Error de entrada salida abriendo excel")
 
-        self.formulas_sheet = self.get_formulas_sheet()
-        for tag, atributo, formula in self.iter_rows('tag', 'atributo', 'formula'):
-            print tag, atributo, formula
+        formulas_sheet = self.get_formulas_sheet()
+
+        try:
+            name = self.options['profile']
+            profile = Profile.objects.get(name=name)
+        except Profile.DoesNotExist:
+            raise CommandError("Profile %s does not exist" % name)
+
+        deleted_count = 0
+        created_count = 0
+
+        if self.options['clear']:
+            qs = profile.formula_set.all()
+            deleted_count = qs.count()
+            qs.delete()
+
+        translation = {
+            'text': Formula.ATTR_TEXT,
+            'colbak': Formula.ATTR_BACK,
+            'value': Formula.ATTR_TEXT,
+        }
+        fields = ('tag', 'atributo', 'formula')
+
+
+        for tag, atributo, formula in iter_rows(formulas_sheet, fields):
+            if not formula or not atributo:
+                continue
+            profile.formula_set.create(
+                    tag=tag,
+                    attribute=translation[atributo],
+                    formula=formula
+                )
+            created_count += 1
+        self.debug('Se crearon %d formulas' % created_count)
+        self.debug('Se eliminaron %d formulas (por opción -c/--clear)' % deleted_count)
+
+    def debug(self, msg, verbosity_thereshold=0):
+        if self.options['verbosity'] > verbosity_thereshold:
+            print(msg)
 
     FORMULA_SHEET_NAME = 'formulas'
 
@@ -59,28 +125,4 @@ class Command(NoArgsCommand):
                 return sheet
         raise CommandError("No se pudo encontrar la hoja de formulas!")
 
-    FIELD_LABELS_ROW = 0
-    FIRST_DATA_ROW = 1
 
-    def iter_rows(self, *extract_values):
-        '''Iterates sheet returing named tuple for each row'''
-        col_names = self.get_col_names()
-        col_type = namedtuple('Row', col_names)
-        print col_names
-        for i in range(self.FIRST_DATA_ROW, self.formulas_sheet.nrows):
-            values = self.formulas_sheet.row_values(i)
-            yield extract(col_type._make(values), fields=extract_values)
-
-    def get_col_names(self):
-        '''Validates column names, takes care of repeated column names'''
-        names = OrderedDict()
-        for new_name in self.formulas_sheet.row_values(self.FIELD_LABELS_ROW):
-            new_name = sanitize_row_name(new_name)
-            if not new_name in names:
-                names[new_name] = 0
-            else:
-                names[new_name] += 1
-                extra_name = "%s_%d" % (new_name, names[new_name])
-                names[extra_name] = 0
-
-        return names.keys()
