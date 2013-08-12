@@ -298,8 +298,8 @@ Example SVG Diagram
 
 ----
 
-Formulas
-========
+Formulas (a.k.a. conf w/o devop)
+================================
 
 ----
 
@@ -321,12 +321,19 @@ and properties updates are pushed to clients.
 
 ----
 
-Infraestructure
-===============
+Final Picture
+=============
+.. image:: img/final.svg
 
-* SaaS (scada as a service)
-* Use open hardware
-* VPN connection to hardware
+----
+
+Future
+======
+
+* SaaS (scada as a service) with VPN for H/W access
+* Use open hardware (RPi, BeagleBone)
+* Generalize SVG interaction (click, touch, etc.)
+* Use SVGEdit (jQuery based web SVG Editor) instad of Inkscape.
 
 ----
 
