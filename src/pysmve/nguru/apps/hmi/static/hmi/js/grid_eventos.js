@@ -1,3 +1,7 @@
+/**
+This script should consume data taken from Tastypie REST API
+*/
+
 (function ($){
     if (window.SMVE === undefined) {
         window.SMVE = {};
