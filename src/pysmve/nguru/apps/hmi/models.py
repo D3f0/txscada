@@ -8,6 +8,10 @@ from colorful.fields import RGBColorField
 from django.db import models
 from apps.mara.models import Profile, AI, DI
 
+from logging import getLogger
+
+logger = getLogger(__name__)
+
 class ProfileBound(models.Model):
     profile = models.ForeignKey(Profile)
 
@@ -28,6 +32,7 @@ class SVGScreen(Screen):
     svg = models.FileField(upload_to="svg_screens")
     name = models.CharField(max_length=60)
     root = models.BooleanField(default=False)
+    prefix = models.CharField(max_length=4, help_text="Related formula prefix")
 
     _svg = None
     _etree = None
@@ -58,6 +63,16 @@ class SVGScreen(Screen):
 
     def __unicode__(self):
         return self.name
+
+    def prefix_formula_bind(self):
+        assert len(self.prefix) > 1, "Prefix too short"
+        qs = Formula.objects.filter(tag__starts_with=self.prefix)
+        qs.update(screen=self)
+        return qs
+
+
+    class Meta:
+        unique_together = ('prefix', 'profile')
 
 
 def get_elements(et):
@@ -101,9 +116,17 @@ class SVGPropertyChangeSet(ProfileBound):
 
 
 class SVGElement(ProfileBound):
+    '''
+    Alias of Elemento Grafico, EG.
+    Represents a
+    '''
     MARK_CHOICES = [ ("%s" % i, i) for i in xrange(16)]
+
+
+    screen = models.ForeignKey(SVGScreen, blank=True, null=True)
     tag = models.CharField(max_length=16)
     description = models.CharField(max_length=120)
+    # Attributes
     text = models.CharField(max_length=20, null=True, blank=True)
     background = models.CharField(max_length=20, null=True, blank=True)
     mark = models.IntegerField(null=True, blank=True, choices=MARK_CHOICES)
@@ -113,7 +136,7 @@ class SVGElement(ProfileBound):
     def __unicode__(self):
         return self.tag
 
-class Formula(ProfileBound):
+class Formula(models.Model):
     ATTR_TEXT = 'text'
     ATTR_BACK = 'colback'
     ATTR_FORE = 'colfore'
@@ -122,6 +145,7 @@ class Formula(ProfileBound):
         ('Background', ATTR_BACK, ),
         ('Foreground', ATTR_FORE, ),
     )
+    target = models.ForeignKey(SVGElement, blank=True, null=True)
     tag = models.CharField(max_length=16)
     attribute = models.CharField(max_length=16,)#hoices=ATTRIBUTE_CHOICES)
     formula = models.TextField()
