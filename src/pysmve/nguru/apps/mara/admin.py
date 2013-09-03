@@ -1,11 +1,13 @@
 # encoding: utf-8
-
+import re
+import logging
 from django.contrib import admin
 
 from models import (COMaster, IED, Unit, SV, DI, AI, Event, Energy,
                     ComEventKind, ComEvent, EventKind, Action)
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
 
+logger = logging.getLogger(__name__)
 
 site = admin.AdminSite('mara')
 
@@ -162,9 +164,64 @@ class ComEventAdmin(admin.ModelAdmin):
     list_display = ('ied', 'description', 'motiv', 'timestamp', 'timestamp_ack', 'user')
     list_display_links = ('description', )
 site.register(ComEvent, ComEventAdmin)
+
 class FormulaAdmin(admin.ModelAdmin):
-    list_display = ('tag', 'attribute', 'formula')
+
+    list_display = ('target', 'get_related_tag', 'attribute', 'get_formula',)
+    list_search = ('tag', )
+    list_fliter = ('attribute', )
+
+    def get_related_tag(self, obj):
+        s = '''<a class="svg_popup"
+                  href="#"
+                  tag="{tag}">
+                  Ver</a>'''
+        return s.format(tag=obj.tag)
+
+    get_related_tag.short_description = 'SVG'
+    get_related_tag.allow_tags = True
+
+
+    def get_formula(self, obj):
+        '''Renders formula with JS hints'''
+        formula = obj.formula
+        try:
+
+            def replace(match):
+                tag = match.group('tag')
+                input_type = match.group('input_type')
+                link_text = '%s.%s' % (input_type, tag)
+                fmt = u'''<a href="javascript:return void(0);"
+                            title="{title}">{link_text}</a>'''
+
+
+                return fmt.format(title=obj.screen.profile.tag_description(tag, "Sin tag"),
+                                  link_text=link_text)
+
+            formula = re.sub(u'(?P<input_type>\w{2})\.(?P<tag>[\w\d]+)',
+                             replace,
+                             formula,
+                             re.UNICODE)
+
+            return formula
+
+        except Exception, e:
+            logger.info("Exception %s in %s" % (e, formula))
+            from traceback import format_exc
+            logger.info(format_exc())
+            return formula
+
+    get_formula.short_description = 'Formula'
+    get_formula.allow_tags = True
+
+    class Media:
+        js = ('initializr/js/vendor/jquery-1.9.0.min.js',
+              'js/jquery-ui-1.10.0.custom/development-bundle/ui/jquery-ui.custom.js',
+              'hmi/js/formula_admin_changelist.js', )
+        css = {'all': ('js/jquery-ui-1.10.0.custom/development-bundle/themes/base/jquery-ui.css',)}
+
 site.register(Formula, FormulaAdmin)
+
 class SVGElementAdmin(admin.ModelAdmin):
     search_fields = ('tag', )
     list_display = ('tag', 'description', 'text', 'background', 'mark',

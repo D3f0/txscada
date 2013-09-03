@@ -1,6 +1,7 @@
 # coding: utf-8
 
 from django.conf.urls import patterns, url
+from .updates import register
 
 urlpatterns = patterns('',
 
@@ -9,3 +10,6 @@ urlpatterns = patterns('',
         'apps.mara.views.mara_frame_analizer',
         name='mara_frame_analizer'),
 )
+
+
+register()

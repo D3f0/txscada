@@ -11,6 +11,12 @@ from django.conf import settings
 from apps.mara.admin import site
 from apps.api.resources import api
 
+
+import object_tools
+
+object_tools.autodiscover()
+
+
 urlpatterns = patterns('',
 
     #=========================================================================================
@@ -44,7 +50,10 @@ urlpatterns = patterns('',
     url(r'^qbe/', include('django_qbe.urls')),
 
     url(r'^admin_tools/', include('admin_tools.urls')),
-
+    #=========================================================================================
+    # Django object tools
+    #=========================================================================================
+    (r'^object-tools/', include(object_tools.tools.urls)),
 )
 
 if settings.DEBUG:

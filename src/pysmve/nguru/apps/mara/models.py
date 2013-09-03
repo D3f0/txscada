@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 import operator
 from datetime import datetime, time
 from django.db import models
@@ -38,6 +39,28 @@ class Profile(models.Model):
                 # Does not want to be default, the only one?
                 if cls.objects.count() == 0:
                     instance.default = True
+
+    def load_tags(self, *largs, **kwargs):
+        '''Can be hooked'''
+        tags = {}
+        dis = DI.objects.filter(ied__co_master__profile=self)
+        ais = AI.objects.filter(ied__co_master__profile=self)
+        tags.update(**dict(dis.values_list('tag', 'description')))
+        tags.update(**dict(ais.values_list('tag', 'description')))
+        return tags
+
+    _tag_info = {}
+    def tag_description(self, tag, empty_text=''):
+        if not self.pk in Profile._tag_info:
+            Profile._tag_info[self.pk] = self.load_tags()
+        return Profile._tag_info[self.pk].get(tag, empty_text)
+
+    __tags = None
+    @property
+    def tags(self):
+        if not self.__tags:
+            self.__tags = self.load_tags()
+        return self.__tags
 
 signals.pre_save.connect(Profile.ensure_default, sender=Profile)
 
@@ -236,10 +259,12 @@ class Unit(models.Model):
 
 
 class MV(models.Model):
-
     '''
     IEC Meassured Value
     '''
+    # These attributes will also be sent when a model is updated
+    EXTRA_WATCHED_ATTRIBUTES = ('pk', 'tag')
+
     ied = models.ForeignKey(IED)
     offset = models.SmallIntegerField(default=0,
                                       verbose_name="Byte offset in mara frame")
@@ -278,6 +303,8 @@ class SV(MV):
     '''
     System variable
     '''
+    WATCHED_FIELDS = ('value', )
+
     BIT_CHOICES = [(None, 'Palabra Completa'), ] + [(n, 'Bit %d' % n)
                                                     for n in range(8)]
     bit = models.IntegerField(
@@ -314,6 +341,8 @@ class DI(MV):
     Digital input, each row represents a bit in a port
     Every port is virtualized in mara device
     '''
+    WATCHED_FIELDS = ('value', )
+
     port = models.IntegerField(default=0)
     bit = models.IntegerField(default=0)
     value = models.IntegerField(default=0)
@@ -437,6 +466,8 @@ class AI(MV):
     '''
     Analog Input
     '''
+    WATCHED_FIELDS = ('value', )
+
     channel = models.IntegerField(default=0)
     unit = models.CharField(max_length=5)
     multip_asm = models.FloatField(default=1.09)
@@ -514,3 +545,8 @@ class Action(models.Model):
 
     class Meta:
         unique_together = ('bit', )
+
+
+
+def register():
+    """Register model for update tracking"""

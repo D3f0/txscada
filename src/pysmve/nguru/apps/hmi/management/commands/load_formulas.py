@@ -56,7 +56,8 @@ class Command(NoArgsCommand):
             '-p', '--profile', help='Profile donde cargar las formulas'),
         make_option('-c', '--clear', help="Quitar formulas previas", default=False,
             action='store_true', ),
-        #
+        make_option('-s', '--screen', help="Pantalla en la que se quiere agregar las "
+            "formulas", )
     ) + NoArgsCommand.option_list
 
     def handle_noargs(self, **options):
@@ -65,6 +66,7 @@ class Command(NoArgsCommand):
         self.load_formulas()
 
     def load_formulas(self):
+        '''Load formulas from excel'''
         workbook_path = self.options.get('workbook')
         if not workbook_path:
             raise CommandError(

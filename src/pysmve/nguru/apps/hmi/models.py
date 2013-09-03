@@ -18,7 +18,7 @@ class ProfileBound(models.Model):
     class Meta:
         abstract = True
 
-class Screen(ProfileBound):
+class Screen(models.Model):
     parent = models.ForeignKey('self',
                                related_name='children',
                                null=True,
@@ -29,6 +29,7 @@ class Screen(ProfileBound):
 
 
 class SVGScreen(Screen):
+    profile = models.ForeignKey(Profile, related_name='screens')
     svg = models.FileField(upload_to="svg_screens")
     name = models.CharField(max_length=60)
     root = models.BooleanField(default=False)
@@ -89,7 +90,6 @@ class Color(ProfileBound):
 
 
 class SVGPropertyChangeSet(ProfileBound):
-
     '''Formula evaluation result'''
     index = models.IntegerField()
     background = models.ForeignKey(Color,
@@ -114,6 +114,26 @@ class SVGPropertyChangeSet(ProfileBound):
     class Meta:
         db_table = 'color'
 
+def closest_key(a_string, a_dict):
+    '''Returns the closest key in a dictionary to a_string.
+    The match is from the begining of the string and scores how
+    may chars are the same
+    '''
+    keys = a_dict.keys()
+    closest_key = None
+    closest_score = 0
+
+    for key in keys:
+        score = 0
+        for k_s, k_c in zip(a_string, key):
+            if k_s != k_c:
+                break
+            score += 1
+        if score >= closest_score:
+            closest_score = score
+            closest_key = key
+    return closest_key
+
 
 class SVGElement(ProfileBound):
     '''
@@ -131,10 +151,21 @@ class SVGElement(ProfileBound):
     background = models.CharField(max_length=20, null=True, blank=True)
     mark = models.IntegerField(null=True, blank=True, choices=MARK_CHOICES)
     enabled = models.BooleanField(default=False)
+    # Used for checking when there are updates to send to clients
     last_update = models.DateTimeField(null=True, blank=True)
 
     def __unicode__(self):
         return self.tag
+
+    @classmethod
+    def link_with_screen(cls):
+        svg_elements = SVGElement.objects.all()
+        svg_screens = SVGScreen.objects.all()
+        screen_prefix = dict(( (s.prefix, s) for s in svg_screens))
+        for element in svg_elements:
+            closest_key(element.tag, )
+
+
 
 class Formula(models.Model):
     ATTR_TEXT = 'text'
@@ -146,12 +177,27 @@ class Formula(models.Model):
         ('Foreground', ATTR_FORE, ),
     )
     target = models.ForeignKey(SVGElement, blank=True, null=True)
-    tag = models.CharField(max_length=16)
+    #tag = models.CharField(max_length=16)
     attribute = models.CharField(max_length=16,)#hoices=ATTRIBUTE_CHOICES)
     formula = models.TextField()
 
     def __unicode__(self):
-      return ":".join([self.tag, self.attribute])
+      return ":".join([self.target.tag, self.attribute])
+
+    @classmethod
+    def link_with_svg_element(cls, profile_name='default'):
+        svg_elements_qs = SVGElement.objects.all() # TODO: Filter
+        for n, formula in enumerate(Formula.objects.all()):
+            try:
+                element = svg_elements_qs.get(tag=formula.tag)
+            except SVGElement.MultipleObjectsReturned:
+                repeated = svg_elements_qs.filter(tag=formula.tag)[1:].values('pk')
+                svg_elements_qs.filter(pk__in=repeated).delete()
+                element = svg_elements_qs.get(tag=formula.tag)
+            formula.target = element
+            formula.save()
+
+
 
     @classmethod
     def calculate(cls):

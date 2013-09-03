@@ -159,7 +159,10 @@ INSTALLED_APPS = (
     'django_qbe.savedqueries',
 
     #'grappelli',
+    'object_tools',
     'django.contrib.admin',
+
+
 )
 
 # A sample logging configuration. The only tangible logging
