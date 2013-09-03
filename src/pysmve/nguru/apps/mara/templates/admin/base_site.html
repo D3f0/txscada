@@ -1,10 +1,47 @@
 {% extends "admin/base.html" %}
 {% load i18n %}
- 
+{% block extrahead %}
+    <style>
+        #header {
+            background-color: rgb(51, 51, 51);
+        }
+
+        #content-main caption {
+
+            font-variant:small-caps;
+            /* IE10 Consumer Preview */
+            background-image: -ms-linear-gradient(top, #FFFFFF 0%, #CCCCCC 100%);
+
+            /* Mozilla Firefox */
+            background-image: -moz-linear-gradient(top, #FFFFFF 0%, #CCCCCC 100%);
+
+            /* Opera */
+            background-image: -o-linear-gradient(top, #FFFFFF 0%, #CCCCCC 100%);
+
+            /* Webkit (Safari/Chrome 10) */
+            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFFFFF), color-stop(1, #CCCCCC));
+
+            /* Webkit (Chrome 11+) */
+            background-image: -webkit-linear-gradient(top, #FFFFFF 0%, #CCCCCC 100%);
+
+            /* W3C Markup, IE10 Release Preview */
+            background-image: linear-gradient(to bottom, #FFFFFF 0%, #CCCCCC 100%);
+        }
+
+        #content-main caption a{
+            color: rgb(51, 51, 51);
+        }
+
+        .results .row1 {
+            background: rgb(241, 241, 241);
+        }
+    </style>
+{% endblock extrahead %}
+
 {% block title %}{{ title }} | {% trans 'Django site admin' %}{% endblock %}
- 
+
 {% block branding %}
 <h1 id="site-name">S.M.V.E.</h1>
 {% endblock %}
- 
+
 {% block nav-global %}{% endblock %}
