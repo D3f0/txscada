@@ -27,6 +27,8 @@ class Profile(models.Model):
 
     class Meta:
         unique_together = (('name', 'version'))
+        verbose_name = _("Profile")
+        verbose_name_plural = _("Profiles")
 
     @classmethod
     def ensure_default(cls, instance, **kwargs):
@@ -126,8 +128,8 @@ class COMaster(models.Model):
         return u"%s" % self.ip_address
 
     class Meta:
-        verbose_name = "CO Master"
-        verbose_name_plural = "CO Masters"
+        verbose_name = _("CO Master")
+        verbose_name_plural = _("CO Masters")
 
     def process_frame(self, mara_frame):
         '''Takes a Mara frame and saves it into the DB model'''
@@ -220,7 +222,6 @@ class COMaster(models.Model):
     def set_sv_quality(self, value):
         pass
 
-
 class IED(models.Model):
 
     '''
@@ -234,8 +235,8 @@ class IED(models.Model):
         return u"%s:IED:%s" % (self.co_master.ip_address, self.rs485_address)
 
     class Meta:
-        verbose_name = "IED"
-        verbose_name_plural = "IEDs"
+        verbose_name = _("IED")
+        verbose_name_plural = _("IEDs")
         unique_together = ('co_master', 'rs485_address')
         ordering = ('offset',)
 
@@ -244,7 +245,6 @@ class IED(models.Model):
             for bit in range(0, bit_width):
                 param = "D%.2d" % ((port * self.PORT_WIDTH) + bit)
                 self.ied_set.create(port=port, bit=bit, param=param)
-
 
 class Unit(models.Model):
 
@@ -313,8 +313,8 @@ class SV(MV):
 
     class Meta:
         unique_together = ('offset', 'ied', 'bit')
-        verbose_name = "System Variable"
-        verbose_name_plural = "System Variables"
+        verbose_name = _("System Variable")
+        verbose_name_plural = _("System Variables")
         # Default ordering
         ordering = ('ied__offset', 'offset')
 
@@ -331,8 +331,6 @@ class SV(MV):
         except SV.DoesNotExist:
             return self.BYTE
 
-    class Meta:
-        ordering = ('ied', 'offset', 'bit')
 
 
 class DI(MV):
@@ -359,8 +357,8 @@ class DI(MV):
     class Meta:
         unique_together = ('offset', 'ied', 'port', 'bit')
         ordering = ('port', 'bit')
-        verbose_name = "Digital Input"
-        verbose_name_plural = "Digital Inputs"
+        verbose_name = _("Digital Input")
+        verbose_name_plural = _("Digital Inputs")
 
     @classmethod
     def check_value_change(cls, instance=None, **kwargs):
@@ -412,6 +410,10 @@ class Event(models.Model):
                 text2 = kinds.get().text
         return "%s %s" % (self.di.description or "No description", text2 or "No Text 2")
 
+    class Meta:
+        verbose_name = _("Event")
+        verbose_name = _("Events")
+
 
 class EventKind(models.Model):
     '''Abstracción de textoev2'''
@@ -420,6 +422,8 @@ class EventKind(models.Model):
     idtextoev2 = models.IntegerField()
     class Meta:
         unique_together = ('idtextoev2', 'value')
+        verbose_name = _("Event Kind")
+        verbose_name = _("Event Kinds")
 
     def __unicode__(self):
         dis = ','.join([di.description or 'Sin Descripcion' for di in
@@ -440,6 +444,8 @@ class ComEventKind(models.Model):
     class Meta:
         db_table = 'com'
         ordering = ('code', )
+        verbose_name = _("Communication Event Kind")
+        verbose_name = _("Communication Event Kinds")
 
 
 class ComEvent(GenericEvent):
@@ -459,6 +465,8 @@ class ComEvent(GenericEvent):
 
     class Meta:
         db_table = 'eventcom'
+        verbose_name = _("Communication Event")
+        verbose_name_plural = _("Communication Events")
 
 
 class AI(MV):
@@ -493,8 +501,8 @@ class AI(MV):
 
     class Meta:
         unique_together = ('offset', 'ied',)
-        verbose_name = "Analog Input"
-        verbose_name_plural = "Analog Inputs"
+        verbose_name = _("Analog Input")
+        verbose_name_plural = _("Analog Inputs")
 
     def human_value(self):
         values = [self.multip_asm,
@@ -521,8 +529,8 @@ class Energy(models.Model):
     q = models.IntegerField(verbose_name="Quality")
 
     class Meta:
-        verbose_name = "Energy Measure"
-        verbose_name_plural = "Energy Measures"
+        verbose_name = _("Energy Measure")
+        verbose_name_plural = _("Energy Measures")
 
 
 class Action(models.Model):
@@ -545,7 +553,8 @@ class Action(models.Model):
 
     class Meta:
         unique_together = ('bit', )
-
+        verbose_name = _("Action")
+        verbose_name_plural = _("Actions")
 
 
 def register():

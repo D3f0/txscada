@@ -1,0 +1,175 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-09-10 16:39-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: apps/hmi/models.py:81
+msgid "SVG Screen"
+msgstr "Pantalla"
+
+#: apps/hmi/models.py:82
+msgid "SVG Screens"
+msgstr "Pantallas"
+
+#: apps/hmi/models.py:99
+msgid "Color"
+msgstr "Color"
+
+#: apps/hmi/models.py:100
+msgid "Colors"
+msgstr "Colores"
+
+#: apps/hmi/models.py:128
+msgid "SVG Property Change Set"
+msgstr "Cambio de Coloración"
+
+#: apps/hmi/models.py:129
+msgid "SVG Property Change Sets"
+msgstr "Cambios de Coloración"
+
+#: apps/hmi/models.py:186
+msgid "SVG Element"
+msgstr "Elemento Gráfico"
+
+#: apps/hmi/models.py:187
+msgid "SVG Elements"
+msgstr "Elementos Gráficos"
+
+#: apps/hmi/models.py:196
+msgid "Text"
+msgstr "Texto"
+
+#: apps/hmi/models.py:197
+msgid "Background"
+msgstr "Fondo"
+
+#: apps/hmi/models.py:198
+msgid "Foreground"
+msgstr "Frente"
+
+#: apps/hmi/models.py:271
+msgid "Formula"
+msgstr "Formula"
+
+#: apps/hmi/models.py:272
+msgid "Formulas"
+msgstr "Formulas"
+
+#: apps/mara/models.py:30
+msgid "Profile"
+msgstr "Perfil"
+
+#: apps/mara/models.py:31
+msgid "Profiles"
+msgstr "Perfiles"
+
+#: apps/mara/models.py:131
+msgid "CO Master"
+msgstr ""
+
+#: apps/mara/models.py:132
+msgid "CO Masters"
+msgstr ""
+
+#: apps/mara/models.py:139
+#, python-format
+msgid "Mara payload not present. %s does not look like a frame"
+msgstr ""
+
+#: apps/mara/models.py:238
+msgid "IED"
+msgstr "IED"
+
+#: apps/mara/models.py:239
+msgid "IEDs"
+msgstr "IEDs"
+
+#: apps/mara/models.py:316
+msgid "System Variable"
+msgstr "Vairable de Sistema"
+
+#: apps/mara/models.py:317
+msgid "System Variables"
+msgstr "Vairables de Sistema"
+
+#: apps/mara/models.py:360
+msgid "Digital Input"
+msgstr "Entrada Digital"
+
+#: apps/mara/models.py:361
+msgid "Digital Inputs"
+msgstr "Entradas Digitales"
+
+#: apps/mara/models.py:414
+msgid "Event"
+msgstr "Evento"
+
+#: apps/mara/models.py:415
+msgid "Events"
+msgstr "Eventos"
+
+#: apps/mara/models.py:425
+msgid "Event Kind"
+msgstr "Tipo de Evento"
+
+#: apps/mara/models.py:426
+msgid "Event Kinds"
+msgstr "Tipos de Evento"
+
+#: apps/mara/models.py:447
+msgid "Communication Event Kind"
+msgstr "Tipo de Evento de Comunicaciones"
+
+#: apps/mara/models.py:448
+msgid "Communication Event Kinds"
+msgstr "Tipos de Evento de Comunicaciones"
+
+#: apps/mara/models.py:468
+msgid "Communication Event"
+msgstr "Evento de Comunicaciones"
+
+#: apps/mara/models.py:469
+msgid "Communication Events"
+msgstr "Eventos de Comunicaciones"
+
+#: apps/mara/models.py:504
+msgid "Analog Input"
+msgstr "Entrada Analógica"
+
+#: apps/mara/models.py:505
+msgid "Analog Inputs"
+msgstr "Entradas Analógicas"
+
+#: apps/mara/models.py:532
+msgid "Energy Measure"
+msgstr "Medición de Energía"
+
+#: apps/mara/models.py:533
+msgid "Energy Measures"
+msgstr "Mediciones de Energía"
+
+#: apps/mara/models.py:556
+msgid "Action"
+msgstr "Acción"
+
+#: apps/mara/models.py:557
+msgid "Actions"
+msgstr "Acciones"
+
+#: apps/mara/templates/admin/base_site.html:58
+msgid "Django site admin"
+msgstr "Administración del sistema"

@@ -8,6 +8,10 @@ from colorful.fields import RGBColorField
 from django.db import models
 from apps.mara.models import Profile, AI, DI
 
+# Internationalization
+from django.utils.translation import ugettext_lazy as _
+
+
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -74,6 +78,9 @@ class SVGScreen(Screen):
 
     class Meta:
         unique_together = ('prefix', 'profile')
+        verbose_name = _('SVG Screen')
+        verbose_name_plural = _('SVG Screens')
+
 
 
 def get_elements(et):
@@ -87,6 +94,11 @@ class Color(ProfileBound):
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        verbose_name= _("Color")
+        verbose_name_plural = _("Colors")
+
 
 
 class SVGPropertyChangeSet(ProfileBound):
@@ -113,6 +125,8 @@ class SVGPropertyChangeSet(ProfileBound):
 
     class Meta:
         db_table = 'color'
+        verbose_name = _('SVG Property Change Set')
+        verbose_name_plural = _('SVG Property Change Sets')
 
 def closest_key(a_string, a_dict):
     '''Returns the closest key in a dictionary to a_string.
@@ -143,7 +157,10 @@ class SVGElement(ProfileBound):
     MARK_CHOICES = [ ("%s" % i, i) for i in xrange(16)]
 
 
-    screen = models.ForeignKey(SVGScreen, blank=True, null=True)
+    screen = models.ForeignKey(SVGScreen,
+                               related_name='elements',
+                               blank=True,
+                               null=True)
     tag = models.CharField(max_length=16)
     description = models.CharField(max_length=120)
     # Attributes
@@ -165,16 +182,20 @@ class SVGElement(ProfileBound):
         for element in svg_elements:
             closest_key(element.tag, )
 
-
+    class Meta:
+        verbose_name = _("SVG Element")
+        verbose_name_plural = _("SVG Elements")
 
 class Formula(models.Model):
+
     ATTR_TEXT = 'text'
-    ATTR_BACK = 'colback'
-    ATTR_FORE = 'colfore'
+    ATTR_BACK = 'background'
+    ATTR_FORE = 'foreground'
+
     ATTRIBUTE_CHOICES = (
-        ('Text', ATTR_TEXT),
-        ('Background', ATTR_BACK, ),
-        ('Foreground', ATTR_FORE, ),
+        (_('Text'), ATTR_TEXT),
+        (_('Background'), ATTR_BACK, ),
+        (_('Foreground'), ATTR_FORE, ),
     )
     target = models.ForeignKey(SVGElement, blank=True, null=True)
     #tag = models.CharField(max_length=16)
@@ -245,3 +266,7 @@ class Formula(models.Model):
                     setattr(eg, attribute, value)
                     eg.last_update = datetime.now()
                     eg.save()
+
+    class Meta:
+        verbose_name = _("Formula")
+        verbose_name = _("Formulas")

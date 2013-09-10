@@ -33,7 +33,7 @@ TIME_ZONE = 'America/Argentina/Buenos_Aires'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'es-ar'
+LANGUAGE_CODE = 'es'
 
 SITE_ID = 1
 
@@ -251,3 +251,9 @@ NOSE_ARGS = [
 #warnings.filterwarnings(
 #        'error', r"DateTimeField received a naive datetime",
 #        warnings.RuntimeWarning, r'django\.db\.models\.fields')
+
+
+
+LOCALE_PATHS = (
+    join(PROJECT_ROOT, 'conf/locale'),
+)
