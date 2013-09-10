@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-10 16:39-0300\n"
+"POT-Creation-Date: 2013-09-10 18:34-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -69,6 +69,16 @@ msgstr "Formula"
 msgid "Formulas"
 msgstr "Formulas"
 
+#: apps/hmi/management/commands/load_formulas.py:127
+#, python-format
+msgid "%d formulas created"
+msgstr "%d formulas creadas"
+
+#: apps/hmi/management/commands/load_formulas.py:128
+#, python-format
+msgid "%d formulas were deleted (bacause of -c/--clear)"
+msgstr "%d formulas fueron eliminadas (por opción -c/--clear)"
+
 #: apps/mara/models.py:30
 msgid "Profile"
 msgstr "Perfil"
@@ -98,75 +108,75 @@ msgstr "IED"
 msgid "IEDs"
 msgstr "IEDs"
 
-#: apps/mara/models.py:316
+#: apps/mara/models.py:305
 msgid "System Variable"
 msgstr "Vairable de Sistema"
 
-#: apps/mara/models.py:317
+#: apps/mara/models.py:306
 msgid "System Variables"
 msgstr "Vairables de Sistema"
 
-#: apps/mara/models.py:360
+#: apps/mara/models.py:349
 msgid "Digital Input"
 msgstr "Entrada Digital"
 
-#: apps/mara/models.py:361
+#: apps/mara/models.py:350
 msgid "Digital Inputs"
 msgstr "Entradas Digitales"
 
-#: apps/mara/models.py:414
+#: apps/mara/models.py:403
 msgid "Event"
 msgstr "Evento"
 
-#: apps/mara/models.py:415
+#: apps/mara/models.py:404
 msgid "Events"
 msgstr "Eventos"
 
-#: apps/mara/models.py:425
+#: apps/mara/models.py:414
 msgid "Event Kind"
 msgstr "Tipo de Evento"
 
-#: apps/mara/models.py:426
+#: apps/mara/models.py:415
 msgid "Event Kinds"
 msgstr "Tipos de Evento"
 
-#: apps/mara/models.py:447
+#: apps/mara/models.py:436
 msgid "Communication Event Kind"
 msgstr "Tipo de Evento de Comunicaciones"
 
-#: apps/mara/models.py:448
+#: apps/mara/models.py:437
 msgid "Communication Event Kinds"
 msgstr "Tipos de Evento de Comunicaciones"
 
-#: apps/mara/models.py:468
+#: apps/mara/models.py:457
 msgid "Communication Event"
 msgstr "Evento de Comunicaciones"
 
-#: apps/mara/models.py:469
+#: apps/mara/models.py:458
 msgid "Communication Events"
 msgstr "Eventos de Comunicaciones"
 
-#: apps/mara/models.py:504
+#: apps/mara/models.py:493
 msgid "Analog Input"
 msgstr "Entrada Analógica"
 
-#: apps/mara/models.py:505
+#: apps/mara/models.py:494
 msgid "Analog Inputs"
 msgstr "Entradas Analógicas"
 
-#: apps/mara/models.py:532
+#: apps/mara/models.py:521
 msgid "Energy Measure"
 msgstr "Medición de Energía"
 
-#: apps/mara/models.py:533
+#: apps/mara/models.py:522
 msgid "Energy Measures"
 msgstr "Mediciones de Energía"
 
-#: apps/mara/models.py:556
+#: apps/mara/models.py:545
 msgid "Action"
 msgstr "Acción"
 
-#: apps/mara/models.py:557
+#: apps/mara/models.py:546
 msgid "Actions"
 msgstr "Acciones"
 
