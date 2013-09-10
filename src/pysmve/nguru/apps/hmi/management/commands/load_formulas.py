@@ -4,9 +4,9 @@ from optparse import make_option
 from collections import namedtuple, OrderedDict
 import xlrd
 from django.core.management.base import NoArgsCommand, CommandError
-from apps.hmi.models import Formula
+from apps.hmi.models import Formula, SVGScreen
 from apps.mara.models import Profile
-
+from django.utils.translation import ugettext_lazy as _
 
 sanitize_row_name = lambda name: name.lower().replace(' ', '_')
 
@@ -81,20 +81,30 @@ class Command(NoArgsCommand):
         formulas_sheet = self.get_formulas_sheet()
 
         try:
-            name = self.options['profile']
-            profile = Profile.objects.get(name=name)
+            profile_name = self.options['profile']
+            profile = Profile.objects.get(name=profile_name)
         except Profile.DoesNotExist:
-            raise CommandError("Profile %s does not exist" % name)
+            raise CommandError("Profile %s does not exist" % profile_name)
+
+        try:
+            screen_name = self.options['screen']
+            screen = profile.screens.get(name=screen_name)
+        except SVGScreen.DoesNotExist:
+            if screen_name:
+                args = (screen_name, profile)
+                raise CommandError("Screen %s does not exsist in %s" % args)
+            else:
+                raise CommandError("You must give a screen name (-s)")
 
         deleted_count = 0
         created_count = 0
 
         if self.options['clear']:
-            qs = profile.formula_set.all()
+            qs = Formula.objects.filter(target__screen=screen)
             deleted_count = qs.count()
             qs.delete()
 
-        translation = {
+        self.attr_trans = {
             'text': Formula.ATTR_TEXT,
             'colbak': Formula.ATTR_BACK,
             'value': Formula.ATTR_TEXT,
@@ -105,14 +115,20 @@ class Command(NoArgsCommand):
         for tag, atributo, formula in iter_rows(formulas_sheet, fields):
             if not formula or not atributo:
                 continue
-            profile.formula_set.create(
-                    tag=tag,
-                    attribute=translation[atributo],
-                    formula=formula
-                )
+
+            target, created = screen.elements.get_or_create(tag=tag)
+            Formula.objects.create(
+                target=target,
+                formula=formula,
+                attribute=self.translate_attibute(atributo)
+            )
+
             created_count += 1
-        self.debug('Se crearon %d formulas' % created_count)
-        self.debug('Se eliminaron %d formulas (por opción -c/--clear)' % deleted_count)
+        self.debug(_('%d formulas created') % created_count)
+        self.debug(_('%d formulas were deleted (bacause of -c/--clear)') % deleted_count)
+
+    def translate_attibute(self, name):
+        return self.attr_trans.get(name, name)
 
     def debug(self, msg, verbosity_thereshold=0):
         if self.options['verbosity'] > verbosity_thereshold:
