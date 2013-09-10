@@ -1,10 +1,9 @@
-
 from tastypie.api import Api
 from tastypie.resources import ModelResource
 
-from apps.mara.models import (Profile, COMaster, IED, Unit, SV, DI, AI, Energy,
-                              Event)
-from apps.hmi.models import SVGScreen
+from apps.mara.models import (Profile, COMaster, IED, SV, DI, AI, Energy,
+                              Event, )
+from apps.hmi.models import SVGScreen, Formula, SVGElement
 
 
 class ProfileResource(ModelResource):
@@ -28,14 +27,6 @@ class IEDResource(ModelResource):
     class Meta:
         resource_name = 'ied'
         queryset = IED.objects.all()
-        allowed_methods = ['get', ]
-
-
-class UnitResource(ModelResource):
-    """REST resource for Unit"""
-    class Meta:
-        resource_name = 'unit'
-        queryset = Unit.objects.all()
         allowed_methods = ['get', ]
 
 
@@ -99,16 +90,31 @@ class SVGScreenResource(ModelResource):
         queryset = SVGScreen.objects.all()
         allowed_methods = ['get', ]
 
+class FormulaResource(ModelResource):
+    class Meta:
+        resource_name = 'formula'
+        queryset = Formula.objects.all()
+        allowed_methods = ['get', ]
+
+class SVGElementResource(ModelResource):
+    class Meta:
+        resource_name = 'svgelement'
+        queryset = SVGElement.objects.all()
+        allowed_methods = ['get', ]
+        limit = 200
+
+
 api = Api(api_name='v1')
 
 api.register(ProfileResource())
 api.register(COMasterResource())
 api.register(IEDResource())
-api.register(UnitResource())
 api.register(SVResource())
 api.register(DIResource())
 api.register(EventResource())
 api.register(AIResource())
+api.register(FormulaResource())
 #api.register(EnergyPointResource())
 api.register(EnergyResource())
+api.register(SVGElementResource())
 api.register(SVGScreenResource())
