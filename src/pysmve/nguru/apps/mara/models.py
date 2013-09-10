@@ -246,17 +246,6 @@ class IED(models.Model):
                 param = "D%.2d" % ((port * self.PORT_WIDTH) + bit)
                 self.ied_set.create(port=port, bit=bit, param=param)
 
-class Unit(models.Model):
-
-    '''
-    Unit of measure
-    '''
-    name = models.CharField(max_length=10)
-    description = models.CharField(max_length=100)
-
-    def __unicode__(self):
-        return self.name
-
 
 class MV(models.Model):
     '''

@@ -3,7 +3,7 @@ import re
 import logging
 from django.contrib import admin
 
-from models import (COMaster, IED, Unit, SV, DI, AI, Event, Energy,
+from models import (COMaster, IED, SV, DI, AI, Event, Energy,
                     ComEventKind, ComEvent, EventKind, Action)
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
 
@@ -51,8 +51,6 @@ class IEDAdmin(admin.ModelAdmin):
     inlines = [AITabularInline, DITabularInline, SVTabularInline]
 
 site.register(IED, IEDAdmin)
-
-site.register(Unit)
 
 
 class SVAdmin(admin.ModelAdmin):
@@ -167,20 +165,19 @@ site.register(ComEvent, ComEventAdmin)
 
 class FormulaAdmin(admin.ModelAdmin):
 
-    list_display = ('target', 'get_related_tag', 'attribute', 'get_formula',)
+    list_display = ('get_related_tag', 'target', 'attribute', 'get_formula', )
+
     list_search = ('tag', )
-    list_fliter = ('attribute', )
+    list_display_links = ('target', )
+    list_filter = ('attribute', 'target__screen', )
 
     def get_related_tag(self, obj):
-        s = '''<a class="svg_popup"
-                  href="#"
-                  tag="{tag}">
-                  Ver</a>'''
-        return s.format(tag=obj.tag)
+        return obj.target.screen
+
 
     get_related_tag.short_description = 'SVG'
     get_related_tag.allow_tags = True
-
+    get_related_tag.admin_order_field = 'target__screen'
 
     def get_formula(self, obj):
         '''Renders formula with JS hints'''
