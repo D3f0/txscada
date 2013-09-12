@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-10 18:34-0300\n"
+"POT-Creation-Date: 2013-09-11 00:16-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,11 +61,19 @@ msgstr "Fondo"
 msgid "Foreground"
 msgstr "Frente"
 
-#: apps/hmi/models.py:271
+#: apps/hmi/models.py:203
+msgid "target"
+msgstr "elemento gráfico"
+
+#: apps/hmi/models.py:206
+msgid "attribute"
+msgstr "atributo"
+
+#: apps/hmi/models.py:283
 msgid "Formula"
 msgstr "Formula"
 
-#: apps/hmi/models.py:272
+#: apps/hmi/models.py:284
 msgid "Formulas"
 msgstr "Formulas"
 
@@ -78,6 +86,15 @@ msgstr "%d formulas creadas"
 #, python-format
 msgid "%d formulas were deleted (bacause of -c/--clear)"
 msgstr "%d formulas fueron eliminadas (por opción -c/--clear)"
+
+#: apps/mara/admin.py:96
+msgid "Attend"
+msgstr "Atender"
+
+#: apps/mara/admin.py:101
+#, fuzzy
+msgid "actions"
+msgstr "Acciones"
 
 #: apps/mara/models.py:30
 msgid "Profile"
