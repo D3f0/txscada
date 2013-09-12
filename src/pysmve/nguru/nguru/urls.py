@@ -8,7 +8,7 @@ from django.conf import settings
 # from django.contrib import admin
 # admin.autodiscover()
 
-from apps.mara.admin import site
+from apps.mara.admin import site, config_site
 from apps.api.resources import api
 
 
@@ -25,25 +25,31 @@ urlpatterns = patterns('',
     url('^$', 'django.views.generic.simple.direct_to_template',
         {
          'template': 'base.html'
-         }),
+         }, name='index'),
     #=========================================================================================
     # Mara application
     #=========================================================================================
     ('^mara/', include('apps.mara.urls')),
     ('^hmi/', include('apps.hmi.urls')),
+    # Tastypie API
     ('^api/', include(api.urls)),
+
+    ('^test/$', 'django.views.generic.simple.direct_to_template',
+        {'template': 'test.html'}
+    ),
 
     #=========================================================================================
     # Mapeo directo a templates
     #=========================================================================================
-    url('^sockjsdemo/', 'django.views.generic.simple.direct_to_template', {
-            'template': 'websocket-demo.html'
-        }, name='websocket_demo'),
+    # url('^sockjsdemo/', {
+    #         'template': 'websocket-demo.html',
+    #     }, name='websocket_demo'),
     #=========================================================================================
     # Administración
     #=========================================================================================
-    (r'^grappelli/', include('grappelli.urls')),
+    #(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', site.urls),
+    url(r'^config/', config_site.urls),
     #=========================================================================================
     # Graphical Query Browser
     #=========================================================================================

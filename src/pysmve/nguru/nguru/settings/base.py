@@ -162,7 +162,7 @@ INSTALLED_APPS = (
     'object_tools',
     'django.contrib.admin',
 
-
+    'tastypie_jqgrid',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -257,3 +257,5 @@ NOSE_ARGS = [
 LOCALE_PATHS = (
     join(PROJECT_ROOT, 'conf/locale'),
 )
+
+TIMESTAMP_FORMAT='%Y-%m-%d %H:%M:%S.%f'
