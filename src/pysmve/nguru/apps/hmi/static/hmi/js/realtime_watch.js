@@ -64,6 +64,38 @@
             if (!SMVE.update) {
                 return;
             }
+            // Apply changes taken from the REST resource
+            $.ajax('/api/v1/svgelement/?format=json&order_by=-last_update',
+                {
+                    success: function (data, status){
+                        var objs = data.objects;
+                        $.each(objs, function (idx, obj) {
+                            //console.log(obj)
+                            var node = $('[tag='+obj.tag+']', svg.root());
+                            //console.log(node);
+                        });
+
+                        console.log(objs[0]);
+                        console.log(objs[objs.length-1]);
+                        debugger;
+                    },
+                    error: function (xhr, error) {
+                        var data = jQuery.parseJSON(xhr.responseText);
+                        // Disable connection
+                        SMVE.updateButton.click();
+                        var dlg = $('<div>').dialog({
+                            title: data.error_message,
+                            width: "70%",
+                            modal: true,
+                            autoOpen: false,
+                            close: function (){
+                                $(this).dialog('destroy');
+                            }
+                        }).html('<pre>'+data.traceback+'</pre>');
+                        dlg.dialog('open');
+                    }
+                });
+            return;
             $.ajax(SMVE.svg_pk, {
                 success: function(data){
                     $.each(data, function (tag, updates){
@@ -76,19 +108,98 @@
 
         function createMiniAlarmGrid(){
             $('#mini-alarm').jqGrid({
-                datatype: "local",
+                url: '/api/v1/event/?format=json&limit=4',
+                datatype: "json",
                 height: 60,
                 autowidth: true,
                 hidegrid: false,
-                colNames:['ID','Fecha', 'Descripción', 'Atención',],
+                colNames:['ID', 'Fecha', 'Descripción', 'Atención',],
                 colModel:[
-                    {name:'id',index:'id', width:60, sorttype:"int"},
-                    {name:'invdate',index:'F', width:90, sorttype:"date"},
-                    {name:'name',index:'name', width:100},
-                    {name:'amount',index:'amount', width:80, align:"right",sorttype:"float"}
+                    {name:'id',index:'id', width:60, hidden: false},
+                    {
+                        name:'timestamp',
+                        index:'timestamp',
+                        width:90,
+                        //sorttype:"date",
+                        formatter: "date",
+                        formatoptions: {
+                            //newformat: 'd/m/Y H:i:sO'
+                            //srcformat: 'YYYY-MM-DDTHH:mm:ss'
+                            //,
+
+                            //newformat: 'l F d, Y g:i:s.u A'
+                        }
+                    },
+                    {name:'texto',index:'texto', width:100},
+                    {
+                        name:'timestamp_ack',
+                        index:'timestamp_ack',
+                        width:80,
+                        align:"right",
+                        sorttype:"date"
+                    }
                 ],
-                multiselect: true,
-                caption: "Últimas alarmas"
+                jsonReader: {
+                    repeatitems : false,
+                    id: "0",
+                    root: 'objects'
+                },
+
+                multiselect: false,
+                caption: "Últimas alarmas",
+                afterInsertRow: function (id, data) {
+                    if (!data.timestamp_ack) {
+                        $('#'+id).css('background', '#dec');
+                        console.log(data.timestamp);
+                    }
+                },
+                onSortCol: function (){
+                    console.log(arguments);
+                },
+                serializeGridData: function (postData)
+                {
+                    // prepare data for Tatsypie format
+                    var pdat = $.extend({}, postData);
+
+                    // sorting / ordering
+                    if (typeof pdat.sidx != 'undefined' && pdat.sidx != '')
+                    {
+                        pdat.order_by = pdat.sidx.replace('.', '__');
+                        if (pdat.sord !== 'undefined')
+                                            if (pdat.sord.toLowerCase() == 'desc')
+                                            pdat.order_by = '-' + pdat.order_by;
+                    }
+
+                    // filtering
+                    if (pdat.filters)
+                    {
+                            var filters = jQuery.parseJSON(pdat.filters);
+                            var ops = {
+                                        'eq': 'iexact',
+                                        'lt': 'lt',
+                                        'le': 'lte',
+                                        'gt': 'gt',
+                                        'ge': 'gte',
+                                        'bw': 'istartswith',
+                                        'in': 'in',
+                                        'ew': 'iendswith',
+                                        'cn': 'icontains',
+                                        'dt': false, // special value used by date fields. don't append anything to search condition.
+                                    }
+                            $.each(filters.rules, function(idx, rule){
+                                    var op = (rule['op'] in ops) ? ops[rule['op']] : 'icontains';
+                                    var fieldname = rule['field'];
+                                    if (op !== false)
+                                        fieldname += '__' + op;
+                                    pdat[fieldname] = rule['data'];
+                            });
+                    }
+                    delete pdat.filters;
+                    delete pdat.sord;
+                            delete pdat.sidx;
+
+                    return pdat;
+                }
             });
         }
 
@@ -156,12 +267,31 @@
             $('.navbar-fixed-top').slideUp('slow');
         }
 
+        function updateToggle(event) {
+            if (typeof(event) != 'undefined') {
+                event.preventDefault();
+            }
+            SMVE.update = !SMVE.update;
+            if ($(this).is('a')) {
+                $(this).text((SMVE.update)?("Update: ON"):("Update: OFF"));
+            }
+        }
+
+        function setupExtraWidgets() {
+            if (typeof(SMVE.updateButton)) {
+                // Initialize update button trigger
+                SMVE.updateButton = $('#update_toggle');
+                SMVE.updateButton.button().click(updateToggle)
+            }
+
+        }
+
         function init() {
             // AMD Namespace
             if (typeof(SMVE) == "undefined"){
                 SMVE = {};
             }
-
+            setupExtraWidgets();
             createTabs();
             setupSVGScreeen();
             //$('#svg').hide();
