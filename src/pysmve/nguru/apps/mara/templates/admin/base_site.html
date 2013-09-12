@@ -61,4 +61,9 @@
 <h1 id="site-name">S.M.V.E.</h1>
 {% endblock %}
 
+{% block userlinks %}
+    <b><a href="{% url index %}">Volver al sistema</a></b>
+    {{ block.super }}
+{% endblock userlinks %}
+
 {% block nav-global %}{% endblock %}
