@@ -7,6 +7,8 @@ from django.core.management.base import NoArgsCommand, CommandError
 from apps.hmi.models import Formula, SVGScreen
 from apps.mara.models import Profile
 from django.utils.translation import ugettext_lazy as _
+from fabric.colors import red, green, yellow
+
 
 sanitize_row_name = lambda name: name.lower().replace(' ', '_')
 
@@ -57,13 +59,26 @@ class Command(NoArgsCommand):
         make_option('-c', '--clear', help="Quitar formulas previas", default=False,
             action='store_true', ),
         make_option('-s', '--screen', help="Pantalla en la que se quiere agregar las "
-            "formulas", )
+            "formulas", ),
+        make_option('-C', '--post-calculate', default=False, action='store_true',
+            help="Post calucla la formulas para ver los errores"),
     ) + NoArgsCommand.option_list
 
     def handle_noargs(self, **options):
         self.options = options
 
         self.load_formulas()
+        if self.options['post_calculate']:
+            ok, error = Formula.calculate()
+            print "%s: %s, %s: %s" % ("Calculo OK", green(ok),
+                                      "Caluclo ERROR", red(error))
+            for formula in Formula.objects.exclude(last_error=''):
+                print "%s.%s %s %s" % ( yellow(formula.target.tag, True),
+                                        green(formula.attribute),
+                                        formula.formula,
+                                        red(formula.last_error)
+                                        )
+
 
     def load_formulas(self):
         '''Load formulas from excel'''
@@ -105,30 +120,36 @@ class Command(NoArgsCommand):
             qs.delete()
 
         self.attr_trans = {
-            'text': Formula.ATTR_TEXT,
-            'colbak': Formula.ATTR_BACK,
-            'value': Formula.ATTR_TEXT,
+            #'text': Formula.ATTR_TEXT,
+            #'colbak': Formula.ATTR_BACK,
+            #'value': Formula.ATTR_TEXT,
         }
         fields = ('tag', 'atributo', 'formula')
 
 
-        for tag, atributo, formula in iter_rows(formulas_sheet, fields):
+        for n, (tag, atributo, formula) in enumerate(iter_rows(formulas_sheet, fields)):
             if not formula or not atributo:
                 continue
+
 
             target, created = screen.elements.get_or_create(tag=tag)
             Formula.objects.create(
                 target=target,
                 formula=formula,
-                attribute=self.translate_attibute(atributo)
+                attribute=self.attr_trans.get(atributo, atributo)
             )
+            if self.options['verbosity']>1:
+                print "[%s]" % n, red(target), yellow(atributo), green(formula)
 
             created_count += 1
+        # FIx
+        bad_ones = Formula.objects.filter(formula__istartswith='SI(')
+        bad_ones.exclude(formula__endswith=')')
+
         self.debug(_('%d formulas created') % created_count)
         self.debug(_('%d formulas were deleted (bacause of -c/--clear)') % deleted_count)
 
-    def translate_attibute(self, name):
-        return self.attr_trans.get(name, name)
+
 
     def debug(self, msg, verbosity_thereshold=0):
         if self.options['verbosity'] > verbosity_thereshold:
