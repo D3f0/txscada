@@ -2,10 +2,14 @@
 import re
 import logging
 from django.contrib import admin
+from django.conf import settings
 
 from models import (COMaster, IED, SV, DI, AI, Event, Energy,
-                    ComEventKind, ComEvent, EventKind, Action)
+                    ComEventKind, ComEvent, EventKind, Action,
+                    Profile)
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
+
+from django.utils.translation import ugettext as _
 
 logger = logging.getLogger(__name__)
 
@@ -77,8 +81,28 @@ class DIAdmin(admin.ModelAdmin):
 
 
 site.register(DI, DIAdmin)
+
+
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('tag', '__unicode__', 'bit', 'port', 'value', 'timestamp', 'timestamp_ack')
+    list_display = ('tag', '__unicode__', 'bit', 'port', 'value',
+                    'get_timestamp', 'get_timestamp_ack', 'operations')
+
+    def get_timestamp(self, obj):
+        if obj.timestamp:
+            return obj.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')
+
+    def get_timestamp_ack(self, obj):
+        if obj.timestamp:
+            return obj.timestamp_ack.strftime('%Y-%m-%d %H:%M:%S.%f')
+
+    def operations(self, obj):
+        if not obj.timestamp_ack:
+            return '<a class="attend" href="#">%s</a>' % (_('Attend'))
+        else:
+            return '&nbsp;'
+
+    operations.allow_tags = True
+    operations.short_description = _('actions')
 
     def tag(self, event):
         tag = event.di.tag
@@ -91,6 +115,11 @@ class EventAdmin(admin.ModelAdmin):
 
     def port(self, event):
         return event.di.port
+
+    class Media:
+        js = ('hmi/js/event_admin.js', )
+
+
 site.register(Event, EventAdmin)
 
 
@@ -165,19 +194,34 @@ site.register(ComEvent, ComEventAdmin)
 
 class FormulaAdmin(admin.ModelAdmin):
 
-    list_display = ('get_related_tag', 'target', 'attribute', 'get_formula', )
+    list_display = ('get_screen',
+                    'target',
+                    'get_attribute',
+                    'get_formula',
+                    'last_error',
+                    )
 
     list_search = ('tag', )
     list_display_links = ('target', )
     list_filter = ('attribute', 'target__screen', )
 
-    def get_related_tag(self, obj):
+    def get_screen(self, obj):
         return obj.target.screen
 
 
-    get_related_tag.short_description = 'SVG'
-    get_related_tag.allow_tags = True
-    get_related_tag.admin_order_field = 'target__screen'
+    def get_attribute(self, obj):
+        try:
+            return obj.attribute
+            pass
+        except Exception, e:
+            return e
+
+    get_attribute.short_description = _('attribute')
+    get_attribute.admin_order_field = 'attribute'
+
+    get_screen.short_description = 'SVG'
+    get_screen.allow_tags = True
+    get_screen.admin_order_field = 'target__screen'
 
     def get_formula(self, obj):
         '''Renders formula with JS hints'''
@@ -221,8 +265,36 @@ site.register(Formula, FormulaAdmin)
 
 class SVGElementAdmin(admin.ModelAdmin):
     search_fields = ('tag', )
-    list_display = ('tag', 'description', 'text', 'background', 'mark',
-            'enabled', 'last_update')
+    list_display = ('tag', 'description', 'text', 'get_colbak', 'mark',
+            'enabled', 'get_last_update')
+
+    def get_colbak(self, obj):
+        return u'''
+        <?xml version="1.0" encoding="iso-8859-1"?>
+        <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20001102//EN"
+         "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001102.dtd">
+
+        <svg width="100%" height="100%">
+          <g transform="">
+            <rect x="0" y="0" width="150" height="50" style="{style}" />
+            <text x="0" y="10" font-family="Verdana" font-size="12" fill="blue"
+            style="dominant-baseline: -central;" >
+                {desc}
+            </text>
+          </g>
+
+        </svg>
+
+        '''.format(style=obj.svg_style(), desc=str(obj.colbak))
+
+    get_colbak.allow_tags = True
+    get_colbak.short_description = _("colback")
+
+    def get_last_update(self, obj):
+        if obj.last_update:
+            return obj.last_update.strftime(settings.TIMESTAMP_FORMAT)
+    get_last_update.short_description = _("last update")
+    get_last_update.admin_order_field = 'last_update'
 
 site.register(SVGElement, SVGElementAdmin)
 
@@ -230,3 +302,9 @@ class ActionAdmin(admin.ModelAdmin):
     list_display = ('bit', 'descripcion', 'script', 'argumentos')
 
 site.register(Action, ActionAdmin)
+
+
+# Config
+
+config_site = admin.AdminSite('config')
+config_site.register(Profile)

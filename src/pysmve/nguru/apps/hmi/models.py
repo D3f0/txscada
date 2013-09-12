@@ -3,15 +3,14 @@ import re
 from bunch import bunchify
 from datetime import datetime
 from lxml.etree import ElementTree as ET
+from django.db import models
 from colorful.fields import RGBColorField
 
-from django.db import models
 from apps.mara.models import Profile, AI, DI
-
+# Formulas
+from utils import generate_tag_context, IF, OR
 # Internationalization
 from django.utils.translation import ugettext_lazy as _
-
-
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -128,28 +127,9 @@ class SVGPropertyChangeSet(ProfileBound):
         verbose_name = _('SVG Property Change Set')
         verbose_name_plural = _('SVG Property Change Sets')
 
-def closest_key(a_string, a_dict):
-    '''Returns the closest key in a dictionary to a_string.
-    The match is from the begining of the string and scores how
-    may chars are the same
-    '''
-    keys = a_dict.keys()
-    closest_key = None
-    closest_score = 0
-
-    for key in keys:
-        score = 0
-        for k_s, k_c in zip(a_string, key):
-            if k_s != k_c:
-                break
-            score += 1
-        if score >= closest_score:
-            closest_score = score
-            closest_key = key
-    return closest_key
 
 
-class SVGElement(ProfileBound):
+class SVGElement(models.Model):
     '''
     Alias of Elemento Grafico, EG.
     Represents a
@@ -164,8 +144,8 @@ class SVGElement(ProfileBound):
     tag = models.CharField(max_length=16)
     description = models.CharField(max_length=120)
     # Attributes
-    text = models.CharField(max_length=20, null=True, blank=True)
-    background = models.CharField(max_length=20, null=True, blank=True)
+    text = models.CharField(max_length=120, default='0')
+    colbak = models.IntegerField(default=0)
     mark = models.IntegerField(null=True, blank=True, choices=MARK_CHOICES)
     enabled = models.BooleanField(default=False)
     # Used for checking when there are updates to send to clients
@@ -174,13 +154,29 @@ class SVGElement(ProfileBound):
     def __unicode__(self):
         return self.tag
 
-    @classmethod
-    def link_with_screen(cls):
-        svg_elements = SVGElement.objects.all()
-        svg_screens = SVGScreen.objects.all()
-        screen_prefix = dict(( (s.prefix, s) for s in svg_screens))
-        for element in svg_elements:
-            closest_key(element.tag, )
+    _cached_colors = None
+    @property
+    def colors(self):
+        if self._cached_colors is None:
+            colors = {}
+            fields = ('index', 'foreground__color', 'background__color')
+            for index, fore, back in SVGPropertyChangeSet.objects.values_list(*fields):
+                colors[index] = {'fill': back, 'color': fore}
+            self._cached_colors = colors
+        return self._cached_colors
+
+    @property
+    def style(self):
+        '''Returns a dict of style/css properties for SVG'''
+        try:
+            return self.colors[self.colbak]
+        except KeyError:
+            return {}
+
+    def svg_style(self):
+        '''Return CSS style for SVG'''
+        attrs = [ '%s: %s' % (k, str(v)) for k, v in self.style.iteritems()]
+        return '%s' % '; '.join(attrs)
 
     class Meta:
         verbose_name = _("SVG Element")
@@ -189,18 +185,23 @@ class SVGElement(ProfileBound):
 class Formula(models.Model):
 
     ATTR_TEXT = 'text'
-    ATTR_BACK = 'background'
-    ATTR_FORE = 'foreground'
+    ATTR_BACK = 'colbak'
 
     ATTRIBUTE_CHOICES = (
         (_('Text'), ATTR_TEXT),
-        (_('Background'), ATTR_BACK, ),
-        (_('Foreground'), ATTR_FORE, ),
+        (_('Color/Background'), ATTR_BACK, ),
     )
-    target = models.ForeignKey(SVGElement, blank=True, null=True)
     #tag = models.CharField(max_length=16)
-    attribute = models.CharField(max_length=16,)#hoices=ATTRIBUTE_CHOICES)
+    target = models.ForeignKey(SVGElement,
+                               blank=True,
+                               null=True,
+                               verbose_name=_('target'))
+    attribute = models.CharField(max_length=16,
+                                 verbose_name=_('attribute'),
+                                 choices=ATTRIBUTE_CHOICES
+                                )
     formula = models.TextField()
+    last_error = models.TextField()
 
     def __unicode__(self):
       return ":".join([self.target.tag, self.attribute])
@@ -221,23 +222,14 @@ class Formula(models.Model):
 
 
     @classmethod
-    def calculate(cls):
-        def tag_dict(qs):
-            result = {}
-            for d in qs:
-                key = d.pop('tag', None)
-                if key:
-                    result[key] = d
-            return result
-        ai = tag_dict(AI.objects.values('tag', 'escala', 'value'))
-        di = tag_dict(DI.objects.values('tag', 'value'))
-        eg = tag_dict(SVGElement.objects.values('tag', 'text'))
+    def calculate(cls, now=None):
+        if not now:
+            now = datetime.now()
 
-        def SI(cond, t, f):
-            if cond:
-                return t
-            else:
-                return f
+        ai = generate_tag_context(AI.objects.values('tag', 'escala', 'value', 'q'))
+        di = generate_tag_context(DI.objects.values('tag', 'value'))
+        eg = generate_tag_context(SVGElement.objects.values('tag', 'text', 'colbak'))
+        # Generate context for formula evaluation
         context = bunchify(dict(
                                 # Datos
                                 ai=ai,
@@ -245,28 +237,66 @@ class Formula(models.Model):
                                 eg=eg,
                                 # Funciones
                                 RAIZ=lambda v: v ** .5,
-                                SI=SI,
+                                SI=IF,si=IF,
+                                O=OR,
                                 )
                         )
+
+        success, fail = 0, 0
+
         for formula in cls.objects.all():
             # Fila donde se guarda el cálculo
-            eg = SVGElement.objects.get(tag=formula.tag)
+            element = formula.target
             texto_formula = formula.formula
+            # Fix equal
+            texto_formula = texto_formula.replace('=', '==')
             try:
+                #import pdb; pdb.set_trace()
                 value = eval(texto_formula, {}, context)
             except Exception as e:
-                print "Error parseando la formula: %s" % texto_formula
-                print e
+                fail += 1
+                # Record error
+                formula.last_error = '%s: %s' % (type(e).__name__, e.message)
+                formula.save()
             else:
-                #print "Setenado", eg.tag, formula.attribute, value
+                success += 1
+                if formula.last_error:
+                    formula.last_error = ''
+                    formula.save()
+                #print "Setenado", element.tag, formula.attribute, value
                 attribute = formula.attribute
-                prev_value = getattr(eg, attribute)
+                prev_value = getattr(element, attribute)
                 if prev_value != value:
                     # Update
-                    setattr(eg, attribute, value)
-                    eg.last_update = datetime.now()
-                    eg.save()
+                    setattr(element, attribute, value)
+                    element.last_update = datetime.now()
+
+                    element.save()
+
+        # TODO: Check profile
+        never_updated = SVGElement.objects.filter(last_update__isnull=True)
+        never_updated.update(last_update=now)
+        return success, fail
+
+    @staticmethod
+    def is_balanced(text):
+        stack = []
+        pushChars, popChars = "<({[", ">)}]"
+        for c in text :
+            if c in pushChars :
+                stack.append(c)
+            elif c in popChars :
+                if not len(stack) :
+                    return False
+                else :
+                    stackTop = stack.pop()
+                    balancingBracket = pushChars[popChars.index(c)]
+                    if stackTop != balancingBracket :
+                        return False
+            else:
+                return False
+        return not len(stack)
 
     class Meta:
         verbose_name = _("Formula")
-        verbose_name = _("Formulas")
+        verbose_name_plural = _("Formulas")

@@ -389,6 +389,10 @@ class Event(models.Model):
     q = models.IntegerField()
     value = models.IntegerField()
 
+    def get_desc(self, id):
+        if not hasattr(Event, '_text2_cache'):
+            Event._text2_cache = None
+
     def __unicode__(self):
         text2 = None
         kinds = EventKind.objects.filter(idtextoev2=self.di.idtextoev2)
