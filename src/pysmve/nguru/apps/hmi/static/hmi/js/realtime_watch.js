@@ -38,6 +38,7 @@
         }
 
         function applyChanges(node, updates) {
+            console.log(arguments);
             $node = $(node);
             if (isGroup($node)) {
                 return $.each($('path, rect', $node), function (index, elem){
@@ -69,15 +70,19 @@
                 {
                     success: function (data, status){
                         var objs = data.objects;
+                        var attributes = ['fill', 'color', 'text'];
+
                         $.each(objs, function (idx, obj) {
                             //console.log(obj)
                             var node = $('[tag='+obj.tag+']', svg.root());
-                            //console.log(node);
+                            if (node.length)  {
+                                var updates = {};
+                                updates['text'] = obj.text;
+                                $.extend(updates, obj.style);
+                                applyChanges(node, updates);
+                            }
                         });
 
-                        console.log(objs[0]);
-                        console.log(objs[objs.length-1]);
-                        debugger;
                     },
                     error: function (xhr, error) {
                         var data = jQuery.parseJSON(xhr.responseText);
