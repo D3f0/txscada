@@ -38,7 +38,7 @@
         }
 
         function applyChanges(node, updates) {
-            console.log(arguments);
+            //console.log(arguments);
             $node = $(node);
             if (isGroup($node)) {
                 return $.each($('path, rect', $node), function (index, elem){
