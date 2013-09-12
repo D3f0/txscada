@@ -18,6 +18,7 @@ class ProfileResource(ModelResource):
         resource_name = 'profile'
         queryset = Profile.objects.all()
         allowed_methods = ['get', ]
+        ordering = SVGElement._meta.get_all_field_names()
 
 api.register(ProfileResource())
 
@@ -29,6 +30,8 @@ class COMasterResource(ModelResource):
         resource_name = 'comaster'
         queryset = COMaster.objects.all()
         allowed_methods = ['get', ]
+        ordering = SVGElement._meta.get_all_field_names()
+
 api.register(COMasterResource())
 
 
@@ -39,6 +42,7 @@ class IEDResource(ModelResource):
         resource_name = 'ied'
         queryset = IED.objects.all()
         allowed_methods = ['get', ]
+        ordering = SVGElement._meta.get_all_field_names()
 api.register(IEDResource())
 
 
@@ -49,6 +53,7 @@ class SVResource(ModelResource):
         resource_name = 'sv'
         queryset = SV.objects.all()
         allowed_methods = ['get', ]
+        ordering = SVGElement._meta.get_all_field_names()
 api.register(SVResource())
 
 
@@ -59,6 +64,7 @@ class DIResource(ModelResource):
         resource_name = 'di'
         queryset = DI.objects.all()
         allowed_methods = ['get', ]
+        ordering = SVGElement._meta.get_all_field_names()
 api.register(DIResource())
 
 
@@ -69,11 +75,19 @@ class EventResource(ModelResource):
         resource_name = 'event'
         queryset = Event.objects.all()
         allowed_methods = ['get', ]
+        filtering = {
+            'timestamp': ALL,
+            'pk': ALL,
+            'timestamp_ack': ALL,
+        }
+        ordering = SVGElement._meta.get_all_field_names()
 
     def dehydrate(self, bundle):
         bundle.data['tag'] = bundle.obj.di.tag
         bundle.data['texto'] = unicode(bundle.obj)
         return bundle
+
+
 api.register(EventResource())
 
 
@@ -84,6 +98,7 @@ class AIResource(ModelResource):
         resource_name = 'ai'
         queryset = AI.objects.all()
         allowed_methods = ['get', ]
+        ordering = SVGElement._meta.get_all_field_names()
 api.register(AIResource())
 
 
@@ -102,6 +117,7 @@ class EnergyResource(ModelResource):
         resource_name = 'energy'
         queryset = Energy.objects.all()
         allowed_methods = ['get', ]
+        ordering = SVGElement._meta.get_all_field_names()
 api.register(EnergyResource())
 
 
@@ -116,6 +132,7 @@ class SVGScreenResource(ModelResource):
             'name': ALL,
             'id': ALL,
         }
+        ordering = SVGElement._meta.get_all_field_names()
 api.register(SVGScreenResource())
 
 
@@ -125,20 +142,30 @@ class FormulaResource(ModelResource):
         resource_name = 'formula'
         queryset = Formula.objects.all()
         allowed_methods = ['get', ]
+        ordering = SVGElement._meta.get_all_field_names()
+
 api.register(FormulaResource())
 
 
 class SVGElementResource(ModelResource):
+    '''This resource allows to put updates on the screen'''
     screen = fields.ForeignKey(SVGScreenResource, 'screen')
 
     class Meta:
         resource_name = 'svgelement'
-        queryset = SVGElement.objects.all()
+        queryset = SVGElement.objects.select_related('formula')
         allowed_methods = ['get', ]
         limit = 200
         filtering = {
-            'screen': ALL_WITH_RELATIONS
+            'screen': ALL_WITH_RELATIONS,
+            'last_update': ALL_WITH_RELATIONS,
         }
+        ordering = SVGElement._meta.get_all_field_names()
+
+    def dehydrate(self, bundle):
+        bundle.data['style'] = bundle.obj.style
+        return bundle
+
 api.register(SVGElementResource())
 
 
