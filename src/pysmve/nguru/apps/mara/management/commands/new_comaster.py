@@ -1,7 +1,7 @@
 
 from django.core.management.base import NoArgsCommand, CommandError
 from apps.mara.models import Profile, IED, SV, DI, AI
-from apps.hmi.models import SVGElement, Formula
+from apps.hmi.models import SVGElement
 from optparse import make_option
 import os
 from os.path import join, abspath, dirname, splitext, basename
@@ -77,6 +77,7 @@ class Command(NoArgsCommand):
     def templates(self):
         if not hasattr(self, '_templates'):
             self._templates = self._read_templates()
+        #import pdb; pdb.set_trace()
         return self._templates
 
 
@@ -118,8 +119,7 @@ class Command(NoArgsCommand):
                     ied.ai_set.create(**data)
         for tag_data in self.templates['tag']:
             SVGElement.objects.get_or_create(**tag_data)
-        for formula_data in self.templates['formulas']:
-            Formula.objects.create(**formula_data)
+
 
 
 

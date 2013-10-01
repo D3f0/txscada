@@ -1,0 +1,183 @@
+tag	description
+E4CBAR01	Barra de Tensión 110 VCC
+E4CREC01	Alarma tensión Alta/Baja VCC SSAA
+E4CTDB02	Titulador de Barra 110 VCC
+E4CTS101	Falta Tensión Comando 13.2KV
+E4CTS201	Falta Tensión Comando 33KV
+E4CVV_01	Tensión Barra SSAA 110 VCC
+E4BREC01	Alarma alimentación VCA SSAA
+E4ABAR01	Barra de Tensión 380VCA Rectificador
+E4CBAR01	Barra de Tensión 110VCC Batería
+E4ATDB01	Titulador de Barra 380VCA
+E4CTDB01	Titulador de Barra 110VCC
+E4251_01	Prot.Max.Corriente Transformador SSAA
+E4251_02	Prot.Max.Corriente Alimentador Trafo 1 33KV
+E4251_03	Prot.Max.Corriente Alimentador Trafo 2 33KV
+E4251_05	Prot.Max.Corriente Alimentador Linea 1 33 KV Entrada Anillo
+E4251_06	Prot.Max.Corriente Alimentador Linea 2 33 KV Salida Anillo
+E4252B01	Interruptor Transformador SSAA
+E4252B02	Interruptor Alimentador Trafo 1 33KV
+E4252B03	Interruptor Alimentador Trafo 2 33KV
+E4252B05	Interruptor Alimentador Linea 1 33 KV Entrada Anillo
+E4252B06	Interruptor Alimentador Linea 2 33 KV Salida Anillo
+E4264_02	Prot.Cuba Disparo Transformador TR1
+E4264_03	Prot.Cuba Disparo Transformador TR2
+E4289I01	Seccionador Linea Inf Alimentador Trafo SSAA 33KV
+E4289I02	Seccionador Linea Inf Alimentador Trafo 1 33KV
+E4289I03	Seccionador Linea Inf Alimentador Trafo 2 33KV
+E4289I05	Seccionador Linea Inf Alimentador Linea 1 33 KV Entrada Anillo
+E4289I06	Seccionador Linea Inf Alimentador Linea 2 33 KV Salida Anillo
+E4289S01	Seccionador Linea Sup Alimentador Trafo SSAA 33KV
+E4289S02	Seccionador Linea Sup Alimentador Trafo 1 33KV
+E4289S03	Seccionador Linea Sup Alimentador Trafo 2 33KV
+E4289S05	Seccionador Linea Sup Alimentador Linea 1 33 KV Entrada Anillo
+E4289S06	Seccionador Linea Sup Alimentador Linea 2 33 KV Salida Anillo
+E4289T01	Seccionador PAT Alimentador Trafo SSAA 33KV
+E4289T02	Seccionador PAT Alimentador Trafo 1 33KV
+E4289T03	Seccionador PAT Alimentador Trafo 2 33KV
+E4289T05	Seccionador PAT Alimentador Linea 1 33 KV Entrada Anillo
+E4289T06	Seccionador PAT Alimentador Linea 2 33 KV Salida Anillo
+E42BAR00	Barra de Tensión 33KV
+E42II_01	Corriente Alimentador Trafo SSAA 33KV
+E42II_02	Corriente Alimentador Trafo 1 33KV
+E42II_03	Corriente Alimentador Trafo 2 33KV
+E42II_05	Corriente Alimentador Linea 1 33 KV Entrada Anillo
+E42II_06	Corriente Alimentador Linea 2 33 KV Salida Anillo
+E42NDC01	Numerador de Campo Alimentador Trafo SSAA 33KV
+E42NDC02	Numerador de Campo Alimentador Trafo 1 33KV
+E42NDC03	Numerador de Campo Alimentador Trafo 2 33KV
+E42NDC05	Numerador de Campo Alimentador Linea 1 33 KV Entrada Anillo
+E42NDC06	Numerador de Campo Alimentador Linea 2 33 KV Salida Anillo
+E42PIA02	Prot.Int.Trafo Alarma Transformador TR1
+E42PIA03	Prot.Int.Trafo Alarma Transformador TR2
+E42PID02	Prot.Int. Trafo Disparo Transformador TR1
+E42PID03	Prot.Int. Trafo Disparo Transformador TR2
+E42RBA02	Prot.Int.RBC Alarma Transformador TR1
+E42RBA03	Prot.Int.RBC Alarma Transformador TR2
+E42RBD02	Prot.Int.RBC Disparo Transformador TR1
+E42RBD03	Prot.Int.RBC Disparo Transformador TR2
+E42SS_01	Potencia aparente Alimentador Trafo SSAA 33KV
+E42SS_02	Potencia aparente Alimentador Trafo 1 33KV
+E42SS_03	Potencia aparente Alimentador Trafo 2 33KV
+E42SS_05	Potencia aparente Alimentador Linea 1 33 KV Entrada Anillo
+E42SS_06	Potencia aparente Alimentador Linea 2 33 KV Salida Anillo
+E42TCT01	Tramo Campo Tierra Alimentador Trafo SSAA 33KV
+E42TCT02	Tramo Campo Tierra Alimentador Trafo 1 33KV
+E42TCT03	Tramo Campo Tierra Alimentador Trafo 2 33KV
+E42TCT05	Tramo Campo Tierra Alimentador Linea 1 33 KV Entrada Anillo
+E42TCT06	Tramo Campo Tierra Alimentador Linea 2 33 KV Salida Anillo
+E42TDB00	Titulador de Barra 33KV
+E42TDE00	Titulador de Estacion 33KV
+E42TEC01	Texto Estado Campo Alimentador Trafo SSAA 33KV
+E42TEC02	Texto Estado Campo Alimentador Trafo 1 33KV
+E42TEC05	Texto Estado Campo Alimentador Linea 1 33 KV Entrada Anillo
+E42TEC03	Texto Estado Campo Alimentador Trafo 2 33KV
+E42TEC06	Texto Estado Campo Alimentador Linea 2 33 KV Salida Anillo
+E42TIC01	Texto Identificador Campo Alimentador Trafo SSAA 33KV
+E42TIC02	Texto Identificador Campo Alimentador Trafo 1 33KV
+E42TIC05	Texto Identificador Campo Alimentador Linea 1 33 KV Entrada Anillo
+E42TIC03	Texto Identificador Campo Alimentador Trafo 2 33KV
+E42TIC06	Texto Identificador Campo Alimentador Linea 2 33 KV Salida Anillo
+E42TIE01	Tierra Alimentador Trafo SSAA 33KV
+E42TIE02	Tierra Alimentador Trafo 1 33KV
+E42TIE03	Tierra Alimentador Trafo 2 33KV
+E42TIE05	Tierra Alimentador Linea 1 33 KV Entrada Anillo
+E42TIE06	Tierra Alimentador Linea 2 33 KV Salida Anillo
+E42TIT01	Texto Identificador Trafo TS SSAA
+E42TIT02	Texto Identificador Trafo TR1
+E42TIT03	Texto Identificador Trafo TR2
+E42TT_01	Devanado Trafo Potencia TR SSAA
+E42TT_02	Devanado Trafo Potencia TR1
+E42TT_03	Devanado Trafo Potencia TR2
+E41TT_01	Devanado Trafo Potencia TR SSAA
+E41TT_02	Devanado Trafo Potencia TR1
+E41TT_03	Devanado Trafo Potencia TR2
+E42VV_00	Tensión Barra 33 KV
+E4127_04	Relé Mínima tensión Acoplamiento Barra 1-2 13,2KV
+E4151_01	Prot.Max.Corriente Alimentador TR2 13.2KV
+E4151_02	Prot.Max.Corriente Distribuidor 1 Barra 2- E.Rios (calle)
+E4151_03	Prot.Max.Corriente Distribuidor 2 Barra 2: Calle
+E4151_05	Prot.Max.Corriente Distribuidor 3 Barra 1- E.Rios (vereda)
+E4151_06	Prot.Max.Corriente Distribuidor 4 Barra 1- Parana (vereda)
+E4151_07	Prot.Max.Corriente Alimentador TR1 13.2KV
+E4152B01	Interruptor Alimentador TR2 13.2KV
+E4152B02	Interruptor Distribuidor 1 Barra 2- E.Rios (calle)
+E4152B03	Interruptor Distribuidor 2 Barra 2: Calle
+E4152B04	Interruptor Acoplamiento Barra 1-2 13,2KV
+E4152B05	Interruptor Distribuidor 3 Barra 1- E.Rios (vereda)
+E4152B06	Interruptor Distribuidor 4 Barra 1- Parana (vereda)
+E4152B07	Interruptor Alimentador TR1 13.2KV
+E4181_04	Relé de Frecuencia Acoplamiento Barra 1-2 13,2KV
+E4189I01	Seccionador Linea Inf Alimentador Trafo 2 13,2KV
+E4189I02	Seccionador Linea Inf Distribuidor 1 Barra 2- E.Rios (calle)
+E4189I03	Seccionador Linea Inf Distribuidor 2 Barra 2: Calle
+E4189I04	Seccionador Linea Inf Acoplamiento Barra 1-2 13,2KV
+E4189I05	Seccionador Linea Inf Distribuidor 3 Barra 1- E.Rios (vereda)
+E4189I06	Seccionador Linea Inf Distribuidor 4 Barra 1- Parana (vereda)
+E4189I07	Seccionador Linea Inf Alimentador Trafo 1 13,2KV
+E4189S01	Seccionador Linea Sup Alimentador Trafo 2 13,2KV
+E4189S02	Seccionador Linea Sup Distribuidor 1 Barra 2- E.Rios (calle)
+E4189S03	Seccionador Linea Sup Distribuidor 2 Barra 2: Calle
+E4189S04	Seccionador Linea Sup Acoplamiento Barra 1-2 13,2KV
+E4189S05	Seccionador Linea Sup Distribuidor 3 Barra 1- E.Rios (vereda)
+E4189S06	Seccionador Linea Sup Distribuidor 4 Barra 1- Parana (vereda)
+E4189S07	Seccionador Linea Sup Alimentador Trafo 1 13,2KV
+E4189T01	Seccionador PAT Alimentador Trafo 2 13,2KV
+E4189T02	Seccionador PAT Distribuidor 1 Barra 2- E.Rios (calle)
+E4189T03	Seccionador PAT Distribuidor 2 Barra 2: Calle
+E4189T05	Seccionador PAT Distribuidor 3 Barra 1- E.Rios (vereda)
+E4189T06	Seccionador PAT Distribuidor 4 Barra 1- Parana (vereda)
+E4189T07	Seccionador PAT Alimentador Trafo 1 13,2KV
+E41BAR01	Barra de Tensión 2- 13,2kV
+E41BAR07	Barra de Tensión 1- 13,2kV
+E41DUC01	Ducto Secundario TR 2- 13,2kV
+E41DUC07	Ducto Secundario TR 1- 13,2kV
+E41II_01	Corriente Alimentador TR2 13.2KV
+E41II_02	Corriente Distribuidor 1 Barra 2- E.Rios (calle)
+E41II_03	Corriente Distribuidor 2 Barra 2: Calle F.Serv
+E41II_05	Corriente Distribuidor 3 Barra 1- E.Rios (vereda)
+E41II_06	Corriente Distribuidor 4 Barra 1- Parana (vereda)
+E41II_07	Corriente Alimentador TR1 13.2KV
+E41NDC01	Numerador de Campo Alimentador Trafo 2 13,2KV
+E41NDC02	Numerador de Campo Distribuidor 1 Barra 2- E.Rios (calle)
+E41NDC03	Numerador de Campo Distribuidor 2 Barra 2: Calle
+E41NDC04	Numerador de Campo Acoplamiento Barra 1-2 13,2KV
+E41NDC05	Numerador de Campo Distribuidor 3 Barra 1- E.Rios (vereda)
+E41NDC06	Numerador de Campo Distribuidor 4 Barra 1- Parana (vereda)
+E41NDC07	Numerador de Campo Alimentador Trafo 1 13,2KV
+E41SS_01	Potencia aparente Alimentador TR2 13.2KV
+E41SS_02	Potencia aparente Distribuidor 1 Barra 2- E.Rios (calle)
+E41SS_03	Potencia aparente Distribuidor 2 Barra 2: Calle F.Serv
+E41SS_05	Potencia aparente Distribuidor 3 Barra 1- E.Rios (vereda)
+E41SS_06	Potencia aparente Distribuidor 4 Barra 1- Parana (vereda)
+E41SS_07	Potencia aparente Alimentador TR1 13.2KV
+E41TCT01	Tramo Campo Tierra Alimentador Trafo 2 13,2KV
+E41TCT02	Tramo Campo Tierra Distribuidor 1 Barra 2- E.Rios (calle)
+E41TCT03	Tramo Campo Tierra Distribuidor 2 Barra 2: Calle
+E41TCT05	Tramo Campo Tierra Distribuidor 3 Barra 1- E.Rios (vereda)
+E41TCT06	Tramo Campo Tierra Distribuidor 4 Barra 1- Parana (vereda)
+E41TCT07	Tramo Campo Tierra Alimentador Trafo 1 13,2KV
+E41TDB01	Titulador de Barra 2- 13,2kV
+E41TDB07	Titulador de Barra 1- 13,2kV
+E41TEC01	Texto Estado Campo Alimentador Trafo 2 13,2KV
+E41TEC02	Texto Estado Campo Distribuidor 1 Barra 2- E.Rios (calle)
+E41TEC03	Texto Estado Campo Distribuidor 2 Barra 2: Calle
+E41TEC04	Texto Estado Campo Acoplamiento Barra 1-2 13,2KV
+E41TEC05	Texto Estado Campo Distribuidor 3 Barra 1- E.Rios (vereda)
+E41TEC06	Texto Estado Campo Distribuidor 4 Barra 1- Parana (vereda)
+E41TEC07	Texto Estado Campo Alimentador Trafo 1 13,2KV
+E41TIC01	Texto Identificador Campo Alimentador Trafo 2 13,2KV
+E41TIC02	Texto Identificador Campo Distribuidor 1 Barra 2- E.Rios (calle)
+E41TIC03	Texto Identificador Campo Distribuidor 2 Barra 2: Calle
+E41TIC04	Texto Identificador Campo Acoplamiento Barra 1-2 13,2KV
+E41TIC05	Texto Identificador Campo Distribuidor 3 Barra 1- E.Rios (vereda)
+E41TIC06	Texto Identificador Campo Distribuidor 4 Barra 1- Parana (vereda)
+E41TIC07	Texto Identificador Campo Alimentador Trafo 1 13,2KV
+E41TIE01	Tierra Alimentador Trafo 2 13,2KV
+E41TIE02	Tierra Distribuidor 1 Barra 2- E.Rios (calle)
+E41TIE03	Tierra Distribuidor 2 Barra 2: Calle
+E41TIE05	Tierra Distribuidor 3 Barra 1- E.Rios (vereda)
+E41TIE06	Tierra Distribuidor 4 Barra 1- Parana (vereda)
+E41TIE07	Tierra Alimentador Trafo 1 13,2KV
+E41VV_01	Tensión Barra 2- 13.2KV
+E41VV_07	Tensión Barra 1- 13.2KV

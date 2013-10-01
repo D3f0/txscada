@@ -1,8 +1,9 @@
 import os
 from collections import namedtuple, OrderedDict
 from django.core.management.base import NoArgsCommand, CommandError
-from apps.mara.models import Profile, COMaster, EventText, ComEventKind
-from apps.hmi.models import SVGScreen, SVGElement, Formula
+from apps.mara.models import (Profile, COMaster, EventText, ComEventKind,
+                              EventDescription, Action, )
+from apps.hmi.models import SVGScreen, SVGElement, Formula, Color, SVGPropertyChangeSet
 #from apps.hmi.models import SVGElement
 from optparse import make_option
 from django.utils.translation import ugettext_lazy as _
@@ -83,7 +84,7 @@ class Command(NoArgsCommand):
     def open_workbook(self):
         from apps.mara.utils import WorkBook
         try:
-            return WorkBook(self.options.workbook)
+            return WorkBook(self.options.workbook, formatting_info=True)
         except IOError:
             raise CommandError(
                 _("File %s could not be read or it's not an excel file") %
@@ -99,7 +100,10 @@ class Command(NoArgsCommand):
         if not created and self.options.clear:
             for manager in get_relation_managers(profile):
                 count = manager.all().count()
-                logger.warning(_("Clearing %s %s") % (count, manager.model._meta.verbose_name))
+                logger.warning(_("Clearing {0} {1}").format(
+                                                    count,
+                                                    manager.model._meta.verbose_name)
+                )
                 manager.all().delete()
         return profile
 
@@ -116,7 +120,9 @@ class Command(NoArgsCommand):
         COMaster.import_excel(self.workbook, profile=profile)
         # Configuration for text representation of events
         EventText.import_excel(self.workbook, profile=profile)
+        EventDescription.import_excel(self.workbook, profile=profile)
         ComEventKind.import_excel(self.workbook, profile=profile)
+        Action.import_excel(self.workbook, profile=profile)
         screen = SVGScreen.objects.create(profile=profile,
                                           name=self.options.screen,
                                           root=False,
@@ -127,3 +133,5 @@ class Command(NoArgsCommand):
         screen.save()
         SVGElement.import_excel(self.workbook, screen=screen)
         Formula.import_excel(self.workbook, screen=screen)
+        Color.import_excel(self.workbook, profile=profile)
+        SVGPropertyChangeSet.import_excel(self.workbook, profile=profile)
