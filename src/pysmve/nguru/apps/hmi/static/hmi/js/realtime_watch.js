@@ -15,6 +15,7 @@
                     }}
                 ]
             });
+            dlg.html($('<b>').text('TAG').after('poo'));
             $(dlg).dialog('open');
         }
 
@@ -56,6 +57,66 @@
                 }
             });
         }
+        function serialize(obj) {
+          var str = [];
+          for(var p in obj)
+             str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+          return str.join("&");
+        }
+        var last_update=null;
+
+        function getSVGUpdatesUrl(extra_args){
+            var baseArgs = {
+                format: 'json',
+                order_by: '-last_update',
+            }
+
+            if (typeof extra_args != "object") {
+                extra_args = {};
+            }
+            if (last_update) {
+                extra_args.last_update = last_update;
+            }
+
+            var baseUrl = '/api/v1/svgelement/';
+            var args = $.extend({}, baseArgs, extra_args);
+            var url = baseUrl + '?' + serialize(args);
+            console.log(url);
+            return url;
+        }
+
+        function showRESTErrorDialog(xhr, error, status){
+            var data = jQuery.parseJSON(xhr.responseText),
+                html_content;
+            if (data.traceback) {
+                html_content = data.traceback;
+            } else {
+                html_content = data.error;
+            }
+            html_content = html_content.replace('<', '[').replace('>', ']');
+            // Disable connection
+            SMVE.updateButton.click();
+            var dlg = $('<div>').dialog({
+                title: data.error_message || status,
+                width: "70%",
+                modal: true,
+                autoOpen: false,
+                close: function (){
+                    $(this).dialog('destroy');
+                },
+                buttons: [
+                    {
+                        text: "Close",
+                        click: function() {
+                            dlg.dialog('close');
+                        }
+                    }
+
+                ]
+            }).html('<pre>'+html_content+'</pre>');
+            dlg.dialog('open');
+            return dlg;
+        }
 
         function update(){
             if (typeof(SMVE.updateInterval) == 'undefined') {
@@ -66,8 +127,8 @@
                 return;
             }
             // Apply changes taken from the REST resource
-            $.ajax('/api/v1/svgelement/?format=json&order_by=-last_update',
-                {
+            $.ajax({
+                    url: getSVGUpdatesUrl(),
                     success: function (data, status){
                         var objs = data.objects;
                         var attributes = ['fill', 'color', 'text'];
@@ -84,21 +145,7 @@
                         });
 
                     },
-                    error: function (xhr, error) {
-                        var data = jQuery.parseJSON(xhr.responseText);
-                        // Disable connection
-                        SMVE.updateButton.click();
-                        var dlg = $('<div>').dialog({
-                            title: data.error_message,
-                            width: "70%",
-                            modal: true,
-                            autoOpen: false,
-                            close: function (){
-                                $(this).dialog('destroy');
-                            }
-                        }).html('<pre>'+data.traceback+'</pre>');
-                        dlg.dialog('open');
-                    }
+                    error: showRESTErrorDialog
                 });
             return;
             $.ajax(SMVE.svg_pk, {

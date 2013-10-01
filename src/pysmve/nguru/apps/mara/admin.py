@@ -4,9 +4,11 @@ import logging
 from django.contrib import admin
 from django.conf import settings
 
-from models import (COMaster, IED, SV, DI, AI, Event, Energy,
-                    ComEventKind, ComEvent, EventKind, Action,
-                    Profile)
+from models import (
+                    Profile,
+                    COMaster, IED, SV, DI, AI, Event, Energy,
+                    EventText, ComEvent, Action, ComEventKind,
+                    )
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
 
 from django.utils.translation import ugettext as _
@@ -66,7 +68,8 @@ site.register(SV, SVAdmin)
 
 
 class DIAdmin(admin.ModelAdmin):
-    list_display = ('get_tag', 'description', 'port', 'bit', 'trasducer', 'value',  'ied')
+    list_display = ('get_tag', 'description', 'port', 'bit', 'trasducer', 'value', 'q',
+                    'trasducer', 'maskinv')
     list_filter = ('ied',)
     search_fields = ('tag', 'description')
 
@@ -138,21 +141,44 @@ class EnergyAdmin(admin.ModelAdmin):
     list_filter = ('timestamp', 'ai', 'hnn', 'q')
 site.register(Energy, EnergyAdmin)
 
-site.register(EventKind)
+class EventTextAdmin(admin.ModelAdmin):
+    list_display = ('description', 'value', 'idtextoev2')
+
+site.register(EventText, EventTextAdmin)
 
 class SVGScreenAdmin(admin.ModelAdmin):
-    list_display = ['name', 'show_svg']
+    list_display = ['name', 'show_svg', 'get_tags',]
 
     def show_svg(self, model):
         return '<a href="#">Show {}</a>'.format(model)
     show_svg.allow_tags = True
 
+    def get_tags(self, obj):
+        tags = obj.tags
+        count = len(tags)
+        items = ''.join(['<li>%s</li>' % x[0] for x in tags.iteritems()])
+        return '''
+        <a class="show_tags" href="#">{count}</a>
+        <span style="display: none;">
+            <ul>{items}
+            </ul>
+        </span>
+        '''.format(**locals())
+
+    get_tags.allow_tags = True
 
     class Media:
         css = {
-            "all": ("my_styles.css",)
+
+            "all": (
+                    'js/jquery-ui-1.10.0.custom/development-bundle/themes/base/jquery-ui.css',
+                    "my_styles.css",)
         }
-        js = ("hmi/js/admin_svgscreen.js",)
+        js = (
+                'initializr/js/vendor/jquery-1.9.0.min.js',
+                'js/jquery-ui-1.10.0.custom/development-bundle/ui/jquery-ui.custom.js',
+                'hmi/js/formula_admin_changelist.js',
+                "hmi/js/admin_svgscreen.js",)
 
 site.register(SVGScreen, SVGScreenAdmin)
 class ColorAdmin(admin.ModelAdmin):
@@ -181,6 +207,8 @@ class SVGPropertyChangeSetAdmin(admin.ModelAdmin):
     example.allow_tags = True
 
 site.register(SVGPropertyChangeSet, SVGPropertyChangeSetAdmin)
+
+
 
 class ComEventKindAdmin(admin.ModelAdmin):
     list_display = ('code', 'texto_2', 'pesoaccion')
