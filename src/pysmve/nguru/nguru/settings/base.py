@@ -221,6 +221,11 @@ LOGGING = {
             'handlers': ['console', ],
             'level': 'DEBUG',
             'propagate': True
+        },
+        'excel_import': {
+            'handlers': ['console', ],
+            'level': 'DEBUG',
+            'propagate': True
         }
     }
 }
