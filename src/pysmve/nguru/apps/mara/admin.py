@@ -8,6 +8,7 @@ from models import (
                     Profile,
                     COMaster, IED, SV, DI, AI, Event, Energy,
                     EventText, ComEvent, Action, ComEventKind,
+                    EventDescription,
                     )
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
 
@@ -125,6 +126,11 @@ class EventAdmin(admin.ModelAdmin):
 
 site.register(Event, EventAdmin)
 
+class EventDescriptionAdmin(admin.ModelAdmin):
+    list_display = ('textoev2', 'value', 'text')
+    list_display_links = ('text', )
+
+site.register(EventDescription, EventDescriptionAdmin)
 
 class AIAdmin(admin.ModelAdmin):
     list_display = ('tag', 'description', 'unit', 'channel', 'ied', 'offset', 'value', 'human_value', 'hex')
@@ -327,7 +333,8 @@ class SVGElementAdmin(admin.ModelAdmin):
 site.register(SVGElement, SVGElementAdmin)
 
 class ActionAdmin(admin.ModelAdmin):
-    list_display = ('bit', 'descripcion', 'script', 'argumentos')
+    list_display = ('bit', 'description', 'script', 'arguments')
+    list_display_links = ('description', )
 
 site.register(Action, ActionAdmin)
 
