@@ -486,7 +486,7 @@ class EventText(models.Model, ExcelImportMixin):
     value = models.IntegerField(blank=True, null=True)
     idtextoev2 = models.IntegerField(null=True, blank=True)
     # It's stored in DI
-    #pesoaccion = models.IntegerField(null=True, blank=True)
+    pesoaccion = models.IntegerField(null=True, blank=True)
 
     class Meta:
         unique_together = ('idtextoev2', 'value')
@@ -506,7 +506,37 @@ class EventText(models.Model, ExcelImportMixin):
                 description=description,
                 value=code,
                 idtextoev2=idtextoev2,
+                pesoaccion=pesoaccion,
             )
+
+class EventDescription(models.Model, ExcelImportMixin):
+
+    """Extra table for text composition"""
+    profile = models.ForeignKey(Profile)
+    textoev2 = models.IntegerField(blank=True, null=True)
+    value = models.IntegerField(blank=True, null=True)
+    text = models.CharField(max_length=200, blank=True, null=True)
+
+    def __unicode__(self):
+        return self.text
+
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        #models.profile.eventdescription_set.create()
+        fields = ('idtextoev2', 'value',  'textoev2')
+        for idtextoev2, value, textoev2 in workbook.iter_as_dict('textoevtipo', fields):
+            models.profile.eventdescription_set.create(
+                textoev2=idtextoev2,
+                value=value or None,
+                text=textoev2
+            )
+
+    class Meta:
+        verbose_name = _('Event Description')
+        verbose_name = _('Event Descriptions')
+
+
+
 
 class ComEventKind(models.Model, ExcelImportMixin):
     '''Gives a type to communication event'''
@@ -671,11 +701,12 @@ class Energy(models.Model):
         verbose_name_plural = _("Energy Measures")
 
 
-class Action(models.Model):
+class Action(models.Model, ExcelImportMixin):
+    profile = models.ForeignKey(Profile)
     bit = models.IntegerField()
-    descripcion = models.CharField(max_length=50)
+    description = models.CharField(max_length=50)
     script = models.CharField(max_length=50)
-    argumentos = models.CharField(max_length=50)
+    arguments = models.CharField(max_length=50)
 
     @classmethod
     def get_actions_for_peso(cls, peso):
@@ -687,13 +718,20 @@ class Action(models.Model):
         return cls.objects.filter(bit__in=bit_values)
 
     def __unicode__(self):
-        return self.descripcion
+        return self.description
+
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        fields = ('idaccion', 'accion', 'direccion')
+        for bit, description, arguments in workbook.iter_as_dict('accionev', fields):
+            models.profile.action_set.create(
+                bit=bit,
+                description=description[:50],
+                arguments=arguments[:50],
+            )
 
     class Meta:
         unique_together = ('bit', )
         verbose_name = _("Action")
         verbose_name_plural = _("Actions")
 
-
-def register():
-    """Register model for update tracking"""
