@@ -76,7 +76,8 @@ class WorkBook(object):
                 continue
             yield row
 
-
+    def __getattr__(self, name):
+        return getattr(self.book, name)
 
 class ExcelImportMixin(object):
     '''Mixin for Django models'''
