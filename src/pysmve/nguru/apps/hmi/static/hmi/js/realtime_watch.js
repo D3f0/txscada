@@ -4,9 +4,10 @@
         var svg = null;
 
         function showDialogForNode(node) {
+            var tag = $(node).attr('tag');
             var dlg = $('<div/>').dialog({
                 autoOpen: false,
-                title: $(node).attr('tag'),
+                title: tag,
                 modal: true,
                 buttons: [
                     {text: "Close",
@@ -15,8 +16,10 @@
                     }}
                 ]
             });
-            dlg.html($('<b>').text('TAG').after('poo'));
+
+            dlg.html($('<b>').text('TAG: '+tag));
             $(dlg).dialog('open');
+            // debugger;
         }
 
         function setupSVGScreeen(){

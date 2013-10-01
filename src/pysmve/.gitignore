@@ -4,3 +4,4 @@ build/*
 local_settings.py
 nguru/media
 models.pdf
+importacion.html
