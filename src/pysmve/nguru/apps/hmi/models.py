@@ -88,12 +88,30 @@ def get_elements(et):
     return dict([(elem.attrib['tag'], tag(elem.tag)) for elem in et.findall('//*[@tag]')])
 
 
-class Color(ProfileBound):
+class Color(ProfileBound, ExcelImportMixin):
     name = models.CharField(max_length=30)
     color = RGBColorField()
 
     def __unicode__(self):
         return self.name
+
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        colour_map = workbook.colour_map
+        sheet = workbook.sheet_by_name('color')
+        rows, cols = sheet.nrows, sheet.ncols
+        for row in range(1, rows):
+            col = 2
+            cell = sheet.cell(row, col)
+            fmt = workbook.xf_list[cell.xf_index]
+            colour = colour_map[fmt.background.pattern_colour_index]
+            #print colour, cell.value
+            rgb_color = '#%.2x%.2x%.2x' % colour
+            models.profile.color_set.get_or_create(
+                name = cell.value.title(),
+                color=rgb_color
+                )
+
 
     class Meta:
         verbose_name= _("Color")
@@ -101,7 +119,7 @@ class Color(ProfileBound):
 
 
 
-class SVGPropertyChangeSet(ProfileBound):
+class SVGPropertyChangeSet(ProfileBound, ExcelImportMixin):
     '''Formula evaluation result'''
     index = models.IntegerField()
     background = models.ForeignKey(Color,
@@ -122,6 +140,22 @@ class SVGPropertyChangeSet(ProfileBound):
     def __unicode__(self):
         return self.description
 
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        fields = ('id_col', 'colbak', 'colfor', 'description')
+        for index, colback, colfor, description in workbook.iter_as_dict('color',
+                                                                         fields=fields):
+            color_bg = color_fg = None
+            if colback:
+                color_bg = Color.objects.get(name__icontains=colback)
+            if colfor:
+                color_fg = Color.objects.get(name__icontains=colfor)
+            models.profile.svgpropertychangeset_set.create(
+                index=index,
+                background=color_bg,
+                foreground=color_fg,
+                description=description
+            )
 
     class Meta:
         db_table = 'color'
@@ -191,6 +225,7 @@ class SVGElement(models.Model, ExcelImportMixin):
             i = 0
             base_tag = tag
             while base_tag in created_tags:
+                cls.get_logger().warning(_("Tag repeated %s" % base_tag))
                 base_tag = '%s_%d' % (base_tag, i)
                 i += 1
             tag = base_tag
@@ -213,8 +248,8 @@ class Formula(models.Model, ExcelImportMixin):
     ATTR_BACK = 'colbak'
 
     ATTRIBUTE_CHOICES = (
-        (_('Text'), ATTR_TEXT),
-        (_('Color/Background'), ATTR_BACK, ),
+        (ATTR_TEXT, _('Text')),
+        (ATTR_BACK, _('Color/Background')),
     )
     #tag = models.CharField(max_length=16)
     target = models.ForeignKey(SVGElement,
@@ -325,12 +360,18 @@ class Formula(models.Model, ExcelImportMixin):
     @classmethod
     def do_import_excel(cls, workbook, models):
         """Import form excel file, sheet 'formulas'"""
-
+        attr_trans = {}
         fields = ('tabla', 'tag', 'atributo', 'formula')
         for tabla, tag, atributo, formula in workbook.iter_as_dict('formulas',
                                                                           fields=fields ):
-            element, created = models.screen.elements.get_or_create(
-                tag=tag,
+            if not formula or not atributo:
+                continue
+
+            target, created = models.screen.elements.get_or_create(tag=tag)
+            Formula.objects.create(
+                target=target,
+                formula=formula,
+                attribute=attr_trans.get(atributo, atributo)
             )
 
     class Meta:
