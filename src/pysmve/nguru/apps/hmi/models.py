@@ -7,6 +7,7 @@ from django.db import models
 from colorful.fields import RGBColorField
 
 from apps.mara.models import Profile, AI, DI
+from apps.mara.utils import ExcelImportMixin
 # Formulas
 from utils import generate_tag_context, IF, OR
 # Internationalization
@@ -129,7 +130,7 @@ class SVGPropertyChangeSet(ProfileBound):
 
 
 
-class SVGElement(models.Model):
+class SVGElement(models.Model, ExcelImportMixin):
     '''
     Alias of Elemento Grafico, EG.
     Represents a
@@ -178,11 +179,35 @@ class SVGElement(models.Model):
         attrs = [ '%s: %s' % (k, str(v)) for k, v in self.style.iteritems()]
         return '%s' % '; '.join(attrs)
 
+
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        """Import form excel file, sheet 'eg'"""
+        fields = ('tag', 'description', 'text', 'colbak', 'mark')
+        created_tags = set()
+        for tag, description, text, colbak, mark in workbook.iter_as_dict('eg',
+                                                                          fields=fields):
+            # Prevent tag from repeating
+            i = 0
+            base_tag = tag
+            while base_tag in created_tags:
+                base_tag = '%s_%d' % (base_tag, i)
+                i += 1
+            tag = base_tag
+            models.screen.elements.create(
+                tag=tag,
+                description=description,
+                text=text,
+                colbak=colbak,
+                mark=mark or None,
+            )
+            created_tags.add(tag)
+
     class Meta:
         verbose_name = _("SVG Element")
         verbose_name_plural = _("SVG Elements")
 
-class Formula(models.Model):
+class Formula(models.Model, ExcelImportMixin):
 
     ATTR_TEXT = 'text'
     ATTR_BACK = 'colbak'
@@ -296,6 +321,17 @@ class Formula(models.Model):
             else:
                 return False
         return not len(stack)
+
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        """Import form excel file, sheet 'formulas'"""
+
+        fields = ('tabla', 'tag', 'atributo', 'formula')
+        for tabla, tag, atributo, formula in workbook.iter_as_dict('formulas',
+                                                                          fields=fields ):
+            element, created = models.screen.elements.get_or_create(
+                tag=tag,
+            )
 
     class Meta:
         verbose_name = _("Formula")

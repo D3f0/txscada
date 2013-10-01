@@ -13,6 +13,8 @@ from protocols.utils.words import expand
 from protocols.constructs.structs import container_to_datetime
 
 
+from utils import ExcelImportMixin
+
 class Profile(models.Model):
     name = models.CharField(max_length=80)
     version = models.IntegerField(default=1)
@@ -67,7 +69,7 @@ class Profile(models.Model):
 signals.pre_save.connect(Profile.ensure_default, sender=Profile)
 
 
-class COMaster(models.Model):
+class COMaster(models.Model, ExcelImportMixin):
 
     '''
     A gateway with mara IEDs that also performs other
@@ -222,7 +224,18 @@ class COMaster(models.Model):
     def set_sv_quality(self, value):
         pass
 
-class IED(models.Model):
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        fields = ('ip_address', 'port')
+        for ip_address, port in workbook.iter_as_dict('comaster', fields=fields):
+            if not ip_address:
+                continue
+            comaster = models.profile.comasters.create(ip_address=ip_address,
+                                                       port=port)
+            IED.import_excel(workbook, profile=models.profile, comaster=comaster)
+
+
+class IED(models.Model, ExcelImportMixin):
 
     '''
     Inteligent Electronic Device.
@@ -245,6 +258,19 @@ class IED(models.Model):
             for bit in range(0, bit_width):
                 param = "D%.2d" % ((port * self.PORT_WIDTH) + bit)
                 self.ied_set.create(port=port, bit=bit, param=param)
+
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        '''Import IED from XLS "ied" sheet'''
+        fields = ('offset', 'rs485_address', )
+        for n, (offset, rs485_address) in enumerate(workbook.iter_as_dict('ied', fields=fields)):
+            ied = models.comaster.ieds.create(
+                offset=offset,
+                rs485_address=rs485_address
+            )
+            DI.import_excel(workbook, ied=ied)
+            AI.import_excel(workbook, ied=ied)
+            SV.import_excel(workbook, ied=ied)
 
 
 class MV(models.Model):
@@ -287,7 +313,7 @@ class MV(models.Model):
         self.save()
 
 
-class SV(MV):
+class SV(MV, ExcelImportMixin):
 
     '''
     System variable
@@ -320,9 +346,24 @@ class SV(MV):
         except SV.DoesNotExist:
             return self.BYTE
 
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        fields = "ied_id    offset  bit param   description value".split()
+        row_filter = lambda row: row[0] == models.ied.offset
+        for (ied_id, offset, bit, param, description, value)\
+            in workbook.iter_as_dict('varsys', fields=fields, row_filter=row_filter):
+            models.ied.sv_set.create(
+                offset=offset,
+                bit=bit,
+                param=param,
+                description=description,
+                value=value or 0
+            )
 
 
-class DI(MV):
+
+
+class DI(MV, ExcelImportMixin):
 
     '''
     Digital input, each row represents a bit in a port
@@ -337,8 +378,8 @@ class DI(MV):
     maskinv = models.IntegerField(default=0)
     nrodi = models.IntegerField(default=0)
     idtextoev2 = models.IntegerField(default=0)
-    persoaccinoh = models.IntegerField(default=0)
-    pesoaccionl = models.IntegerField(default=0)
+    pesoaccion_h = models.IntegerField(default=0)
+    pesoaccion_l = models.IntegerField(default=0)
 
     def __unicode__(self):
         return u"DI %2d:%2d (%s)" % (self.port, self.bit, (self.tag or "Sin Tag"))
@@ -358,6 +399,40 @@ class DI(MV):
                                                          old_value,
                                                          instance.value,
                                                          instance.last_update)
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+         '''Create DI in comaster'''
+         fields = (
+                    'tag',
+                    'port',
+                    'bit',
+                    'value',
+                    'q',
+                    'trasducer',
+                    'maskinv',
+                    'description',
+                    'idtextoev2',
+                    'pesoaccionh',
+                    'pesoaccionl'
+                )
+         for i, (tag, port, bit, value, q, trasducer, maskinv, description,
+                idtextoev2, pesoaccion_h, pesoaccion_l)\
+            in enumerate(workbook.iter_as_dict('di', fields=fields)):
+            if not models.ied.offset == 1:
+                return
+            models.ied.di_set.create(
+                tag=tag,
+                port=port,
+                bit=bit,
+                value=value,
+                q=q,
+                trasducer=trasducer,
+                maskinv=maskinv,
+                description=description,
+                idtextoev2=idtextoev2 or 0,
+                pesoaccion_h=pesoaccion_h or 0,
+                pesoaccion_l=pesoaccion_l or 0,
+            )
 
 signals.pre_save.connect(DI.check_value_change, sender=DI)
 
@@ -389,43 +464,51 @@ class Event(models.Model):
     q = models.IntegerField()
     value = models.IntegerField()
 
-    def get_desc(self, id):
-        if not hasattr(Event, '_text2_cache'):
-            Event._text2_cache = None
-
     def __unicode__(self):
         text2 = None
-        kinds = EventKind.objects.filter(idtextoev2=self.di.idtextoev2)
+        kinds = EventText.objects.filter(idtextoev2=self.di.idtextoev2)
         if kinds.filter(value=self.value).count() == 1:
             try:
                 text2 = kinds.get(value=self.value).text
-            except EventKind.DoesNotExist:
+            except EventText.DoesNotExist:
                 text2 = kinds.get().text
         return "%s %s" % (self.di.description or "No description", text2 or "No Text 2")
 
     class Meta:
         verbose_name = _("Event")
-        verbose_name = _("Events")
+        verbose_name_plural = _("Events")
 
 
-class EventKind(models.Model):
+class EventText(models.Model, ExcelImportMixin):
     '''Abstracción de textoev2'''
-    text = models.CharField(max_length=50)
+    profile = models.ForeignKey(Profile, related_name='event_kinds')
+    description = models.CharField(max_length=50, blank=True, null=True)
     value = models.IntegerField(blank=True, null=True)
-    idtextoev2 = models.IntegerField()
+    idtextoev2 = models.IntegerField(null=True, blank=True)
+    # It's stored in DI
+    #pesoaccion = models.IntegerField(null=True, blank=True)
+
     class Meta:
         unique_together = ('idtextoev2', 'value')
-        verbose_name = _("Event Kind")
-        verbose_name = _("Event Kinds")
+        verbose_name = _("Event Text")
+        verbose_name_plural = _("Event Texts")
 
     def __unicode__(self):
-        dis = ','.join([di.description or 'Sin Descripcion' for di in
-                    DI.objects.filter(idtextoev2=self.idtextoev2)])
-        dis = dis or 'No DI'
-        return '%s value=%s text=%s' % (dis, self.value or u'Vacio', self.text)
+        return self.description
 
 
-class ComEventKind(models.Model):
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        fields = 'id    code    description idTextoEv2  pesoaccion'.lower().split()
+        for pk, code, description, idtextoev2, pesoaccion in\
+            workbook.iter_as_dict('com',fields=fields):
+            models.profile.event_kinds.create(
+                description=description,
+                value=code,
+                idtextoev2=idtextoev2,
+            )
+
+class ComEventKind(models.Model, ExcelImportMixin):
     '''Gives a type to communication event'''
     code = models.IntegerField()
     texto_2 = models.IntegerField()
@@ -440,6 +523,9 @@ class ComEventKind(models.Model):
         verbose_name = _("Communication Event Kind")
         verbose_name = _("Communication Event Kinds")
 
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        pass
 
 class ComEvent(GenericEvent):
     motiv = models.IntegerField()
@@ -454,7 +540,7 @@ class ComEvent(GenericEvent):
         if not self.kind:
             return "No description"
         else:
-            return EventKind.objects.get(idtextoev2=self.kind.texto_2)
+            return EventText.objects.get(idtextoev2=self.kind.texto_2)
 
     class Meta:
         db_table = 'eventcom'
@@ -462,35 +548,36 @@ class ComEvent(GenericEvent):
         verbose_name_plural = _("Communication Events")
 
 
-class AI(MV):
+class AI(MV, ExcelImportMixin):
 
     '''
     Analog Input
     '''
     WATCHED_FIELDS = ('value', )
 
-    channel = models.IntegerField(default=0)
-    unit = models.CharField(max_length=5)
-    multip_asm = models.FloatField(default=1.09)
-    divider = models.FloatField(default=1)
-    rel_tv = models.FloatField(db_column="reltv", default=1)
-    rel_ti = models.FloatField(db_column="relti", default=1)
-    rel_33_13 = models.FloatField(db_column="rel33-13", default=1)
-    q = models.IntegerField(db_column="q", default=0)
-    value = models.SmallIntegerField(default=-1)
+    channel         = models.IntegerField(default=0)
+    unit            = models.CharField(max_length=5)
+    multip_asm      = models.FloatField(default=1.09)
+    divider         = models.FloatField(default=1)
+    rel_tv          = models.FloatField(db_column="reltv", default=1)
+    rel_ti          = models.FloatField(db_column="relti", default=1)
+    rel_33_13       = models.FloatField(db_column="rel33-13", default=1)
+    q               = models.IntegerField(db_column="q", default=0)
+    value           = models.SmallIntegerField(default=-1)
 
-    escala = models.FloatField(help_text="Precalculo de multip_asm, divider, reltv, "
+    escala          = models.FloatField(help_text="Precalculo de multip_asm, divider, reltv, "
                                "relti y rel33-13", default=0)
 
-    noroai = models.IntegerField(default=0)
-    idtextoevm = models.IntegerField(null=True, blank=True)
+    nroai           = models.IntegerField(default=0)
+    idtextoevm      = models.IntegerField(null=True, blank=True)
 
-    value_max = models.IntegerField(null=True, blank=True)
-    value_min = models.IntegerField(null=True, blank=True)
-    delta_h = models.IntegerField(null=True, blank=True)
-    delta_l = models.IntegerField(null=True, blank=True)
-    pesoaccion_h = models.IntegerField(null=True, blank=True)
-    pesoaccion_l = models.IntegerField(null=True, blank=True)
+    value_max       = models.IntegerField(null=True, blank=True)
+    value_min       = models.IntegerField(null=True, blank=True)
+    delta_h         = models.IntegerField(null=True, blank=True)
+    delta_l         = models.IntegerField(null=True, blank=True)
+    idtextoev2      = models.IntegerField(null=True, blank=True)
+    pesoaccion_h    = models.IntegerField(null=True, blank=True)
+    pesoaccion_l    = models.IntegerField(null=True, blank=True)
 
     class Meta:
         unique_together = ('offset', 'ied',)
@@ -507,6 +594,64 @@ class AI(MV):
                   ]
         return "%.2f %s" % (reduce(operator.mul, values), self.unit)
 
+
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        fields = ('ied_id', # Taken as IED offset
+                  'offset',
+                  'channel',
+                  'trasducer',
+                  'description',
+                  'tag',
+                  'unit',
+                  'multip_asm',
+                  'divider',
+                  'reltv',
+                  'relti',
+                  'rel33_13',
+                  'escala',
+                  'q',
+                  'value',
+                  'nroai',
+                  'valuemax', 'valuemin',
+                  'idtextoevm',
+                  'deltah', 'deltal',
+                  'idtextoev2',
+                  'pesoaccionh', 'pesoaccionl'
+                  )
+
+        row_filter = lambda row: row[0] == models.ied.offset
+        for n, (ied_id, offset, channel, trasducer,
+                description, tag, unit, multip_asm, divider,
+                rel_tv, rel_ti, rel_33_13, escala, q, value,
+                nroai, value_max, value_min, idtextoevm,
+                delta_h, delta_l, idtextoev2, pesoaccion_h, pesoaccion_l
+                )\
+            in enumerate(workbook.iter_as_dict('ai',
+                                               fields=fields,
+                                               row_filter=row_filter)):
+            models.ied.ai_set.create(
+                offset=offset,
+                channel=channel,
+                trasducer=trasducer,
+                description=description,
+                tag=tag,
+                unit=unit,
+                multip_asm=multip_asm,
+                divider=divider,
+                rel_tv=rel_tv,
+                rel_ti=rel_ti,
+                rel_33_13=rel_33_13,
+                escala=escala,
+                q=q,
+                value=value,
+                nroai=nroai,
+                value_max=value_max or None, value_min=value_min or None,
+                idtextoevm=idtextoevm,
+                delta_h=delta_h or None, delta_l=delta_l or None,
+                idtextoev2=idtextoev2,
+                pesoaccion_h=pesoaccion_h or None, pesoaccion_l=pesoaccion_l or None,
+            )
 
 class Energy(models.Model):
 
