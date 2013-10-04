@@ -199,14 +199,14 @@ class ColorAdmin(admin.ModelAdmin):
 site.register(Color, ColorAdmin)
 
 class SVGPropertyChangeSetAdmin(admin.ModelAdmin):
-    list_display = ('description', 'index', 'example', 'background', 'foreground', )
+    list_display = ('index', 'description', 'example', 'fill_back', 'fill_fore', 'stroke',)
 
     def example(self, svgprop):
         css = {}
-        if svgprop.background:
-            css['background-color'] = svgprop.background.color
-        if svgprop.foreground:
-            css['color'] = svgprop.foreground.color
+        if svgprop.fill_back:
+            css['background-color'] = svgprop.fill_back.color
+        if svgprop.fill_fore:
+            css['color'] = svgprop.fill_fore.color
         style = ';'.join(["%s: %s" % (k, v) for k, v in css.items()])
         return '<span style="{}">{}</span>'.format(style, svgprop.description or 'example')
 

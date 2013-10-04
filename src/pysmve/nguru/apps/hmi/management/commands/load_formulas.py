@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from bunch import bunchify
 from optparse import make_option
 from collections import namedtuple, OrderedDict
 import xlrd
@@ -52,20 +53,36 @@ def get_col_names(sheet, field_labels_row=FIELD_LABELS_ROW):
 
 class Command(NoArgsCommand):
     option_list = (
-        make_option('-e', '--excel', dest='workbook',
-                    help="Archivo excel", default=None),
+        make_option('-e', '--excel',
+            dest='workbook',
+            help="Archivo excel",
+            default=None),
         make_option(
-            '-p', '--profile', help='Profile donde cargar las formulas'),
-        make_option('-c', '--clear', help="Quitar formulas previas", default=False,
-            action='store_true', ),
-        make_option('-s', '--screen', help="Pantalla en la que se quiere agregar las "
-            "formulas", ),
-        make_option('-C', '--post-calculate', default=False, action='store_true',
-            help="Post calucla la formulas para ver los errores"),
+            '-p', '--profile',
+            help='Profile donde cargar las formulas'
+        ),
+        make_option('-c', '--clear',
+            help="Quitar formulas previas",
+            default=False,
+            action='store_true',
+        ),
+        make_option('-s', '--screen',
+            dest='screen_name',
+            help="Pantalla en la que se quiere agregar las formulas",
+        ),
+        make_option('-C', '--post-calculate',
+            default=False,
+            action='store_true',
+            help="Post calucla la formulas para ver los errores"
+        ),
+        make_option('-f', '--svg-file',
+            default=None,
+            help="SVG file name",
+        ),
     ) + NoArgsCommand.option_list
 
     def handle_noargs(self, **options):
-        self.options = options
+        self.options = bunchify(options)
 
         self.load_formulas()
         if self.options['post_calculate']:
@@ -101,8 +118,8 @@ class Command(NoArgsCommand):
         except Profile.DoesNotExist:
             raise CommandError("Profile %s does not exist" % profile_name)
 
+        screen_name = self.options.screen_name
         try:
-            screen_name = self.options['screen']
             screen = profile.screens.get(name=screen_name)
         except SVGScreen.DoesNotExist:
             if screen_name:
@@ -136,7 +153,7 @@ class Command(NoArgsCommand):
             Formula.objects.create(
                 target=target,
                 formula=formula,
-                attribute=self.attr_trans.get(atributo, atributo)
+                attribute=atributo,
             )
             if self.options['verbosity']>1:
                 print "[%s]" % n, red(target), yellow(atributo), green(formula)
@@ -148,7 +165,6 @@ class Command(NoArgsCommand):
 
         self.debug(_('%d formulas created') % created_count)
         self.debug(_('%d formulas were deleted (bacause of -c/--clear)') % deleted_count)
-
 
 
     def debug(self, msg, verbosity_thereshold=0):

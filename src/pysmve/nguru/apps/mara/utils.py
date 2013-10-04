@@ -92,11 +92,8 @@ class ExcelImportMixin(object):
     @classmethod
     def import_excel(cls, workbook, **models):
         '''Import from excel'''
-        try:
-            retval = cls.do_import_excel(workbook, bunchify(models))
-            cls.get_logger().info("Importing %s" % cls._meta.verbose_name)
-        except Exception, e:
-            raise e
+        retval = cls.do_import_excel(workbook, bunchify(models))
+        cls.get_logger().info("Importing %s" % unicode(cls._meta.verbose_name))
 
         return retval
 
