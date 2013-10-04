@@ -199,18 +199,19 @@ class ColorAdmin(admin.ModelAdmin):
 site.register(Color, ColorAdmin)
 
 class SVGPropertyChangeSetAdmin(admin.ModelAdmin):
-    list_display = ('index', 'description', 'example', 'fill_back', 'fill_fore', 'stroke',)
+    list_display = ('index', 'description', 'color', )
 
-    def example(self, svgprop):
+    def get_example(self, svgprop):
         css = {}
-        if svgprop.fill_back:
-            css['background-color'] = svgprop.fill_back.color
-        if svgprop.fill_fore:
-            css['color'] = svgprop.fill_fore.color
+        if svgprop.fill:
+            css['background-color'] = svgprop.fill.color
+        if svgprop.stroke:
+            css['border-color'] = svgprop.stroke.color
         style = ';'.join(["%s: %s" % (k, v) for k, v in css.items()])
-        return '<span style="{}">{}</span>'.format(style, svgprop.description or 'example')
+        return '<span style="{}">{}</span>'.format(style,
+                                                   svgprop.description or 'example')
 
-    example.allow_tags = True
+    get_example.allow_tags = True
 
 site.register(SVGPropertyChangeSet, SVGPropertyChangeSetAdmin)
 
@@ -299,10 +300,17 @@ site.register(Formula, FormulaAdmin)
 
 class SVGElementAdmin(admin.ModelAdmin):
     search_fields = ('tag', )
-    list_display = ('tag', 'description', 'text', 'get_colbak', 'mark',
+    list_display = ('tag', 'description', 'text', 'fill', 'stroke', 'get_mark',
             'enabled', 'get_last_update')
 
-    def get_colbak(self, obj):
+
+    def get_mark(self, obj):
+        if obj.mark is not None:
+            return obj.mark
+        return "(Nada)"
+    get_mark.short_description = "Mark"
+    get_mark.admin_order_field = 'mark'
+    def get_fill(self, obj):
         return u'''
         <?xml version="1.0" encoding="iso-8859-1"?>
         <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20001102//EN"
@@ -319,10 +327,10 @@ class SVGElementAdmin(admin.ModelAdmin):
 
         </svg>
 
-        '''.format(style=obj.svg_style(), desc=str(obj.colbak))
+        '''.format(style=obj.svg_style(), desc=str(obj.fill))
 
-    get_colbak.allow_tags = True
-    get_colbak.short_description = _("colback")
+    get_fill.allow_tags = True
+    get_fill.short_description = _("fill")
 
     def get_last_update(self, obj):
         if obj.last_update:

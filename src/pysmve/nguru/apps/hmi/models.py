@@ -123,17 +123,11 @@ class SVGPropertyChangeSet(ProfileBound, ExcelImportMixin):
     '''Formula evaluation result'''
     index = models.IntegerField()
 
-    fill = models.ForeignKey(Color,
-                             blank=True,
-                             null=True,
-                             related_name='fills'
-                             )
-
-    stroke = models.ForeignKey(Color,
-                               blank=True,
-                               null=True,
-                               related_name='strokes'
-                               )
+    color = models.ForeignKey(Color,
+                              blank=True,
+                              null=True,
+                              related_name='colors'
+                              )
 
     description = models.CharField(max_length=50,
                                    blank=True,
@@ -145,18 +139,15 @@ class SVGPropertyChangeSet(ProfileBound, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models):
-        fields = ('id_col', 'fill', 'stroke', 'description')
-        for index, fill, stroke, description\
-                in workbook.iter_as_dict('color', fields=fields):
-            color_fill = color_stroke = None
-            if color_fill:
-                color_fill = Color.objects.get(name__icontains=fill)
-            if stroke:
-                color_stroke = Color.objects.get(name__icontains=stroke)
+        fields = ('id_col', 'color', 'description')
+        for index, color, description in workbook.iter_as_dict('color', fields=fields):
+            color_prop = None
+            if color:
+                color_prop = Color.objects.get(name__icontains=color)
+
             models.profile.svgpropertychangeset_set.create(
                 index=index,
-                fill=color_fill,
-                stroke=color_stroke,
+                color=color_prop,
                 description=description
             )
 
@@ -203,23 +194,24 @@ class SVGElement(models.Model, ExcelImportMixin):
         return self.tag
 
     _cached_colors = None
-    @property
-    def colors(self):
-        if self._cached_colors is None:
-            colors = {}
-            fields = ('index', 'fill_back__color', 'fill_fore__color', 'strole__color')
-            for index, fore, back in SVGPropertyChangeSet.objects.values_list(*fields):
-                colors[index] = {'fill': back, 'color': fore}
-            self._cached_colors = colors
-        return self._cached_colors
+    @classmethod
+    def get_color_table(cls):
+        if cls._cached_colors is None:
+            fields = ('index', 'color__color')
+            colors = dict(SVGPropertyChangeSet.objects.values_list(*fields))
+            cls._cached_colors = colors
+        return cls._cached_colors
 
     @property
     def style(self):
         '''Returns a dict of style/css properties for SVG'''
-        try:
-            return self.colors[self.colbak]
-        except KeyError:
-            return {}
+        retval = {}
+        color_table = self.get_color_table()
+        if self.fill:
+            retval.update(fill=color_table[self.fill])
+        if self.stroke:
+            retval.update(stroke=color_table[self.stroke])
+        return retval
 
     def svg_style(self):
         '''Return CSS style for SVG'''
@@ -295,7 +287,7 @@ class Formula(models.Model, ExcelImportMixin):
 
         ai = generate_tag_context(AI.objects.values('tag', 'escala', 'value', 'q'))
         di = generate_tag_context(DI.objects.values('tag', 'value'))
-        eg = generate_tag_context(SVGElement.objects.values('tag', 'text', 'colbak'))
+        eg = generate_tag_context(SVGElement.objects.values('tag', 'text', 'fill', 'stroke'))
         # Generate context for formula evaluation
         context = bunchify(dict(
                                 # Datos
