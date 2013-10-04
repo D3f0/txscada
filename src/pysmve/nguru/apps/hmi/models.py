@@ -122,21 +122,19 @@ class Color(ProfileBound, ExcelImportMixin):
 class SVGPropertyChangeSet(ProfileBound, ExcelImportMixin):
     '''Formula evaluation result'''
     index = models.IntegerField()
-    fill_back = models.ForeignKey(Color,
-                                   blank=True,
-                                   null=True,
-                                   related_name='backgrounds'
-                                   )
-    fill_fore = models.ForeignKey(Color,
-                                   blank=True,
-                                   null=True,
-                                   related_name='foregrounds'
-                                   )
+
+    fill = models.ForeignKey(Color,
+                             blank=True,
+                             null=True,
+                             related_name='fills'
+                             )
+
     stroke = models.ForeignKey(Color,
                                blank=True,
                                null=True,
                                related_name='strokes'
                                )
+
     description = models.CharField(max_length=50,
                                    blank=True,
                                    null=True,
@@ -147,20 +145,17 @@ class SVGPropertyChangeSet(ProfileBound, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models):
-        fields = ('id_col', 'fill_bak', 'fill_for', 'stroke', 'description')
-        for index, fill_back, fill_fore, stroke, description\
+        fields = ('id_col', 'fill', 'stroke', 'description')
+        for index, fill, stroke, description\
                 in workbook.iter_as_dict('color', fields=fields):
-            color_fill_back = color_fill_fore = color_stroke = None
-            if fill_back:
-                color_fill_back = Color.objects.get(name__icontains=fill_back)
-            if fill_fore:
-                color_fill_fore = Color.objects.get(name__icontains=fill_fore)
+            color_fill = color_stroke = None
+            if color_fill:
+                color_fill = Color.objects.get(name__icontains=fill)
             if stroke:
                 color_stroke = Color.objects.get(name__icontains=stroke)
             models.profile.svgpropertychangeset_set.create(
                 index=index,
-                fill_back=color_fill_back,
-                fill_fore=color_fill_fore,
+                fill=color_fill,
                 stroke=color_stroke,
                 description=description
             )
@@ -191,14 +186,15 @@ class SVGElement(models.Model, ExcelImportMixin):
     # Attributes
     text = models.CharField(max_length=120, default='0')
     # Coloring
-    fill_back = models.IntegerField(blank=True,
-                                    null=True)
-    fill_fore = models.IntegerField(blank=True,
-                                    null=True)
+    fill = models.IntegerField(blank=True,
+                               null=True)
     stroke = models.IntegerField(blank=True,
                                  null=True)
 
-    mark = models.IntegerField(null=True, blank=True, choices=MARK_CHOICES)
+    mark = models.IntegerField(null=True,
+                               blank=True,
+                               choices=MARK_CHOICES)
+
     enabled = models.BooleanField(default=False)
     # Used for checking when there are updates to send to clients
     last_update = models.DateTimeField(null=True, blank=True)
@@ -211,7 +207,7 @@ class SVGElement(models.Model, ExcelImportMixin):
     def colors(self):
         if self._cached_colors is None:
             colors = {}
-            fields = ('index', 'foreground__color', 'background__color')
+            fields = ('index', 'fill_back__color', 'fill_fore__color', 'strole__color')
             for index, fore, back in SVGPropertyChangeSet.objects.values_list(*fields):
                 colors[index] = {'fill': back, 'color': fore}
             self._cached_colors = colors
@@ -234,9 +230,9 @@ class SVGElement(models.Model, ExcelImportMixin):
     @classmethod
     def do_import_excel(cls, workbook, models):
         """Import form excel file, sheet 'eg'"""
-        fields = ('tag', 'description', 'text', 'fill_for', 'fill_bak', 'stroke', 'mark')
+        fields = ('tag', 'description', 'text', 'fill', 'stroke', 'mark')
         created_tags = set()
-        for tag, description, text, fill_fore, fill_back, stroke, mark in\
+        for tag, description, text, fill, stroke, mark in\
                 workbook.iter_as_dict('eg',fields=fields):
             # Prevent tag from repeating
             i = 0
@@ -250,8 +246,7 @@ class SVGElement(models.Model, ExcelImportMixin):
                 tag=tag,
                 description=description,
                 text=text,
-                fill_back=fill_back or None,
-                fill_fore=fill_fore or None,
+                fill=fill or None,
                 stroke=stroke or None,
                 mark=mark or None,
             )
