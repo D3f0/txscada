@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+import math
 from bunch import bunchify
 from datetime import datetime
 from lxml.etree import ElementTree as ET
@@ -234,6 +235,11 @@ class SVGElement(models.Model, ExcelImportMixin):
                 base_tag = '%s_%d' % (base_tag, i)
                 i += 1
             tag = base_tag
+            if type(text) is float:
+                frac, val = math.modf(text)
+                if not frac:
+                    text = str(int(val))
+
             models.screen.elements.create(
                 tag=tag,
                 description=description,
