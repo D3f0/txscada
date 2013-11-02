@@ -1,6 +1,6 @@
 # encoding: utf-8
 from __future__ import print_function
-from os.path import dirname, join
+import os
 
 from bunch import Bunch, bunchify
 from fabric.api import abort, cd, env, local, run, settings, sudo, task, prefix
@@ -9,9 +9,10 @@ from fabric.contrib import files
 from fabric.contrib.console import confirm
 from fabric import colors
 from fabsettings import HOSTS as HOST_SETTINGS
+from fabutils.requirements import pip_freeze_to_file
 
-FAB_PATH = dirname(__file__)
-DEV_REQUIEREMENTS_FILE = join(FAB_PATH, 'requirements/develop.txt')
+DEV_REQUIEREMENTS_FILE = 'setup/requirements/develop.txt'
+REQUIEREMENTS_FILE = 'setup/requirements/production.txt'
 
 def build_hosts(config_dict):
     hosts = Bunch()
@@ -19,15 +20,17 @@ def build_hosts(config_dict):
         if not values:
             continue
         h = bunchify(values)
-        h.project_path = join('/home', h.user, h.project_base, h.project_name)
+        h.repo_path = os.path.join('/home', h.user, h.project_base, h.project_name)
+        h.code_path = os.path.join(h.repo_path, h.code_subdir)
         h.host_string = '{user}@{remote_ip}:{port}'.format(**h)
-        h.venv_prefix = '/home/{user}/.virtualenv/{virtualenv}/bin/activate'.format(**h)
+        h.venv_prefix = ('source '
+                        '/home/{user}/.virtualenvs/{virtualenv}/bin/activate'.format(**h))
         hosts[name] = h
     return hosts
 
 HOSTS = build_hosts(HOST_SETTINGS)
 
-def _check_host(host, hosts=HOSTS):
+def get_host_settings(host, hosts=HOSTS):
     if isinstance(host, str):
         if host not in hosts:
             abort('Incorrect or empty host. Possible hosts: ' + ','.join(hosts.keys()))
@@ -35,14 +38,13 @@ def _check_host(host, hosts=HOSTS):
     else:
         return hosts
 
-
 @task
-def freeze():
-    '''Freezar los requerimientos del virtualenv'''
-    with open(DEV_REQUIEREMENTS_FILE, 'wb') as f:
-        reqs = local('pip freeze', True)
-        f.write(reqs)
-    print("Requirements written to %s" % DEV_REQUIEREMENTS_FILE)
+def freeze(host=''):
+    with settings(**get_host_settings(host)):
+        print("Dumping", colors.yellow(DEV_REQUIEREMENTS_FILE))
+        pip_freeze_to_file(DEV_REQUIEREMENTS_FILE)
+        print("Dumping", colors.green(REQUIEREMENTS_FILE))
+        pip_freeze_to_file(REQUIEREMENTS_FILE, filter_dev_only=True)
 
 
 @task
@@ -84,26 +86,26 @@ def create_virtualenv():
 
 def create_project_dir():
     """Project path will contain the repository"""
-    if not files.exists(env.project_path):
-        run('mkdir -p {project_path}'.format(**env))
+    if not files.exists(env.repo_path):
+        run('mkdir -p {repo_path}'.format(**env))
 
-def get_repo():
-    with cd(env.project_path):
+def get_repo(branch='master'):
+    with cd(env.repo_path):
         if not files.exists('.git'):
             run('git clone {repo_url} .'.format(**env))
         else:
             run('git checkout -- .')
-            run('git pull origin master')
+            run('git pull origin {}', branch)
 
 def install_dependencies():
-    with cd(env.project_path):
-        with prefix('workong {virtualenv}'.format(**env)):
-            run('pip install -r requirements.txt')
+    with cd(env.code_path):
+        with prefix(env.venv_prefix):
+            run('pip install -r setup/requirements/production.txt')
 
 
 @task
 def install(host=''):
-    h = _check_host(host)
+    h = get_host_settings(host)
     with settings(**h):
         #run('ifconfig')
         create_virtualenv()
