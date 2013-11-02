@@ -1,0 +1,17 @@
+*,pyc
+.*
+nohup*
+*~
+*.sqlite
+*.db
+*.log
+src/pysmve/nguru/nguru/local_settings.py
+_*
+src/pysmve/salida.pdf
+src/pysmve/salida.py
+doc/2013/europython
+doc/documentacion_smve
+src/pysmve/doc
+src/pysmve/nguru/media/*
+src/pysmve/fabsettings.py
+src/pysmve/*.pdf
