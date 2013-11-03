@@ -40,7 +40,6 @@ pudb==2013.3.6
 pyExcelerator==0.6.4.1
 pyOpenSSL==0.13
 pyasn1==0.1.7
-pycante==1.0
 pycrypto==2.6
 pygraphviz==1.2
 pyparsing==1.5.6
