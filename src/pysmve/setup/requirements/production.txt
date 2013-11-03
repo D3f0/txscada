@@ -1,5 +1,4 @@
 Django==1.4.9
-Flask==0.8
 Markdown==2.3.1
 Pygments==1.6
 South==0.8.2
