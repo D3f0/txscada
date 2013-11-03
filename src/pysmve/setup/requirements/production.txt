@@ -1,5 +1,4 @@
 Django==1.4.9
-Fabric==1.7.0
 Flask==0.8
 Markdown==2.3.1
 Pygments==1.6
