@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import os
-from bunch import bunchify
-from optparse import make_option
 from collections import namedtuple, OrderedDict
+from optparse import make_option
+
 import xlrd
-from django.core.management.base import NoArgsCommand, CommandError
 from apps.hmi.models import Formula, SVGScreen
 from apps.mara.models import Profile
+from bunch import bunchify
+from django.core.management.base import CommandError, NoArgsCommand
 from django.utils.translation import ugettext_lazy as _
-from fabric.colors import red, green, yellow
-
+from fabric.colors import green, red, yellow
 
 sanitize_row_name = lambda name: name.lower().replace(' ', '_')
 
@@ -179,5 +179,3 @@ class Command(NoArgsCommand):
             if sheet_name == self.FORMULA_SHEET_NAME:
                 return sheet
         raise CommandError("No se pudo encontrar la hoja de formulas!")
-
-
