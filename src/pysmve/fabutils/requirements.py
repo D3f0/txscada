@@ -51,8 +51,10 @@ def pip_freeze_to_file(destination, filter_dev_only=False):
     with open(destination, 'wb') as f:
         for package in reqs.split('\n'):
             try:
-                if filter_dev_only and not is_excluded(package):
+                if filter_dev_only and is_excluded(package):
                     continue
                 f.write('{}\n'.format(package))
             except CommentLine as e:
                 pass
+
+

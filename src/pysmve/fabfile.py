@@ -10,41 +10,32 @@ from fabric.contrib.console import confirm
 from fabric import colors
 from fabsettings import HOSTS as HOST_SETTINGS
 from fabutils.requirements import pip_freeze_to_file
+from fabutils.common import prepeare_hosts, get_host_settings
+from fabutils.supervisor import install_supervisor, configure_gunicorn
+
 
 DEV_REQUIEREMENTS_FILE = 'setup/requirements/develop.txt'
 REQUIEREMENTS_FILE = 'setup/requirements/production.txt'
 
-def build_hosts(config_dict):
-    hosts = Bunch()
-    for name, values in config_dict.items():
-        if not values:
-            continue
-        h = bunchify(values)
-        h.repo_path = os.path.join('/home', h.user, h.project_base, h.project_name)
-        h.code_path = os.path.join(h.repo_path, h.code_subdir)
-        h.host_string = '{user}@{remote_ip}:{port}'.format(**h)
-        h.venv_prefix = ('source '
-                        '/home/{user}/.virtualenvs/{virtualenv}/bin/activate'.format(**h))
-        hosts[name] = h
-    return hosts
-
-HOSTS = build_hosts(HOST_SETTINGS)
-
-def get_host_settings(host, hosts=HOSTS):
-    if isinstance(host, str):
-        if host not in hosts:
-            abort('Incorrect or empty host. Possible hosts: ' + ','.join(hosts.keys()))
-        return hosts[host]
-    else:
-        return hosts
+prepeare_hosts(HOST_SETTINGS, local_base=os.path.dirname(__file__))
 
 @task
-def freeze(host=''):
+def freeze(host='', commit=False):
+    """Conjela los requerimientos del virtualenv"""
     with settings(**get_host_settings(host)):
         print("Dumping", colors.yellow(DEV_REQUIEREMENTS_FILE))
         pip_freeze_to_file(DEV_REQUIEREMENTS_FILE)
         print("Dumping", colors.green(REQUIEREMENTS_FILE))
         pip_freeze_to_file(REQUIEREMENTS_FILE, filter_dev_only=True)
+        if commit:
+            local('git add {} {}'.format(DEV_REQUIEREMENTS_FILE, REQUIEREMENTS_FILE))
+            with settings(warn_only=True):
+                result = local('git commit -m "Requirements update"', capture=True)
+            if result.failed:
+                abort("Git up to date.")
+            else:
+                local('git push origin master')
+
 
 
 @task
@@ -80,9 +71,14 @@ def push_all():
 
 def create_virtualenv():
     if not files.exists('/home/{user}/.virtualenvs/{virtualenv}'.format(**env)):
+        print(colors.yellow("Creating virtualenv"), env.virtualenv)
         print("No existe el virtualenv %s" % colors.red(env['virtualenv']))
         run('source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv {virtualenv}'.format(**env))
-
+    else:
+        print(print(colors.green("Virtualenv exists"), env.virtualenv))
+    with prefix(env.venv_prefix):
+        run('pip install -U pip')
+    run('mkdir -p /home/{user}/.pip_download_cache'.format(**env))
 
 def create_project_dir():
     """Project path will contain the repository"""
@@ -92,25 +88,63 @@ def create_project_dir():
 def get_repo(branch='master'):
     with cd(env.repo_path):
         if not files.exists('.git'):
+            print(colors.yellow("Cloning repo"), env.repo_url)
             run('git clone {repo_url} .'.format(**env))
         else:
+            print(colors.green("Pulling code"))
             run('git checkout -- .')
-            run('git pull origin {}', branch)
+            run('git pull origin {}'.format(branch))
+
+def create_app_dirs():
+    with cd(env.repo_path):
+        run('mkdir -p scripts logs')
 
 def install_dependencies():
     with cd(env.code_path):
         with prefix(env.venv_prefix):
+            print(colors.green("Installing dependencies"))
             run('pip install -r setup/requirements/production.txt')
 
+def install_system_packages(update=False):
+    packages = 'build-essential python-dev libc6-dev'
+    if update:
+        sudo('apt-get update'.format(**env))
+    sudo('apt-get install {}'.format(packages, **env))
+
+@task
+def pip_list(host=''):
+    with settings(**get_host_settings(host)):
+        with prefix(env.venv_prefix):
+            run('pip freeze')
+
+@task
+def pip_uninstall(host='', package=''):
+    if not package:
+        abort("Please provide a package to uninstall")
+    with settings(**get_host_settings(host)):
+        with prefix(env.venv_prefix):
+            run('pip uninstall -y {}'.format(package))
 
 @task
 def install(host=''):
+    """Instala SMVE en servidor"""
     h = get_host_settings(host)
     with settings(**h):
         #run('ifconfig')
-        create_virtualenv()
-        create_project_dir()
-        get_repo()
-        install_dependencies()
+        # create_virtualenv()
+        # create_project_dir()
+        # get_repo()
+        # create_app_dirs()
+        # install_system_packages()
+        # install_dependencies()
+        # install_supervisor()
+        configure_gunicorn('smve')
 
 
+@task
+def shell(host=''):
+    """Abre shell remota en host"""
+    from fabric.operations import open_shell
+    h = get_host_settings(host)
+    with settings(**h):
+        open_shell()
