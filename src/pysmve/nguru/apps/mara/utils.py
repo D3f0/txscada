@@ -1,15 +1,19 @@
 from __future__ import print_function
-import xlrd
-from collections import OrderedDict, namedtuple
-from bunch import bunchify
-from django.utils.translation import ugettext_lazy as _
+
+import os
+from collections import namedtuple, OrderedDict
+from contextlib import contextmanager
 from logging import getLogger
+
+import xlrd
+from bunch import bunchify
 
 try:
     from fabric.colors import red, green, blue, yellow
 except ImportError:
     null_color = lambda t, b=False: t
     red = green = blue = yellow = null_color
+
 
 def sanitize_row_name(name):
     name = name.lower().replace(' ', '_').replace('-', '_')
@@ -18,6 +22,7 @@ def sanitize_row_name(name):
     elif name.startswith('_'):
         name = 'column_%s' % name
     return name
+
 
 def extract(row, fields=None):
     '''Extracts attribute from row'''
@@ -79,10 +84,13 @@ class WorkBook(object):
     def __getattr__(self, name):
         return getattr(self.book, name)
 
+
 class ExcelImportMixin(object):
+
     '''Mixin for Django models'''
 
     _logger = None
+
     @classmethod
     def get_logger(cls):
         if cls._logger is None:
@@ -100,3 +108,25 @@ class ExcelImportMixin(object):
     @classmethod
     def do_import_excel(cls, workbook, models):
         raise NotImplementedError("Not implemented for %s" % cls)
+
+
+def get_relation_managers(model):
+    for related in model._meta.get_all_related_objects():
+        yield getattr(model, related.get_accessor_name())
+
+
+@contextmanager
+def cd(path):
+    curr_path = os.getcwd()
+    try:
+        os.chdir(path)
+        yield
+    except Exception as e:
+        os.chdir(curr_path)
+        raise e
+
+
+def longest_prefix_match(search, a_dict):
+    matches = [prefix for prefix in a_dict if search.startswith(prefix)]
+    if matches:
+        return a_dict[max(matches, key=len)]
