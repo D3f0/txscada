@@ -11,7 +11,14 @@ src/pysmve/salida.pdf
 src/pysmve/salida.py
 doc/2013/europython
 doc/documentacion_smve
+doc/2013/mapas/
+doc/2013/scipyconar-2013/
+
 src/pysmve/doc
 src/pysmve/nguru/media/*
 src/pysmve/fabsettings.py
 src/pysmve/*.pdf
+src/pysmve/setup
+
+
+
