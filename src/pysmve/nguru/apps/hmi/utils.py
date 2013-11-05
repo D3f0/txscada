@@ -1,7 +1,8 @@
 # Formula related stuff
 
+
 def generate_tag_context(qs, **aliases):
-    '''Generate tag '''
+    """Generate context dict for a table namespace. Eg: DI, AI, EG, etc."""
     result = {}
     for data in qs:
         key = data.pop('tag', None)
@@ -25,6 +26,14 @@ def OR(*args):
     for elem in args:
         if elem:
             return elem
+
+
+def FILTRAR(filter_func, iterable):
+    """Filters but goes through values when dealing with dicts or sublcasses"""
+    if isinstance(iterable, dict):
+        iterable = iter(iterable.values())
+    return filter(filter_func, iterable)
+
 
 
 def closest_key(a_string, a_dict):
