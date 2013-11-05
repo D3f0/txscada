@@ -1,6 +1,7 @@
 #!/bin/bash
 cd {{django_dir}}
-/home/{{user}}/.virtualenvs/{{virtualenv}}/bin/activate
-{{venv_dir}}/bin/gunicorn_django -t 600 -b 127.0.0.1:{{gunicorn_port}}\
+source /home/{{user}}/.virtualenvs/{{virtualenv}}/bin/activate
+/home/{{user}}/.virtualenvs/{{virtualenv}}/bin/gunicorn_django -t 600\
+    -b 127.0.0.1:{{gunicorn_port}}\
     -w {{gunicorn_workers}} --user={{user}}\
     --group={{user}} --log-file={{logs_dir}}/gunicorn.log 2>>{{logs_dir}}/gunicorn.log
