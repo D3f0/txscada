@@ -1,16 +1,20 @@
 import os
 from collections import namedtuple, OrderedDict
-from django.core.management.base import NoArgsCommand, CommandError
-from apps.mara.models import (Profile, COMaster, EventText, ComEventKind,
-                              EventDescription, Action, )
-from apps.hmi.models import SVGScreen, SVGElement, Formula, Color, SVGPropertyChangeSet
-#from apps.hmi.models import SVGElement
-from optparse import make_option
-from django.utils.translation import ugettext_lazy as _
-from bunch import bunchify
-from django.core.files import File
-
 from logging import getLogger
+from optparse import make_option
+
+from apps.hmi.models import (Color, Formula, SVGElement, SVGPropertyChangeSet,
+                             SVGScreen)
+from apps.mara.models import (Action, COMaster, ComEventKind, EventDescription,
+                              EventText, Profile)
+from apps.mara.utils import cd
+from bunch import bunchify
+from django.core.management.base import CommandError, NoArgsCommand
+from django.utils.translation import ugettext_lazy as _
+
+result_type = namedtuple('Result', 'ok error total')
+#from apps.hmi.models import SVGElement
+
 
 logger = getLogger('excel_import')
 
@@ -56,9 +60,31 @@ def get_col_names(sheet, field_labels_row=FIELD_LABELS_ROW):
     return names.keys()
 
 
-def get_relation_managers(model):
-    for related in model._meta.get_all_related_objects():
-        yield getattr(model, related.get_accessor_name())
+def import_profile_from_workbook(profile, workbook, svg_path,
+                                 post_calculate=False,):
+    """Command independent importer"""
+
+    # Process COMaster for profile
+    COMaster.import_excel(workbook, profile=profile)
+    # Configuration for text representation of events
+    EventText.import_excel(workbook, profile=profile)
+    EventDescription.import_excel(workbook, profile=profile)
+    ComEventKind.import_excel(workbook, profile=profile)
+    Action.import_excel(workbook, profile=profile)
+
+    # Fabric inspired directory change
+    with cd(svg_path):
+        SVGScreen.import_excel(workbook, profile=profile)
+
+    SVGElement.import_excel(workbook, screens=profile.screens.all())
+    Formula.import_excel(workbook, screens=profile.screens.all())
+    Color.import_excel(workbook, profile=profile)
+    SVGPropertyChangeSet.import_excel(workbook, profile=profile)
+
+    if post_calculate:
+        ok, error = Formula.calculate()
+        return result_type(ok, error, ok + error)
+    return result_type(0, 0, Formula.objects.all().count())
 
 
 class Command(NoArgsCommand):
@@ -70,8 +96,8 @@ class Command(NoArgsCommand):
         make_option(
             '-c', '--clear', help="Quitar valores previos", default=False,
             action='store_true', ),
-        make_option('-s', '--screen', help="Nombre de la pantalla en la que se quiere "
-                    "agregar las formulas", ),
+        # make_option('-s', '--screen', help="Nombre de la pantalla en la que se quiere "
+        #             "agregar las formulas", ),
         make_option(
             '-C', '--post-calculate', default=False, action='store_true',
             help="Post calucla la formulas para ver los errores"),
@@ -90,48 +116,19 @@ class Command(NoArgsCommand):
                 _("File %s could not be read or it's not an excel file") %
                 self.options.workbook)
 
-    def get_profile(self):
-        try:
-            profile, created = Profile.objects.get_or_create(
-                name=self.options.profile)
-        except Exception, e:
-            raise e
-
-        if not created and self.options.clear:
-            for manager in get_relation_managers(profile):
-                count = manager.all().count()
-                logger.warning(_("Clearing {0} {1}").format(
-                                                    count,
-                                                    manager.model._meta.verbose_name)
-                )
-                manager.all().delete()
-        return profile
-
     def handle_noargs(self, **options):
         self.options = bunchify(options)
-        if self.options.svg_path is not None:
-            if not os.path.isfile(self.options.svg_path):
-                raise CommandError(
-                    _("Could not find SVG file %s") % self.options.svg_path)
+        svg_path = self.options.svg_path
+        if svg_path is None:
+            svg_path = os.path.dirname(self.options.workbook)
 
-        self.workbook = self.open_workbook()
-        profile = self.get_profile()
-        # Process COMaster for profile
-        COMaster.import_excel(self.workbook, profile=profile)
-        # Configuration for text representation of events
-        EventText.import_excel(self.workbook, profile=profile)
-        EventDescription.import_excel(self.workbook, profile=profile)
-        ComEventKind.import_excel(self.workbook, profile=profile)
-        Action.import_excel(self.workbook, profile=profile)
-        screen = SVGScreen.objects.create(profile=profile,
-                                          name=self.options.screen,
-                                          root=False,
-                                          prefix=self.options.screen[:2])
-        # Save File
-        screen.svg.save(os.path.basename(self.options.svg_path),
-                        File(open(self.options.svg_path)))
-        screen.save()
-        SVGElement.import_excel(self.workbook, screen=screen)
-        Formula.import_excel(self.workbook, screen=screen)
-        Color.import_excel(self.workbook, profile=profile)
-        SVGPropertyChangeSet.import_excel(self.workbook, profile=profile)
+        workbook = self.open_workbook()
+        profile = Profile.get_profile(self.options.profile, self.options.clear)
+
+        result = import_profile_from_workbook(profile, workbook,
+                                              svg_path=svg_path,
+                                              post_calculate=self.options.post_calculate)
+        if result.error:
+            logger.warning("Formulas con error: %2d" % result.error)
+        logger.info("Formulas calculadas OK: %2d" % result.ok)
+        logger.info("Total: %2d" % result.total)
