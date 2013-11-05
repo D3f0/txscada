@@ -5,6 +5,7 @@ from datetime import datetime, time
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import signals
+from apps.mara.utils import get_relation_managers
 # from jsonfield import JSONField
 from django.utils.translation import ugettext as _
 from protocols.utils.bitfield import iterbits
@@ -65,6 +66,20 @@ class Profile(models.Model):
         if not self.__tags:
             self.__tags = self.load_tags()
         return self.__tags
+
+    @classmethod
+    def get_profile(cls, name, clear=False):
+
+        """Returns a profile"""
+
+        profile, created = cls.objects.get_or_create(
+            name=name)
+
+        if not created and clear:
+            for manager in get_relation_managers(profile):
+                manager.all().count()
+                manager.all().delete()
+        return profile
 
 signals.pre_save.connect(Profile.ensure_default, sender=Profile)
 
@@ -215,7 +230,11 @@ class COMaster(models.Model, ExcelImportMixin):
                 except ComEvent.DoesNotExist:
                     print "No se puede crear el Evento tipo 3"
         from apps.hmi.models import Formula
-        Formula.calculate()
+        # try:
+        #     Formula.calculate()
+        # except Exception, e:
+        #     print e
+
         return di_count, ai_count, sv_count, event_count
 
     def set_ai_quality(self, value):
@@ -226,12 +245,19 @@ class COMaster(models.Model, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models):
-        fields = ('ip_address', 'port')
-        for ip_address, port in workbook.iter_as_dict('comaster', fields=fields):
-            if not ip_address:
+        fields = ('id', 'ip_address', 'port', 'enabled')
+        for pk, ip_address, port, enabled in\
+            workbook.iter_as_dict('comaster', fields=fields):
+            enabled = bool(int(enabled))
+            # TODO: Make imports work
+            if not ip_address or not enabled:
                 continue
-            comaster = models.profile.comasters.create(ip_address=ip_address,
-                                                       port=port)
+
+            comaster = models.profile.comasters.create(id=pk,
+                                                       ip_address=ip_address,
+                                                       port=port,
+                                                       enabled=enabled,
+                                                       )
             IED.import_excel(workbook, profile=models.profile, comaster=comaster)
 
 
@@ -477,6 +503,8 @@ class Event(models.Model):
     class Meta:
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
+
+
 
 
 class EventText(models.Model, ExcelImportMixin):
