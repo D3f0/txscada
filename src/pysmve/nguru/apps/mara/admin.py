@@ -5,11 +5,11 @@ from django.contrib import admin
 from django.conf import settings
 
 from models import (
-                    Profile,
-                    COMaster, IED, SV, DI, AI, Event, Energy,
-                    EventText, ComEvent, Action, ComEventKind,
-                    EventDescription,
-                    )
+    Profile,
+    COMaster, IED, SV, DI, AI, Event, Energy,
+    EventText, ComEvent, Action, ComEventKind,
+    EventDescription,
+)
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
 
 from django.utils.translation import ugettext as _
@@ -31,7 +31,7 @@ class COMasterTabularInline(admin.TabularInline):
 
 class COMasterAdmin(admin.ModelAdmin):
     list_display = ('ip_address', 'enabled', 'port', 'poll_interval',
-                    'rs485_source', 'rs485_destination','peh_time')
+                    'rs485_source', 'rs485_destination', 'peh_time')
     list_display_links = ('ip_address',)
 site.register(COMaster, COMasterAdmin)
 
@@ -73,7 +73,6 @@ class DIAdmin(admin.ModelAdmin):
                     'trasducer', 'maskinv')
     list_filter = ('ied',)
     search_fields = ('tag', 'description')
-
 
     def get_tag(self, di):
         tag = di.tag
@@ -126,14 +125,17 @@ class EventAdmin(admin.ModelAdmin):
 
 site.register(Event, EventAdmin)
 
+
 class EventDescriptionAdmin(admin.ModelAdmin):
     list_display = ('textoev2', 'value', 'text')
     list_display_links = ('text', )
 
 site.register(EventDescription, EventDescriptionAdmin)
 
+
 class AIAdmin(admin.ModelAdmin):
-    list_display = ('tag', 'description', 'unit', 'channel', 'ied', 'offset', 'value', 'human_value', 'hex')
+    list_display = ('tag', 'description', 'unit', 'channel',
+                    'ied', 'offset', 'value', 'human_value', 'hex')
     list_filter = ('ied',)
     search_fields = ('tag', 'description')
 
@@ -142,18 +144,22 @@ class AIAdmin(admin.ModelAdmin):
 
 
 site.register(AI, AIAdmin)
+
+
 class EnergyAdmin(admin.ModelAdmin):
     list_display = ('timestamp', 'ai', 'value', 'q', 'hnn', 'code')
     list_filter = ('timestamp', 'ai', 'hnn', 'q')
 site.register(Energy, EnergyAdmin)
+
 
 class EventTextAdmin(admin.ModelAdmin):
     list_display = ('description', 'value', 'idtextoev2')
 
 site.register(EventText, EventTextAdmin)
 
+
 class SVGScreenAdmin(admin.ModelAdmin):
-    list_display = ['name', 'show_svg', 'get_tags',]
+    list_display = ['name', 'show_svg', 'get_tags', ]
 
     def show_svg(self, model):
         return '<a href="#">Show {}</a>'.format(model)
@@ -177,16 +183,18 @@ class SVGScreenAdmin(admin.ModelAdmin):
         css = {
 
             "all": (
-                    'js/jquery-ui-1.10.0.custom/development-bundle/themes/base/jquery-ui.css',
-                    "my_styles.css",)
+            'js/jquery-ui-1.10.0.custom/development-bundle/themes/base/jquery-ui.css',
+            "my_styles.css",)
         }
         js = (
-                'initializr/js/vendor/jquery-1.9.0.min.js',
-                'js/jquery-ui-1.10.0.custom/development-bundle/ui/jquery-ui.custom.js',
-                'hmi/js/formula_admin_changelist.js',
-                "hmi/js/admin_svgscreen.js",)
+            'initializr/js/vendor/jquery-1.9.0.min.js',
+            'js/jquery-ui-1.10.0.custom/development-bundle/ui/jquery-ui.custom.js',
+            'hmi/js/formula_admin_changelist.js',
+            "hmi/js/admin_svgscreen.js",)
 
 site.register(SVGScreen, SVGScreenAdmin)
+
+
 class ColorAdmin(admin.ModelAdmin):
     list_display = ['name', 'sample']
 
@@ -197,6 +205,7 @@ class ColorAdmin(admin.ModelAdmin):
     sample.allow_tags = True
 
 site.register(Color, ColorAdmin)
+
 
 class SVGPropertyChangeSetAdmin(admin.ModelAdmin):
     list_display = ('index', 'description', 'color', )
@@ -216,16 +225,17 @@ class SVGPropertyChangeSetAdmin(admin.ModelAdmin):
 site.register(SVGPropertyChangeSet, SVGPropertyChangeSetAdmin)
 
 
-
 class ComEventKindAdmin(admin.ModelAdmin):
     list_display = ('code', 'texto_2', 'pesoaccion')
 
 site.register(ComEventKind, ComEventKindAdmin)
 
+
 class ComEventAdmin(admin.ModelAdmin):
     list_display = ('ied', 'description', 'motiv', 'timestamp', 'timestamp_ack', 'user')
     list_display_links = ('description', )
 site.register(ComEvent, ComEventAdmin)
+
 
 class FormulaAdmin(admin.ModelAdmin):
 
@@ -242,7 +252,6 @@ class FormulaAdmin(admin.ModelAdmin):
 
     def get_screen(self, obj):
         return obj.target.screen
-
 
     def get_attribute(self, obj):
         try:
@@ -270,9 +279,9 @@ class FormulaAdmin(admin.ModelAdmin):
                 fmt = u'''<a href="javascript:return void(0);"
                             title="{title}">{link_text}</a>'''
 
-
-                return fmt.format(title=obj.screen.profile.tag_description(tag, "Sin tag"),
-                                  link_text=link_text)
+                return fmt.format(
+                    title=obj.screen.profile.tag_description(tag, "Sin tag"),
+                    link_text=link_text)
 
             formula = re.sub(u'(?P<input_type>\w{2})\.(?P<tag>[\w\d]+)',
                              replace,
@@ -294,15 +303,16 @@ class FormulaAdmin(admin.ModelAdmin):
         js = ('initializr/js/vendor/jquery-1.9.0.min.js',
               'js/jquery-ui-1.10.0.custom/development-bundle/ui/jquery-ui.custom.js',
               'hmi/js/formula_admin_changelist.js', )
-        css = {'all': ('js/jquery-ui-1.10.0.custom/development-bundle/themes/base/jquery-ui.css',)}
+        css = {
+            'all': ('js/jquery-ui-1.10.0.custom/development-bundle/themes/base/jquery-ui.css',)}
 
 site.register(Formula, FormulaAdmin)
+
 
 class SVGElementAdmin(admin.ModelAdmin):
     search_fields = ('tag', )
     list_display = ('tag', 'description', 'text', 'fill', 'stroke', 'get_mark',
-            'enabled', 'get_last_update')
-
+                    'enabled', 'get_last_update', 'screen')
 
     def get_mark(self, obj):
         if obj.mark is not None:
@@ -310,6 +320,7 @@ class SVGElementAdmin(admin.ModelAdmin):
         return "(Nada)"
     get_mark.short_description = "Mark"
     get_mark.admin_order_field = 'mark'
+
     def get_fill(self, obj):
         return u'''
         <?xml version="1.0" encoding="iso-8859-1"?>
@@ -333,12 +344,15 @@ class SVGElementAdmin(admin.ModelAdmin):
     get_fill.short_description = _("fill")
 
     def get_last_update(self, obj):
+        retval = _('None')
         if obj.last_update:
-            return obj.last_update.strftime(settings.TIMESTAMP_FORMAT)
+            retval = obj.last_update.strftime(settings.TIMESTAMP_FORMAT)
+        return retval
     get_last_update.short_description = _("last update")
     get_last_update.admin_order_field = 'last_update'
 
 site.register(SVGElement, SVGElementAdmin)
+
 
 class ActionAdmin(admin.ModelAdmin):
     list_display = ('bit', 'description', 'script', 'arguments')
