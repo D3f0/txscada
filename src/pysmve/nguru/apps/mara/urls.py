@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from django.conf.urls import patterns, url
-from .updates import register
+#from .updates import register
 
 urlpatterns = patterns('',
 
@@ -12,4 +12,4 @@ urlpatterns = patterns('',
 )
 
 
-register()
+#egister()
