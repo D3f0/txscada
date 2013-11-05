@@ -1,27 +1,34 @@
 # -*- coding: utf-8 -*-
-import re
 import math
-from bunch import bunchify
+import os
+import re
+import signals
 from datetime import datetime
-from lxml.etree import ElementTree as ET
-from django.db import models
-from colorful.fields import RGBColorField
-
-from apps.mara.models import Profile, AI, DI
-from apps.mara.utils import ExcelImportMixin
-# Formulas
-from utils import generate_tag_context, IF, OR
-# Internationalization
-from django.utils.translation import ugettext_lazy as _
 from logging import getLogger
 
+from apps.mara.models import AI, DI, Profile
+from apps.mara.utils import ExcelImportMixin
+from bunch import bunchify
+from colorful.fields import RGBColorField
+from django.core.files import File
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+from apps.mara.utils import longest_prefix_match
+from lxml.etree import ElementTree as ET
+from utils import generate_tag_context, IF, OR, FILTRAR
+
+# Formulas
+# Internationalization
+
 logger = getLogger(__name__)
+
 
 class ProfileBound(models.Model):
     profile = models.ForeignKey(Profile)
 
     class Meta:
         abstract = True
+
 
 class Screen(models.Model):
     parent = models.ForeignKey('self',
@@ -33,7 +40,7 @@ class Screen(models.Model):
         abstract = True
 
 
-class SVGScreen(Screen):
+class SVGScreen(Screen, ExcelImportMixin):
     profile = models.ForeignKey(Profile, related_name='screens')
     svg = models.FileField(upload_to="svg_screens")
     name = models.CharField(max_length=60)
@@ -76,12 +83,29 @@ class SVGScreen(Screen):
         qs.update(screen=self)
         return qs
 
-
     class Meta:
         unique_together = ('prefix', 'profile')
         verbose_name = _('SVG Screen')
         verbose_name_plural = _('SVG Screens')
 
+
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        """ Import SVG Screens from XLS sheet, it must be run in appropiate directory"""
+        fields = ('path name  description prefix  parent'.split())
+        for path, name, description, prefix, parent in\
+            workbook.iter_as_dict('screens', fields=fields):
+
+            screen = cls.objects.create(profile=models.profile,
+                                        name=name,
+                                        root=bool(parent),
+                                        prefix=prefix)
+            # http://stackoverflow.com/questions/1993939/programmatically-upload-files-in-django
+            with open(path, 'rb') as fp:
+                screen.svg.save(os.path.basename(path), File(fp), save=True)
+            # Save File
+
+            screen.save()
 
 
 def get_elements(et):
@@ -106,21 +130,20 @@ class Color(ProfileBound, ExcelImportMixin):
             cell = sheet.cell(row, col)
             fmt = workbook.xf_list[cell.xf_index]
             colour = colour_map[fmt.background.pattern_colour_index]
-            #print colour, cell.value
+            # print colour, cell.value
             rgb_color = '#%.2x%.2x%.2x' % colour
             models.profile.color_set.get_or_create(
-                name = cell.value.title(),
+                name=cell.value.title(),
                 color=rgb_color
-                )
-
+            )
 
     class Meta:
-        verbose_name= _("Color")
+        verbose_name = _("Color")
         verbose_name_plural = _("Colors")
 
 
-
 class SVGPropertyChangeSet(ProfileBound, ExcelImportMixin):
+
     '''Formula evaluation result'''
     index = models.IntegerField()
 
@@ -140,7 +163,7 @@ class SVGPropertyChangeSet(ProfileBound, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models):
-        fields = ('id_col', 'color', 'description')
+        fields = 'id_col color description'.split()
         for index, color, description in workbook.iter_as_dict('color', fields=fields):
             color_prop = None
             if color:
@@ -159,14 +182,13 @@ class SVGPropertyChangeSet(ProfileBound, ExcelImportMixin):
         verbose_name_plural = _('SVG Property Change Sets')
 
 
-
 class SVGElement(models.Model, ExcelImportMixin):
+
     '''
     Alias of Elemento Grafico, EG.
     Represents a
     '''
-    MARK_CHOICES = [ ("%s" % i, i) for i in xrange(16)]
-
+    MARK_CHOICES = [(i, "%s" % i) for i in xrange(16)]
 
     screen = models.ForeignKey(SVGScreen,
                                related_name='elements',
@@ -195,6 +217,7 @@ class SVGElement(models.Model, ExcelImportMixin):
         return self.tag
 
     _cached_colors = None
+
     @classmethod
     def get_color_table(cls):
         if cls._cached_colors is None:
@@ -216,17 +239,19 @@ class SVGElement(models.Model, ExcelImportMixin):
 
     def svg_style(self):
         '''Return CSS style for SVG'''
-        attrs = [ '%s: %s' % (k, str(v)) for k, v in self.style.iteritems()]
+        attrs = ['%s: %s' % (k, str(v)) for k, v in self.style.iteritems()]
         return '%s' % '; '.join(attrs)
-
 
     @classmethod
     def do_import_excel(cls, workbook, models):
         """Import form excel file, sheet 'eg'"""
         fields = ('tag', 'description', 'text', 'fill', 'stroke', 'mark')
         created_tags = set()
+        screen_prefix_map = dict([(m.prefix, m) for m in\
+                                    models.screens.only('pk', 'prefix')])
+
         for tag, description, text, fill, stroke, mark in\
-                workbook.iter_as_dict('eg',fields=fields):
+                workbook.iter_as_dict('eg', fields=fields):
             # Prevent tag from repeating
             i = 0
             base_tag = tag
@@ -239,8 +264,9 @@ class SVGElement(models.Model, ExcelImportMixin):
                 frac, val = math.modf(text)
                 if not frac:
                     text = str(int(val))
+            screen = longest_prefix_match(tag, screen_prefix_map)
 
-            models.screen.elements.create(
+            screen.elements.create(
                 tag=tag,
                 description=description,
                 text=text,
@@ -254,6 +280,7 @@ class SVGElement(models.Model, ExcelImportMixin):
         verbose_name = _("SVG Element")
         verbose_name_plural = _("SVG Elements")
 
+
 class Formula(models.Model, ExcelImportMixin):
 
     #tag = models.CharField(max_length=16)
@@ -263,17 +290,17 @@ class Formula(models.Model, ExcelImportMixin):
                                verbose_name=_('target'))
     attribute = models.CharField(max_length=16,
                                  verbose_name=_('attribute'),
-                                 #choices=ATTRIBUTE_CHOICES
-                                )
+                                 # choices=ATTRIBUTE_CHOICES
+                                 )
     formula = models.TextField()
     last_error = models.TextField()
 
     def __unicode__(self):
-      return ":".join([self.target.tag, self.attribute])
+        return ":".join([self.target.tag, self.attribute])
 
     @classmethod
     def link_with_svg_element(cls, profile_name='default'):
-        svg_elements_qs = SVGElement.objects.all() # TODO: Filter
+        svg_elements_qs = SVGElement.objects.all()  # TODO: Filter
         for n, formula in enumerate(Formula.objects.all()):
             try:
                 element = svg_elements_qs.get(tag=formula.tag)
@@ -284,8 +311,6 @@ class Formula(models.Model, ExcelImportMixin):
             formula.target = element
             formula.save()
 
-
-
     @classmethod
     def calculate(cls, now=None):
         if not now:
@@ -293,19 +318,23 @@ class Formula(models.Model, ExcelImportMixin):
 
         ai = generate_tag_context(AI.objects.values('tag', 'escala', 'value', 'q'))
         di = generate_tag_context(DI.objects.values('tag', 'value'))
-        eg = generate_tag_context(SVGElement.objects.values('tag', 'text', 'fill', 'stroke'))
+        eg = generate_tag_context(
+            SVGElement.objects.values('tag', 'text', 'fill', 'stroke', 'mark'))
         # Generate context for formula evaluation
         context = bunchify(dict(
-                                # Datos
-                                ai=ai,
-                                di=di,
-                                eg=eg,
-                                # Funciones
-                                RAIZ=lambda v: v ** .5,
-                                SI=IF,si=IF,
-                                O=OR,
-                                )
-                        )
+            # Datos
+            ai=ai,
+            di=di,
+            eg=eg,
+            # Funciones
+            RAIZ=lambda v: v ** .5,
+            SI=IF, si=IF,
+            O=OR,
+            SUMA=sum,
+            APLICAR=map,
+            FILTRAR=FILTRAR,
+            )
+        )
 
         success, fail = 0, 0
 
@@ -313,7 +342,8 @@ class Formula(models.Model, ExcelImportMixin):
             # Fila donde se guarda el cálculo
             element = formula.target
             texto_formula = formula.formula
-            # Fix equal
+            # Fix single equal sign
+            #texto_formula = re.sub(r'(?:[\b\s])=(:?[\s\b])', '==', texto_formula)
             texto_formula = texto_formula.replace('=', '==')
             try:
                 #import pdb; pdb.set_trace()
@@ -322,13 +352,15 @@ class Formula(models.Model, ExcelImportMixin):
                 fail += 1
                 # Record error
                 formula.last_error = '%s: %s' % (type(e).__name__, e.message)
+                print e, formula.target.tag, formula.attribute, texto_formula
+                import traceback; traceback.print_exc();
                 formula.save()
             else:
                 success += 1
                 if formula.last_error:
                     formula.last_error = ''
                     formula.save()
-                #print "Setenado", element.tag, formula.attribute, value
+                # print "Setenado", element.tag, formula.attribute, value
                 attribute = formula.attribute
                 prev_value = getattr(element, attribute)
                 if prev_value != value:
@@ -347,16 +379,16 @@ class Formula(models.Model, ExcelImportMixin):
     def is_balanced(text):
         stack = []
         pushChars, popChars = "<({[", ">)}]"
-        for c in text :
-            if c in pushChars :
+        for c in text:
+            if c in pushChars:
                 stack.append(c)
-            elif c in popChars :
-                if not len(stack) :
+            elif c in popChars:
+                if not len(stack):
                     return False
-                else :
+                else:
                     stackTop = stack.pop()
                     balancingBracket = pushChars[popChars.index(c)]
-                    if stackTop != balancingBracket :
+                    if stackTop != balancingBracket:
                         return False
             else:
                 return False
@@ -368,11 +400,14 @@ class Formula(models.Model, ExcelImportMixin):
         attr_trans = {}
         fields = ('tabla', 'tag', 'atributo', 'formula')
         for tabla, tag, atributo, formula in workbook.iter_as_dict('formulas',
-                                                                          fields=fields ):
+                                                                   fields=fields):
             if not formula or not atributo:
                 continue
+            try:
+                target= SVGElement.objects.get(tag=tag, screen__in = models.screens)
+            except SVGElement.DoesNotExist:
+                print("Skipping %s %s" % (tag, formula))
 
-            target, created = models.screen.elements.get_or_create(tag=tag)
             Formula.objects.create(
                 target=target,
                 formula=formula,
