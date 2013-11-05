@@ -3,7 +3,7 @@ from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie import fields
 
 from apps.mara.models import (Profile, COMaster, IED, SV, DI, AI, Energy,
-                              Event, )
+                              Event)
 from apps.hmi.models import SVGScreen, Formula, SVGElement
 
 
@@ -124,6 +124,9 @@ api.register(EnergyResource())
 class SVGScreenResource(ModelResource):
 
     """REST resource for SVGScreen"""
+
+    profile = fields.ForeignKey(ProfileResource, 'profile')
+
     class Meta:
         resource_name = 'svgscreen'
         queryset = SVGScreen.objects.all()
@@ -131,6 +134,7 @@ class SVGScreenResource(ModelResource):
         filtering = {
             'name': ALL,
             'id': ALL,
+            'profile': ALL,
         }
         ordering = SVGElement._meta.get_all_field_names()
 api.register(SVGScreenResource())
@@ -140,9 +144,14 @@ class FormulaResource(ModelResource):
 
     class Meta:
         resource_name = 'formula'
-        queryset = Formula.objects.all()
+        queryset = Formula.objects.select_related('svg_element')
         allowed_methods = ['get', ]
         ordering = SVGElement._meta.get_all_field_names()
+
+    def dehydrate(self, bundle):
+        bundle.data['tag'] = bundle.obj.target.tag
+        return bundle
+
 
 api.register(FormulaResource())
 
@@ -150,7 +159,7 @@ api.register(FormulaResource())
 class SVGElementResource(ModelResource):
     '''This resource allows to put updates on the screen'''
     screen = fields.ForeignKey(SVGScreenResource, 'screen')
-
+    #Formula.calculate()
     class Meta:
         resource_name = 'svgelement'
         queryset = SVGElement.objects.select_related('formula')
