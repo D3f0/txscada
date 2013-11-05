@@ -1,0 +1,9 @@
+[program:gunicorn_{{name}}]
+directory={{django_dir}}
+user={{user}}
+command={{script_name}}
+stdout_logfile={{logs_dir}}/supervisor_stdout.log
+stderr_logfile={{logs_dir}}/supervisor_stderr.log
+autostart=true
+autorestart=true
+stopasgroup=true
