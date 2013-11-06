@@ -14,7 +14,7 @@ from bunch import Bunch
 
 def realtime_watch(request):
     '''Visión de tiempo real'''
-    svg = SVGScreen.objects.get()
+    svg = SVGScreen.objects.latest('pk')
 
     return render_to_response('hmi/realtime_watch.html',
                               context_instance=RequestContext(request, {
