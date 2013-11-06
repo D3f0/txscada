@@ -3,18 +3,42 @@
 
         var svg = null;
 
+        var formulas = {};
+
+        var xhr = $.ajax('/api/v1/formula?format=json&limit=500');
+        function retrieveFormulas (data) {
+            $.each(data.objects, function () {
+                console.log(this);
+            });
+        }
+        xhr.then(retrieveFormulas);
+
         function showDialogForNode(node) {
             var tag = $(node).attr('tag');
+            var buttons = [
+                {
+                    text: "Close",
+                    click: function (){
+                        $(this).dialog('close').dialog('destroy');
+                    }
+                }
+            ];
+            var toggle_89 = /([\d\w]{3})89([SI])([\w\d]{2})/;
+            var match = toggle_89.exec(tag);
+            if (match !== null) {
+                buttons.unshift({
+                    text: "Toggle",
+                    click: function(){
+
+                    }
+                });
+            }
+
             var dlg = $('<div/>').dialog({
                 autoOpen: false,
                 title: tag,
                 modal: true,
-                buttons: [
-                    {text: "Close",
-                    click: function (){
-                        $(dlg).dialog('close').dialog('destroy');
-                    }}
-                ]
+                buttons: buttons
             });
 
             dlg.html($('<b>').text('TAG: '+tag));
@@ -43,6 +67,7 @@
 
         function applyChanges(node, updates) {
             //console.log(arguments);
+            // Aplicación recursiva de atributs a grupos
             $node = $(node);
             if (isGroup($node)) {
                 return $.each($('path, rect', $node), function (index, elem){
@@ -51,6 +76,10 @@
             }
             $.each(updates, function (attribute, value){
                 if (attribute == 'text') {
+                    // Redondeo
+                    if (value.indexOf('.')>-1){
+                        value = parseFloat(value).toFixed(2);
+                    }
                     $node.text(value);
                 } else {
                     $.each(updates, function (key, value){
@@ -69,9 +98,11 @@
         var last_update=null;
 
         function getSVGUpdatesUrl(extra_args){
+            extra_args = extra_args || {};
             var baseArgs = {
                 format: 'json',
                 order_by: '-last_update',
+
             }
 
             if (typeof extra_args != "object") {
@@ -276,6 +307,12 @@
             });
             return alarmGrid;
         }
+        /*
+
+        */
+        function fillScreenChooser() {
+            $('#svg_screen')
+        }
 
         function createUpdateIntervalSlider() {
 
@@ -348,6 +385,7 @@
             }
             setupExtraWidgets();
             createTabs();
+            fillScreenChooser();
             setupSVGScreeen();
             //$('#svg').hide();
             createMiniAlarmGrid();
