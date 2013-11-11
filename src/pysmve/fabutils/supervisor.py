@@ -65,11 +65,11 @@ def uninstall_supervisord():
     sudo('rm -rf {} {} {}'.format(init_script, logs_dir, config_file))
 
 
-def configure_gunicorn(name):
+def configure_gunicorn():
     # create the shell script
-
+    name = env.django_project
     # constants
-    django_dir = env.code_path
+    django_dir = os.path.join(env.code_path, env.django_project)
     if not files.exists(os.path.join(django_dir, 'manage.py')):
         abort("%s does not have a manage.py file" % django_dir)
 

@@ -77,7 +77,7 @@ def create_virtualenv():
     else:
         print(print(colors.green("Virtualenv exists"), env.virtualenv))
     with prefix(env.venv_prefix):
-        run('pip install -U pip')
+        run('{proxy_command} pip install -U pip'.format(**env))
     run('mkdir -p /home/{user}/.pip_download_cache'.format(**env))
 
 def create_project_dir():
@@ -89,11 +89,11 @@ def get_repo(branch='master'):
     with cd(env.repo_path):
         if not files.exists('.git'):
             print(colors.yellow("Cloning repo"), env.repo_url)
-            run('git clone {repo_url} .'.format(**env))
+            run('{proxy_command} git clone {repo_url} .'.format(**env))
         else:
             print(colors.green("Pulling code"))
             run('git checkout -- .')
-            run('git pull origin {}'.format(branch))
+            run('{proxy_command} git pull origin {}'.format(branch, **env))
 
 def create_app_dirs():
     with cd(env.repo_path):
@@ -103,13 +103,13 @@ def install_dependencies():
     with cd(env.code_path):
         with prefix(env.venv_prefix):
             print(colors.green("Installing dependencies"))
-            run('pip install -r setup/requirements/production.txt')
+            run('{proxy_command} pip install -r setup/requirements/production.txt'.format(**env))
 
 def install_system_packages(update=False):
     packages = 'build-essential python-dev libc6-dev'
-    if update:
-        sudo('apt-get update'.format(**env))
-    sudo('apt-get install {}'.format(packages, **env))
+
+    sudo('{proxy_command} apt-get update'.format(**env))
+    sudo('{proxy_command} apt-get install {}'.format(packages, **env))
 
 @task
 def pip_list(host=''):
@@ -130,15 +130,14 @@ def install(host=''):
     """Instala SMVE en servidor"""
     h = get_host_settings(host)
     with settings(**h):
-        #run('ifconfig')
-        # create_virtualenv()
-        # create_project_dir()
-        # get_repo()
-        # create_app_dirs()
-        # install_system_packages()
-        # install_dependencies()
-        # install_supervisor()
-        configure_gunicorn('smve')
+        create_virtualenv()
+        create_project_dir()
+        get_repo()
+        create_app_dirs()
+        install_system_packages()
+        install_dependencies()
+        install_supervisor()
+        configure_gunicorn()
 
 
 @task

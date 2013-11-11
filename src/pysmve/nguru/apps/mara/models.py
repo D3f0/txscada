@@ -246,12 +246,11 @@ class COMaster(models.Model, ExcelImportMixin):
     @classmethod
     def do_import_excel(cls, workbook, models):
         fields = ('id', 'ip_address', 'port', 'enabled')
-        for pk, ip_address, port, enabled in\
-            workbook.iter_as_dict('comaster', fields=fields):
+        for i, (pk, ip_address, port, enabled) in\
+            enumerate(workbook.iter_as_dict('comaster', fields=fields)):
+
             enabled = bool(int(enabled))
             # TODO: Make imports work
-            if not ip_address or not enabled:
-                continue
 
             comaster = models.profile.comasters.create(id=pk,
                                                        ip_address=ip_address,
@@ -288,15 +287,24 @@ class IED(models.Model, ExcelImportMixin):
     @classmethod
     def do_import_excel(cls, workbook, models):
         '''Import IED from XLS "ied" sheet'''
-        fields = ('offset', 'rs485_address', )
-        for n, (offset, rs485_address) in enumerate(workbook.iter_as_dict('ied', fields=fields)):
+        fields = ('comaster_id', 'id', 'offset', 'rs485_address', )
+        for n, (comaster_id, pk, offset, rs485_address) in enumerate(workbook.iter_as_dict('ied', fields=fields)):
+
+            try:
+                comaster_id = int(comaster_id)
+                if comaster_id != models.comaster.pk:
+                    raise ValueError("Not a linked row")
+            except ValueError:
+                continue
+
             ied = models.comaster.ieds.create(
                 offset=offset,
-                rs485_address=rs485_address
+                rs485_address=rs485_address,
+                pk=pk,
             )
             DI.import_excel(workbook, ied=ied)
-            AI.import_excel(workbook, ied=ied)
-            SV.import_excel(workbook, ied=ied)
+            #AI.import_excel(workbook, ied=ied)
+            #SV.import_excel(workbook, ied=ied)
 
 
 class MV(models.Model):
@@ -418,17 +426,22 @@ class DI(MV, ExcelImportMixin):
 
     @classmethod
     def check_value_change(cls, instance=None, **kwargs):
-        if instance.pk:
-            old_value = DI.objects.get(pk=instance.pk).value
-            if old_value != instance.value:
-                print "%s change from %s -> %s at %s" % (instance,
-                                                         old_value,
-                                                         instance.value,
-                                                         instance.last_update)
+        try:
+            if instance.pk:
+                old_value = DI.objects.get(pk=instance.pk).value
+                if old_value != instance.value:
+                    print "%s change from %s -> %s at %s" % (instance,
+                                                             old_value,
+                                                             instance.value,
+                                                             instance.last_update)
+        except Exception, e:
+            print e
     @classmethod
     def do_import_excel(cls, workbook, models):
          '''Create DI in comaster'''
          fields = (
+                    'pk',
+                    'ied_id',
                     'tag',
                     'port',
                     'bit',
@@ -441,12 +454,21 @@ class DI(MV, ExcelImportMixin):
                     'pesoaccionh',
                     'pesoaccionl'
                 )
-         for i, (tag, port, bit, value, q, trasducer, maskinv, description,
+         for i, (pk, ied_id, tag, port, bit, value, q, trasducer, maskinv, description,
                 idtextoev2, pesoaccion_h, pesoaccion_l)\
             in enumerate(workbook.iter_as_dict('di', fields=fields)):
-            if not models.ied.offset == 1:
-                return
+
+
+            try:
+                ied_id = int(ied_id)
+                pk = int(pk)
+                if ied_id != models.ied.pk:
+                    raise ValueError("No related row")
+            except ValueError:
+                continue
+
             models.ied.di_set.create(
+                pk=pk,
                 tag=tag,
                 port=port,
                 bit=bit,
