@@ -1,5 +1,5 @@
 import os
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 from logging import getLogger
 from optparse import make_option
 
@@ -17,47 +17,6 @@ result_type = namedtuple('Result', 'ok error total')
 
 
 logger = getLogger('excel_import')
-
-sanitize_row_name = lambda name: name.lower().replace(' ', '_')
-
-
-def extract(row, fields=None):
-    '''Extracts attribute from row'''
-    if not fields:
-        return row
-
-    result = []
-    for name in fields:
-        result.append(getattr(row, name))
-    return tuple(result)
-
-FIELD_LABELS_ROW = 0
-FIRST_DATA_ROW = 1
-
-
-def iter_rows(sheet, fields=None, first_data_row=FIRST_DATA_ROW):
-    '''Iterates sheet returing named tuple for each row'''
-    col_names = get_col_names(sheet)
-    col_type = namedtuple('Row', col_names)
-    # print col_names
-    for i in range(first_data_row, sheet.nrows):
-        values = sheet.row_values(i)
-        yield extract(col_type._make(values), fields=fields)
-
-
-def get_col_names(sheet, field_labels_row=FIELD_LABELS_ROW):
-    '''Validates column names, takes care of repeated column names'''
-    names = OrderedDict()
-    for new_name in sheet.row_values(field_labels_row):
-        new_name = sanitize_row_name(new_name)
-        if not new_name in names:
-            names[new_name] = 0
-        else:
-            names[new_name] += 1
-            extra_name = "%s_%d" % (new_name, names[new_name])
-            names[extra_name] = 0
-
-    return names.keys()
 
 
 def import_profile_from_workbook(profile, workbook, svg_path,
