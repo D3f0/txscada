@@ -1,3 +1,4 @@
+# encoding: utf-8
 import os
 from bunch import Bunch, bunchify
 from fabric.api import env, abort
