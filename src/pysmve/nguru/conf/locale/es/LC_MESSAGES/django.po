@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-01 00:02-0300\n"
+"POT-Creation-Date: 2013-11-12 20:30-0300\n"
 "PO-Revision-Date: 2013-10-01 00:04-0300\n"
 "Last-Translator: Nahuel Defossé\n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
@@ -17,65 +17,68 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 1.5\n"
 
-#: apps/hmi/models.py:81
+#: apps/hmi/forms.py:40 apps/hmi/models.py:95
 msgid "SVG Screen"
 msgstr "Pantalla"
 
-#: apps/hmi/models.py:82
+#: apps/hmi/models.py:46
+msgid "Label"
+msgstr ""
+
+#: apps/hmi/models.py:48
+msgid "Related formula prefix"
+msgstr ""
+
+#: apps/hmi/models.py:49
+msgid "Prefix"
+msgstr ""
+
+#: apps/hmi/models.py:96
 msgid "SVG Screens"
 msgstr "Pantallas"
 
-#: apps/hmi/models.py:99
+#: apps/hmi/models.py:154
 msgid "Color"
 msgstr "Color"
 
-#: apps/hmi/models.py:100
+#: apps/hmi/models.py:155
 msgid "Colors"
 msgstr "Colores"
 
-#: apps/hmi/models.py:128
+#: apps/hmi/models.py:194
 msgid "SVG Property Change Set"
 msgstr "Cambio de Coloración"
 
-#: apps/hmi/models.py:129
+#: apps/hmi/models.py:195
 msgid "SVG Property Change Sets"
 msgstr "Cambios de Coloración"
 
-#: apps/hmi/models.py:194
+#: apps/hmi/models.py:272
 #, python-format
 msgid "Tag repeated %s"
 msgstr "Tag %s repetido"
 
-#: apps/hmi/models.py:208
+#: apps/hmi/models.py:293
 msgid "SVG Element"
 msgstr "Elemento Gráfico"
 
-#: apps/hmi/models.py:209
+#: apps/hmi/models.py:294
 msgid "SVG Elements"
 msgstr "Elementos Gráficos"
 
-#: apps/hmi/models.py:217
-msgid "Text"
-msgstr "Texto"
-
-#: apps/hmi/models.py:218
-#, fuzzy
-msgid "Color/Background"
-msgstr "Fondo"
-
-#: apps/hmi/models.py:224
+#: apps/hmi/models.py:303
 msgid "target"
 msgstr "elemento gráfico"
 
-#: apps/hmi/models.py:226 apps/mara/admin.py:247
+#: apps/hmi/models.py:305 apps/mara/admin.py:273
 msgid "attribute"
 msgstr "atributo"
 
-#: apps/hmi/models.py:338
+#: apps/hmi/models.py:431
 msgid "Formula"
 msgstr "Formula"
 
-#: apps/hmi/models.py:339
+#: apps/hmi/models.py:432
 msgid "Formulas"
 msgstr "Formulas"
 
@@ -89,20 +92,24 @@ msgstr "%d formulas creadas"
 msgid "%d formulas were deleted (bacause of -c/--clear)"
 msgstr "%d formulas fueron eliminadas (por opción -c/--clear)"
 
-#: apps/mara/admin.py:103
+#: apps/mara/admin.py:113
 msgid "Attend"
 msgstr "Atender"
 
-#: apps/mara/admin.py:108
+#: apps/mara/admin.py:118
 #, fuzzy
 msgid "actions"
 msgstr "Acciones"
 
-#: apps/mara/admin.py:319
-msgid "colback"
+#: apps/mara/admin.py:354
+msgid "fill"
 msgstr ""
 
-#: apps/mara/admin.py:324
+#: apps/mara/admin.py:357
+msgid "None"
+msgstr ""
+
+#: apps/mara/admin.py:361
 msgid "last update"
 msgstr "última actualización"
 
@@ -114,119 +121,131 @@ msgstr "Perfil"
 msgid "Profiles"
 msgstr "Perfiles"
 
-#: apps/mara/models.py:133
+#: apps/mara/models.py:147
 msgid "CO Master"
 msgstr "CO Master"
 
-#: apps/mara/models.py:134
+#: apps/mara/models.py:148
 msgid "CO Masters"
 msgstr "CO Masters"
 
-#: apps/mara/models.py:141
+#: apps/mara/models.py:155
 #, python-format
 msgid "Mara payload not present. %s does not look like a frame"
 msgstr "Payload mara no encontrado. %s no parece una trama"
 
-#: apps/mara/models.py:251
+#: apps/mara/models.py:278
 msgid "IED"
 msgstr "IED"
 
-#: apps/mara/models.py:252
+#: apps/mara/models.py:279
 msgid "IEDs"
 msgstr "IEDs"
 
-#: apps/mara/models.py:331
+#: apps/mara/models.py:373
 msgid "System Variable"
 msgstr "Vairable de Sistema"
 
-#: apps/mara/models.py:332
+#: apps/mara/models.py:374
 msgid "System Variables"
 msgstr "Vairables de Sistema"
 
-#: apps/mara/models.py:390
+#: apps/mara/models.py:442
 msgid "Digital Input"
 msgstr "Entrada Digital"
 
-#: apps/mara/models.py:391
+#: apps/mara/models.py:443
 msgid "Digital Inputs"
 msgstr "Entradas Digitales"
 
-#: apps/mara/models.py:478
+#: apps/mara/models.py:546
 msgid "Event"
 msgstr "Evento"
 
-#: apps/mara/models.py:479
+#: apps/mara/models.py:547
 msgid "Events"
 msgstr "Eventos"
 
-#: apps/mara/models.py:493
+#: apps/mara/models.py:563
 #, fuzzy
 msgid "Event Text"
 msgstr "Evento"
 
-#: apps/mara/models.py:494
+#: apps/mara/models.py:564
 #, fuzzy
 msgid "Event Texts"
 msgstr "Eventos"
 
-#: apps/mara/models.py:523
+#: apps/mara/models.py:606
+msgid "Event Description"
+msgstr ""
+
+#: apps/mara/models.py:607
+#, fuzzy
+msgid "Event Descriptions"
+msgstr "Eventos"
+
+#: apps/mara/models.py:624
 msgid "Communication Event Kind"
 msgstr "Tipo de Evento de Comunicaciones"
 
-#: apps/mara/models.py:524
+#: apps/mara/models.py:625
 msgid "Communication Event Kinds"
 msgstr "Tipos de Evento de Comunicaciones"
 
-#: apps/mara/models.py:547
+#: apps/mara/models.py:648
 msgid "Communication Event"
 msgstr "Evento de Comunicaciones"
 
-#: apps/mara/models.py:548
+#: apps/mara/models.py:649
 msgid "Communication Events"
 msgstr "Eventos de Comunicaciones"
 
-#: apps/mara/models.py:584
+#: apps/mara/models.py:685
 msgid "Analog Input"
 msgstr "Entrada Analógica"
 
-#: apps/mara/models.py:585
+#: apps/mara/models.py:686
 msgid "Analog Inputs"
 msgstr "Entradas Analógicas"
 
-#: apps/mara/models.py:670
+#: apps/mara/models.py:791
 msgid "Energy Measure"
 msgstr "Medición de Energía"
 
-#: apps/mara/models.py:671
+#: apps/mara/models.py:792
 msgid "Energy Measures"
 msgstr "Mediciones de Energía"
 
-#: apps/mara/models.py:694
+#: apps/mara/models.py:826
 msgid "Action"
 msgstr "Acción"
 
-#: apps/mara/models.py:695
+#: apps/mara/models.py:827
 msgid "Actions"
 msgstr "Acciones"
 
-#: apps/mara/management/commands/load_excel.py:89
+#: apps/mara/management/commands/load_excel.py:75
 #, python-format
 msgid "File %s could not be read or it's not an excel file"
 msgstr "Archivo %sno pudo ser leido o no es una hoja de cálculo"
 
-#: apps/mara/management/commands/load_excel.py:102
-#, python-brace-format
-msgid "Clearing {0} {1}"
-msgstr "Limpiando {0} {1}"
-
-#: apps/mara/management/commands/load_excel.py:114
-#, python-format
-msgid "Could not find SVG file %s"
-msgstr "No se pudo encontrar el archivo SVG %s"
-
 #: apps/mara/templates/admin/base_site.html:58
 msgid "Django site admin"
 msgstr "Administración del sistema"
+
+#~ msgid "Text"
+#~ msgstr "Texto"
+
+#, fuzzy
+#~ msgid "Color/Background"
+#~ msgstr "Fondo"
+
+#~ msgid "Clearing {0} {1}"
+#~ msgstr "Limpiando {0} {1}"
+
+#~ msgid "Could not find SVG file %s"
+#~ msgstr "No se pudo encontrar el archivo SVG %s"
 
 #~ msgid "Foreground"
 #~ msgstr "Frente"
