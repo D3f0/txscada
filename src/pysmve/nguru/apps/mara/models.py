@@ -228,6 +228,7 @@ class COMaster(models.Model, ExcelImportMixin):
                     )
                 except ComEvent.DoesNotExist:
                     print "No se puede crear el Evento tipo 3"
+
         from apps.hmi.models import Formula
         # try:
         #     Formula.calculate()
@@ -311,14 +312,13 @@ class IED(models.Model, ExcelImportMixin):
                 pk=pk,
             )
             DI.import_excel(workbook, ied=ied)
-            #AI.import_excel(workbook, ied=ied)
-            # SV.import_excel(workbook, ied=ied)
+            AI.import_excel(workbook, ied=ied)
+            SV.import_excel(workbook, ied=ied)
 
 
 class MV(models.Model):
-    '''
-    IEC Meassured Value
-    '''
+
+    """Base class for measured values, and Mara main structure"""
     # These attributes will also be sent when a model is updated
     EXTRA_WATCHED_ATTRIBUTES = ('pk', 'tag')
 
@@ -392,9 +392,18 @@ class SV(MV, ExcelImportMixin):
     def do_import_excel(cls, workbook, models):
         """Import SV (System Variables) from excel sheet"""
         fields = "ied_id    offset  bit param   description value".split()
-        row_filter = lambda row: row[0] == models.ied.offset
+        def sv_belongs_to_ied(row):
+            try:
+                if (row.ied_id) != models.ied.pk:
+                    return False
+            except ValueError:
+                return False
+            return True
+
         for (ied_id, offset, bit, param, description, value)\
-            in workbook.iter_as_dict('varsys', fields=fields, row_filter=row_filter):
+            in workbook.iter_as_dict('varsys',
+                                     fields=fields,
+                                     row_filter=sv_belongs_to_ied):
             models.ied.sv_set.create(
                 offset=offset,
                 bit=bit,
@@ -447,7 +456,7 @@ class DI(MV, ExcelImportMixin):
             print e
     @classmethod
     def do_import_excel(cls, workbook, models):
-         '''Create DI in comaster'''
+         """Import DI for IED from XLS di sheet"""
 
          def di_belongs_to_ied(row):
             try:
@@ -560,6 +569,7 @@ class EventText(models.Model, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models):
+        """Import text for events from XLS sheet 'com'"""
         fields = 'id    code    description idTextoEv2  pesoaccion'.lower().split()
         for pk, code, description, idtextoev2, pesoaccion in\
             workbook.iter_as_dict('com', fields=fields):
@@ -688,6 +698,15 @@ class AI(MV, ExcelImportMixin):
     @classmethod
     @counted
     def do_import_excel(cls, workbook, models):
+        """Import AI for IED from 'ai' sheet"""
+
+        def ai_belongs_to_ied(row):
+            try:
+                if int(row.ied_id) != models.ied.pk:
+                    return False
+            except ValueError:
+                return False
+            return True
         fields = (
                   'id',
                   'ied_id',  # Taken as IED offset
@@ -713,7 +732,7 @@ class AI(MV, ExcelImportMixin):
                   'pesoaccionh', 'pesoaccionl'
                   )
 
-        row_filter = lambda row: row[0] == models.ied.offset
+
         for n, (pk, ied_id, offset, channel, trasducer,
                 description, tag, unit, multip_asm, divider,
                 rel_tv, rel_ti, rel_33_13, escala, q, value,
@@ -722,40 +741,38 @@ class AI(MV, ExcelImportMixin):
                 )\
             in enumerate(workbook.iter_as_dict('ai',
                                                fields=fields,
-                                               row_filter=row_filter)):
+                                               row_filter=ai_belongs_to_ied)):
             try:
                 pk = int(pk)
                 if ied_id != models.ied.pk:
                     raise ValueError("Not related row")
             except ValueError as e:
                 print e
-            try:
-                pass
-                models.ied.ai_set.create(
-                    pk=pk,
-                    offset=offset,
-                    channel=channel,
-                    trasducer=trasducer,
-                    description=description,
-                    tag=tag,
-                    unit=unit,
-                    multip_asm=multip_asm,
-                    divider=divider,
-                    rel_tv=rel_tv,
-                    rel_ti=rel_ti,
-                    rel_33_13=rel_33_13,
-                    escala=escala,
-                    q=q,
-                    value=value,
-                    nroai=nroai,
-                    value_max=value_max or None, value_min=value_min or None,
-                    idtextoevm=idtextoevm,
-                    delta_h=delta_h or None, delta_l=delta_l or None,
-                    idtextoev2=idtextoev2,
-                    pesoaccion_h=pesoaccion_h or None, pesoaccion_l=pesoaccion_l or None,
-                )
-            except Exception, e:
-                print e
+
+            models.ied.ai_set.create(
+                pk=pk,
+                offset=offset,
+                channel=channel,
+                trasducer=trasducer,
+                description=description,
+                tag=tag,
+                unit=unit,
+                multip_asm=multip_asm,
+                divider=divider,
+                rel_tv=rel_tv,
+                rel_ti=rel_ti,
+                rel_33_13=rel_33_13,
+                escala=escala,
+                q=q,
+                value=value,
+                nroai=nroai,
+                value_max=value_max or None, value_min=value_min or None,
+                idtextoevm=idtextoevm,
+                delta_h=delta_h or None, delta_l=delta_l or None,
+                idtextoev2=idtextoev2,
+                pesoaccion_h=pesoaccion_h or None, pesoaccion_l=pesoaccion_l or None,
+            )
+
 
 class Energy(models.Model):
 
