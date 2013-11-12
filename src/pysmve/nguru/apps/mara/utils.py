@@ -1,17 +1,18 @@
+# encoding: utf-8
 from __future__ import print_function
 
 import os
 from collections import namedtuple, OrderedDict
 from contextlib import contextmanager
 from logging import getLogger
-
+from functools import wraps
 import xlrd
 from bunch import bunchify
 
 try:
     from fabric.colors import red, green, blue, yellow
 except ImportError:
-    null_color = lambda t, b=False: t
+    null_color = lambda t, b = False: t
     red = green = blue = yellow = null_color
 
 
@@ -24,19 +25,31 @@ def sanitize_row_name(name):
     return name
 
 
+
+_row_type_registry = {}
+
+def get_nametuple(fields):
+    fields = tuple(fields)
+    if not fields in _row_type_registry:
+        _row_type_registry[fields] = namedtuple('Row', fields)
+    return _row_type_registry[fields]
+
+
+
 def extract(row, fields=None):
     '''Extracts attribute from row'''
     if not fields:
         result = row
     else:
-        result = []
+        tmp_result = []
         for name in fields:
             try:
-                result.append(getattr(row, name))
+                tmp_result.append(getattr(row, name))
             except AttributeError:
                 raise AttributeError("%s not in %s" % (name, row._fields))
-    #result = map(lambda v: v if v is not '' else None, result)
-    return tuple(result)
+        nt_type = get_nametuple(fields)
+        result = nt_type._make(tmp_result)
+    return result
 
 FIELD_LABELS_ROW = 0
 FIRST_DATA_ROW = 1
@@ -130,3 +143,12 @@ def longest_prefix_match(search, a_dict):
     matches = [prefix for prefix in a_dict if search.startswith(prefix)]
     if matches:
         return a_dict[max(matches, key=len)]
+
+def counted(fn):
+    """Count invocations to method/function"""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        wrapper.called += 1
+        return fn(*args, **kwargs)
+    wrapper.called = 0
+    return wrapper
