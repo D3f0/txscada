@@ -375,6 +375,11 @@
             $('#id_svg_screen').bind('change', changeScreen);
         }
 
+        function loadInitialScreen() {
+            console.info("Initial screen");
+            changeScreen.call($('#id_svg_screen'));
+        }
+
         function init() {
             // AMD Namespace
             if (typeof(SMVE) == "undefined"){
@@ -384,7 +389,7 @@
             createTabs();
             bindSelectForScreens();
             createMiniAlarmGrid();
-
+            loadInitialScreen();
             //update();
         }
 
