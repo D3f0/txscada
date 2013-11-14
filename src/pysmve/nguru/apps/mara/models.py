@@ -12,9 +12,8 @@ from protocols.utils.bitfield import iterbits
 from protocols import constants
 from protocols.utils.words import expand
 from protocols.constructs.structs import container_to_datetime
+from utils import ExcelImportMixin, counted
 
-
-from utils import ExcelImportMixin
 
 class Profile(models.Model):
     name = models.CharField(max_length=80)
@@ -229,6 +228,7 @@ class COMaster(models.Model, ExcelImportMixin):
                     )
                 except ComEvent.DoesNotExist:
                     print "No se puede crear el Evento tipo 3"
+
         from apps.hmi.models import Formula
         # try:
         #     Formula.calculate()
@@ -245,6 +245,8 @@ class COMaster(models.Model, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models):
+        """Import COMaster from excel sheet. This is the base import, does not any
+        filtering."""
         fields = ('id', 'ip_address', 'port', 'enabled')
         for i, (pk, ip_address, port, enabled) in\
             enumerate(workbook.iter_as_dict('comaster', fields=fields)):
@@ -270,7 +272,7 @@ class IED(models.Model, ExcelImportMixin):
     rs485_address = models.SmallIntegerField(default=0)
 
     def __unicode__(self):
-        return u"%s:IED:%s" % (self.co_master.ip_address, self.rs485_address)
+        return u"%s[%.2d]" % (self.co_master.ip_address, self.rs485_address)
 
     class Meta:
         verbose_name = _("IED")
@@ -286,16 +288,23 @@ class IED(models.Model, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models):
-        '''Import IED from XLS "ied" sheet'''
-        fields = ('comaster_id', 'id', 'offset', 'rs485_address', )
-        for n, (comaster_id, pk, offset, rs485_address) in enumerate(workbook.iter_as_dict('ied', fields=fields)):
+        '''Import IED from XLS "ied" sheet. Filters IEDs belonging to comaster
+        passed in models bunch'''
+        fields = ('comaster_id', 'id', 'offset', 'rs485_address',)
 
+        def ied_belongs_to_comaster(row):
+            '''Row is a named tuple'''
             try:
-                comaster_id = int(comaster_id)
-                if comaster_id != models.comaster.pk:
-                    raise ValueError("Not a linked row")
+                if int(row.comaster_id) != models.comaster.pk:
+                    return False
             except ValueError:
-                continue
+                return False
+            return True
+
+        for n, (comaster_id, pk, offset, rs485_address)\
+            in enumerate(workbook.iter_as_dict('ied',
+                                               fields=fields,
+                                               row_filter=ied_belongs_to_comaster)):
 
             ied = models.comaster.ieds.create(
                 offset=offset,
@@ -303,14 +312,13 @@ class IED(models.Model, ExcelImportMixin):
                 pk=pk,
             )
             DI.import_excel(workbook, ied=ied)
-            #AI.import_excel(workbook, ied=ied)
-            #SV.import_excel(workbook, ied=ied)
+            AI.import_excel(workbook, ied=ied)
+            SV.import_excel(workbook, ied=ied)
 
 
 class MV(models.Model):
-    '''
-    IEC Meassured Value
-    '''
+
+    """Base class for measured values, and Mara main structure"""
     # These attributes will also be sent when a model is updated
     EXTRA_WATCHED_ATTRIBUTES = ('pk', 'tag')
 
@@ -352,7 +360,7 @@ class SV(MV, ExcelImportMixin):
     '''
     System variable
     '''
-    WATCHED_FIELDS = ('value', )
+    WATCHED_FIELDS = ('value',)
 
     BIT_CHOICES = [(None, 'Palabra Completa'), ] + [(n, 'Bit %d' % n)
                                                     for n in range(8)]
@@ -382,10 +390,20 @@ class SV(MV, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models):
+        """Import SV (System Variables) from excel sheet"""
         fields = "ied_id    offset  bit param   description value".split()
-        row_filter = lambda row: row[0] == models.ied.offset
+        def sv_belongs_to_ied(row):
+            try:
+                if (row.ied_id) != models.ied.pk:
+                    return False
+            except ValueError:
+                return False
+            return True
+
         for (ied_id, offset, bit, param, description, value)\
-            in workbook.iter_as_dict('varsys', fields=fields, row_filter=row_filter):
+            in workbook.iter_as_dict('varsys',
+                                     fields=fields,
+                                     row_filter=sv_belongs_to_ied):
             models.ied.sv_set.create(
                 offset=offset,
                 bit=bit,
@@ -403,7 +421,7 @@ class DI(MV, ExcelImportMixin):
     Digital input, each row represents a bit in a port
     Every port is virtualized in mara device
     '''
-    WATCHED_FIELDS = ('value', )
+    WATCHED_FIELDS = ('value',)
 
     port = models.IntegerField(default=0)
     bit = models.IntegerField(default=0)
@@ -438,9 +456,18 @@ class DI(MV, ExcelImportMixin):
             print e
     @classmethod
     def do_import_excel(cls, workbook, models):
-         '''Create DI in comaster'''
+         """Import DI for IED from XLS di sheet"""
+
+         def di_belongs_to_ied(row):
+            try:
+                if int(row.ied_id) != models.ied.pk:
+                    return False
+            except ValueError:
+                return False
+            return True
+
          fields = (
-                    'pk',
+                    'id',
                     'ied_id',
                     'tag',
                     'port',
@@ -456,16 +483,9 @@ class DI(MV, ExcelImportMixin):
                 )
          for i, (pk, ied_id, tag, port, bit, value, q, trasducer, maskinv, description,
                 idtextoev2, pesoaccion_h, pesoaccion_l)\
-            in enumerate(workbook.iter_as_dict('di', fields=fields)):
-
-
-            try:
-                ied_id = int(ied_id)
-                pk = int(pk)
-                if ied_id != models.ied.pk:
-                    raise ValueError("No related row")
-            except ValueError:
-                continue
+            in enumerate(workbook.iter_as_dict('di',
+                                               fields=fields,
+                                               row_filter=di_belongs_to_ied)):
 
             models.ied.di_set.create(
                 pk=pk,
@@ -508,7 +528,7 @@ class Event(models.Model):
     '''
     di = models.ForeignKey(DI, related_name='events')
     timestamp = models.DateTimeField()
-    timestamp_ack = models.DateTimeField(null=True, blank=True, )
+    timestamp_ack = models.DateTimeField(null=True, blank=True,)
     q = models.IntegerField()
     value = models.IntegerField()
 
@@ -549,9 +569,10 @@ class EventText(models.Model, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models):
+        """Import text for events from XLS sheet 'com'"""
         fields = 'id    code    description idTextoEv2  pesoaccion'.lower().split()
         for pk, code, description, idtextoev2, pesoaccion in\
-            workbook.iter_as_dict('com',fields=fields):
+            workbook.iter_as_dict('com', fields=fields):
             models.profile.event_kinds.create(
                 description=description,
                 value=code,
@@ -572,8 +593,8 @@ class EventDescription(models.Model, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models):
-        #models.profile.eventdescription_set.create()
-        fields = ('idtextoev2', 'value',  'textoev2')
+        # models.profile.eventdescription_set.create()
+        fields = ('idtextoev2', 'value', 'textoev2')
         for idtextoev2, value, textoev2 in workbook.iter_as_dict('textoevtipo', fields):
             models.profile.eventdescription_set.create(
                 textoev2=idtextoev2,
@@ -599,7 +620,7 @@ class ComEventKind(models.Model, ExcelImportMixin):
 
     class Meta:
         db_table = 'com'
-        ordering = ('code', )
+        ordering = ('code',)
         verbose_name = _("Communication Event Kind")
         verbose_name = _("Communication Event Kinds")
 
@@ -633,31 +654,31 @@ class AI(MV, ExcelImportMixin):
     '''
     Analog Input
     '''
-    WATCHED_FIELDS = ('value', )
+    WATCHED_FIELDS = ('value',)
 
-    channel         = models.IntegerField(default=0)
-    unit            = models.CharField(max_length=5)
-    multip_asm      = models.FloatField(default=1.09)
-    divider         = models.FloatField(default=1)
-    rel_tv          = models.FloatField(db_column="reltv", default=1)
-    rel_ti          = models.FloatField(db_column="relti", default=1)
-    rel_33_13       = models.FloatField(db_column="rel33-13", default=1)
-    q               = models.IntegerField(db_column="q", default=0)
-    value           = models.SmallIntegerField(default=-1)
+    channel = models.IntegerField(default=0)
+    unit = models.CharField(max_length=5)
+    multip_asm = models.FloatField(default=1.09)
+    divider = models.FloatField(default=1)
+    rel_tv = models.FloatField(db_column="reltv", default=1)
+    rel_ti = models.FloatField(db_column="relti", default=1)
+    rel_33_13 = models.FloatField(db_column="rel33-13", default=1)
+    q = models.IntegerField(db_column="q", default=0)
+    value = models.SmallIntegerField(default=-1)
 
-    escala          = models.FloatField(help_text="Precalculo de multip_asm, divider, reltv, "
+    escala = models.FloatField(help_text="Precalculo de multip_asm, divider, reltv, "
                                "relti y rel33-13", default=0)
 
-    nroai           = models.IntegerField(default=0)
-    idtextoevm      = models.IntegerField(null=True, blank=True)
+    nroai = models.IntegerField(default=0)
+    idtextoevm = models.IntegerField(null=True, blank=True)
 
-    value_max       = models.IntegerField(null=True, blank=True)
-    value_min       = models.IntegerField(null=True, blank=True)
-    delta_h         = models.IntegerField(null=True, blank=True)
-    delta_l         = models.IntegerField(null=True, blank=True)
-    idtextoev2      = models.IntegerField(null=True, blank=True)
-    pesoaccion_h    = models.IntegerField(null=True, blank=True)
-    pesoaccion_l    = models.IntegerField(null=True, blank=True)
+    value_max = models.IntegerField(null=True, blank=True)
+    value_min = models.IntegerField(null=True, blank=True)
+    delta_h = models.IntegerField(null=True, blank=True)
+    delta_l = models.IntegerField(null=True, blank=True)
+    idtextoev2 = models.IntegerField(null=True, blank=True)
+    pesoaccion_h = models.IntegerField(null=True, blank=True)
+    pesoaccion_l = models.IntegerField(null=True, blank=True)
 
     class Meta:
         unique_together = ('offset', 'ied',)
@@ -674,10 +695,21 @@ class AI(MV, ExcelImportMixin):
                   ]
         return "%.2f %s" % (reduce(operator.mul, values), self.unit)
 
-
     @classmethod
+    @counted
     def do_import_excel(cls, workbook, models):
-        fields = ('ied_id', # Taken as IED offset
+        """Import AI for IED from 'ai' sheet"""
+
+        def ai_belongs_to_ied(row):
+            try:
+                if int(row.ied_id) != models.ied.pk:
+                    return False
+            except ValueError:
+                return False
+            return True
+        fields = (
+                  'id',
+                  'ied_id',  # Taken as IED offset
                   'offset',
                   'channel',
                   'trasducer',
@@ -700,8 +732,8 @@ class AI(MV, ExcelImportMixin):
                   'pesoaccionh', 'pesoaccionl'
                   )
 
-        row_filter = lambda row: row[0] == models.ied.offset
-        for n, (ied_id, offset, channel, trasducer,
+
+        for n, (pk, ied_id, offset, channel, trasducer,
                 description, tag, unit, multip_asm, divider,
                 rel_tv, rel_ti, rel_33_13, escala, q, value,
                 nroai, value_max, value_min, idtextoevm,
@@ -709,8 +741,16 @@ class AI(MV, ExcelImportMixin):
                 )\
             in enumerate(workbook.iter_as_dict('ai',
                                                fields=fields,
-                                               row_filter=row_filter)):
+                                               row_filter=ai_belongs_to_ied)):
+            try:
+                pk = int(pk)
+                if ied_id != models.ied.pk:
+                    raise ValueError("Not related row")
+            except ValueError as e:
+                print e
+
             models.ied.ai_set.create(
+                pk=pk,
                 offset=offset,
                 channel=channel,
                 trasducer=trasducer,
@@ -732,6 +772,7 @@ class AI(MV, ExcelImportMixin):
                 idtextoev2=idtextoev2,
                 pesoaccion_h=pesoaccion_h or None, pesoaccion_l=pesoaccion_l or None,
             )
+
 
 class Energy(models.Model):
 
@@ -781,7 +822,7 @@ class Action(models.Model, ExcelImportMixin):
             )
 
     class Meta:
-        unique_together = ('bit', )
+        unique_together = ('bit',)
         verbose_name = _("Action")
         verbose_name_plural = _("Actions")
 

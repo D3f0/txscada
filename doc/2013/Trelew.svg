@@ -30,7 +30,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="1.0698547"
      inkscape:cx="557.53658"
-     inkscape:cy="227.41565"
+     inkscape:cy="3.0861219"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -114,7 +114,7 @@
        sodipodi:cy="99.426308"
        sodipodi:rx="10.101525"
        sodipodi:ry="10.101525"
-       d="m 573.76663,99.426308 a 10.101525,10.101525 0 1 1 -20.20306,0 10.101525,10.101525 0 1 1 20.20306,0 z"
+       d="m 573.76663,99.426308 c 0,5.578922 -4.52261,10.101522 -10.10153,10.101522 -5.57892,0 -10.10153,-4.5226 -10.10153,-10.101522 0,-5.578919 4.52261,-10.101526 10.10153,-10.101526 5.57892,0 10.10153,4.522607 10.10153,10.101526 z"
        transform="translate(56.17525,436.08637)" />
     <path
        sodipodi:type="arc"
@@ -125,7 +125,8 @@
        sodipodi:rx="10.101525"
        sodipodi:ry="10.101525"
        d="m 573.76663,99.426308 a 10.101525,10.101525 0 1 1 -20.20306,0 10.101525,10.101525 0 1 1 20.20306,0 z"
-       transform="translate(-12.234428,299.97538)" />
+       transform="translate(-12.234428,299.97538)"
+       tag="E42ETT00" />
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Droid Sans;-inkscape-font-specification:Droid Sans"

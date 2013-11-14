@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 '''
 Poll UC directly
 Show how to make direct poll of COMaster
@@ -14,7 +15,7 @@ from datetime import datetime
 
 def fecha():
     now = datetime.now()
-    return now.strftime("%X us:") + "%d" % now.microsecond 
+    return now.strftime("%X us:") + "%d" % now.microsecond
 
 def main():
     s = socket()
@@ -25,7 +26,7 @@ def main():
                       sequence=33,
                       command=0x10,
                       payload_10 = None)
-    
+
 
     while True:
         print "-"*60
@@ -40,13 +41,13 @@ def main():
         except FieldError as e:
             print "Error al decodificar la trama", e
             continue
-        MaraFrame.pretty_print(data, 
-                               show_header=False, 
+        MaraFrame.pretty_print(data,
+                               show_header=False,
                                show_bcc=False)
         sleep(.8)
         output.sequence += 1
         if output.sequence > MAX_SEQ:
             output.sequence = MIN_SEQ
         #from IPython import embed; embed()
-    
+
 main()

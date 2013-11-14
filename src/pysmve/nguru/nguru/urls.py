@@ -31,6 +31,10 @@ urlpatterns = patterns('',
     #=========================================================================================
     ('^mara/', include('apps.mara.urls')),
     ('^hmi/', include('apps.hmi.urls')),
+
+    # Django URLs in Javascript
+    url(r'^jsreverse/$', 'django_js_reverse.views.urls_js', name='js_reverse'),
+
     # Tastypie API
     ('^api/', include(api.urls)),
 

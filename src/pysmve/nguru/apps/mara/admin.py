@@ -1,4 +1,5 @@
 # encoding: utf-8
+# encoding: utf-8
 import re
 import logging
 from django.contrib import admin
@@ -19,10 +20,14 @@ logger = logging.getLogger(__name__)
 site = admin.AdminSite('mara')
 
 
+
 class COMasterTabularInline(admin.TabularInline):
     model = COMaster
     extra = 0
 
+class IEDInline(admin.TabularInline):
+    model = IED
+    fields = ('rs485_address', 'offset')
 
 #=========================================================================================
 # Administración de COMaster
@@ -33,6 +38,11 @@ class COMasterAdmin(admin.ModelAdmin):
     list_display = ('ip_address', 'enabled', 'port', 'poll_interval',
                     'rs485_source', 'rs485_destination', 'peh_time')
     list_display_links = ('ip_address',)
+
+    inlines = [
+        IEDInline,
+    ]
+
 site.register(COMaster, COMasterAdmin)
 
 

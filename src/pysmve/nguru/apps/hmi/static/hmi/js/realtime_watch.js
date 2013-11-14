@@ -5,13 +5,13 @@
 
         var formulas = {};
 
-        var xhr = $.ajax('/api/v1/formula?format=json&limit=500');
-        function retrieveFormulas (data) {
-            $.each(data.objects, function () {
-                console.log(this);
-            });
-        }
-        xhr.then(retrieveFormulas);
+        // var xhr = $.ajax('/api/v1/formula?format=json&limit=500');
+        // function retrieveFormulas (data) {
+        //     $.each(data.objects, function () {
+        //         console.log(this);
+        //     });
+        // }
+        // xhr.then(retrieveFormulas);
 
         function showDialogForNode(node) {
             var tag = $(node).attr('tag');
@@ -44,18 +44,6 @@
             dlg.html($('<b>').text('TAG: '+tag));
             $(dlg).dialog('open');
             // debugger;
-        }
-
-        function setupSVGScreeen(){
-            $('#svg').svg({
-                loadURL: SMVE.svgURL,
-                onLoad: function (loadedSVG) {
-                    svg = loadedSVG;
-                    $('[tag]', svg.root()).click(function (){
-                        showDialogForNode(this);
-                    });
-                }
-            });
         }
 
         function isGroup(elem) {
@@ -181,15 +169,6 @@
                     },
                     error: showRESTErrorDialog
                 });
-            return;
-            $.ajax(SMVE.svg_pk, {
-                success: function(data){
-                    $.each(data, function (tag, updates){
-                        var node = $('[tag='+tag+']', svg.root());
-                        applyChanges(node, updates);
-                    });
-                }
-            });
         }
 
         function createMiniAlarmGrid(){
@@ -307,12 +286,6 @@
             });
             return alarmGrid;
         }
-        /*
-
-        */
-        function fillScreenChooser() {
-            $('#svg_screen')
-        }
 
         function createUpdateIntervalSlider() {
 
@@ -368,14 +341,38 @@
                 $(this).text((SMVE.update)?("Update: ON"):("Update: OFF"));
             }
         }
-
+        /* Initializes buttons
+         */
         function setupExtraWidgets() {
             if (typeof(SMVE.updateButton)) {
                 // Initialize update button trigger
                 SMVE.updateButton = $('#update_toggle');
-                SMVE.updateButton.button().click(updateToggle)
+                SMVE.updateButton.button().click(updateToggle);
             }
+        }
 
+
+        function svgScreenLoaded(svg) {
+            var parent = svg._svg.parentElement;
+            $(parent).height(svg._height());
+            $('[tag]', svg.root()).click(function (){
+                showDialogForNode(this);
+            });
+        }
+
+        function changeScreen(){
+            var svg_pk = $(this).val();
+            var url = Urls.svg_file(svg_pk);
+            console.info("Loading", url);
+            $('#svg').removeClass('hasSVG').find('svg').remove();
+            $('#svg').svg({
+                loadURL: url,
+                onLoad: svgScreenLoaded
+            });
+        }
+
+        function bindSelectForScreens(){
+            $('#id_svg_screen').bind('change', changeScreen);
         }
 
         function init() {
@@ -385,12 +382,10 @@
             }
             setupExtraWidgets();
             createTabs();
-            fillScreenChooser();
-            setupSVGScreeen();
-            //$('#svg').hide();
+            bindSelectForScreens();
             createMiniAlarmGrid();
 
-            update();
+            //update();
         }
 
         $(init);
