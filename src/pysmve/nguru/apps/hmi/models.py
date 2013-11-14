@@ -43,9 +43,11 @@ class Screen(models.Model):
 class SVGScreen(Screen, ExcelImportMixin):
     profile = models.ForeignKey(Profile, related_name='screens')
     svg = models.FileField(upload_to="svg_screens")
-    name = models.CharField(max_length=60)
-    root = models.BooleanField(default=False)
-    prefix = models.CharField(max_length=4, help_text="Related formula prefix")
+    name = models.CharField(max_length=60, verbose_name=_("Label"))
+    prefix = models.CharField(max_length=4,
+                              help_text=_("Related formula prefix"),
+                              verbose_name=_("Prefix"))
+    description = models.CharField(max_length=100, blank=True, null=True)
 
     _svg = None
     _etree = None
@@ -76,6 +78,11 @@ class SVGScreen(Screen, ExcelImportMixin):
 
     def __unicode__(self):
         return self.name
+        parts = [self.name]
+        node = self
+        while self.parent:
+            pass
+        return self.name
 
     def prefix_formula_bind(self):
         assert len(self.prefix) > 1, "Prefix too short"
@@ -93,18 +100,24 @@ class SVGScreen(Screen, ExcelImportMixin):
     def do_import_excel(cls, workbook, models):
         """ Import SVG Screens from XLS sheet, it must be run in appropiate directory"""
         fields = ('path name  description prefix  parent'.split())
+        inserted = {}
         for path, name, description, prefix, parent in\
             workbook.iter_as_dict('screens', fields=fields):
-
+            if parent:
+                if not parent in inserted:
+                    raise ValueError("Screen %s is not previously defined" % parent)
+                parent = inserted[parent]
+            else:
+                parent = None # Root screen
             screen = cls.objects.create(profile=models.profile,
                                         name=name,
-                                        root=bool(parent),
+                                        parent=parent,
                                         prefix=prefix)
             # http://stackoverflow.com/questions/1993939/programmatically-upload-files-in-django
             with open(path, 'rb') as fp:
                 screen.svg.save(os.path.basename(path), File(fp), save=True)
             # Save File
-
+            inserted[name] = screen
             screen.save()
 
 

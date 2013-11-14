@@ -22,4 +22,20 @@ class EnergyDatePlotForm(forms.Form):
 
 
 class SVGScreenForm(forms.Form):
-    svg_screen = forms.ModelChoiceField(SVGScreen.objects.all(), label=_("SVG Screen"))
+
+    def __init__(self, *args, **kwargs):
+        """Accepts profile as kwarg!"""
+        if 'profile' in kwargs:
+            profile = kwargs.pop('profile')
+        else:
+            profile = None
+        super(SVGScreenForm, self).__init__(*args, **kwargs)
+        qs = self.fields['svg_screen'].queryset
+        if profile:
+            qs = qs.filter(profile=profile)
+        initial = qs.get(parent__isnull=True)
+        self.fields['svg_screen'].initial = initial
+
+    svg_screen = forms.ModelChoiceField(SVGScreen.objects.all(),
+                                        label=_("SVG Screen"),
+                                        empty_label=None)

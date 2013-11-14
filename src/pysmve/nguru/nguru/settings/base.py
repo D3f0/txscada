@@ -163,6 +163,9 @@ INSTALLED_APPS = (
     'django.contrib.admin',
 
     'tastypie_jqgrid',
+
+    'django_js_reverse',
+
 )
 
 # A sample logging configuration. The only tangible logging

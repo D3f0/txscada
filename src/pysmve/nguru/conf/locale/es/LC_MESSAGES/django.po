@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-12 20:30-0300\n"
-"PO-Revision-Date: 2013-10-01 00:04-0300\n"
-"Last-Translator: Nahuel Defossé\n"
+"POT-Creation-Date: 2013-11-12 20:43-0300\n"
+"PO-Revision-Date: 2013-11-12 20:39-0300\n"
+"Last-Translator: \n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -23,15 +23,15 @@ msgstr "Pantalla"
 
 #: apps/hmi/models.py:46
 msgid "Label"
-msgstr ""
+msgstr "Etiqueta"
 
 #: apps/hmi/models.py:48
 msgid "Related formula prefix"
-msgstr ""
+msgstr "Prefijo de formulas relacionadas"
 
 #: apps/hmi/models.py:49
 msgid "Prefix"
-msgstr ""
+msgstr "Prefijo"
 
 #: apps/hmi/models.py:96
 msgid "SVG Screens"
@@ -103,11 +103,11 @@ msgstr "Acciones"
 
 #: apps/mara/admin.py:354
 msgid "fill"
-msgstr ""
+msgstr "Relleno"
 
 #: apps/mara/admin.py:357
 msgid "None"
-msgstr ""
+msgstr "Nada"
 
 #: apps/mara/admin.py:361
 msgid "last update"
@@ -178,7 +178,7 @@ msgstr "Eventos"
 
 #: apps/mara/models.py:606
 msgid "Event Description"
-msgstr ""
+msgstr "Descripción de evento"
 
 #: apps/mara/models.py:607
 #, fuzzy
