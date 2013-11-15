@@ -12,7 +12,7 @@ from models import (
     EventDescription,
 )
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
-
+from apps.hmi.forms import SVGElementForm
 from django.utils.translation import ugettext as _
 
 logger = logging.getLogger(__name__)
@@ -360,6 +360,9 @@ class SVGElementAdmin(admin.ModelAdmin):
         return retval
     get_last_update.short_description = _("last update")
     get_last_update.admin_order_field = 'last_update'
+
+
+    form = SVGElementForm
 
 site.register(SVGElement, SVGElementAdmin)
 
