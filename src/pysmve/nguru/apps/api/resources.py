@@ -170,6 +170,8 @@ class SVGElementResource(ModelResource):
             'last_update': ALL_WITH_RELATIONS,
         }
         ordering = SVGElement._meta.get_all_field_names()
+        order_by = 'last_update'
+
 
     def dehydrate(self, bundle):
         bundle.data['style'] = bundle.obj.style
