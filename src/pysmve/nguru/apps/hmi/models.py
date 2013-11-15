@@ -222,7 +222,7 @@ class SVGElement(models.Model, ExcelImportMixin):
                                blank=True,
                                choices=MARK_CHOICES)
 
-    enabled = models.BooleanField(default=False)
+    enabled = models.BooleanField(default=True)
     # Used for checking when there are updates to send to clients
     last_update = models.DateTimeField(null=True, blank=True)
 
