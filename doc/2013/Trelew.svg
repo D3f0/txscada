@@ -23,14 +23,14 @@
      id="defs4" />
   <sodipodi:namedview
      id="base"
-     pagecolor="#ffffff"
+     pagecolor="#000000"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.0"
+     inkscape:pageopacity="1"
      inkscape:pageshadow="2"
      inkscape:zoom="1.0698547"
      inkscape:cx="557.53658"
-     inkscape:cy="3.0861219"
+     inkscape:cy="227.41565"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -124,7 +124,7 @@
        sodipodi:cy="99.426308"
        sodipodi:rx="10.101525"
        sodipodi:ry="10.101525"
-       d="m 573.76663,99.426308 a 10.101525,10.101525 0 1 1 -20.20306,0 10.101525,10.101525 0 1 1 20.20306,0 z"
+       d="m 573.76663,99.426308 c 0,5.578922 -4.52261,10.101522 -10.10153,10.101522 -5.57892,0 -10.10153,-4.5226 -10.10153,-10.101522 0,-5.578919 4.52261,-10.101526 10.10153,-10.101526 5.57892,0 10.10153,4.522607 10.10153,10.101526 z"
        transform="translate(-12.234428,299.97538)"
        tag="E42ETT00" />
     <text
