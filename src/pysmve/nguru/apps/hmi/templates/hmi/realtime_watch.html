@@ -11,7 +11,6 @@
     <ul>
         <li><a href="#tab-real-time">Tiempo Real</a></li>
         <li><a href="#tab-alarmas">Alarmas</a></li>
-        <li><a href="#tab-configuracion">Configuración</a></li>
         <li><a href="#tab-volver">Volver</a></li>
     </ul>
     <div id="tab-real-time">
@@ -32,23 +31,6 @@
     </div>
     <div id="tab-alarmas">
         <table id="alarm-grid"></table>
-
-    </div>
-    <div id="tab-configuracion">
-        {# Configuración #}
-        <div class="btn-group" data-toggle="buttons-checkbox">
-            <button type="button" class="btn btn-primary">Sonido</button>
-        </div>
-
-
-        <h3>Intervalo de actualización</h3>
-        <p>
-            <div id="SMVE-update-interval" style="width: 500px; height: 10px;"/>
-            </div>
-        </p>
-        <div class="alert alert-info">
-            Refresco de interfase de tiempo real: <strong id="update_interval">1000</strong> milisegundos.
-        </div>
 
     </div>
     <div id="tab-volver" class="volver"></div>
@@ -98,6 +80,7 @@
         });
 
     </script>
+    <script type="text/javascript" src="{% static "js/xdate.js" %}"></script>
     <script type="text/javascript" src="{% static "hmi/js/realtime_watch.js" %}"></script>
 
 {% endblock endscripts %}
