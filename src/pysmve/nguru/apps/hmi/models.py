@@ -306,7 +306,7 @@ class Formula(models.Model, ExcelImportMixin):
                                  # choices=ATTRIBUTE_CHOICES
                                  )
     formula = models.TextField()
-    last_error = models.TextField()
+    last_error = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
         return ":".join([self.target.tag, self.attribute])
