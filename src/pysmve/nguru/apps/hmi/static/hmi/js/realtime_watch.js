@@ -97,7 +97,7 @@
             var baseUrl = Urls.api_dispatch_list('v1', 'svgelement');
             updateQueryParams({'last_update': last_update});
             var url = baseUrl + '?' + getQueryParamsEncoded();
-            console.info("Looking for updates", url);
+            console.info("Looking for updates", decodeURIComponent(url));
             return url;
         }
 
@@ -151,45 +151,64 @@
             return _svg;
         }
 
+        function updatesReceived(data, status) {
+            var objs = data.objects,
+                count = data.objects.length, // The same as data.meta.count (Tastypie)
+                i,
+                attributes = ['fill', 'color', 'text'],
+                last_update;
+
+            console.info("Applying", count, "changes");
+
+            for (i=0; i<count; i++){
+                var obj = objs[i];
+                //console.log(obj)
+                var node = $('[tag='+obj.tag+']', getCurrentSVG().root());
+                if (node.length) {
+                    var updates = {};
+                    updates['text'] = obj.text;
+                    $.extend(updates, obj.style);
+                    applyChanges(node, updates);
+                }
+            }
+
+            if (count > 0){
+                if (count > 1) {
+
+                    // Update last update
+                    var update_timestamps = $.map(objs, function (record){
+                        return new XDate(XDate.parse(record.last_update));
+                    });
+                    update_timestamps.sort();
+                    last_update = update_timestamps[update_timestamps.length-1];
+                } else {
+                    last_update = new XDate(XDate.parse(objs[0].last_update));
+                }
+
+                last_update = last_update.toString('yyyy-MM-dd HH:mm:ss.ffffff');
+                updateQueryParams({last_update__gt: last_update});
+            }
+            // Scheddule new function call
+            updatesTimeOutID = window.setTimeout(update, SMVE.updateInterval);
+        }
+
+        updatesTimeOutID = null;
+
         function update(){
             if (typeof(SMVE.updateInterval) == 'undefined') {
                 SMVE.updateInterval = 3000;
             }
-            window.setTimeout(update, SMVE.updateInterval);
+
             if (!SMVE.update) {
                 return;
             }
             // Apply changes taken from the REST resource
 
-            $.ajax({
-                    url: getSVGUpdatesUrl(),
-                    success: function (data, status){
-                        var objs = data.objects;
-                        var attributes = ['fill', 'color', 'text'];
-                        //console.info()
-                        $.each(objs, function (idx, obj) {
-                            //console.log(obj)
-                            var node = $('[tag='+obj.tag+']', getCurrentSVG().root());
-                            if (node.length)  {
-                                var updates = {};
-                                updates['text'] = obj.text;
-                                $.extend(updates, obj.style);
-                                applyChanges(node, updates);
-                            }
-                        });
-                        // Update last update
-                        objs.sort(function (a, b){
-                            a = new Date(XDate.parse(a.last_update));
-                            b = new Date(XDate.parse(b.last_update));
-                            return a - b;
-                        });
-                        var last_update = objs[0].last_update;
-                        last_update = new XDate(XDate.parse(last_update));
-                        last_update = last_update.toString('yyyy-MM-dd HH:mm:ss.ffffff');
-                        updateQueryParams({last_update__gt: last_update});
-                    },
-                    error: showRESTErrorDialog
-                });
+            var xhr = $.ajax({
+                url: getSVGUpdatesUrl(),
+                success: updatesReceived,
+                error: showRESTErrorDialog
+            });
         }
 
         function createMiniAlarmGrid(){
@@ -349,12 +368,17 @@
                 SMVE.updateButton.button().click(updateToggle);
             }
         }
+
         function setUpdatesEnabled(enabled) {
             console.info("Set updates", (enabled)?("enabled"):("disabled"));
             if (enabled) {
                 SMVE.enabled = true;
                 update(); // Call the first time
             } else {
+                if (updatesTimeOutID) {
+                    console.debug("Clearing timeout funciton for updates");
+                    window.clearTimeout(updatesTimeOutID);
+                }
                 SMVE.enabled = false;
             }
         }
@@ -376,7 +400,8 @@
 
             setQueryParams({
                 format: 'json',
-                svgscreen__pk: svg_pk
+                svgscreen__pk: svg_pk,
+                enabled: true
             });
 
             console.info("Loading", url);
