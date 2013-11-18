@@ -159,7 +159,7 @@ api.register(FormulaResource())
 class SVGElementResource(ModelResource):
     '''This resource allows to put updates on the screen'''
     screen = fields.ForeignKey(SVGScreenResource, 'screen')
-    #Formula.calculate()
+
     class Meta:
         resource_name = 'svgelement'
         queryset = SVGElement.objects.select_related('formula')
@@ -168,10 +168,15 @@ class SVGElementResource(ModelResource):
         filtering = {
             'screen': ALL_WITH_RELATIONS,
             'last_update': ALL_WITH_RELATIONS,
+            'enabled': ALL_WITH_RELATIONS,
         }
         ordering = SVGElement._meta.get_all_field_names()
         order_by = 'last_update'
 
+
+    def apply_filters(self, request, applicable_filters):
+        #import pdb; pdb.set_trace()
+        return super(SVGElementResource, self).apply_filters(request, applicable_filters)
 
     def dehydrate(self, bundle):
         bundle.data['style'] = bundle.obj.style
