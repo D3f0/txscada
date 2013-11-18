@@ -5,7 +5,9 @@ nohup*
 *.sqlite
 *.db
 *.log
+*.part
 src/pysmve/nguru/nguru/local_settings.py
+src/pysmve/nguru/static/bower_components/
 _*
 src/pysmve/salida.pdf
 src/pysmve/salida.py
