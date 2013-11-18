@@ -16,6 +16,9 @@ hg_line = re.compile(r'(?P<name>[\d\w\-\_]+)@(?P<version>[\d\w]+)')
 class CommentLine(Exception):
     pass
 
+class NotValidReqLine(Exception):
+    pass
+
 
 def split_package_version(line):
     """Returns package name and version from pip freeze line as tuple"""
@@ -29,15 +32,21 @@ def split_package_version(line):
         return data.group('name'), data.group('version')
     elif is_hg(line):
         data = hg_line.search(line)
+        if not data:
+            raise NotValidReqLine("pip freeze line not understood hg line: %s" % line)
         return data.group('name'), data.group('version')
     else:
-        raise Exception("pip freeze line not understood: %s" % line)
+        raise NotValidReqLine("pip freeze line not understood: %s" % line)
 
 
 def is_excluded(line_of_pip_freeze):
     """Given a line of pip freeze checks if package name is included in env dev only pkgs
     """
-    package, version = split_package_version(line_of_pip_freeze)
+    try:
+        package, version = split_package_version(line_of_pip_freeze)
+    except NotValidReqLine as e:
+        print(e)
+        return True
     excluded = env.dev_only_packages.split('\n')
     if excluded.count(package):
         return True
