@@ -201,9 +201,11 @@ class COMaster(models.Model, ExcelImportMixin):
                     )
                     ai = AI.objects.get(**query)
                     timestamp = container_to_datetime(event)
-                    value = 0
-                    for i, v in enumerate(event.data):
-                        value += v << (8 * i)
+                    #value = 0
+                    #for i, v in enumerate(event.data):
+                    #    value += v << (8 * i)
+                    # Parsing construct arrray bogus data
+                    value = event.data[1] + (event.data[0] << 8 ) + (event.data[2] << 16)
                     ai.energy_set.create(
                         timestamp=timestamp,
                         code=event.code,
