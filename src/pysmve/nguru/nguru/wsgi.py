@@ -13,7 +13,11 @@ middleware here, or combine a Django application with an application of another
 framework.
 
 """
+import sys
 import os
+sys.path.append('..')
+sys.path.append('../..')
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nguru.settings")
 
