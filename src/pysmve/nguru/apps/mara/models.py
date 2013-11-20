@@ -164,6 +164,8 @@ class COMaster(models.Model, ExcelImportMixin):
             di_count += 1
         for value, ai in zip(payload.ais, self.ais):
             # TODO: Copiar Q
+            value = value & 0x0FFF
+            ai.q = (value & 0xC000) >> 14
             ai.update_value(value, last_update=timestamp)
             ai_count += 1
 
