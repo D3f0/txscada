@@ -232,10 +232,10 @@ class COMaster(models.Model, ExcelImportMixin):
                     print "No se puede crear el Evento tipo 3"
 
         from apps.hmi.models import Formula
-        # try:
-        #     Formula.calculate()
-        # except Exception, e:
-        #     print e
+        try:
+            Formula.calculate()
+        except Exception, e:
+            print e
 
         return di_count, ai_count, sv_count, event_count
 
