@@ -375,6 +375,25 @@ site.register(Action, ActionAdmin)
 
 
 # Config
-
+from django.contrib.admin.models import LogEntry
 config_site = admin.AdminSite('config')
 config_site.register(Profile)
+class LogEntryAdmin(admin.ModelAdmin):
+    list_display = ('change_message', 'user', 'content_type', 'action_time',
+        'get_object_link', )
+    list_display_links = ('change_message', )
+    list_filter = ('user', 'content_type', 'action_flag')
+
+    def get_object_link(self, logentry):
+        from django.core.urlresolvers import reverse
+        #import ipdb; ipdb.set_trace()
+        view = 'mara:%s_%s_change' % (logentry.content_type.app_label,
+            logentry.content_type.model)
+        url =  reverse(view, args=(logentry.object_id, ))
+        return '''
+        <a href="%s" target="_blank">%s</a>
+        ''' % (url, 'Ver')
+    get_object_link.allow_tags = True
+    get_object_link.short_description = "Enlace"
+
+config_site.register(LogEntry, LogEntryAdmin)
