@@ -436,6 +436,12 @@ class DI(MV, ExcelImportMixin):
     idtextoev2 = models.IntegerField(default=0)
     pesoaccion_h = models.IntegerField(default=0)
     pesoaccion_l = models.IntegerField(default=0)
+    TIPO_CHOICES = (
+        (0, 'Tipo 0'),
+        (1, 'Tipo 1'),
+        (2, 'Tipo 2'),
+    )
+    tipo = models.IntegerField(default=0, choices=TIPO_CHOICES)
 
     def __unicode__(self):
         return u"DI %2d:%2d (%s)" % (self.port, self.bit, (self.tag or "Sin Tag"))
