@@ -80,8 +80,8 @@ site.register(SV, SVAdmin)
 
 class DIAdmin(admin.ModelAdmin):
     list_display = ('get_tag', 'description', 'port', 'bit', 'trasducer', 'value', 'q',
-                    'trasducer', 'maskinv')
-    list_filter = ('ied',)
+                    'trasducer', 'maskinv', 'tipo', )
+    list_filter = ('ied', 'tipo', )
     search_fields = ('tag', 'description')
 
     def get_tag(self, di):
