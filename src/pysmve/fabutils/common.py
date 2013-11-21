@@ -12,6 +12,7 @@ def prepeare_hosts(config_dict, local_base):
         if not values:
             continue
         h = bunchify(values)
+        h.setdefault('port', 22)
         h.repo_path = os.path.join('/home', h.user, h.project_base, h.project_name)
         h.code_path = os.path.join(h.repo_path, h.code_subdir)
         h.host_string = '{user}@{remote_ip}:{port}'.format(**h)

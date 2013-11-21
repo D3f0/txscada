@@ -11,7 +11,7 @@ from fabric import colors
 from fabsettings import HOSTS as HOST_SETTINGS
 from fabutils.requirements import pip_freeze_to_file
 from fabutils.common import prepeare_hosts, get_host_settings
-from fabutils.supervisor import install_supervisor, configure_gunicorn
+from fabutils.supervisor import install_supervisor, configure_gunicorn, hold
 from contextlib import nested
 
 DEV_REQUIEREMENTS_FILE = 'setup/requirements/develop.txt'
@@ -125,6 +125,14 @@ def pip_uninstall(host='', package=''):
         with prefix(env.venv_prefix):
             run('pip uninstall -y {}'.format(package))
 
+
+def update_static_media():
+    with cd(env.code_path):
+        with prefix(env.venv_prefix):
+            print(colors.green("Installing dependencies"))
+            run('python manage.py collectstatic --noinput')
+
+
 @task
 def install(host=''):
     """Instala SMVE en servidor"""
@@ -138,6 +146,17 @@ def install(host=''):
         install_dependencies()
         install_supervisor()
         configure_gunicorn()
+
+@task
+def update(host=''):
+    """Updates deployment to upstream git version"""
+    h = get_host_settings(host)
+    with settings(**h):
+        procs = ('gunicorn_production', 'poll_mara')
+        with hold(procs):
+            get_repo()
+            install_dependencies()
+            update_static_media()
 
 
 @task
@@ -162,5 +181,13 @@ def extract_strings():
                 fname = line.strip().split()[-1]
 
                 call(['xdg-open', '../'+fname])
+
+@task
+def get_database(host=''):
+    h = get_host_settings(host)
+    with settings(**h):
+        sudo('su postgres -c psql')
+
+
 
 

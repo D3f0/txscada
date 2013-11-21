@@ -4,9 +4,10 @@ from __future__ import print_function
 import os
 
 from fabric import colors
-from fabric.api import env, put, sudo, abort, settings
+from fabric.api import env, put, sudo, abort, settings, run, hide
 from fabric.contrib import files
-
+from contextlib import contextmanager
+from fabric import colors
 
 supervisor_configs_dir = '/etc/supervisor/'
 
@@ -138,4 +139,24 @@ def add_supervisord_task(template, name, context, do_reload=True):
 def reload_supervisor():
     sudo('supervisorctl reload -y')
 
+@contextmanager
+def hold(names, use_sudo=True):
+    """Stops and starts process after context manaer has stopped"""
+    if use_sudo:
+        op = sudo
+    else:
+        op = run
 
+    if isinstance(names, basestring):
+        names = [names]
+
+    name = ' '.join(names)
+    print(colors.red("Stopping supervisor services:"), names)
+    with hide('stdout', 'stderr'):
+        op('supervisorctl stop {}'.format(name))
+
+    yield
+
+    print(colors.green("Starting supervisor services:"), names)
+    with hide('stdout', 'stderr'):
+        op('supervisorctl start {}'.format(name))
