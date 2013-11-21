@@ -6,9 +6,8 @@ nohup*
 *.db
 *.log
 *.part
-src/pysmve/nguru/nguru/local_settings.py
-src/pysmve/nguru/static/bower_components/
 _*
+src/pysmve/nguru/nguru/settings/local_settings.py
 src/pysmve/salida.pdf
 src/pysmve/salida.py
 doc/2013/europython
