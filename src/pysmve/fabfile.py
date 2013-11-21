@@ -1,18 +1,18 @@
 # encoding: utf-8
 from __future__ import print_function
+
 import os
 
-from bunch import Bunch, bunchify
-from fabric.api import abort, cd, env, local, run, settings, sudo, task, prefix, lcd, hide
+from fabric import colors
+from fabric.api import (abort, cd, env, get, hide, lcd, local, prefix, run,
+                        settings, sudo, task)
 from fabric.context_managers import quiet
 from fabric.contrib import files
 from fabric.contrib.console import confirm
-from fabric import colors
 from fabsettings import HOSTS as HOST_SETTINGS
+from fabutils.common import get_host_settings, prepeare_hosts
 from fabutils.requirements import pip_freeze_to_file
-from fabutils.common import prepeare_hosts, get_host_settings
-from fabutils.supervisor import install_supervisor, configure_gunicorn, hold
-from contextlib import nested
+from fabutils.supervisor import configure_gunicorn, hold, install_supervisor
 
 DEV_REQUIEREMENTS_FILE = 'setup/requirements/develop.txt'
 REQUIEREMENTS_FILE = 'setup/requirements/production.txt'
@@ -183,11 +183,34 @@ def extract_strings():
                 call(['xdg-open', '../'+fname])
 
 @task
-def get_database(host=''):
+def get_remote_dump(host='', backupfile='/tmp/backup.dmp'):
     h = get_host_settings(host)
     with settings(**h):
-        sudo('su postgres -c psql')
+        print(colors.yellow("Getting remote database: {database}".format(**env.database)))
+        cmd = 'pg_dump -Fc {database} -f {backupfile}'
+        cmd = cmd.format(backupfile=backupfile, **env.database)
+        sudo('su postgres -c "{}"'.format(cmd))
+        get(backupfile, backupfile)
+        run('rm -f %s' % backupfile)
+    return backupfile
+
+SQL_CREATE_USER = ("DROP ROLE IF EXISTS {user};"
+                   "CREATE ROLE {user} LOGIN PASSWORD '{password}';")
 
 
+@task
+def copy_database(host=''):
+    path = get_remote_dump(host=host)
+    with settings(**get_host_settings(host)):
+        if confirm(colors.red('Replace local database with dump?', True)):
+            with hide('running', 'stdout'):
+                print(colors.yellow("Droping and creating fresh database"))
+                with settings(warn_only=True):
+                    local('dropdb {database}'.format(**env.database))
 
+                local('createdb {database}'.format(**env.database))
+                print(colors.yellow("Creating user"))
+                local(('psql -d {database} -c "'+SQL_CREATE_USER+'"').format(**env.database))
+                print(colors.yellow("Restoring data", True))
+                local('pg_restore -d {database} {path}'.format(path=path, **env.database))
 
