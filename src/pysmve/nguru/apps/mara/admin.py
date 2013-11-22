@@ -176,7 +176,10 @@ class SVGScreenAdmin(admin.ModelAdmin):
     show_svg.allow_tags = True
 
     def get_tags(self, obj):
-        tags = obj.tags
+        try:
+            tags = obj.tags
+        except IOError:
+            tags = []
         count = len(tags)
         items = ''.join(['<li>%s</li>' % x[0] for x in tags.iteritems()])
         return '''
