@@ -74,13 +74,13 @@ class EventResource(ModelResource):
     class Meta:
         resource_name = 'event'
         queryset = Event.objects.all()
-        allowed_methods = ['get', ]
+        allowed_methods = ['get', 'put']
         filtering = {
             'timestamp': ALL,
             'pk': ALL,
             'timestamp_ack': ALL,
         }
-        ordering = SVGElement._meta.get_all_field_names()
+        ordering = Event._meta.get_all_field_names()
 
     def dehydrate(self, bundle):
         bundle.data['tag'] = bundle.obj.di.tag
