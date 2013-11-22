@@ -39,6 +39,8 @@ class SVGScreenForm(forms.Form):
     svg_screen = forms.ModelChoiceField(SVGScreen.objects.all(),
                                         label=_("SVG Screen"),
                                         empty_label=None)
+    ALARM_CHOICES = [ (qty, _('%d alarms') % qty) for qty in [3, 5, 7,]]
+    alarm_count = forms.ChoiceField(choices=ALARM_CHOICES, initial=5)
 
 
 def make_svg_change_label(p):
