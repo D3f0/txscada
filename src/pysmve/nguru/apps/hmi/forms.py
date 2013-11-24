@@ -2,7 +2,7 @@ from apps.hmi.models import SVGPropertyChangeSet, SVGScreen
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from models import SVGElement
+from models import SVGElement, Formula
 
 
 class EnergyDatePlotForm(forms.Form):
@@ -19,6 +19,18 @@ class EnergyDatePlotForm(forms.Form):
         self.helper.form_action = 'submit_survey'
 
         #self.helper.add_input(Submit('submit', 'Submit'))
+
+class SVGScreenAdminForm(forms.ModelForm):
+    def __init__(self, *largs, **kwargs):
+        super(SVGScreenAdminForm, self).__init__(*largs, **kwargs)
+        instance = kwargs.get('instance')
+        if instance:
+            qs = SVGScreen.objects.filter(profile = instance.profile)
+            qs = qs.exclude(pk=instance.pk)
+            self.fields['parent'].queryset = qs
+
+    class Meta:
+        model = SVGScreen
 
 
 class SVGScreenForm(forms.Form):
