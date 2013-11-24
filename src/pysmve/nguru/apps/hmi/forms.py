@@ -78,3 +78,19 @@ class SVGElementForm(forms.ModelForm):
 
     class Meta:
         model = SVGElement
+
+    class Media:
+        css = {
+            'all': ('hmi/css/inlineformula.css', )
+        }
+
+
+class FormuluaInlineForm(forms.ModelForm):
+
+    class Meta:
+        model = Formula
+        widgets = {
+            'formula': forms.widgets.TextInput(attrs={'autocomplete':'off',
+                                                      'style': 'width: 100%',})
+        }
+        fields = ('attribute', 'formula', )
