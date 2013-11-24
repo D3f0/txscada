@@ -201,25 +201,52 @@ class SVGElement(models.Model, ExcelImportMixin):
     screen = models.ForeignKey(SVGScreen,
                                related_name='elements',
                                blank=True,
-                               null=True)
+                               null=True,
+                               verbose_name=_('screen'))
+
     tag = models.CharField(max_length=16)
-    description = models.CharField(max_length=120)
+
+    description = models.CharField(max_length=120, verbose_name =_("description"))
 
     # Attributes
-    text = models.CharField(max_length=120, default='0')
+    text = models.CharField(max_length=120,
+                            default='0',
+                            blank=True,
+                            verbose_name=_("text"))
     # Coloring
     fill = models.IntegerField(blank=True,
-                               null=True)
+                               null=True,
+                               verbose_name=_("fill"))
+
     stroke = models.IntegerField(blank=True,
-                                 null=True)
+                                 null=True,
+                                 verbose_name=_("stroke"))
 
     mark = models.IntegerField(null=True,
                                blank=True,
                                choices=MARK_CHOICES)
 
-    enabled = models.BooleanField(default=True)
+    enabled = models.BooleanField(default=True,
+                                  verbose_name=_("enabled"))
     # Used for checking when there are updates to send to clients
-    last_update = models.DateTimeField(null=True, blank=True)
+    last_update = models.DateTimeField(null=True,
+                                       blank=True,
+                                       editable=False,
+                                       verbose_name=_('last update'))
+
+    on_click_jump = models.ForeignKey(SVGScreen,
+                                      blank=True,
+                                      null=True,
+                                      verbose_name=_("on click jump"),
+                                      help_text=_("Screen destination when the object "
+                                                  "is clicked")
+                                      )
+
+    on_click_text_toggle = models.CharField(max_length=50,
+                                            blank=True, null=True,
+                                            verbose_name=_('on click text toggle'),
+                                            help_text=_("Text to toggle on click. "
+                                                "Separated by coma (,)."))
 
     def __unicode__(self):
         return self.tag
