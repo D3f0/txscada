@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block navbar %}{% endblock %}
+
+{% block extraheader %}
+    <style>
+        .login {
+            width: 40%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+{% endblock extraheader %}
+{% block content %}
+    <div class="well login">
+        <h1>{{ title }}</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <p>
+                <input type="submit" class="btn btn-lg btn-primary" value="Inciar Sesión">
+            </p>
+
+        </form>
+    </div>
+{% endblock content %}

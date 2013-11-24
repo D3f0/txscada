@@ -26,6 +26,14 @@ urlpatterns = patterns('',
         {
          'template': 'base.html'
          }, name='index'),
+
+    url('^login/$',
+        'django.contrib.auth.views.login',
+        {
+            'template_name': 'hmi/login.html'
+        },
+        name='login',
+    ),
     #=========================================================================================
     # Mara application
     #=========================================================================================

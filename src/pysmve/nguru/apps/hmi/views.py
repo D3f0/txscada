@@ -5,9 +5,11 @@ from apps.hmi.models import SVGScreen
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.http import HttpResponseRedirect
-# Imports para la simulación
+from django.contrib.auth.decorators import login_required
 
 
+
+@login_required(login_url='/login')
 def realtime_watch(request):
     '''Visión de tiempo real'''
     from forms import SVGScreenForm
