@@ -78,11 +78,6 @@ class SVGScreen(Screen, ExcelImportMixin):
 
     def __unicode__(self):
         return self.name
-        parts = [self.name]
-        node = self
-        while self.parent:
-            pass
-        return self.name
 
     def prefix_formula_bind(self):
         assert len(self.prefix) > 1, "Prefix too short"
