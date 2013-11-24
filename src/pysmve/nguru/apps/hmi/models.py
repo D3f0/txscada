@@ -277,6 +277,14 @@ class SVGElement(models.Model, ExcelImportMixin):
         attrs = ['%s: %s' % (k, str(v)) for k, v in self.style.iteritems()]
         return '%s' % '; '.join(attrs)
 
+    @property
+    def formulas(self):
+        d = {}
+        for formula in self.formula_set.all():
+            d.update({formula.attribute: formula.formula})
+        return d
+
+
     @classmethod
     def do_import_excel(cls, workbook, models):
         """Import form excel file, sheet 'eg'"""
