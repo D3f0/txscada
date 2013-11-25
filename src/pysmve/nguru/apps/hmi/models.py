@@ -326,14 +326,18 @@ class SVGElement(models.Model, ExcelImportMixin):
 
 class Formula(models.Model, ExcelImportMixin):
 
-    #tag = models.CharField(max_length=16)
+    ATTRIBUTE_CHOICES = (
+        ('fill', 'fill'),
+        ('stroke', 'stroke'),
+        ('text', 'text'),
+    )
     target = models.ForeignKey(SVGElement,
                                blank=True,
                                null=True,
                                verbose_name=_('target'))
     attribute = models.CharField(max_length=16,
                                  verbose_name=_('attribute'),
-                                 # choices=ATTRIBUTE_CHOICES
+                                 choices=ATTRIBUTE_CHOICES
                                  )
     formula = models.TextField()
     last_error = models.TextField(blank=True, null=True)
