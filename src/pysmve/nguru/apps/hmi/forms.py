@@ -1,8 +1,11 @@
+# -*- coding: utf-8 -*-
 from apps.hmi.models import SVGPropertyChangeSet, SVGScreen
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from models import SVGElement, Formula
+from django.contrib.auth.models import User, Permission
+import string
 
 class EnergyDatePlotForm(forms.Form):
     date = forms.DateField(label="Fecha de la curva")
@@ -65,15 +68,17 @@ class SVGElementForm(forms.ModelForm):
     def populate_color_choices(self):
         qs = SVGPropertyChangeSet.objects.all()
 
-        choices = [
+        choices = [(None, '--------')]
+
+        choices += [
             (p.index, make_svg_change_label(p)) for p in qs
         ]
         self.fields['fill'].choices=choices
         self.fields['stroke'].choices=choices
 
 
-    fill = forms.ChoiceField(required=False)
-    stroke = forms.ChoiceField(required=False)
+    fill = forms.ChoiceField(required=False, label=_('fill').title())
+    stroke = forms.ChoiceField(required=False, label=_('stroke').title())
 
     def clean_linked_text_change(self):
         screen = self.cleaned_data.get('screen')
