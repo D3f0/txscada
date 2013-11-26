@@ -157,7 +157,7 @@
                         nodeData.description,
                         options[text],
                         options[newText]
-                        )
+                        );
             $dlg.html(html);
             $dlg.dialog('open');
         }
@@ -362,17 +362,32 @@
         }
         // Same Model for both grids!
         var alarmsColModel = [
-            {name:'id',index:'id', width:60, hidden: false},
+            //{name:'id',index:'id', width:60, hidden: false},
             {
                 name:'timestamp', index:'timestamp', width:90,
                 //sorttype:"date",
-                formatter: dateFormatter
+                formatter: dateFormatter,
+                label: "Fecha"
 
             },
-            {name:'texto',index:'texto', width:100, sortable: false},
+            {
+                name: 'tag',
+                index: 'tag',
+                label: 'TAG',
+                sortable: false,
+                width: 50
+            },
+            {
+                name:'texto',
+                index:'texto',
+                width:100,
+                sortable: false,
+                label: "Descripción"
+            },
             {
                 name:'timestamp_ack',
                 index:'timestamp_ack',
+                label: "Atención",
                 width:80,
                 align:"center",
                 sorttype:"date",
@@ -451,7 +466,7 @@
         var jqGridAlarmCommonConfig = {
             datatype: "json",
             autowidth: true,
-            colNames:['ID', 'Fecha', 'Descripción', 'Atención',],
+            //colNames:['ID', 'Fecha', 'Descripción', 'Atención',],
             colModel: alarmsColModel,
             hidegrid: false,
             jsonReader: {
@@ -588,7 +603,7 @@
 
         function svgScreenLoaded(svg) {
 
-            if (svg.root().childNodes.length == 0) {
+            if (svg.root().childNodes.length === 0) {
                 fatalError("No se pudo cargar la pantalla actual");
                 return;
             }
@@ -642,6 +657,7 @@
         }
 
         function init() {
+            createTabs();
             $.when(
                 loadTagResource(),
                 loadScreenResource()
@@ -649,7 +665,6 @@
                 findInitialScreenAndFireLoad
             );
             setupExtraWidgets();
-            createTabs();
             createMiniAlarmGrid();
 
             //update();
