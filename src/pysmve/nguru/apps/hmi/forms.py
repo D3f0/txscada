@@ -4,7 +4,6 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from models import SVGElement, Formula
 
-
 class EnergyDatePlotForm(forms.Form):
     date = forms.DateField(label="Fecha de la curva")
     # estacion = forms.
@@ -75,6 +74,17 @@ class SVGElementForm(forms.ModelForm):
 
     fill = forms.ChoiceField(required=False)
     stroke = forms.ChoiceField(required=False)
+
+    def clean_linked_text_change(self):
+        screen = self.cleaned_data.get('screen')
+        tag = self.cleaned_data.get('tag')
+        val = self.cleaned_data.get('linked_text_change')
+        if val:
+            if tag and tag == val:
+                raise forms.ValidationError(_("Can not create a dependency loop"))
+            if screen and not screen.elements.filter(tag=val).count():
+                raise forms.ValidationError(_("Tag does not belong to screen"))
+        return val
 
     class Meta:
         model = SVGElement

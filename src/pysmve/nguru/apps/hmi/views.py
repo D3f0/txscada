@@ -11,7 +11,9 @@ from django.contrib.auth.decorators import login_required
 
 @login_required(login_url='/login')
 def realtime_watch(request):
-    '''Visión de tiempo real'''
+    """Real time monitoring"""
+    # This view could be well be sent to a generic template View.
+    # It's kept like a function based view for historical reasons.
     from forms import SVGScreenForm
     form = SVGScreenForm()
 
@@ -36,3 +38,9 @@ def svg_file(request, svg_pk):
     """Gets static file URL for SVG file"""
     svg_screen = get_object_or_404(SVGScreen, pk=svg_pk)
     return HttpResponseRedirect(svg_screen.svg.url)
+
+
+def formula_calc(request):
+    """This view is meant for debugging formula calc bakend"""
+    pass
+

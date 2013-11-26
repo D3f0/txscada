@@ -2,7 +2,6 @@
 import math
 import os
 import re
-import signals
 from datetime import datetime
 from logging import getLogger
 
@@ -12,10 +11,12 @@ from bunch import bunchify
 from colorful.fields import RGBColorField
 from django.core.files import File
 from django.db import models
+from django.db.models import signals
 from django.utils.translation import ugettext_lazy as _
 from apps.mara.utils import longest_prefix_match
 from lxml.etree import ElementTree as ET
-from utils import generate_tag_context, IF, OR, FILTRAR
+from django.core import validators
+from utils import generate_tag_context, IF, OR, FILTRAR, FLOAT
 
 # Formulas
 # Internationalization
@@ -190,6 +191,7 @@ class SVGPropertyChangeSet(ProfileBound, ExcelImportMixin):
         verbose_name_plural = _('SVG Property Change Sets')
 
 
+
 class SVGElement(models.Model, ExcelImportMixin):
 
     '''
@@ -242,11 +244,56 @@ class SVGElement(models.Model, ExcelImportMixin):
                                                   "is clicked")
                                       )
 
+    TEXT_TOGGLE_REGEX = re.compile('''
+        ^[\d\w]+
+        \s?
+        (\([\w\d\s]+\))?
+        \,\s?
+        [\d\w]+
+        \s?
+        (\([\w\d\s]+\))?
+        $
+    ''', flags= re.VERBOSE | re.UNICODE)
+
     on_click_text_toggle = models.CharField(max_length=50,
                                             blank=True, null=True,
                                             verbose_name=_('on click text toggle'),
                                             help_text=_("Text to toggle on click. "
-                                                "Separated by coma (,)."))
+                                                "Separated by coma (,)."),
+                                            validators=[
+                                            validators.RegexValidator(
+                                                regex=TEXT_TOGGLE_REGEX,
+                                                #message,
+                                                #code
+                                            )
+
+
+
+                                            ])
+
+    linked_text_change = models.CharField(max_length=12,
+                                          blank=True,
+                                          null=True,
+                                          verbose_name=_('linked text change'),
+                                          help_text=_('Text on related element will be '
+                                                      'upon save')
+                                          )
+    @property
+    def linked_text_change_dict(self):
+        d = {}
+        regex = re.compile('(?P<name>[\d\w]+)\s?(?P<description>\([\w\d\s]+\))?')
+        if self.on_click_text_toggle:
+            for option in self.on_click_text_toggle.split(','):
+                match = regex.search(option)
+                name = match.group('name')
+                value = match.group('description')
+                if value:
+                    value = value.strip(')').strip('(')
+                else:
+                    value = name
+                d[name] = value
+        return d
+
 
     def __unicode__(self):
         return self.tag
@@ -323,13 +370,32 @@ class SVGElement(models.Model, ExcelImportMixin):
         verbose_name = _("SVG Element")
         verbose_name_plural = _("SVG Elements")
 
+    @classmethod
+    def update_modification_timestamp(cls, instance=None, **kwargs):
+        instance.last_update = datetime.now()
+
+    @classmethod
+    def update_linked_text_change(cls, instance=None, **kwargs):
+        """Update text in related tag. It uses update so no reucrssion limit problem is
+        arraised"""
+        rel_tag = instance.linked_text_change
+        if rel_tag:
+            svg_el = instance.screen.elements.get(tag=rel_tag)
+            if svg_el.text != instance.text:
+                instance.screen.elements.filter(tag=rel_tag).update(text=instance.text)
+
+signals.pre_save.connect(SVGElement.update_modification_timestamp,
+                         sender=SVGElement)
+
+signals.post_save.connect(SVGElement.update_linked_text_change,
+                         sender=SVGElement)
 
 class Formula(models.Model, ExcelImportMixin):
 
     ATTRIBUTE_CHOICES = (
-        ('fill', 'fill'),
-        ('stroke', 'stroke'),
-        ('text', 'text'),
+        ('fill', _('fill')),
+        ('stroke', _('stroke')),
+        ('text', _('text')),
     )
     target = models.ForeignKey(SVGElement,
                                blank=True,
@@ -380,6 +446,7 @@ class Formula(models.Model, ExcelImportMixin):
             SUMA=sum,
             APLICAR=map,
             FILTRAR=FILTRAR,
+            FLOAT=FLOAT
             )
         )
 
@@ -413,8 +480,6 @@ class Formula(models.Model, ExcelImportMixin):
                 if prev_value != value:
                     # Update
                     setattr(element, attribute, value)
-                    element.last_update = datetime.now()
-
                     element.save()
 
         # TODO: Check profile

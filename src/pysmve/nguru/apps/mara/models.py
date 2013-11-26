@@ -541,6 +541,7 @@ class Event(models.Model):
     timestamp_ack = models.DateTimeField(null=True, blank=True,)
     q = models.IntegerField()
     value = models.IntegerField()
+    show = models.BooleanField(default=True, help_text=_("Show in alarm grid"))
 
     def __unicode__(self):
         text2 = None
@@ -556,7 +557,22 @@ class Event(models.Model):
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
 
+    def propagate_changes(self):
+        if self.di.tipo == 0:
+            if self.value == 0:
+                self.show = False
+        if self.di.tipo in [0, 1]:
+            from apps.hmi.models import SVGElement
+            text = '1' if self.timestamp_ack else '0'
+            SVGElement.objects.filter(screen__profile=self.di.ied.co_master.profile,
+                                      tag=self.di.tag).update(text=text)
 
+
+def sync_event_with_svgelements(instance=None, **kwargs):
+    if instance:
+        instance.propagate_changes()
+
+signals.pre_save.connect(sync_event_with_svgelements, sender=Event)
 
 
 class EventText(models.Model, ExcelImportMixin):

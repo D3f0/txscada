@@ -34,7 +34,9 @@ def FILTRAR(filter_func, iterable):
         iterable = iter(iterable.values())
     return filter(filter_func, iterable)
 
-
+def FLOAT(a_float, decimal_places=3):
+    formatting_string = "%%.%df" % decimal_places
+    return formatting_string % a_float
 
 def closest_key(a_string, a_dict):
     '''Returns the closest key in a dictionary to a_string.

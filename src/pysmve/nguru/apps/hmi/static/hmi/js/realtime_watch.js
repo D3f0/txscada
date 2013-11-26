@@ -1,37 +1,180 @@
 (function ($){
+    // AMD Namespace
+    if (typeof(SMVE) == "undefined"){
+        SMVE = {};
+    }
     $(function (){
+        // Some of these variables are exposed to the SMVE namespace
+        var alarmGrid,
+            miniAlarmGird,
+            tagResource = {},
+            screenResource = {},
+            currentScreenUri = null;
 
-        function showDialogForNode(node) {
-            var tag = $(node).attr('tag');
-            var buttons = [
-                {
-                    text: "Close",
-                    click: function (){
-                        $(this).dialog('close').dialog('destroy');
-                    }
+        function fatalError(msg, description) {
+            return alert(msg);
+        }
+        // TODO: Check if underscore or other library provides this util func
+        function grepObjectContent(anObject, filterFunc) {
+            var retval = null;
+            $.map(anObject, function (internalValue, attrName) {
+                if (filterFunc.call(internalValue, internalValue, attrName)) {
+                    retval = internalValue;
+                    return false; // Cut iteration
                 }
-            ];
-            var toggle_89 = /([\d\w]{3})89([SI])([\w\d]{2})/;
-            var match = toggle_89.exec(tag);
-            if (match !== null) {
-                buttons.unshift({
-                    text: "Toggle",
-                    click: function(){
+            });
+            return retval;
+        }
 
-                    }
+        function loadTagResource() {
+            // SVGElement
+            return $.ajax({
+                method: 'GET',
+                url: Urls.api_dispatch_list('v1', 'svgelementdetail'),
+            }).then(function (data, state, resp) {
+                tagResource = {};
+                $.each(data.objects, function (obj, index){
+                    tagResource[this.tag] = this;
                 });
+            }, function () {
+                fatalError("Falla al obtener recurso");
+            });
+        }
+
+        function loadScreenResource() {
+            // SVGScreen
+            return $.ajax({
+                method: 'GET',
+                url: Urls.api_dispatch_list('v1', 'svgscreen'),
+            }).then(function (data, state, resp) {
+                screenResource = {};
+                $.each(data.objects, function (obj, index){
+                    screenResource[this.resource_uri] = this;
+                });
+            }, function () {
+                fatalError("Falla al obtener recurso");
+            });
+        }
+
+        /** Crear diálogo para tag */
+
+        function createDialogForTag(node, nodeData) {
+            var $dlg = $('<div/>').dialog({
+                autoOpen: false,
+                title: nodeData.tag,
+                modal: true,
+                width: '40%',
+                buttons: [
+                    {
+                        text: "Close",
+                        click: function (){
+                            $(this).dialog('close');
+                        }
+                    }
+                ],
+                close: function () {
+                    $(this).dialog('destroy');
+                }
+            });
+            var html = '<b>%s</b> <i>%s</i></br>'.format(
+                nodeData.tag,
+                nodeData.description
+            );
+            $dlg.html(html);
+            $dlg.dialog('open');
+        }
+
+        function createDialogForTextToggle(node, nodeData) {
+            var text = $(node).text();
+            var options = nodeData.linked_text_change;
+            var newText;
+            // Ugly lookup (Array was better)
+            for (var key in options) {
+                if (key == text)
+                    continue;
+                newText = key;
             }
 
-            var dlg = $('<div/>').dialog({
+            var $dlg = $('<div/>').dialog({
+                title: "Confirmacón de cambio manual",
                 autoOpen: false,
-                title: tag,
                 modal: true,
-                buttons: buttons
-            });
+                width: '40%',
+                close: function () {
+                    $(this).dialog('destroy');
+                },
+                buttons: [
+                    {
+                        text: "Cambiar a %s".format(options[newText]),
+                        click: function () {
+                            var that = this;
+                            var url = Urls.api_dispatch_detail('v1',
+                                                               'svgelement',
+                                                               nodeData.id);
+                            // Buttons
+                            $(".ui-dialog-buttonpane button").button("disable");
+                            $(".ui-dialog-buttonpane button:contains('%s')".format(options[newText])
+                                ).text("Confirmando...");
+                            // Make ajax call to change text
+                            var xhr = $.ajax({
+                                url: url,
+                                method: 'PUT',
+                                processData: false,
+                                contentType: 'application/json',
+                                data: JSON.stringify({text: newText})
+                            });
+                            xhr.then(function () {
+                                try {
+                                    $dlg.dialog('close');
+                                    if (node.tagName == 'text') {
+                                        $(node).text(newText);
+                                    }
 
-            dlg.html($('<b>').text('TAG: '+tag));
-            $(dlg).dialog('open');
-            // debugger;
+                                } catch (e) {
+                                    console.error(e);
+                                }
+                            }, function (xhr, status, response) {
+                                $(".ui-dialog-buttonpane ui-state-default").remove();
+                                $(".ui-dialog-buttonpane button").button("enable");
+                                $dlg.dialog('option', 'title', status);
+                                $dlg.html('<pre>%s</pre>'.format(response));
+
+                            });
+
+                        }
+                    },
+                    {
+                        text: "Close",
+                        click: function () {
+                            $(this).dialog('close');
+                        }
+                    }
+                ]
+            });
+            var html = ('<b>%s</b> <i>%s</i></br>' +
+                        '<b>¿Confirma cambiar el estado %s a %s?</b>').format(
+                        nodeData.tag,
+                        nodeData.description,
+                        options[text],
+                        options[newText]
+                        )
+            $dlg.html(html);
+            $dlg.dialog('open');
+        }
+
+        function clickOnSVGElement(node, nodeData) {
+            if (nodeData === undefined) {
+                console.error("No info for", node);
+                return;
+            }
+            if (nodeData.on_click_text_toggle) {
+                return createDialogForTextToggle(node, nodeData);
+            }
+            if (nodeData.on_click_jump !== null) {
+                return setCurrentScreenUri(nodeData.on_click_jump);
+            }
+            createDialogForTag(nodeData.tag, nodeData);
+
         }
 
         function isGroup(elem) {
@@ -135,7 +278,9 @@
         }
 
         var _svg = null;
-
+        /**
+         * Low level function for SVG/Markup interaction
+         */
         function setCurrentSVG(svg) {
             var $svg_attributes = $('#base', svg.root());
             var $container_div = $(svg.root().parentElement);
@@ -211,119 +356,168 @@
             });
         }
 
-        function createMiniAlarmGrid(){
-            $('#mini-alarm').jqGrid({
-                url: '/api/v1/event/?format=json&limit=4',
-                datatype: "json",
-                height: 60,
-                autowidth: true,
-                hidegrid: false,
-                colNames:['ID', 'Fecha', 'Descripción', 'Atención',],
-                colModel:[
-                    {name:'id',index:'id', width:60, hidden: false},
-                    {
-                        name:'timestamp',
-                        index:'timestamp',
-                        width:90,
-                        //sorttype:"date",
-                        formatter: "date",
-                        formatoptions: {
-                            //newformat: 'd/m/Y H:i:sO'
-                            //srcformat: 'YYYY-MM-DDTHH:mm:ss'
-                            //,
+        function dateFormatter(cellvalue, options, rowObject) {
+            var date = new XDate(XDate.parse(cellvalue));
+            return date.toString('yyyy-MM-dd HH:mm:ss.fff');
+        }
+        // Same Model for both grids!
+        var alarmsColModel = [
+            {name:'id',index:'id', width:60, hidden: false},
+            {
+                name:'timestamp', index:'timestamp', width:90,
+                //sorttype:"date",
+                formatter: dateFormatter
 
-                            //newformat: 'l F d, Y g:i:s.u A'
-                        }
-                    },
-                    {name:'texto',index:'texto', width:100},
-                    {
-                        name:'timestamp_ack',
-                        index:'timestamp_ack',
-                        width:80,
-                        align:"right",
-                        sorttype:"date"
+            },
+            {name:'texto',index:'texto', width:100, sortable: false},
+            {
+                name:'timestamp_ack',
+                index:'timestamp_ack',
+                width:80,
+                align:"center",
+                sorttype:"date",
+                formatter: function (cellvalue, options, rowObject) {
+                    var retval;
+                    if (cellvalue) {
+                        var date = new XDate(XDate.parse(cellvalue));
+                        retval = date.toString('yyyy-MM-dd HH:mm:ss.fff');
+                    } else {
+                        retval = '<a href="#" data-resource-uri="'+
+                                 rowObject.resource_uri + '"' +
+                                 'onclick=SMVE.attendCell(this)>'+
+                                 'Sin atención</a>';
                     }
-                ],
-                jsonReader: {
-                    repeatitems : false,
-                    id: "0",
-                    root: 'objects'
-                },
-
-                multiselect: false,
-                caption: "Últimas alarmas",
-                afterInsertRow: function (id, data) {
-                    if (!data.timestamp_ack) {
-                        $('#'+id).css('background', '#dec');
-                        console.log(data.timestamp);
-                    }
-                },
-                onSortCol: function (){
-                    console.log(arguments);
-                },
-                serializeGridData: function (postData)
-                {
-                    // prepare data for Tatsypie format
-                    var pdat = $.extend({}, postData);
-
-                    // sorting / ordering
-                    if (typeof pdat.sidx != 'undefined' && pdat.sidx != '')
-                    {
-                        pdat.order_by = pdat.sidx.replace('.', '__');
-                        if (pdat.sord !== 'undefined')
-                                            if (pdat.sord.toLowerCase() == 'desc')
-                                            pdat.order_by = '-' + pdat.order_by;
-                    }
-
-                    // filtering
-                    if (pdat.filters)
-                    {
-                            var filters = jQuery.parseJSON(pdat.filters);
-                            var ops = {
-                                        'eq': 'iexact',
-                                        'lt': 'lt',
-                                        'le': 'lte',
-                                        'gt': 'gt',
-                                        'ge': 'gte',
-                                        'bw': 'istartswith',
-                                        'in': 'in',
-                                        'ew': 'iendswith',
-                                        'cn': 'icontains',
-                                        'dt': false, // special value used by date fields. don't append anything to search condition.
-                                    }
-                            $.each(filters.rules, function(idx, rule){
-                                    var op = (rule['op'] in ops) ? ops[rule['op']] : 'icontains';
-                                    var fieldname = rule['field'];
-                                    if (op !== false)
-                                        fieldname += '__' + op;
-                                    pdat[fieldname] = rule['data'];
-                            });
-                    }
-                    delete pdat.filters;
-                    delete pdat.sord;
-                            delete pdat.sidx;
-
-                    return pdat;
+                    return retval;
                 }
-            });
+            },
+        ];
+
+        function reloadAlarmGrids() {
+            if (miniAlarmGird !== undefined) {
+                miniAlarmGird.trigger("reloadGrid");
+            }
+            if (alarmGrid !== undefined) {
+                alarmGrid.trigger("reloadGrid");
+            }
         }
 
-        function createAlarmGrid() {
-            var alarmGrid = $('#alarm-grid').jqGrid({
-                datatype: "local",
-                height: 60,
-                autowidth: true,
-                hidegrid: false,
-                colNames:['ID','Fecha', 'Descripción', 'Atención',],
-                colModel:[
-                    {name:'id',index:'id', width:60, sorttype:"int"},
-                    {name:'invdate',index:'F', width:90, sorttype:"date"},
-                    {name:'name',index:'name', width:100},
-                    {name:'amount',index:'amount', width:80, align:"right",sorttype:"float"}
+        function attendCell(link) {
+            var $link = $(link);
+            var resource_uri = $link.attr('data-resource-uri');
+
+            var $dlg = $('<div/>').dialog({
+                modal: true,
+                autoOpen: false,
+                width: "60%",
+                title: "Atención de alarmas",
+                buttons: [
+                    {
+                        text: "Atender",
+                        click: function() {
+
+                            var xhr = $.ajax({
+                                url: resource_uri,
+                                method: 'PUT',
+                                processData: false,
+                                contentType: 'application/json',
+                                data: JSON.stringify({timestamp_ack: 'now'})
+                            });
+                            xhr.then(function () {
+                                console.info("Se atendio el evento ", resource_uri);
+
+                                reloadAlarmGrids();
+
+                                $dlg.dialog('close');
+
+                            }, showRESTErrorDialog);
+
+                        }
+                    },
+                    {text: "Cancelar", click: function(){
+                        $dlg.dialog('close').dialog('destroy');
+                    }},
                 ],
+                close: function () {
+                    $(this).dialog('destroy');
+                }
+            });
+            $dlg.html("<p>Está a punto de notificar la atención de la alarma</p>"+
+                "");
+
+            $dlg.dialog('open');
+        }
+
+        // Common configuration for both alarm grids
+        var jqGridAlarmCommonConfig = {
+            datatype: "json",
+            autowidth: true,
+            colNames:['ID', 'Fecha', 'Descripción', 'Atención',],
+            colModel: alarmsColModel,
+            hidegrid: false,
+            jsonReader: {
+                repeatitems : false,
+                id: "0",
+                root: 'objects'
+            },
+            serializeGridData: TastyJQGrid.serializeGridData
+        };
+
+        function createMiniAlarmGrid(){
+            miniAlarmGird = $('#mini-alarm');
+            //$alarmCountSelect.c
+
+            var url = Urls.api_dispatch_list('v1', 'event');
+
+            var queryUrl = new QueryObj({
+                format: 'json',
+                limit: 5,
+                order_by: '-timestamp',
+                timestamp_ack__isnull: true
+            }, url);
+
+            miniAlarmGird.data('queryUrl', queryUrl);
+
+            miniAlarmGird.jqGrid($.extend(
+                    {},
+                    jqGridAlarmCommonConfig, {
+                        url: queryUrl.toString(),
+                        height: 'auto',
+                        caption: "Últimas alarmas sin atención",
+                        afterInsertRow: function (id, data) {
+                            if (!data.timestamp_ack) {
+                                //$('#'+id).css('background', '#dec');
+                                console.log(data.timestamp);
+                            }
+                        },
+                        onSortCol: function (){
+                            console.log(arguments);
+                        }
+                    })
+            );
+
+        }
+
+
+        function createAlarmGrid() {
+            alarmGrid = $('#alarm-grid');
+
+            var url = Urls.api_dispatch_list('v1', 'event');
+
+            var queryUrl = new QueryObj({
+                format: 'json',
+                limit: 40,
+                order_by: '-timestamp'
+            }, url);
+
+            alarmGrid.data('url', queryUrl);
+
+            alarmGrid.jqGrid($.extend({}, jqGridAlarmCommonConfig, {
+                url: queryUrl.toString(),
+                height: "80%",
                 multiselect: true,
                 caption: "Alarmas del Sistema de Medición de Variables Eléctricas"
-            });
+            }));
+
             return alarmGrid;
         }
 
@@ -367,6 +561,15 @@
                 SMVE.updateButton = $('#update_toggle');
                 SMVE.updateButton.button().click(updateToggle);
             }
+
+            $('#jump_to_upper_screen').on('click', function (e){
+                e.preventDefault();
+                var parent = SMVE.getScreen(currentScreenUri).parent;
+                if (parent !== null) {
+                    setCurrentScreenUri(parent);
+                }
+
+            });
         }
 
         function setUpdatesEnabled(enabled) {
@@ -384,27 +587,40 @@
         }
 
         function svgScreenLoaded(svg) {
+
+            if (svg.root().childNodes.length == 0) {
+                fatalError("No se pudo cargar la pantalla actual");
+                return;
+            }
             var parent = svg._svg.parentElement;
             $(parent).height(svg._height());
-            $('[tag]', svg.root()).click(function (){
-                showDialogForNode(this);
+            // Bind click
+            $('[tag],[jump-to]', svg.root()).click(function (){
+                var tag = $(this).attr('tag');
+                clickOnSVGElement(this, SMVE.getTag(tag));
             });
             setCurrentSVG(svg);
             setUpdatesEnabled(true);
         }
 
-        function changeScreen(){
-            var svg_pk = $(this).val();
-            var url = Urls.svg_file(svg_pk);
+
+        function setCurrentScreenUri(uri) {
+            var svg_screen = SMVE.getScreen(uri);
+            var url = svg_screen.svg;
+            console.info("Loading ", svg_screen.description,
+                                     svg_screen.name,
+                                     svg_screen.svg);
+
             setUpdatesEnabled(false);
+
+            currentScreenUri = uri;
 
             setQueryParams({
                 format: 'json',
-                svgscreen__pk: svg_pk,
+                screen__id: svg_screen.id,
                 enabled: true
             });
 
-            console.info("Loading", url);
             $('#svg').removeClass('hasSVG').find('svg').remove();
             $('#svg').svg({
                 loadURL: url,
@@ -412,29 +628,51 @@
             });
         }
 
-        function bindSelectForScreens(){
+        function findInitialScreenAndFireLoad() {
+            try {
+                var uri = grepObjectContent(screenResource,
+                    function (o){
+                        return o.parent === null;
+                    }).resource_uri;
+                setCurrentScreenUri(uri);
+            } catch(error) {
+                fatalError("No hay pantalla inicial definida");
+            }
 
-            $('#id_svg_screen').bind('change', changeScreen);
-        }
-
-        function loadInitialScreen() {
-            console.info("Initial screen");
-            changeScreen.call($('#id_svg_screen'));
         }
 
         function init() {
-            // AMD Namespace
-            if (typeof(SMVE) == "undefined"){
-                SMVE = {};
-            }
+            $.when(
+                loadTagResource(),
+                loadScreenResource()
+            ).done(
+                findInitialScreenAndFireLoad
+            );
             setupExtraWidgets();
             createTabs();
-            bindSelectForScreens();
             createMiniAlarmGrid();
-            loadInitialScreen();
+
             //update();
         }
-
+        // API
+        $.extend(SMVE, {
+            attendCell: attendCell,
+            getAlarmGrid: function () {
+                return alarmGrid;
+            },
+            getMiniAlarmGrid: function () {
+                return miniAlarmGird;
+            },
+            getTags: function() {
+                return tagResource;
+            },
+            getTag: function (tag) {
+                return tagResource[tag];
+            },
+            getScreen: function (resource_uri) {
+                return screenResource[resource_uri];
+            }
+        });
         $(init);
     });
 

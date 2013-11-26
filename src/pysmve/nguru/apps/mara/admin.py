@@ -12,7 +12,7 @@ from models import (
     EventDescription,
 )
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
-from apps.hmi.forms import SVGElementForm
+from apps.hmi.forms import SVGElementForm, FormuluaInlineForm, SVGScreenAdminForm
 from django.utils.translation import ugettext as _
 
 logger = logging.getLogger(__name__)
@@ -169,11 +169,26 @@ site.register(EventText, EventTextAdmin)
 
 
 class SVGScreenAdmin(admin.ModelAdmin):
-    list_display = ['name', 'show_svg', 'get_tags', ]
+    list_display = ['get_hierachy', 'description', 'parent', 'show_svg', ]
 
     def show_svg(self, model):
-        return '<a href="#">Show {}</a>'.format(model)
+        return '<a href="{}" target="_blank">Download {}</a>'.format(
+            model.svg.url,
+            model.name
+            )
     show_svg.allow_tags = True
+    show_svg.short_description = _("Download")
+
+    def get_hierachy(self, obj):
+        hierachy = [ obj,]
+        while obj.parent:
+            obj = obj.parent
+            hierachy.insert(0, obj)
+        print hierachy
+        return '->'.join([ x.name for x in hierachy])
+
+
+    get_hierachy.short_description = _('label')
 
     def get_tags(self, obj):
         try:
@@ -191,6 +206,8 @@ class SVGScreenAdmin(admin.ModelAdmin):
         '''.format(**locals())
 
     get_tags.allow_tags = True
+
+    form = SVGScreenAdminForm
 
     class Media:
         css = {
@@ -265,20 +282,17 @@ class FormulaAdmin(admin.ModelAdmin):
 
     def get_screen(self, obj):
         return obj.target.screen
+    get_screen.short_description = _('screen')
+    get_screen.allow_tags = True
+    get_screen.admin_order_field = 'target__screen'
+
+    FORMULA_TEXT = dict(Formula.ATTRIBUTE_CHOICES)
 
     def get_attribute(self, obj):
-        try:
-            return obj.attribute
-            pass
-        except Exception, e:
-            return e
-
+        return FormulaAdmin.FORMULA_TEXT.get(obj.attribute, _("Invalid"))
     get_attribute.short_description = _('attribute')
     get_attribute.admin_order_field = 'attribute'
 
-    get_screen.short_description = 'SVG'
-    get_screen.allow_tags = True
-    get_screen.admin_order_field = 'target__screen'
 
     def get_formula(self, obj):
         '''Renders formula with JS hints'''
@@ -322,10 +336,34 @@ class FormulaAdmin(admin.ModelAdmin):
 site.register(Formula, FormulaAdmin)
 
 
+class FormulaTabularInline(admin.TabularInline):
+    model = Formula
+    form = FormuluaInlineForm
+
 class SVGElementAdmin(admin.ModelAdmin):
     search_fields = ('tag', )
     list_display = ('tag', 'description', 'text', 'fill', 'stroke', 'get_mark',
                     'enabled', 'get_last_update', 'screen')
+
+    list_filter = ('mark', )
+    inlines = [
+        FormulaTabularInline,
+    ]
+
+    fieldsets = (
+        (None, {'fields': ('screen', )}),
+        (_('General information'), {'fields': (('tag', 'enabled'), 'description',)}),
+        (_('Graphical attributes'), {'fields': (('fill', 'stroke', 'text', ), )}),
+        (_('Interaction'), {
+            'fields':
+                ('on_click_jump', 'on_click_text_toggle', 'mark', 'linked_text_change'),
+            'classes':
+                ('collapse', ),
+            }
+        ),
+
+    )
+
 
     def get_mark(self, obj):
         if obj.mark is not None:
@@ -367,6 +405,7 @@ class SVGElementAdmin(admin.ModelAdmin):
 
     form = SVGElementForm
 
+
 site.register(SVGElement, SVGElementAdmin)
 
 
@@ -379,8 +418,13 @@ site.register(Action, ActionAdmin)
 
 # Config
 from django.contrib.admin.models import LogEntry
+from django.contrib.auth.models import User, Group, Permission
 config_site = admin.AdminSite('config')
 config_site.register(Profile)
+config_site.register(User)
+config_site.register(Group)
+config_site.register(Permission)
+
 class LogEntryAdmin(admin.ModelAdmin):
     list_display = ('change_message', 'user', 'content_type', 'action_time',
         'get_object_link', )

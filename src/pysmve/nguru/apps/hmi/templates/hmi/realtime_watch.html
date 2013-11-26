@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-
+{% load i18n %}
 {% block extraheader %}
 <link rel="stylesheet" href="{% static "jqGrid/css/ui.jqgrid.css" %}">
 {% endblock %}
@@ -9,15 +9,17 @@
 {% block content %}
 <div id="tabs">
     <ul>
-        <li><a href="#tab-real-time">Tiempo Real</a></li>
-        <li><a href="#tab-alarmas">Alarmas</a></li>
-        <li><a href="#tab-volver">Volver</a></li>
+        <li><a href="#tab-real-time"
+            title="R">{% trans "Real time" %}</a></li>
+        <li><a href="#tab-alarmas"
+            title="A">{% trans "Alarms" %}</a></li>
+        <li><a href="#tab-volver"
+            title="V">{% trans "Back" %}</a></li>
     </ul>
     <div id="tab-real-time">
-        <div class="svg_screen_selector">
-            <form action="">
-                {{ form }}
-            </form>
+        <div class="map-controls" style="font-size: x-small;">
+                {# <button type="button" class="btn btn-default btn-xs">Extra small button</button> #}
+            <a href="#" id="jump_to_upper_screen">Superior</a>
         </div>
         <div id="svg" class="svg_container" style="height: 500px; width: 100%px;">
         </div>
@@ -69,18 +71,18 @@
     <script type="text/javascript" src="{% static "jquery.svg/jquery.svgplot.js" %}"></script>
     <script type="text/javascript" src="{% static "jquery.svg/jquery.svg.js" %}"></script>
     <script type="text/javascript">
-        // Espacio de nombres global
+        // Global namespace
         if (typeof(SMVE) == 'undefined') {
             SMVE = {};
         }
         jQuery.extend(SMVE, {
-            svgURL: "{{ svg.svg.url }}",
-            svg_pk: "/hmi/ajax_update/{{ svg.pk }}/",
             update: true
         });
 
     </script>
+    <script type="text/javascript" src="{% static "js/string-format.js" %}"></script>
     <script type="text/javascript" src="{% static "js/xdate.js" %}"></script>
+    <script type="text/javascript" src="{% static "hmi/js/eztimer.js" %}"></script>
     <script type="text/javascript" src="{% static "hmi/js/queryobj.js" %}"></script>
     <script type="text/javascript" src="{% static "hmi/js/tastyjqgrid.js" %}"></script>
     <script type="text/javascript" src="{% static "hmi/js/realtime_watch.js" %}"></script>

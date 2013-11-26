@@ -17,7 +17,7 @@ class ProfileResource(ModelResource):
         resource_name = 'profile'
         queryset = Profile.objects.all()
         allowed_methods = ['get', ]
-        ordering = SVGElement._meta.get_all_field_names()
+        ordering = Profile._meta.get_all_field_names()
 
 api.register(ProfileResource())
 
@@ -29,7 +29,7 @@ class COMasterResource(ModelResource):
         resource_name = 'comaster'
         queryset = COMaster.objects.all()
         allowed_methods = ['get', ]
-        ordering = SVGElement._meta.get_all_field_names()
+        ordering = COMaster._meta.get_all_field_names()
 
 api.register(COMasterResource())
 
@@ -41,7 +41,7 @@ class IEDResource(ModelResource):
         resource_name = 'ied'
         queryset = IED.objects.all()
         allowed_methods = ['get', ]
-        ordering = SVGElement._meta.get_all_field_names()
+        ordering = IED._meta.get_all_field_names()
 api.register(IEDResource())
 
 
@@ -52,7 +52,7 @@ class SVResource(ModelResource):
         resource_name = 'sv'
         queryset = SV.objects.all()
         allowed_methods = ['get', ]
-        ordering = SVGElement._meta.get_all_field_names()
+        ordering = SV._meta.get_all_field_names()
 api.register(SVResource())
 
 
@@ -63,7 +63,7 @@ class DIResource(ModelResource):
         resource_name = 'di'
         queryset = DI.objects.all()
         allowed_methods = ['get', ]
-        ordering = SVGElement._meta.get_all_field_names()
+        ordering = DI._meta.get_all_field_names()
 api.register(DIResource())
 
 
@@ -72,7 +72,7 @@ class EventResource(ModelResource):
     """REST resource for Event"""
     class Meta:
         resource_name = 'event'
-        queryset = Event.objects.all()
+        queryset = Event.objects.filter(show=True)
         allowed_methods = ['get', 'put']
         filtering = {
             'timestamp': ALL,
@@ -126,7 +126,7 @@ class AIResource(ModelResource):
         resource_name = 'ai'
         queryset = AI.objects.all()
         allowed_methods = ['get', ]
-        ordering = SVGElement._meta.get_all_field_names()
+        ordering = AI._meta.get_all_field_names()
 api.register(AIResource())
 
 
@@ -145,7 +145,7 @@ class EnergyResource(ModelResource):
         resource_name = 'energy'
         queryset = Energy.objects.all()
         allowed_methods = ['get', ]
-        ordering = SVGElement._meta.get_all_field_names()
+        ordering = Energy._meta.get_all_field_names()
 api.register(EnergyResource())
 
 
@@ -175,7 +175,7 @@ class FormulaResource(ModelResource):
         resource_name = 'formula'
         queryset = Formula.objects.select_related('svg_element')
         allowed_methods = ['get', ]
-        ordering = SVGElement._meta.get_all_field_names()
+        ordering = Formula._meta.get_all_field_names()
 
     def dehydrate(self, bundle):
         bundle.data['tag'] = bundle.obj.target.tag
@@ -192,7 +192,7 @@ class SVGElementResource(ModelResource):
     class Meta:
         resource_name = 'svgelement'
         queryset = SVGElement.objects.select_related('formula')
-        allowed_methods = ['get', ]
+        allowed_methods = ['get', 'put', ]
         limit = 200
         filtering = {
             'screen': ALL_WITH_RELATIONS,
@@ -201,7 +201,12 @@ class SVGElementResource(ModelResource):
         }
         ordering = SVGElement._meta.get_all_field_names()
         order_by = 'last_update'
+        authorization = auth
 
+    def _obj_update(self, *args, **kwargs):
+
+        import ipdb; ipdb.set_trace()
+        return super(SVGElementResource, self).obj_update(*args, **kwargs)
 
     def dehydrate(self, bundle):
         bundle.data['style'] = bundle.obj.style
@@ -211,6 +216,8 @@ api.register(SVGElementResource())
 
 
 class SVGElementDetailResource(ModelResource):
+    """This resource provides all data related to screen resources
+    It's requested by realtime monitoring javascript app upon start."""
     screen = fields.ForeignKey(SVGScreenResource, 'screen')
     on_click_jump = fields.ForeignKey(SVGScreenResource,
                                       'on_click_jump',
@@ -222,6 +229,7 @@ class SVGElementDetailResource(ModelResource):
 
     def dehydrate(self, bundle):
         #bundle.data['formulas'] = bundle.obj.formulas
+        bundle.data['linked_text_change'] = bundle.obj.linked_text_change_dict
         return bundle
 
     class Meta:
