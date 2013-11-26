@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-24 19:33-0300\n"
-"PO-Revision-Date: 2013-11-24 19:34-0300\n"
+"POT-Creation-Date: 2013-11-25 20:57-0300\n"
+"PO-Revision-Date: 2013-11-25 20:58-0300\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
 "Language: es\n"
@@ -58,7 +58,7 @@ msgstr "Cambio de Coloración"
 msgid "SVG Property Change Sets"
 msgstr "Cambios de Coloración"
 
-#: apps/hmi/models.py:205
+#: apps/hmi/models.py:205 apps/mara/admin.py:285
 msgid "screen"
 msgstr "pantalla"
 
@@ -66,15 +66,15 @@ msgstr "pantalla"
 msgid "description"
 msgstr "descripción"
 
-#: apps/hmi/models.py:215
+#: apps/hmi/models.py:215 apps/hmi/models.py:346
 msgid "text"
 msgstr "texto"
 
-#: apps/hmi/models.py:219 apps/mara/admin.py:396
+#: apps/hmi/models.py:219 apps/hmi/models.py:344 apps/mara/admin.py:395
 msgid "fill"
 msgstr "relleno"
 
-#: apps/hmi/models.py:223
+#: apps/hmi/models.py:223 apps/hmi/models.py:345
 msgid "stroke"
 msgstr "contorno"
 
@@ -82,7 +82,7 @@ msgstr "contorno"
 msgid "enabled"
 msgstr "habliltado"
 
-#: apps/hmi/models.py:235 apps/mara/admin.py:403
+#: apps/hmi/models.py:235 apps/mara/admin.py:402
 msgid "last update"
 msgstr "última actualización"
 
@@ -102,32 +102,40 @@ msgstr "cambiar texto con click"
 msgid "Text to toggle on click. Separated by coma (,)."
 msgstr "Texto para intercambiar. Separado por coma (,)."
 
-#: apps/hmi/models.py:302
+#: apps/hmi/models.py:254
+msgid "linked text change"
+msgstr "cambio de texto enlazado"
+
+#: apps/hmi/models.py:255
+msgid "Text on related element will be upon save"
+msgstr "Cuando se cambie el texto, el elemento relacionado será actualizado"
+
+#: apps/hmi/models.py:310
 #, python-format
 msgid "Tag repeated %s"
 msgstr "Tag %s repetido"
 
-#: apps/hmi/models.py:323
+#: apps/hmi/models.py:331
 msgid "SVG Element"
 msgstr "Elemento Gráfico"
 
-#: apps/hmi/models.py:324
+#: apps/hmi/models.py:332
 msgid "SVG Elements"
 msgstr "Elementos Gráficos"
 
-#: apps/hmi/models.py:337
+#: apps/hmi/models.py:351
 msgid "target"
 msgstr "elemento gráfico"
 
-#: apps/hmi/models.py:339 apps/mara/admin.py:293
+#: apps/hmi/models.py:353 apps/mara/admin.py:293
 msgid "attribute"
 msgstr "atributo"
 
-#: apps/hmi/models.py:465
+#: apps/hmi/models.py:477
 msgid "Formula"
 msgstr "Formula"
 
-#: apps/hmi/models.py:466
+#: apps/hmi/models.py:478
 msgid "Formulas"
 msgstr "Formulas"
 
@@ -140,6 +148,18 @@ msgstr "%d formulas creadas"
 #, python-format
 msgid "%d formulas were deleted (bacause of -c/--clear)"
 msgstr "%d formulas fueron eliminadas (por opción -c/--clear)"
+
+#: apps/hmi/templates/hmi/realtime_watch.html:13
+msgid "Real time"
+msgstr "Tiempo Real"
+
+#: apps/hmi/templates/hmi/realtime_watch.html:15
+msgid "Alarms"
+msgstr "Alarmas"
+
+#: apps/hmi/templates/hmi/realtime_watch.html:17
+msgid "Back"
+msgstr "Atrás"
 
 #: apps/mara/admin.py:113
 msgid "Attend"
@@ -157,19 +177,23 @@ msgstr "Descargar"
 msgid "label"
 msgstr "etiqueta "
 
-#: apps/mara/admin.py:356
+#: apps/mara/admin.py:292
+msgid "Invalid"
+msgstr "Inválido"
+
+#: apps/mara/admin.py:355
 msgid "General information"
 msgstr "Información General"
 
-#: apps/mara/admin.py:357
+#: apps/mara/admin.py:356
 msgid "Graphical attributes"
 msgstr "Atributos gráficos"
 
-#: apps/mara/admin.py:358
+#: apps/mara/admin.py:357
 msgid "Interaction"
 msgstr "Interacciones "
 
-#: apps/mara/admin.py:399
+#: apps/mara/admin.py:398
 msgid "None"
 msgstr "Nada"
 
