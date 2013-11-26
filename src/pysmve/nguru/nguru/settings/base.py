@@ -238,8 +238,17 @@ LOGGING = {
 # Debug Toolbar
 #=========================================================================================
 
+def show_toolbar(request):
+    if request.user and request.user.username == "nahuel":
+        return True
+    return False
+
+
+
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+
 }
 
 
