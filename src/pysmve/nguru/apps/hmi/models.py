@@ -378,11 +378,10 @@ class SVGElement(models.Model, ExcelImportMixin):
     def update_linked_text_change(cls, instance=None, **kwargs):
         """Update text in related tag. It uses update so no reucrssion limit problem is
         arraised"""
-        rel_tag = instance.linked_text_change
-        if rel_tag:
-            svg_el = instance.screen.elements.get(tag=rel_tag)
-            if svg_el.text != instance.text:
-                instance.screen.elements.filter(tag=rel_tag).update(text=instance.text)
+        rel_tags = instance.linked_text_change.split(',')
+
+        for rel_tag in rel_tags:
+            instance.screen.elements.filter(tag=rel_tag).update(text=instance.text)
 
 signals.pre_save.connect(SVGElement.update_modification_timestamp,
                          sender=SVGElement)
