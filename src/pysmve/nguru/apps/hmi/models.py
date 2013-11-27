@@ -271,7 +271,7 @@ class SVGElement(models.Model, ExcelImportMixin):
 
                                             ])
 
-    linked_text_change = models.CharField(max_length=12,
+    linked_text_change = models.CharField(max_length=120,
                                           blank=True,
                                           null=True,
                                           verbose_name=_('linked text change'),

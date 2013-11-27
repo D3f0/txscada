@@ -89,13 +89,14 @@ class SVGElementForm(forms.ModelForm):
     def clean_linked_text_change(self):
         screen = self.cleaned_data.get('screen')
         tag = self.cleaned_data.get('tag')
-        val = self.cleaned_data.get('linked_text_change')
-        if val:
-            if tag and tag == val:
-                raise forms.ValidationError(_("Can not create a dependency loop"))
-            if screen and not screen.elements.filter(tag=val).count():
-                raise forms.ValidationError(_("Tag does not belong to screen"))
-        return val
+        values = self.cleaned_data.get('linked_text_change')
+        for val in values.split(','):
+            if val:
+                if tag and tag == val:
+                    raise forms.ValidationError(_("Can not create a dependency loop"))
+                if screen and not screen.elements.filter(tag=val).count():
+                    raise forms.ValidationError(_("Tag does not belong to screen"))
+        return values
 
     class Meta:
         model = SVGElement
