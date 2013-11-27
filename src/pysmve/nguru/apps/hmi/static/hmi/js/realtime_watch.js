@@ -85,7 +85,7 @@
         }
 
         function createDialogForTextToggle(node, nodeData) {
-            var text = $(node).text();
+            var text = SMVE.getTag(nodeData.tag).text;
             var options = nodeData.linked_text_change;
             var newText;
             // Ugly lookup (Array was better)
@@ -125,10 +125,11 @@
                             });
                             xhr.then(function () {
                                 try {
-                                    $dlg.dialog('close');
+                                    SMVE.getTag(nodeData.tag).text = newText;
                                     if (node.tagName == 'text') {
                                         $(node).text(newText);
                                     }
+                                    $dlg.dialog('close');
 
                                 } catch (e) {
                                     console.error(e);
