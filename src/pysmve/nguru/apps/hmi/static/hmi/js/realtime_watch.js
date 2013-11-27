@@ -196,7 +196,7 @@
             $.each(updates, function (attribute, value){
                 if (attribute == 'text') {
                     // Redondeo
-                    if (value.indexOf('.')>-1){
+                    if (value.indexOf(' ')==-1 && value.indexOf('.')>-1){
                         value = parseFloat(value).toFixed(2);
                     }
                     $node.text(value);
