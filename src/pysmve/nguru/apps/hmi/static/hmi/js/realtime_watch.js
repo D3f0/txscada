@@ -195,13 +195,18 @@
             }
             $.each(updates, function (attribute, value){
                 if (attribute == 'text') {
-                    // Redondeo
+                    // TODO: Move to serverside(formulas)
                     if (value.indexOf(' ')==-1 && value.indexOf('.')>-1){
                         value = parseFloat(value).toFixed(2);
                     }
                     $node.text(value);
                 } else {
                     $.each(updates, function (key, value){
+                        // Interactive zone
+                        if ($(node).attr('tag') == 'nopaint') {
+                            console.info("Excluding node", node, "because nopaint");
+                            return;
+                        }
                         $node.css(key, value);
                         //node.css('fill-opacity', 1);
                     });
