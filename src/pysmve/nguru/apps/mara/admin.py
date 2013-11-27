@@ -419,9 +419,25 @@ site.register(Action, ActionAdmin)
 # Config
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group, Permission
+
+from apps.hmi.forms import UserForm
 config_site = admin.AdminSite('config')
 config_site.register(Profile)
-config_site.register(User)
+
+class UserAdmin(admin.ModelAdmin):
+    model = User
+    form = UserForm
+
+    ## Static overriding
+    fieldsets = (
+        (None, {'fields': ('username', 'pass_1', 'pass_2')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
+                                       'groups')}),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+    )
+
+config_site.register(User, UserAdmin)
 config_site.register(Group)
 config_site.register(Permission)
 

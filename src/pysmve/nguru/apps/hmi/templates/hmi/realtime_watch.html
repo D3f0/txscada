@@ -3,6 +3,7 @@
 {% load i18n %}
 {% block extraheader %}
 <link rel="stylesheet" href="{% static "jqGrid/css/ui.jqgrid.css" %}">
+<link rel="stylesheet" href="{% static "hmi/css/realtime_watch.css" %}">
 {% endblock %}
 
 
@@ -24,6 +25,7 @@
         <div id="svg" class="svg_container" style="height: 500px; width: 100%px;">
         </div>
         <div>
+
             <table id="mini-alarm" style="width: 100%;">
             </table>
             <div style="padding-top: 15px;">
@@ -32,7 +34,16 @@
         </div>
     </div>
     <div id="tab-alarmas">
+        <form action="" id="alarm_filter_form" class="form-inline" role="form">
+            <input type="text" name="timestamp__gte" class="date" placeholder="{% trans "Date after"%}">
+            <input type="text" name="timestamp__lte" class="date" placeholder="{% trans "Date before"%}">
+            <input type="text" name="di__tag__istartswith" placeholder="{% trans "Tag"%}">
+            <button class="btn" type="submit" name="submit">Filtrar</button>
+            <button class="btn" type="submit" name="reset">Limpiar</button>
+
+        </form>
         <table id="alarm-grid"></table>
+        <div id="alarm_pager"></div>
 
     </div>
     <div id="tab-volver" class="volver"></div>
@@ -80,9 +91,12 @@
         });
 
     </script>
+    <script type="text/javascript"
+    src="{% static "js/jquery-ui-1.10.0.custom/js/jquery.ui.datepicker-es.js" %}"></script>
     <script type="text/javascript" src="{% static "js/string-format.js" %}"></script>
     <script type="text/javascript" src="{% static "js/xdate.js" %}"></script>
     <script type="text/javascript" src="{% static "hmi/js/eztimer.js" %}"></script>
+    <script type="text/javascript" src="{% static "hmi/js/jqobjectools.js" %}"></script>
     <script type="text/javascript" src="{% static "hmi/js/queryobj.js" %}"></script>
     <script type="text/javascript" src="{% static "hmi/js/tastyjqgrid.js" %}"></script>
     <script type="text/javascript" src="{% static "hmi/js/realtime_watch.js" %}"></script>

@@ -106,9 +106,6 @@ class SVGElementForm(forms.ModelForm):
         }
 
 
-class AlarmFilterForm(forms.Form):
-    date_from = forms.DateField()
-    date_ = forms.DateField()
 
 class FormuluaInlineForm(forms.ModelForm):
 
@@ -120,6 +117,19 @@ class FormuluaInlineForm(forms.ModelForm):
         }
         fields = ('attribute', 'formula', )
 
+# class AlarmFilterForm(forms.Form):
+#     timestamp__gte = forms.DateField(
+#                                      )
+#     timestamp__lte = forms.DateField(
+#                                     )
+#     tag__istartswith = forms.CharField(
+#                                     )
+#     class Meta:
+#         widgets = {
+#             'timestamp__gte': forms.widgets.TextInput(attrs={'placeholder': _('date from')}),
+#             'timestamp__lte': forms.widgets.TextInput(attrs={'placeholder': _('date until')}),
+#             'tag__istartswith': forms.widgets.TextInput(attrs={'placeholder': _('tag')}),
+#         }
 
 
 MIN_PASS_LEN = 6

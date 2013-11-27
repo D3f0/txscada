@@ -64,12 +64,17 @@ class DIResource(ModelResource):
         queryset = DI.objects.all()
         allowed_methods = ['get', ]
         ordering = DI._meta.get_all_field_names()
+        filtering = {
+            'tag': ALL,
+        }
 api.register(DIResource())
 
 
 class EventResource(ModelResource):
 
     """REST resource for Event"""
+    di = fields.ForeignKey(DIResource, 'di')
+
     class Meta:
         resource_name = 'event'
         queryset = Event.objects.filter(show=True)
@@ -78,6 +83,7 @@ class EventResource(ModelResource):
             'timestamp': ALL,
             'pk': ALL,
             'timestamp_ack': ALL,
+            'di': ALL_WITH_RELATIONS,
         }
         ordering = Event._meta.get_all_field_names()
         authorization = auth

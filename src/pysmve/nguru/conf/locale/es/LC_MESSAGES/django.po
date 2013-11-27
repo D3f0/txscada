@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-11-25 20:57-0300\n"
-"PO-Revision-Date: 2013-11-25 20:58-0300\n"
+"POT-Creation-Date: 2013-11-26 21:53-0300\n"
+"PO-Revision-Date: 2013-11-26 21:55-0300\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
 "Language: es\n"
@@ -17,125 +17,133 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 1.5\n"
 
-#: apps/hmi/forms.py:52 apps/hmi/models.py:90
+#: apps/hmi/forms.py:54 apps/hmi/models.py:91
 msgid "SVG Screen"
 msgstr "Pantalla"
 
-#: apps/hmi/forms.py:54
+#: apps/hmi/forms.py:56
 #, python-format
 msgid "%d alarms"
 msgstr "%d alarmas"
 
-#: apps/hmi/models.py:46
+#: apps/hmi/forms.py:95
+msgid "Can not create a dependency loop"
+msgstr "No se puede crear una dependencia en círculo"
+
+#: apps/hmi/forms.py:97
+msgid "Tag does not belong to screen"
+msgstr "El tag no pertenece a la pantalla"
+
+#: apps/hmi/models.py:47
 msgid "Label"
 msgstr "Etiqueta"
 
-#: apps/hmi/models.py:48
+#: apps/hmi/models.py:49
 msgid "Related formula prefix"
 msgstr "Prefijo de formulas relacionadas"
 
-#: apps/hmi/models.py:49
+#: apps/hmi/models.py:50
 msgid "Prefix"
 msgstr "Prefijo"
 
-#: apps/hmi/models.py:91
+#: apps/hmi/models.py:92
 msgid "SVG Screens"
 msgstr "Pantallas"
 
-#: apps/hmi/models.py:149
+#: apps/hmi/models.py:150
 msgid "Color"
 msgstr "Color"
 
-#: apps/hmi/models.py:150
+#: apps/hmi/models.py:151
 msgid "Colors"
 msgstr "Colores"
 
-#: apps/hmi/models.py:189
+#: apps/hmi/models.py:190
 msgid "SVG Property Change Set"
 msgstr "Cambio de Coloración"
 
-#: apps/hmi/models.py:190
+#: apps/hmi/models.py:191
 msgid "SVG Property Change Sets"
 msgstr "Cambios de Coloración"
 
-#: apps/hmi/models.py:205 apps/mara/admin.py:285
+#: apps/hmi/models.py:207 apps/mara/admin.py:285
 msgid "screen"
 msgstr "pantalla"
 
-#: apps/hmi/models.py:209
+#: apps/hmi/models.py:211
 msgid "description"
 msgstr "descripción"
 
-#: apps/hmi/models.py:215 apps/hmi/models.py:346
+#: apps/hmi/models.py:217 apps/hmi/models.py:398
 msgid "text"
 msgstr "texto"
 
-#: apps/hmi/models.py:219 apps/hmi/models.py:344 apps/mara/admin.py:395
+#: apps/hmi/models.py:221 apps/hmi/models.py:396 apps/mara/admin.py:395
 msgid "fill"
 msgstr "relleno"
 
-#: apps/hmi/models.py:223 apps/hmi/models.py:345
+#: apps/hmi/models.py:225 apps/hmi/models.py:397
 msgid "stroke"
 msgstr "contorno"
 
-#: apps/hmi/models.py:230
+#: apps/hmi/models.py:232
 msgid "enabled"
 msgstr "habliltado"
 
-#: apps/hmi/models.py:235 apps/mara/admin.py:402
+#: apps/hmi/models.py:237 apps/mara/admin.py:402
 msgid "last update"
 msgstr "última actualización"
 
-#: apps/hmi/models.py:240
+#: apps/hmi/models.py:242
 msgid "on click jump"
 msgstr "saltar con click"
 
-#: apps/hmi/models.py:241
+#: apps/hmi/models.py:243
 msgid "Screen destination when the object is clicked"
 msgstr "Pantalla destino cuando el objeto es clickeado"
 
-#: apps/hmi/models.py:247
+#: apps/hmi/models.py:260
 msgid "on click text toggle"
 msgstr "cambiar texto con click"
 
-#: apps/hmi/models.py:248
+#: apps/hmi/models.py:261
 msgid "Text to toggle on click. Separated by coma (,)."
 msgstr "Texto para intercambiar. Separado por coma (,)."
 
-#: apps/hmi/models.py:254
+#: apps/hmi/models.py:277
 msgid "linked text change"
 msgstr "cambio de texto enlazado"
 
-#: apps/hmi/models.py:255
+#: apps/hmi/models.py:278
 msgid "Text on related element will be upon save"
 msgstr "Cuando se cambie el texto, el elemento relacionado será actualizado"
 
-#: apps/hmi/models.py:310
+#: apps/hmi/models.py:349
 #, python-format
 msgid "Tag repeated %s"
 msgstr "Tag %s repetido"
 
-#: apps/hmi/models.py:331
+#: apps/hmi/models.py:370
 msgid "SVG Element"
 msgstr "Elemento Gráfico"
 
-#: apps/hmi/models.py:332
+#: apps/hmi/models.py:371
 msgid "SVG Elements"
 msgstr "Elementos Gráficos"
 
-#: apps/hmi/models.py:351
+#: apps/hmi/models.py:403
 msgid "target"
 msgstr "elemento gráfico"
 
-#: apps/hmi/models.py:353 apps/mara/admin.py:293
+#: apps/hmi/models.py:405 apps/mara/admin.py:293
 msgid "attribute"
 msgstr "atributo"
 
-#: apps/hmi/models.py:477
+#: apps/hmi/models.py:530
 msgid "Formula"
 msgstr "Formula"
 
-#: apps/hmi/models.py:478
+#: apps/hmi/models.py:531
 msgid "Formulas"
 msgstr "Formulas"
 
@@ -149,17 +157,29 @@ msgstr "%d formulas creadas"
 msgid "%d formulas were deleted (bacause of -c/--clear)"
 msgstr "%d formulas fueron eliminadas (por opción -c/--clear)"
 
-#: apps/hmi/templates/hmi/realtime_watch.html:13
+#: apps/hmi/templates/hmi/realtime_watch.html:14
 msgid "Real time"
 msgstr "Tiempo Real"
 
-#: apps/hmi/templates/hmi/realtime_watch.html:15
+#: apps/hmi/templates/hmi/realtime_watch.html:16
 msgid "Alarms"
 msgstr "Alarmas"
 
-#: apps/hmi/templates/hmi/realtime_watch.html:17
+#: apps/hmi/templates/hmi/realtime_watch.html:18
 msgid "Back"
 msgstr "Atrás"
+
+#: apps/hmi/templates/hmi/realtime_watch.html:38
+msgid "Date after"
+msgstr "Fecha desde"
+
+#: apps/hmi/templates/hmi/realtime_watch.html:39
+msgid "Date before"
+msgstr "Fecha hasta"
+
+#: apps/hmi/templates/hmi/realtime_watch.html:40
+msgid "Tag"
+msgstr "Tag"
 
 #: apps/mara/admin.py:113
 msgid "Attend"
@@ -196,6 +216,18 @@ msgstr "Interacciones "
 #: apps/mara/admin.py:398
 msgid "None"
 msgstr "Nada"
+
+#: apps/mara/admin.py:434
+msgid "Personal info"
+msgstr "Información Personal"
+
+#: apps/mara/admin.py:435
+msgid "Permissions"
+msgstr "Permisos"
+
+#: apps/mara/admin.py:437
+msgid "Important dates"
+msgstr "Fechas importantes"
 
 #: apps/mara/models.py:32
 msgid "Profile"
@@ -242,67 +274,71 @@ msgstr "Entrada Digital"
 msgid "Digital Inputs"
 msgstr "Entradas Digitales"
 
-#: apps/mara/models.py:556
+#: apps/mara/models.py:544
+msgid "Show in alarm grid"
+msgstr "Mostrar en la grilla de alarmas"
+
+#: apps/mara/models.py:557
 msgid "Event"
 msgstr "Evento"
 
-#: apps/mara/models.py:557
+#: apps/mara/models.py:558
 msgid "Events"
 msgstr "Eventos"
 
-#: apps/mara/models.py:573
+#: apps/mara/models.py:589
 msgid "Event Text"
 msgstr "Texto de Evento"
 
-#: apps/mara/models.py:574
+#: apps/mara/models.py:590
 msgid "Event Texts"
 msgstr "Texto de Eventos"
 
-#: apps/mara/models.py:616
+#: apps/mara/models.py:632
 msgid "Event Description"
 msgstr "Descripción de evento"
 
-#: apps/mara/models.py:617
+#: apps/mara/models.py:633
 msgid "Event Descriptions"
 msgstr "Descripción de Eventos"
 
-#: apps/mara/models.py:634
+#: apps/mara/models.py:650
 msgid "Communication Event Kind"
 msgstr "Tipo de Evento de Comunicaciones"
 
-#: apps/mara/models.py:635
+#: apps/mara/models.py:651
 msgid "Communication Event Kinds"
 msgstr "Tipos de Evento de Comunicaciones"
 
-#: apps/mara/models.py:658
+#: apps/mara/models.py:674
 msgid "Communication Event"
 msgstr "Evento de Comunicaciones"
 
-#: apps/mara/models.py:659
+#: apps/mara/models.py:675
 msgid "Communication Events"
 msgstr "Eventos de Comunicaciones"
 
-#: apps/mara/models.py:695
+#: apps/mara/models.py:711
 msgid "Analog Input"
 msgstr "Entrada Analógica"
 
-#: apps/mara/models.py:696
+#: apps/mara/models.py:712
 msgid "Analog Inputs"
 msgstr "Entradas Analógicas"
 
-#: apps/mara/models.py:801
+#: apps/mara/models.py:817
 msgid "Energy Measure"
 msgstr "Medición de Energía"
 
-#: apps/mara/models.py:802
+#: apps/mara/models.py:818
 msgid "Energy Measures"
 msgstr "Mediciones de Energía"
 
-#: apps/mara/models.py:836
+#: apps/mara/models.py:852
 msgid "Action"
 msgstr "Acción"
 
-#: apps/mara/models.py:837
+#: apps/mara/models.py:853
 msgid "Actions"
 msgstr "Acciones"
 

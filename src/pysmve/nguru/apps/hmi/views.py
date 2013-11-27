@@ -14,13 +14,13 @@ def realtime_watch(request):
     """Real time monitoring"""
     # This view could be well be sent to a generic template View.
     # It's kept like a function based view for historical reasons.
-    from forms import SVGScreenForm
-    form = SVGScreenForm()
-
+    #from forms import AlarmFilterForm
+    #alarm_filter_form = AlarmFilterForm()
+    context = {
+      #'alarm_filter_form': alarm_filter_form
+    }
     return render_to_response('hmi/realtime_watch.html',
-                              context_instance=RequestContext(request, {
-                                                              'form': form,
-                                                              })
+                              context_instance=RequestContext(request, context)
                               )
 
 

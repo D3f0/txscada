@@ -526,12 +526,35 @@
 
             alarmGrid.data('url', queryUrl);
 
+            var $filterForm = $('#alarm_filter_form');
+            var $filterInputs = $filterForm.find('input[type=text]');
+            $filterForm.find('.date').datepicker({
+                dateFormat: 'yy-mm-dd'
+            });
+
             alarmGrid.jqGrid($.extend({}, jqGridAlarmCommonConfig, {
                 url: queryUrl.toString(),
                 height: "80%",
                 multiselect: true,
-                caption: "Alarmas del Sistema de Medición de Variables Eléctricas"
+                caption: "Alarmas del Sistema de Medición de Variables Eléctricas",
+                _beforeSubmit: function (postdata, formid) {
+                    debugger;
+                    return true;
+                },
+                pager: '#alarm_pager'
             }));
+
+            $filterForm.on('submit', function (event){
+                event.preventDefault();
+                var filters = $filterForm.serializeObject();
+                console.log("Filters", filters);
+                alarmGrid.jqGrid('setGridParam', {postData: filters}).trigger('reloadGrid');
+
+            });
+            $filterForm.find('[name=reset]').on('click', function () {
+
+                $filterForm.submit();
+            });
 
             return alarmGrid;
         }

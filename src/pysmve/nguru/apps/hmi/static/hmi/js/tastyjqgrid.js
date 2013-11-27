@@ -42,10 +42,10 @@
                         pdat[fieldname] = rule['data'];
                 });
             }
+            //debugger;
             delete pdat.filters;
             delete pdat.sord;
             delete pdat.sidx;
-            //debugger;
             return pdat;
             }
         };
