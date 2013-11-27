@@ -140,11 +140,16 @@ class MaraClientProtocol(protocol.Protocol):
             except FieldError:
                 self.logger.error("Bad package")
                 return
-            # FIXME: Hacerlos con todos los campos o con ninguno
-            # if self.input.command != self.output.command:
-            #    logger.warn("Command not does not match with sent command %d" % self.input.command)
+
+            # Command 17
+            if self.input.command != self.output.command:
+                self.logger.warn("Command not does not match with sent command %d" % self.input.command)
+                self.state = 'IDLE'
+                return
+
             # Calcular próxima sequencia
             # FIXME: Checkear que la secuencia sea == a self.output.sequence
+
             self.logger.debug("Message OK")
             #self.incrementSequenceNumber()
             self.output.sequence += 1
