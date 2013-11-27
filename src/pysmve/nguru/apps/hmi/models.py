@@ -378,6 +378,8 @@ class SVGElement(models.Model, ExcelImportMixin):
     def update_linked_text_change(cls, instance=None, **kwargs):
         """Update text in related tag. It uses update so no reucrssion limit problem is
         arraised"""
+        if not instance.linked_text_change:
+            return
         rel_tags = instance.linked_text_change.split(',')
 
         for rel_tag in rel_tags:
