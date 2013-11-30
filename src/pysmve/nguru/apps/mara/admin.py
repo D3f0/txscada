@@ -37,11 +37,35 @@ class IEDInline(admin.TabularInline):
 class COMasterAdmin(admin.ModelAdmin):
     list_display = ('ip_address', 'enabled', 'port', 'poll_interval',
                     'rs485_source', 'rs485_destination', 'peh_time')
+
+    fieldsets = (
+        (_("Internal"), {
+            'classes': ('collapse', ),
+            'fields': ('profile', )
+            }),
+        (_("Connection"),{
+            'fields': ('enabled', ('ip_address', 'port'), )
+            }),
+        (_("Timming"), {
+            'fields': (('poll_interval', 'peh_time',
+                'max_retry_before_offline',
+                'exponential_backoff',), )
+            }),
+        (_('Mara settings'), {
+            'fields': (('rs485_source', 'rs485_destination', ),
+                )
+            }
+            ),
+        (_('Mara debug'), {
+            'fields': ('custom_payload_enabled', 'custom_payload')
+            })
+
+    )
     list_display_links = ('ip_address',)
 
-    inlines = [
-        IEDInline,
-    ]
+    #inlines = [
+    #    IEDInline,
+    #]
 
 site.register(COMaster, COMasterAdmin)
 
