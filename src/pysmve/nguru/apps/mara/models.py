@@ -122,6 +122,13 @@ class COMaster(models.Model, ExcelImportMixin):
     peh_time = models.TimeField(default=time(1, 0, 0),
                                 help_text="Tiempo entre puesta en hora")
 
+    custom_payload = models.TextField(
+                            null=True,
+                            blank=True,
+                            help_text=_('Custom payload without SOF SEQ SRC DST // CRH CRL'))
+
+    custom_payload_enabled = models.BooleanField(default=False)
+
     @property
     def dis(self):
         dis = DI.objects.filter(ied__co_master=self)
@@ -149,9 +156,10 @@ class COMaster(models.Model, ExcelImportMixin):
 
     def process_frame(self, mara_frame):
         '''Takes a Mara frame and saves it into the DB model'''
-        payload = getattr(mara_frame, 'payload_10', None)
-        if not payload:
-            raise ValueError(
+        try:
+            payload = mara_frame.payload_10
+        except AttributeError as e:
+            raise AttributeError(
                 _("Mara payload not present. %s does not look like a frame") %
                 mara_frame
             )
@@ -558,14 +566,41 @@ class Event(models.Model):
         verbose_name_plural = _("Events")
 
     def propagate_changes(self):
-        if self.di.tipo == 0:
-            if self.value == 0:
-                self.show = False
-        if self.di.tipo in [0, 1]:
-            from apps.hmi.models import SVGElement
-            text = '1' if self.timestamp_ack else '0'
-            SVGElement.objects.filter(screen__profile=self.di.ied.co_master.profile,
-                                      tag=self.di.tag).update(text=text)
+        from apps.hmi.models import SVGElement
+        # if self.di.tipo == 0:
+        #     if self.value == 0:
+        #         self.show = False
+        # if self.di.tipo in [0, 1]:
+        #
+        #     text = '1' if self.timestamp_ack else '0'
+        #     SVGElement.objects.filter(screen__profile=self.di.ied.co_master.profile,
+        #                               tag=self.di.tag).update(text=text)
+        lookup = {'screen__profile': self.di.ied.co_master.profile}
+        tag_qs = SVGElement.objects.filter(**lookup)
+        tipo = self.di.tipo
+        tag = self.di.tag
+        if not self.timestamp_ack:
+            if tipo == 0:
+                tag_tmp = tag.replace('51_', '52B')
+                text = '1' if self.timestamp_ack else '0'
+                if self.value:
+                    tag_qs.filter(tag=tag).update(text=text)
+                    tag_qs.filter(tag=tag_tmp).update(text=text)
+                else:
+                    self.show = False
+        else:
+            # Attend event
+            if tipo == 0:
+                tag_qs.filter(tag=tag).update(text='0')
+            elif tipo == 1:
+                return
+            elif tipo == 2:
+                value = int(tag_qs.get(tag=tag).value)
+                if value:
+                    tag_qs.filter(tag=tag).update(text=1)
+
+
+
 
 
 def sync_event_with_svgelements(instance=None, **kwargs):
