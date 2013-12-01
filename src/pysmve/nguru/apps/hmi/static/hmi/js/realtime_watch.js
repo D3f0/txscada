@@ -9,7 +9,10 @@
             miniAlarmGird,
             tagResource = {},
             screenResource = {},
-            currentScreenUri = null;
+            currentScreenUri = null,
+            // Extra widgets
+            btnJumpToUpperScreen = null,
+            btnChangeSVGBackground = null;
 
         function fatalError(msg, description) {
             return alert(msg);
@@ -164,6 +167,7 @@
         }
 
         function clickOnSVGElement(node, nodeData) {
+            // TODO: Check
             if (nodeData === undefined) {
                 console.error("No info for", node);
                 return;
@@ -205,7 +209,7 @@
                     $.each(updates, function (key, value){
                         // Interactive zone
                         if ($(node).attr('tag') == 'nopaint') {
-                            console.info("Excluding node", node, "because nopaint");
+                            //console.info("Excluding node", node, "because nopaint");
                             return;
                         }
                         $node.css(key, value);
@@ -368,7 +372,7 @@
         }
         // Same Model for both grids!
         var alarmsColModel = [
-            //{name:'id',index:'id', width:60, hidden: false},
+            {name:'id',index:'id', width:60, hidden: true},
             {
                 name:'timestamp', index:'timestamp', width:90,
                 //sorttype:"date",
@@ -430,7 +434,7 @@
                 modal: true,
                 autoOpen: false,
                 width: "60%",
-                title: "Atención de alarmas",
+                title: "Atención de eventos",
                 buttons: [
                     {
                         text: "Atender",
@@ -450,12 +454,20 @@
 
                                 $dlg.dialog('close');
 
-                            }, showRESTErrorDialog);
+                            }, function (xhr, error, status) {
+                                $dlg.dialog('option', 'title', "Ocurrió un error");
+                                $dlg.html("El servidor respondió: "+status);
+                                $(".ui-dialog-buttonpane button").button("disable");
+                                $(".ui-dialog-buttonpane button.ui-state-focus").button("disable");
+                                window.setTimeout(function () {
+                                    $dlg.dialog('close');
+                                }, 1000);
+                            });
 
                         }
                     },
-                    {text: "Cancelar", click: function(){
-                        $dlg.dialog('close').dialog('destroy');
+                    {text: "Cerrar", click: function(){
+                        $dlg.dialog('close');
                     }},
                 ],
                 close: function () {
@@ -503,7 +515,7 @@
                     jqGridAlarmCommonConfig, {
                         url: queryUrl.toString(),
                         height: 'auto',
-                        caption: "Últimas alarmas sin atención",
+                        caption: "Últimos eventos sin atención",
                         afterInsertRow: function (id, data) {
                             if (!data.timestamp_ack) {
                                 //$('#'+id).css('background', '#dec');
@@ -542,7 +554,7 @@
                 url: queryUrl.toString(),
                 height: "80%",
                 multiselect: true,
-                caption: "Alarmas del Sistema de Medición de Variables Eléctricas",
+                caption: "Eventos del Sistema de Medición de Variables Eléctricas",
                 _beforeSubmit: function (postdata, formid) {
                     debugger;
                     return true;
@@ -600,19 +612,23 @@
         /* Initializes buttons
          */
         function setupExtraWidgets() {
-            if (typeof(SMVE.updateButton)) {
-                // Initialize update button trigger
-                SMVE.updateButton = $('#update_toggle');
-                SMVE.updateButton.button().click(updateToggle);
-            }
-
-            $('#jump_to_upper_screen').on('click', function (e){
+            // if (typeof(SMVE.updateButton)) {
+            //     // Initialize update button trigger
+            //     SMVE.updateButton = $('#update_toggle');
+            //     SMVE.updateButton.button().click(updateToggle);
+            // }
+            btnJumpToUpperScreen = $('#jump_to_upper_screen');
+            btnJumpToUpperScreen.on('click', function (e){
                 e.preventDefault();
                 var parent = SMVE.getScreen(currentScreenUri).parent;
                 if (parent !== null) {
                     setCurrentScreenUri(parent);
                 }
-
+            });
+            btnChangeSVGBackground = $('#change_svg_background');
+            btnChangeSVGBackground.on('click', function () {
+                var svg_bg = $('#svg').css('background-color'),
+                    body_bg = $('#svg').css('background-color');
             });
         }
 
@@ -654,6 +670,15 @@
             console.info("Loading ", svg_screen.description,
                                      svg_screen.name,
                                      svg_screen.svg);
+
+            if (svg_screen.parent === null) {
+                $('#jump_to_upper_screen').attr('disabled', 'disabled')
+                    .attr('title', 'Pantalla raíz');
+
+            } else {
+                $('#jump_to_upper_screen').removeAttr('disabled')
+                    .attr('title', 'Pantalla no raíz');
+            }
 
             setUpdatesEnabled(false);
 
