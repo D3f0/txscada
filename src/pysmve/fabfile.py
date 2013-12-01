@@ -190,7 +190,8 @@ def get_remote_dump(host='', backupfile='/tmp/backup.dmp'):
         cmd = 'pg_dump -Fc {database} -f {backupfile}'
         cmd = cmd.format(backupfile=backupfile, **env.database)
         sudo('su postgres -c "{}"'.format(cmd))
-        get(backupfile, backupfile)
+        with hide('warnings'):
+            get(backupfile, backupfile)
         run('rm -f %s' % backupfile)
     return backupfile
 
@@ -199,10 +200,10 @@ SQL_CREATE_USER = ("DROP ROLE IF EXISTS {user};"
 
 
 @task
-def copy_database(host=''):
+def copy_database(host='', no_confirm=False):
     path = get_remote_dump(host=host)
     with settings(**get_host_settings(host)):
-        if confirm(colors.red('Replace local database with dump?', True)):
+        if no_confirm or confirm(colors.red('Replace local database with dump?', True)):
             with hide('running', 'stdout'):
                 print(colors.yellow("Droping and creating fresh database"))
                 with settings(warn_only=True):
@@ -214,3 +215,34 @@ def copy_database(host=''):
                 print(colors.yellow("Restoring data", True))
                 local('pg_restore -d {database} {path}'.format(path=path, **env.database))
 
+def extract_path_from_stdout(path):
+    path = path.strip().replace('\'', '').replace('"', '')
+    if not path.endswith('/'):
+        path = '%s/' % path
+    return path
+
+@task
+def get_remote_media(host='', no_confirm=False):
+    """Gets remote media"""
+    media_cmd = 'python manage.py diffsettings | grep MEDIA_ROOT | cut -d = -f 2'
+    with settings(**get_host_settings(host)):
+        if no_confirm or confirm(colors.red('Replace local media with dump?', True)):
+            with cd(env.code_path):
+                with hide('running'):
+                    local_media_root = extract_path_from_stdout(local(media_cmd, True))
+                    local_media_root = os.path.abspath(os.path.join(local_media_root, '..'))
+                    with prefix(env.venv_prefix):
+                        remote_meida_root = extract_path_from_stdout(run(media_cmd, True))
+
+                print(remote_meida_root, '=>', local_media_root)
+                with hide('warnings'):
+                    get(remote_meida_root, local_media_root)
+
+
+
+@task
+def get_remote_all(host='', no_confirm=False):
+    get_host_settings(host) # Check
+    if no_confirm or confirm(colors.red('Replace local data with remote?')):
+        copy_database(host=host, no_confirm=no_confirm)
+        get_remote_media(host=host, no_confirm=no_confirm)
