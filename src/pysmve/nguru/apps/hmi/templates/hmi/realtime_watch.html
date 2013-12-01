@@ -19,18 +19,32 @@
     </ul>
     <div id="tab-real-time">
         <div class="map-controls" style="font-size: x-small;">
-                {# <button type="button" class="btn btn-default btn-xs">Extra small button</button> #}
-            <a href="#" id="jump_to_upper_screen">Superior</a>
+            <!-- Small button group -->
+            <div class="btn-group">
+              <button class="btn" id="jump_to_upper_screen" disabled='disabled'>
+                &uarr; Pantalla Superior</button>
+              <button class="btn dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <!-- dropdown menu links -->
+                <li><a href="#" id="change_svg_background">
+                    <i class="icon-arrow-up"></i>Activar/Desactivar color de fondo
+                    </a></li>
+                <li><a href="#">Activar/Desactivar refresco</a></li>
+              </ul>
+            </div>
         </div>
+        <br/>
         <div id="svg" class="svg_container" style="height: 500px; width: 100%px;">
         </div>
         <div>
 
             <table id="mini-alarm" style="width: 100%;">
             </table>
-            <div style="padding-top: 15px;">
+            <!--div style="padding-top: 15px;">
                 <a id="update_toggle" href="#">Update</a>
-            </div>
+            </div-->
         </div>
     </div>
     <div id="tab-alarmas">
