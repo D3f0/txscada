@@ -3,7 +3,7 @@ import os
 import sys
 
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nguru.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "nguru.nguru.settings")
     # Monkey patch settings
     sys.path.append(os.path.join(os.getcwd(), 'nguru'))
     sys.path.append(os.path.join(os.getcwd(), 'nguru', 'nguru'))

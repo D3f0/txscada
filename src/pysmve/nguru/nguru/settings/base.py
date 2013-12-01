@@ -1,6 +1,13 @@
 # Django settings for nguru project.
 import sys
+import os
 from os.path import abspath, dirname, join
+
+# Hack to run manage.py from upper level (needs to be generalized)
+if os.environ['DJANGO_SETTINGS_MODULE'].startswith('nguru.nguru'):
+    MODULE_PREFIX = 'nguru.'
+else:
+    MODULE_PREFIX = ''
 
 SETTINGS_PATH = dirname(__file__)  # Settings es un modulo
 PROJECT_ROOT = abspath(join(SETTINGS_PATH, '../..'))
@@ -112,10 +119,12 @@ MIDDLEWARE_CLASSES = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
-ROOT_URLCONF = 'nguru.urls'
+ROOT_URLCONF = '%snguru.urls' % MODULE_PREFIX
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'nguru.wsgi.application'
+if os.environ['DJANGO_SETTINGS_MODULE'].startswith('nguru.nguru'):
+    WSGI_APPLICATION = 'nguru.%s' % WSGI_APPLICATION
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
