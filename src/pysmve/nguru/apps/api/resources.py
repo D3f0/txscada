@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from apps.hmi.models import Formula, SVGElement, SVGScreen
 from apps.mara.models import AI, COMaster, DI, Energy, Event, IED, Profile, SV
 from tastypie import fields
