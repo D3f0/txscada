@@ -33,8 +33,6 @@ class Command(NoArgsCommand):
 
         profile = self.get_profile(options.get('profile'))
 
-        Profile.objects.get()
-
         MaraClientProtocolFactory.protocol = MaraClientDBUpdater
         MaraClientProtocolFactory.defer_db_save = options.get('defer_db_save')
 
