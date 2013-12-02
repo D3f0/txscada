@@ -128,11 +128,11 @@
                             });
                             xhr.then(function () {
                                 try {
+                                    $dlg.dialog('close');
                                     SMVE.getTag(nodeData.tag).text = newText;
                                     if (node.tagName == 'text') {
                                         $(node).text(newText);
                                     }
-                                    $dlg.dialog('close');
 
                                 } catch (e) {
                                     console.error(e);
