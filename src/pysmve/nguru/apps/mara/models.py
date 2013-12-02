@@ -551,15 +551,32 @@ class Event(models.Model):
     value = models.IntegerField()
     show = models.BooleanField(default=True, help_text=_("Show in alarm grid"))
 
+    # Keys are profiles, then textev2, value, then text
+    _descriptions = {}
+
+
+
+    def get_current_descriptions(self):
+        '''Returns a dictionary of descriptions for current profile'''
+        profile = self.di.ied.co_master.profile
+        if not profile.pk in Event._descriptions:
+            desc_dict = Event._descriptions.setdefault(profile.pk, {})
+            fields = 'textoev2', 'value', 'text'
+            for textoev2, value, text in profile.eventdescription_set.values_list(*fields):
+                values_dict = desc_dict.setdefault(textoev2, {})
+                values_dict[value] = text
+        return Event._descriptions[profile.pk]
+
+    @property
+    def text2(self):
+        try:
+            text2 = self.get_current_descriptions()[self.di.idtextoev2][self.value]
+        except Exception as e:
+            text2 = unicode(e)
+        return text2
+
     def __unicode__(self):
-        text2 = None
-        kinds = EventText.objects.filter(idtextoev2=self.di.idtextoev2)
-        if kinds.filter(value=self.value).count() == 1:
-            try:
-                text2 = kinds.get(value=self.value).text
-            except EventText.DoesNotExist:
-                text2 = kinds.get().text
-        return "%s %s" % (self.di.description or "No description", text2 or "No Text 2")
+        return "%s %s" % (self.di.description or "No description", self.text2)
 
     class Meta:
         verbose_name = _("Event")
@@ -610,14 +627,13 @@ def sync_event_with_svgelements(instance=None, **kwargs):
 signals.pre_save.connect(sync_event_with_svgelements, sender=Event)
 
 
+# FIXME: Remove this table
 class EventText(models.Model, ExcelImportMixin):
     '''Abstracción de textoev2'''
     profile = models.ForeignKey(Profile, related_name='event_kinds')
     description = models.CharField(max_length=50, blank=True, null=True)
     value = models.IntegerField(blank=True, null=True)
     idtextoev2 = models.IntegerField(null=True, blank=True)
-    # It's stored in DI
-    pesoaccion = models.IntegerField(null=True, blank=True)
 
     class Meta:
         unique_together = ('idtextoev2', 'value')
