@@ -192,7 +192,7 @@
         function applyChanges(node, updates) {
             //console.log(arguments);
             // Aplicación recursiva de atributs a grupos
-            $node = $(node);
+            var $node = $(node);
             if (isGroup($node)) {
                 return $.each($('path, rect', $node), function (index, elem){
                     applyChanges(elem, updates);
@@ -490,9 +490,46 @@
             jsonReader: {
                 repeatitems : false,
                 id: "0",
-                root: 'objects'
+                root: 'objects',
+                page: function (obj) {
+                    return (obj.meta.offset / obj.meta.limit) + 1;
+                },
+                total: function (obj) {
+                    return Math.ceil((obj.meta.total_count / obj.meta.limit));
+
+                },
+                records: 'meta.total_count'
             },
-            serializeGridData: TastyJQGrid.serializeGridData
+            serializeGridData: TastyJQGrid.serializeGridData,
+            onPaging: function (pagging) {
+                var request = pagging.split('_')[0];
+                console.log("Requested page is", request);
+                var params = $(this).jqGrid('getGridParam');
+                var postData = params.postData;
+                //debugger;
+
+                switch (request) {
+                    case 'first':
+                        postData.offset = 0;
+                        break;
+                    case 'prev':
+                        postData.offset = params.reccount * (params.page-2);
+                        break;
+                    case 'user':
+                        console.info("Do not paginate by this");
+                        break;
+                    case 'next':
+                        postData.offset = params.reccount * (params.page);
+                        break;
+                    case 'last':
+                        var last = $(this).jqGrid('getGridParam', 'lastpage');
+                        postData.offset = params.reccount * (last-1);
+
+                }
+                console.info(postData.offset);
+                //alarmGrid.jqGrid('setGridParam', {postData: filters}).trigger('reloadGrid');
+                //return 'stop';
+            }
         };
 
         function createMiniAlarmGrid(){
@@ -538,7 +575,7 @@
 
             var queryUrl = new QueryObj({
                 format: 'json',
-                limit: 40,
+                limit: 20,
                 order_by: '-timestamp'
             }, url);
 
@@ -555,24 +592,39 @@
                 height: "80%",
                 multiselect: true,
                 caption: "Eventos del Sistema de Medición de Variables Eléctricas",
-                _beforeSubmit: function (postdata, formid) {
-                    debugger;
-                    return true;
-                },
+                // _beforeSubmit: function (postdata, formid) {
+                //     debugger;
+                //     return true;
+                // },
                 pager: '#alarm_pager'
             }));
 
             $filterForm.on('submit', function (event){
                 event.preventDefault();
-                var filters = $filterForm.serializeObject();
-                console.log("Filters", filters);
-                alarmGrid.jqGrid('setGridParam', {postData: filters}).trigger('reloadGrid');
+
+                var postData = alarmGrid.jqGrid('getGridParam', 'postData');
+
+                $filterForm.find('input[type=text]').each(function (key, el){
+                    var $el = $(el),
+                        name = $el.attr('name'),
+                        value = $el.val();
+                    if (value === '') {
+                        if (name in postData){
+                            console.info("Removing key", name, "from filter postData");
+                            delete postData[name];
+                        }
+                    } else {
+                        postData[name] = value;
+                    }
+                });
+
+                postData.offset = 0;
+
+                alarmGrid.jqGrid('setGridParam', {postData: postData});
+                alarmGrid.trigger('reloadGrid');
 
             });
-            $filterForm.find('[name=reset]').on('click', function () {
 
-                $filterForm.submit();
-            });
 
             return alarmGrid;
         }
@@ -628,8 +680,12 @@
             btnChangeSVGBackground = $('#change_svg_background');
             btnChangeSVGBackground.on('click', function () {
                 var svg_bg = $('#svg').css('background-color'),
-                    body_bg = $('#svg').css('background-color');
+                    body_bg = $('#svg').css('background-color'),
+                    $svg_attributes = $('#base', svg.root());
+                    svg_bg = $svg_attributes.attr('pagecolor');
+
             });
+            //$('#update_toggle').on('click', updateToggle);
         }
 
         function setUpdatesEnabled(enabled) {
