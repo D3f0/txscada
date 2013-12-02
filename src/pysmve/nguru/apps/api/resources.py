@@ -6,6 +6,7 @@ from tastypie import fields
 from tastypie.api import Api
 from tastypie.authorization import Authorization
 from tastypie.resources import ALL, ALL_WITH_RELATIONS, ModelResource
+from tastypie.exceptions import NotFound, BadRequest
 from datetime import datetime
 
 # API Entry Point
@@ -79,7 +80,7 @@ class EventResource(ModelResource):
 
     class Meta:
         resource_name = 'event'
-        queryset = Event.objects.filter(show=True)
+        queryset = Event.objects.filter(show=True).select_related('di__ied__co_master__profile')
         allowed_methods = ['get', 'put']
         filtering = {
             'timestamp': ALL,
@@ -100,6 +101,7 @@ class EventResource(ModelResource):
         """
         A ORM-specific implementation of ``obj_update``.
         """
+        #import ipdb; ipdb.set_trace()
         if not bundle.obj or not self.get_bundle_detail_data(bundle):
             try:
                 lookup_kwargs = self.lookup_kwargs_with_identifiers(bundle, kwargs)
@@ -122,6 +124,28 @@ class EventResource(ModelResource):
         bundle = self.full_hydrate(bundle)
         return self.save(bundle, skip_errors=skip_errors)
 
+    def obj_get_list(self, bundle, **kwargs):
+        """
+        A ORM-specific implementation of ``obj_get_list``.
+
+        Takes an optional ``request`` object, whose ``GET`` dictionary can be
+        used to narrow the query.
+        """
+        filters = {}
+
+        if hasattr(bundle.request, 'GET'):
+            # Grab a mutable copy.
+            filters = bundle.request.GET.copy()
+
+        # Update with the provided kwargs.
+        filters.update(kwargs)
+        applicable_filters = self.build_filters(filters=filters)
+
+        try:
+            objects = self.apply_filters(bundle.request, applicable_filters)
+            return self.authorized_read_list(objects, bundle)
+        except ValueError:
+            raise BadRequest("Invalid resource lookup data provided (mismatched type).")
 
 
 api.register(EventResource())
