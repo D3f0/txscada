@@ -38,6 +38,7 @@ class Migration(DataMigration):
         # and orm['appname.ModelName'] for models in other applications.
         Profile = orm['mara.Profile']
         for p in Profile.objects.all():
+            p.eventdescription_set.all().delete()
             for line in EXCEL_DATA.split('\n'):
                 match = regex.search(line)
                 if match:
