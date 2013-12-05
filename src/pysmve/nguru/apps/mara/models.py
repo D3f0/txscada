@@ -627,39 +627,9 @@ def sync_event_with_svgelements(instance=None, **kwargs):
 signals.pre_save.connect(sync_event_with_svgelements, sender=Event)
 
 
-# FIXME: Remove this table
-class EventText(models.Model, ExcelImportMixin):
-    '''Abstracción de textoev2'''
-    profile = models.ForeignKey(Profile, related_name='event_kinds')
-    description = models.CharField(max_length=50, blank=True, null=True)
-    value = models.IntegerField(blank=True, null=True)
-    idtextoev2 = models.IntegerField(null=True, blank=True)
-
-    class Meta:
-        unique_together = ('idtextoev2', 'value')
-        verbose_name = _("Event Text")
-        verbose_name_plural = _("Event Texts")
-
-    def __unicode__(self):
-        return self.description
-
-
-    @classmethod
-    def do_import_excel(cls, workbook, models):
-        """Import text for events from XLS sheet 'com'"""
-        fields = 'id    code    description idTextoEv2  pesoaccion'.lower().split()
-        for pk, code, description, idtextoev2, pesoaccion in\
-            workbook.iter_as_dict('com', fields=fields):
-            models.profile.event_kinds.create(
-                description=description,
-                value=code,
-                idtextoev2=idtextoev2,
-                pesoaccion=pesoaccion,
-            )
-
 class EventDescription(models.Model, ExcelImportMixin):
 
-    """Extra table for text composition"""
+    """Extra table for text composition (textoevtipo)"""
     profile = models.ForeignKey(Profile)
     textoev2 = models.IntegerField(blank=True, null=True)
     value = models.IntegerField(blank=True, null=True)
@@ -668,20 +638,22 @@ class EventDescription(models.Model, ExcelImportMixin):
     def __unicode__(self):
         return self.text
 
-    @classmethod
-    def do_import_excel(cls, workbook, models):
-        # models.profile.eventdescription_set.create()
-        fields = ('idtextoev2', 'value', 'textoev2')
-        for idtextoev2, value, textoev2 in workbook.iter_as_dict('textoevtipo', fields):
-            models.profile.eventdescription_set.create(
-                textoev2=idtextoev2,
-                value=value or None,
-                text=textoev2
-            )
 
     class Meta:
         verbose_name = _('Event Description')
-        verbose_name = _('Event Descriptions')
+        verbose_name_plural = _('Event Descriptions')
+
+    @classmethod
+    def do_import_excel(cls, workbook, models):
+        """Import text for events from XLS sheet 'com'"""
+        fields = 'id    code    description idTextoEv2  pesoaccion'.lower().split()
+        for pk, code, description, idtextoev2, pesoaccion in\
+            workbook.iter_as_dict('textoevtipo', fields=fields):
+            models.profile.event_kinds.create(
+                text=description,
+                value=code,
+                textoev2=idtextoev2,
+            )
 
 
 
@@ -689,7 +661,8 @@ class EventDescription(models.Model, ExcelImportMixin):
 class ComEventKind(models.Model, ExcelImportMixin):
     '''Gives a type to communication event'''
     code = models.IntegerField()
-    texto_2 = models.IntegerField()
+    text2 = models.IntegerField()
+    description = models.CharField(max_length=100)
     pesoaccion = models.IntegerField()
 
     def __unicode__(self):
@@ -699,7 +672,7 @@ class ComEventKind(models.Model, ExcelImportMixin):
         db_table = 'com'
         ordering = ('code',)
         verbose_name = _("Communication Event Kind")
-        verbose_name = _("Communication Event Kinds")
+        verbose_name_plural = _("Communication Event Kinds")
 
     @classmethod
     def do_import_excel(cls, workbook, models):
@@ -718,7 +691,7 @@ class ComEvent(GenericEvent):
         if not self.kind:
             return "No description"
         else:
-            return EventText.objects.get(idtextoev2=self.kind.texto_2)
+            return ComEventKind.objects.get(idtextoev2=self.kind.texto_2)
 
     class Meta:
         db_table = 'eventcom'

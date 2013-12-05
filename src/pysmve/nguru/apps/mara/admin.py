@@ -7,8 +7,7 @@ from django.conf import settings
 
 from models import (
     Profile,
-    COMaster, IED, SV, DI, AI, Event, Energy,
-    EventText, ComEvent, Action, ComEventKind,
+    COMaster, IED, SV, DI, AI, Event, Energy, ComEvent, Action, ComEventKind,
     EventDescription,
 )
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
@@ -184,12 +183,6 @@ class EnergyAdmin(admin.ModelAdmin):
     list_display = ('timestamp', 'ai', 'value', 'q', 'hnn', 'code')
     list_filter = ('timestamp', 'ai', 'hnn', 'q')
 site.register(Energy, EnergyAdmin)
-
-
-class EventTextAdmin(admin.ModelAdmin):
-    list_display = ('description', 'value', 'idtextoev2')
-
-site.register(EventText, EventTextAdmin)
 
 
 class SVGScreenAdmin(admin.ModelAdmin):
