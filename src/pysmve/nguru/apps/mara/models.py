@@ -698,7 +698,6 @@ class ComEvent(GenericEvent):
         verbose_name = _("Communication Event")
         verbose_name_plural = _("Communication Events")
 
-
 class AI(MV, ExcelImportMixin):
 
     '''
@@ -744,6 +743,9 @@ class AI(MV, ExcelImportMixin):
                   self.value
                   ]
         return "%.2f %s" % (reduce(operator.mul, values), self.unit)
+
+    def __unicode__(self):
+        return self.description
 
     @classmethod
     @counted
