@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-02 20:34-0300\n"
-"PO-Revision-Date: 2013-12-02 20:35-0300\n"
+"POT-Creation-Date: 2013-12-13 15:48-0300\n"
+"PO-Revision-Date: 2013-12-13 15:49-0300\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
 "Language: es\n"
@@ -17,20 +17,36 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 1.5\n"
 
-#: apps/hmi/forms.py:54 apps/hmi/models.py:91
+#: apps/hmi/forms.py:15
+msgid "Substation"
+msgstr "Subestación "
+
+#: apps/hmi/forms.py:19
+msgid "Meter"
+msgstr "Meidor"
+
+#: apps/hmi/forms.py:22
+msgid "Plot date"
+msgstr "Fecha de la curva "
+
+#: apps/hmi/forms.py:25
+msgid "Plot date to"
+msgstr "Fecha hasta"
+
+#: apps/hmi/forms.py:80 apps/hmi/models.py:91
 msgid "SVG Screen"
 msgstr "Pantalla"
 
-#: apps/hmi/forms.py:56
+#: apps/hmi/forms.py:82
 #, python-format
 msgid "%d alarms"
 msgstr "%d alarmas"
 
-#: apps/hmi/forms.py:96
+#: apps/hmi/forms.py:122
 msgid "Can not create a dependency loop"
 msgstr "No se puede crear una dependencia en círculo"
 
-#: apps/hmi/forms.py:98
+#: apps/hmi/forms.py:124
 msgid "Tag does not belong to screen"
 msgstr "El tag no pertenece a la pantalla"
 
@@ -66,7 +82,7 @@ msgstr "Cambio de Coloración"
 msgid "SVG Property Change Sets"
 msgstr "Cambios de Coloración"
 
-#: apps/hmi/models.py:207 apps/mara/admin.py:309
+#: apps/hmi/models.py:207 apps/mara/admin.py:302
 msgid "screen"
 msgstr "pantalla"
 
@@ -78,7 +94,7 @@ msgstr "descripción"
 msgid "text"
 msgstr "texto"
 
-#: apps/hmi/models.py:221 apps/hmi/models.py:397 apps/mara/admin.py:419
+#: apps/hmi/models.py:221 apps/hmi/models.py:397 apps/mara/admin.py:412
 msgid "fill"
 msgstr "relleno"
 
@@ -90,7 +106,7 @@ msgstr "contorno"
 msgid "enabled"
 msgstr "habliltado"
 
-#: apps/hmi/models.py:237 apps/mara/admin.py:426
+#: apps/hmi/models.py:237 apps/mara/admin.py:419
 msgid "last update"
 msgstr "última actualización"
 
@@ -135,7 +151,7 @@ msgstr "Elementos Gráficos"
 msgid "target"
 msgstr "elemento gráfico"
 
-#: apps/hmi/models.py:406 apps/mara/admin.py:317
+#: apps/hmi/models.py:406 apps/mara/admin.py:310
 msgid "attribute"
 msgstr "atributo"
 
@@ -181,71 +197,71 @@ msgstr "Fecha hasta"
 msgid "Tag"
 msgstr "Tag"
 
-#: apps/mara/admin.py:42
+#: apps/mara/admin.py:41
 msgid "Internal"
 msgstr "Interno"
 
-#: apps/mara/admin.py:46
+#: apps/mara/admin.py:45
 msgid "Connection"
 msgstr "Conexión"
 
-#: apps/mara/admin.py:49
+#: apps/mara/admin.py:48
 msgid "Timming"
 msgstr "Temporización "
 
-#: apps/mara/admin.py:54
+#: apps/mara/admin.py:53
 msgid "Mara settings"
 msgstr "Configuración Mara"
 
-#: apps/mara/admin.py:59
+#: apps/mara/admin.py:58
 msgid "Mara debug"
 msgstr "Depuración Mara"
 
-#: apps/mara/admin.py:137
+#: apps/mara/admin.py:136
 msgid "Attend"
 msgstr "Atender"
 
-#: apps/mara/admin.py:142
+#: apps/mara/admin.py:141
 msgid "actions"
 msgstr "acciones"
 
-#: apps/mara/admin.py:204
+#: apps/mara/admin.py:197
 msgid "Download"
 msgstr "Descargar"
 
-#: apps/mara/admin.py:215
+#: apps/mara/admin.py:208
 msgid "label"
 msgstr "etiqueta "
 
-#: apps/mara/admin.py:316
+#: apps/mara/admin.py:309
 msgid "Invalid"
 msgstr "Inválido"
 
-#: apps/mara/admin.py:379
+#: apps/mara/admin.py:372
 msgid "General information"
 msgstr "Información General"
 
-#: apps/mara/admin.py:380
+#: apps/mara/admin.py:373
 msgid "Graphical attributes"
 msgstr "Atributos gráficos"
 
-#: apps/mara/admin.py:381
+#: apps/mara/admin.py:374
 msgid "Interaction"
 msgstr "Interacciones "
 
-#: apps/mara/admin.py:422
+#: apps/mara/admin.py:415
 msgid "None"
 msgstr "Nada"
 
-#: apps/mara/admin.py:458
+#: apps/mara/admin.py:451
 msgid "Personal info"
 msgstr "Información Personal"
 
-#: apps/mara/admin.py:459
+#: apps/mara/admin.py:452
 msgid "Permissions"
 msgstr "Permisos"
 
-#: apps/mara/admin.py:461
+#: apps/mara/admin.py:454
 msgid "Important dates"
 msgstr "Fechas importantes"
 
@@ -306,59 +322,51 @@ msgstr "Mostrar en la grilla de alarmas"
 msgid "Event"
 msgstr "Evento"
 
-#: apps/mara/models.py:640
-msgid "Event Text"
-msgstr "Texto de Evento"
-
-#: apps/mara/models.py:641
-msgid "Event Texts"
-msgstr "Texto de Eventos"
-
-#: apps/mara/models.py:683
+#: apps/mara/models.py:643
 msgid "Event Description"
 msgstr "Descripción de evento"
 
-#: apps/mara/models.py:684
+#: apps/mara/models.py:644
 msgid "Event Descriptions"
 msgstr "Descripción de Eventos"
 
-#: apps/mara/models.py:701
+#: apps/mara/models.py:674
 msgid "Communication Event Kind"
 msgstr "Tipo de Evento de Comunicaciones"
 
-#: apps/mara/models.py:702
+#: apps/mara/models.py:675
 msgid "Communication Event Kinds"
 msgstr "Tipos de Evento de Comunicaciones"
 
-#: apps/mara/models.py:725
+#: apps/mara/models.py:698
 msgid "Communication Event"
 msgstr "Evento de Comunicaciones"
 
-#: apps/mara/models.py:726
+#: apps/mara/models.py:699
 msgid "Communication Events"
 msgstr "Eventos de Comunicaciones"
 
-#: apps/mara/models.py:762
+#: apps/mara/models.py:734
 msgid "Analog Input"
 msgstr "Entrada Analógica"
 
-#: apps/mara/models.py:763
+#: apps/mara/models.py:735
 msgid "Analog Inputs"
 msgstr "Entradas Analógicas"
 
-#: apps/mara/models.py:868
+#: apps/mara/models.py:840
 msgid "Energy Measure"
 msgstr "Medición de Energía"
 
-#: apps/mara/models.py:869
+#: apps/mara/models.py:841
 msgid "Energy Measures"
 msgstr "Mediciones de Energía"
 
-#: apps/mara/models.py:903
+#: apps/mara/models.py:875
 msgid "Action"
 msgstr "Acción"
 
-#: apps/mara/models.py:904
+#: apps/mara/models.py:876
 msgid "Actions"
 msgstr "Acciones"
 
@@ -370,6 +378,12 @@ msgstr "Archivo %sno pudo ser leido o no es una hoja de cálculo"
 #: apps/mara/templates/admin/base_site.html:58
 msgid "Django site admin"
 msgstr "Administración del sistema"
+
+#~ msgid "Event Text"
+#~ msgstr "Texto de Evento"
+
+#~ msgid "Event Texts"
+#~ msgstr "Texto de Eventos"
 
 #~ msgid "Alarms"
 #~ msgstr "Alarmas"
