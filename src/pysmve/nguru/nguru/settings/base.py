@@ -159,8 +159,10 @@ INSTALLED_APPS = (
     'apps.research',
 
     #'admin_bootstrap',
-    'django_qbe',
-    'django_qbe.savedqueries',
+
+    # Disabled due to Django 1.6 incompatibilty
+    #'django_qbe',
+    #'django_qbe.savedqueries',
 
     #'grappelli',
     'object_tools',
