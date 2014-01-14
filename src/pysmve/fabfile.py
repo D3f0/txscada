@@ -154,7 +154,7 @@ def update(host=''):
         with hold(procs):
             get_repo()
             install_dependencies()
-            # update_static_media()
+            update_static_media()
 
 
 @task
