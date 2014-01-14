@@ -47,7 +47,8 @@ class ConstructTestCase(TestCase):
             evtype="ENERGY", q=0, addr485=1,
             idle=0, code=0, channel=0,
             value=1 << 17,
-            timestamp=datetime(2012, 1, 1, 12, 30, 12)
+            timestamp=datetime(2012, 1, 1, 12, 30, 12),
+            hnn=False
         )
         event.update(kwargs)
         return event
