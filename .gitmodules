@@ -4,6 +4,7 @@
 [submodule "src/pysmve/nguru/static/pretty-json"]
 	path = src/pysmve/nguru/static/pretty-json
 	url = https://github.com/warfares/pretty-json.git
+    ignore = dirty
 [submodule "src/pysmve/nguru/static/jqGrid"]
 	path = src/pysmve/nguru/static/jqGrid
 	url = https://github.com/tonytomov/jqGrid.git
