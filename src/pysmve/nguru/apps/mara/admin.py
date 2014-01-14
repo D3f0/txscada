@@ -1,5 +1,5 @@
 # encoding: utf-8
-# encoding: utf-8
+
 import re
 import logging
 from django.contrib import admin
@@ -273,7 +273,7 @@ site.register(SVGPropertyChangeSet, SVGPropertyChangeSetAdmin)
 
 
 class ComEventKindAdmin(admin.ModelAdmin):
-    list_display = ('code', 'texto_2', 'pesoaccion')
+    list_display = ('code', 'text2', 'pesoaccion')
 
 site.register(ComEventKind, ComEventKindAdmin)
 
