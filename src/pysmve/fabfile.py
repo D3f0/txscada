@@ -19,6 +19,7 @@ REQUIEREMENTS_FILE = 'setup/requirements/production.txt'
 
 prepeare_hosts(HOST_SETTINGS, local_base=os.path.dirname(__file__))
 
+
 @task
 def freeze(host='', commit=False):
     """Conjela los requerimientos del virtualenv"""
@@ -28,14 +29,15 @@ def freeze(host='', commit=False):
         print("Dumping", colors.green(REQUIEREMENTS_FILE))
         pip_freeze_to_file(REQUIEREMENTS_FILE, filter_dev_only=True)
         if commit:
-            local('git add {} {}'.format(DEV_REQUIEREMENTS_FILE, REQUIEREMENTS_FILE))
+            local('git add {} {}'.format(
+                DEV_REQUIEREMENTS_FILE, REQUIEREMENTS_FILE))
             with settings(warn_only=True):
-                result = local('git commit -m "Requirements update"', capture=True)
+                result = local(
+                    'git commit -m "Requirements update"', capture=True)
             if result.failed:
                 abort("Git up to date.")
             else:
                 local('git push origin master')
-
 
 
 @task
@@ -46,7 +48,7 @@ def docs():
 
 def clean_repo():
     with quiet():
-        changes =  local("git status -s", capture=True)
+        changes = local("git status -s", capture=True)
     return not changes.strip()
 
 
@@ -54,36 +56,25 @@ def push_all():
     local('git push --all')
     local('git push --tags')
 
-# @task
-# def deploy_vm(host='virtualbox_coop', check_git='yes'):
-#     h = HOSTS.get(host, {})
-#     if check_git == 'yes':
-#         if not clean_repo() and not confirm("Deploy leaving unstaged changes?"):
-#             abort("Aborting at user request.")
-#     with settings(**h):
-#         push_all()
-#         with cd(env.remote_location):
-#             run('git pull origin master')
-#             run('git pull origin master')
-#             run('pwd')
-#             run('git submodule update --init')
-
 
 def create_virtualenv():
     if not files.exists('/home/{user}/.virtualenvs/{virtualenv}'.format(**env)):
         print(colors.yellow("Creating virtualenv"), env.virtualenv)
         print("No existe el virtualenv %s" % colors.red(env['virtualenv']))
-        run('source /usr/local/bin/virtualenvwrapper.sh && mkvirtualenv {virtualenv}'.format(**env))
+        run(('source /usr/local/bin/virtualenvwrapper.sh '
+             '&& mkvirtualenv {virtualenv}').format(**env))
     else:
         print(print(colors.green("Virtualenv exists"), env.virtualenv))
     with prefix(env.venv_prefix):
         run('{proxy_command} pip install -U pip'.format(**env))
     run('mkdir -p /home/{user}/.pip_download_cache'.format(**env))
 
+
 def create_project_dir():
     """Project path will contain the repository"""
     if not files.exists(env.repo_path):
         run('mkdir -p {repo_path}'.format(**env))
+
 
 def get_repo(branch='master'):
     with cd(env.repo_path):
@@ -95,15 +86,19 @@ def get_repo(branch='master'):
             run('git checkout -- .')
             run('{proxy_command} git pull origin {}'.format(branch, **env))
 
+
 def create_app_dirs():
     with cd(env.repo_path):
         run('mkdir -p scripts logs')
+
 
 def install_dependencies():
     with cd(env.code_path):
         with prefix(env.venv_prefix):
             print(colors.green("Installing dependencies"))
-            run('{proxy_command} pip install -r setup/requirements/production.txt'.format(**env))
+            run('{proxy_command} pip install -r '
+                'setup/requirements/production.txt'.format(**env))
+
 
 def install_system_packages(update=False):
     packages = 'build-essential python-dev libc6-dev'
@@ -111,11 +106,13 @@ def install_system_packages(update=False):
     sudo('{proxy_command} apt-get update'.format(**env))
     sudo('{proxy_command} apt-get install {}'.format(packages, **env))
 
+
 @task
 def pip_list(host=''):
     with settings(**get_host_settings(host)):
         with prefix(env.venv_prefix):
             run('pip freeze')
+
 
 @task
 def pip_uninstall(host='', package=''):
@@ -147,6 +144,7 @@ def install(host=''):
         install_supervisor()
         configure_gunicorn()
 
+
 @task
 def update(host=''):
     """Updates deployment to upstream git version"""
@@ -156,7 +154,7 @@ def update(host=''):
         with hold(procs):
             get_repo()
             install_dependencies()
-            #update_static_media()
+            # update_static_media()
 
 
 @task
@@ -166,6 +164,7 @@ def shell(host=''):
     h = get_host_settings(host)
     with settings(**h):
         open_shell()
+
 
 @task
 def extract_strings():
@@ -180,13 +179,17 @@ def extract_strings():
             for line in out.strip().split('\n'):
                 fname = line.strip().split()[-1]
 
-                call(['xdg-open', '../'+fname])
+                call(['xdg-open', '../' + fname])
+
 
 @task
 def get_remote_dump(host='', backupfile='/tmp/backup.dmp'):
     h = get_host_settings(host)
     with settings(**h):
-        print(colors.yellow("Getting remote database: {database}".format(**env.database)))
+        print(
+            colors.yellow("Getting remote database: {database}".format(
+                          **env.database))
+        )
         cmd = 'pg_dump -Fc {database} -f {backupfile}'
         cmd = cmd.format(backupfile=backupfile, **env.database)
         sudo('su postgres -c "{}"'.format(cmd))
@@ -203,7 +206,8 @@ SQL_CREATE_USER = ("DROP ROLE IF EXISTS {user};"
 def copy_database(host='', no_confirm=False):
     path = get_remote_dump(host=host)
     with settings(**get_host_settings(host)):
-        if no_confirm or confirm(colors.red('Replace local database with dump?', True)):
+        msg = colors.red('Replace local database ''with dump?')
+        if no_confirm or confirm(msg):
             with hide('running', 'stdout'):
                 print(colors.yellow("Droping and creating fresh database"))
                 with settings(warn_only=True):
@@ -211,9 +215,12 @@ def copy_database(host='', no_confirm=False):
 
                 local('createdb {database}'.format(**env.database))
                 print(colors.yellow("Creating user"))
-                local(('psql -d {database} -c "'+SQL_CREATE_USER+'"').format(**env.database))
+                local(
+                    ('psql -d {database} -c "' + SQL_CREATE_USER + '"').format(**env.database))
                 print(colors.yellow("Restoring data", True))
-                local('pg_restore -d {database} {path}'.format(path=path, **env.database))
+                local('pg_restore -d {database} {path}'.format(
+                    path=path, **env.database))
+
 
 def extract_path_from_stdout(path):
     path = path.strip().replace('\'', '').replace('"', '')
@@ -221,28 +228,44 @@ def extract_path_from_stdout(path):
         path = '%s/' % path
     return path
 
+
 @task
 def get_remote_media(host='', no_confirm=False):
     """Gets remote media"""
     media_cmd = 'python manage.py diffsettings | grep MEDIA_ROOT | cut -d = -f 2'
     with settings(**get_host_settings(host)):
         if no_confirm or confirm(colors.red('Replace local media with dump?', True)):
-            with cd(env.code_path):
-                with hide('running'):
-                    local_media_root = extract_path_from_stdout(local(media_cmd, True))
-                    local_media_root = os.path.abspath(os.path.join(local_media_root, '..'))
+            with cd(os.path.join(env.repo_path, 'src/pysmve/nguru')):
+                with hide():
+                    local_media_root = extract_path_from_stdout(
+                        local(media_cmd, True))
+                    # local_media_root = os.path.join(os.path.dirname(__file__),
+                    #                                 'nguru/media/')
+                    local_media_root = os.path.abspath(
+                        os.path.join(local_media_root, '..'))
                     with prefix(env.venv_prefix):
-                        remote_meida_root = extract_path_from_stdout(run(media_cmd, True))
+                        remote_meida_root = extract_path_from_stdout(
+                            run(media_cmd, True))
 
                 print(remote_meida_root, '=>', local_media_root)
                 with hide('warnings'):
                     get(remote_meida_root, local_media_root)
 
 
+@task
+def local_media():
+    print()
+
 
 @task
 def get_remote_all(host='', no_confirm=False):
-    get_host_settings(host) # Check
+    get_host_settings(host)  # Check
     if no_confirm or confirm(colors.red('Replace local data with remote?')):
         copy_database(host=host, no_confirm=no_confirm)
         get_remote_media(host=host, no_confirm=no_confirm)
+
+
+@task
+def install_sentry(host=''):
+    with settings(**get_host_settings(host)):
+        run("ls")
