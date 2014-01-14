@@ -8,15 +8,16 @@
         {% crispy form form.helper %}
 
     </div>
+    {% comment %}
     <div id="chart">
     </div>
+    {% endcomment %}
+
 {% endblock content %}
 
 {% block endscripts %}
-    <script type="text/javascript" src="{% static "js/jquery-ui-1.10.0.custom/js/jquery.ui.datepicker-es.js" %}"></script>
-    <script type="text/javascript" src="{% static "highcharts/js/highcharts.js" %}"></script>
     <script type="text/javascript">
-        $('#id_date').datepicker();
+
         new Highcharts.Chart({
             chart: {
                 renderTo: "chart"

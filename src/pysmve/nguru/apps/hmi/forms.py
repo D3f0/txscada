@@ -1,26 +1,74 @@
 # -*- coding: utf-8 -*-
-from apps.hmi.models import SVGPropertyChangeSet, SVGScreen
 from crispy_forms.helper import FormHelper
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from models import SVGElement, Formula
+from models import SVGElement, SVGScreen, Formula, SVGPropertyChangeSet
+from apps.mara.models import AI
 from django.contrib.auth.models import User, Permission
 import string
+from django.utils.translation import ugettext as _
+from django.db.models import Q
+
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit
+
 
 class EnergyDatePlotForm(forms.Form):
-    date = forms.DateField(label="Fecha de la curva")
-    # estacion = forms.
 
-    def __init__(self, *args, **kwargs):
+    substation = forms.ModelChoiceField(
+        SVGScreen.objects.filter(parent__isnull=False),
+        label=_('Substation'),
+        )
+    MAGNITUDE_CHOICES = (
+        ('p', 'activa'),
+        ('q', 'reactiva'),
+        ('a', 'aparente'),
+        ('f', 'FP'),
+    )
+    magnitude = forms.ChoiceField(choices=MAGNITUDE_CHOICES)
+    meter = forms.ModelChoiceField(
+        AI.objects.filter(Q(unit__iexact='kvar')|Q(unit__iexact='kw')),
+        label=_('Meter'),
+        )
+    date_from = forms.DateField(
+        label=_('Plot date'),
+        )
+    date_to = forms.DateField(
+        label=_('Plot date to'),
+        )
+
+
+    def __init__(self, min_date=None, max_date=None, *args, **kwargs):
         super(EnergyDatePlotForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
 
         self.helper.form_id = 'id-plot'
-        self.helper.form_class = 'blueForms'
+        self.helper.form_class = 'form-horizontal'
         self.helper.form_method = 'post'
         self.helper.form_action = 'submit_survey'
 
+        self.helper.layout = Layout(
+            Fieldset(u'Graficas de energía',
+                'substation', 'magnitude', 'meter', 'date_from', 'date_to'),
+            ButtonHolder(
+                Submit('submit', 'Graficar', css_class='button white'),
+                Submit('submit', 'Exportar', css_class='button white'),
+            )
+        )
+
+        for field_name in ['date_from', 'date_to']:
+
+            attrs = self.fields[field_name].widget.attrs
+            attrs['class'] = 'datepicker'
+            attrs['date_from'] = 'xxx'
+
         #self.helper.add_input(Submit('submit', 'Submit'))
+    class Media:
+        js = (
+            'js/jquery-ui-1.10.0.custom/js/jquery.ui.datepicker-es.js',
+            'highcharts/js/highcharts.js',
+            'hmi/js/energy_plot.js', )
+
 
 class SVGScreenAdminForm(forms.ModelForm):
     def __init__(self, *largs, **kwargs):

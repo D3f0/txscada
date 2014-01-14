@@ -1,7 +1,9 @@
 # encoding: utf-8
 
+from datetime import date
 from apps.hmi.forms import EnergyDatePlotForm
 from apps.hmi.models import SVGScreen
+from apps.mara.models import Energy
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.http import HttpResponseRedirect
@@ -25,7 +27,13 @@ def realtime_watch(request):
 
 
 def energy_plot(request, ):
-    form = EnergyDatePlotForm()
+    try:
+        oldest_timestamp = Energy.objects.order_by('timestamp')[0].timestamp
+    except IndexError:
+        oldest_timestamp = None
+
+    form = EnergyDatePlotForm(min_date=oldest_timestamp, max_date=date.today())
+
     data = {
         'form': form
     }

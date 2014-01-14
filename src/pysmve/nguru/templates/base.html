@@ -1,4 +1,5 @@
 {% load static %}
+{% load hmi_tags %}
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -30,9 +31,17 @@
                 background: #222;
             }
         </style>
+        {% if form %}
+        <!-- Form media CSS-->
+        {{ form.media|key:"css" }}
+        <!-- End form media CSS-->
+        {% endif %}
         {% block extraheader %}
 
         {% endblock extraheader %}
+
+
+
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -54,19 +63,19 @@
                         <ul class="nav">
                             {% block navbar %}
                             <li class="active"><a href="#">Inicio</a></li>
-                            <li><a href="{% url realtime_watch %}">Monitoreo</a></li>
-                            <li><a href="{% url energy_plot %}">Curvas de Energía</a></li>
+                            <li><a href="{% url "realtime_watch" %}">Monitoreo</a></li>
+                            <li><a href="{% url "energy_plot" %}">Curvas de Energía</a></li>
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Menú<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     {% if user.is_staff %}
-                                        <li><a href="{% url mara:index %}">Administración</a></li>
+                                        <li><a href="{% url "mara:index" %}">Administración</a></li>
                                     {% endif %}
                                     {# <li><a href="{% url websocket_demo %}">Websocket Demo</a></li> #}
                                     {#<li><a href="{% url mara_frame_analizer %}">Analizador de Tramas</a></li>#}
                                     <li class="divider"></li>
                                     <!--<li class="nav-header">Nav header</li>-->
-                                    <li><a href="{% url mara:logout %}">Cerrar Sesión</a></li>
+                                    <li><a href="{% url "mara:logout" %}">Cerrar Sesión</a></li>
                                 </ul>
                             </li>
                             {% endblock navbar %}
@@ -134,7 +143,13 @@
             $('form.uniForm').uniform();
           });
         </script>
-        <script src="{% url js_reverse %}" type="text/javascript"></script>
+        <script src="{% url "js_reverse" %}" type="text/javascript"></script>
+
+        {% if form %}
+        <!-- Form media CSS-->
+        {{ form.media|key:"js" }}
+        <!-- End form media CSS-->
+        {% endif %}
 
         {% block endscripts %}
         {% endblock endscripts %}
