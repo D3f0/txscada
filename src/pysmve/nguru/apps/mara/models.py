@@ -13,7 +13,7 @@ from protocols import constants
 from protocols.utils.words import expand
 from protocols.constructs.structs import container_to_datetime
 from utils import ExcelImportMixin, counted
-
+import re # For text frame procsessing
 
 class Profile(models.Model):
     name = models.CharField(max_length=80)
@@ -154,8 +154,30 @@ class COMaster(models.Model, ExcelImportMixin):
         verbose_name = _("CO Master")
         verbose_name_plural = _("CO Masters")
 
-    def process_frame(self, mara_frame):
-        '''Takes a Mara frame and saves it into the DB model'''
+    def process_frame(self, mara_frame,
+                      update_states=True,
+                      update_di=True,
+                      update_ai=True,
+                      update_sv=True,
+                      create_events=True,
+                      create_ev_digital=True,
+                      create_ev_energy=True,
+                      create_ev_comsys=True):
+        '''Takes a Mara frame (from construct) and saves its components
+        in related COMaster models (DI, AI, SV) and Events.
+        It accepts flags for processing. There are two general flags called
+        update_states and create_events, that when false disable processing
+        of states and events acordingly.
+        There are 3 fine grained flags for states and 3 for event types'''
+        # Flags for states
+        update_di = update_di and update_states
+        update_ai = update_ai and update_states
+        update_sv = update_sv and update_states
+        # Flags for events
+        create_ev_digital = create_ev_digital and create_events
+        create_ev_energy = create_ev_energy and create_events
+        create_ev_comsys = create_ev_comsys and create_events
+
         try:
             payload = mara_frame.payload_10
         except AttributeError as e:
@@ -166,25 +188,30 @@ class COMaster(models.Model, ExcelImportMixin):
         # Some counters
         di_count, ai_count, sv_count, event_count = 0, 0, 0, 0
         t0, timestamp = time(), datetime.now()
-        for value, di in zip(iterbits(payload.dis, length=16), self.dis):
-            # Poener en 0 en
-            di.update_value(value, q=0, last_update=timestamp)
-            di_count += 1
-        for value, ai in zip(payload.ais, self.ais):
-            # TODO: Copiar Q
-            value = value & 0x0FFF
-            ai.q = (value & 0xC000) >> 14
-            ai.update_value(value, last_update=timestamp)
-            ai_count += 1
 
-        variable_widths = [v.width for v in self.svs]
+        if update_di:
+            for value, di in zip(iterbits(payload.dis, length=16), self.dis):
+                # Poener en 0 en
+                di.update_value(value, q=0, last_update=timestamp)
+                di_count += 1
 
-        for value, sv in zip(expand(payload.varsys, variable_widths), self.svs):
-            sv.update_value(value, last_update=timestamp)
-            sv_count += 1
+        if update_ai:
+            for value, ai in zip(payload.ais, self.ais):
+                # TODO: Copiar Q
+                value = value & 0x0FFF
+                ai.q = (value & 0xC000) >> 14
+                ai.update_value(value, last_update=timestamp)
+                ai_count += 1
+
+        if update_sv:
+            variable_widths = [v.width for v in self.svs]
+
+            for value, sv in zip(expand(payload.varsys, variable_widths), self.svs):
+                sv.update_value(value, last_update=timestamp)
+                sv_count += 1
 
         for event in payload.event:
-            if event.evtype == 'DIGITAL':
+            if event.evtype == 'DIGITAL' and create_ev_digital:
                 # Los eventos digitales van con una DI
                 try:
                     di = DI.objects.get(
@@ -200,7 +227,7 @@ class COMaster(models.Model, ExcelImportMixin):
                     print "Evento recibido de", di.port, di.bit
                 except DI.DoesNotExist:
                     print "Evento para una DI que no existe!!!"
-            elif event.evtype == 'ENERGY':
+            elif event.evtype == 'ENERGY' and create_ev_energy:
                 try:
                     query = dict(
                         ied__rs485_address=event.addr485,
@@ -225,7 +252,7 @@ class COMaster(models.Model, ExcelImportMixin):
                     print "Medicion de energia no reconcible", event
                 except AI.MultipleObjectsReturned:
                     print "Demaciadas AI con ", query
-            elif event.evtype == 'COMSYS':
+            elif event.evtype == 'COMSYS' and create_ev_comsys:
                 try:
                     ied = self.ieds.get(rs485_address=event.addr485)
                     timestamp = container_to_datetime(event)
@@ -248,6 +275,38 @@ class COMaster(models.Model, ExcelImportMixin):
             print e
 
         return di_count, ai_count, sv_count, event_count
+
+    def _process_str_frame(self, a_text_frame, **flags):
+        '''Insert in a frame into a COMaster using construct parsing.
+        This **should** not be used in poll function. It's a helper for
+        commandline for easy recovery of not saved frames.
+        Accepts a frame per line'''
+        from protocols.constructs.structs import hexstr2buffer
+        from protocols.constructs import MaraFrame
+
+        buff = hexstr2buffer(a_text_frame)
+        frame = MaraFrame.parse(buff)
+        print "OK"
+
+    _frame_regex = re.compile(r'(FE ([0-9A-F]{2}\s?){2,512})', re.IGNORECASE)
+
+    def _process_text_frames(self, text, **flags):
+        '''Process many frames. Looks insde text, and can accept file object'''
+        if hasattr(text, 'read'):
+            text = text.read()
+        found, processed = 0, 0
+        for line in text.split('\n'):
+            match = self._frame_regex.search(line)
+            if match:
+                found += 1
+                text_frame = match.group()
+                print text_frame
+
+                self._process_str_frame(text_frame, **flags)
+                processed += 1
+
+        return found, processed
+
 
     def set_ai_quality(self, value):
         pass
