@@ -277,21 +277,31 @@ class COMaster(models.Model, ExcelImportMixin):
         return di_count, ai_count, sv_count, event_count
 
     def _process_str_frame(self, a_text_frame, **flags):
-        '''Insert in a frame into a COMaster using construct parsing.
+        '''
+        Creates crecords from frame into a COMaster entity tree.
         This **should** not be used in poll function. It's a helper for
         commandline for easy recovery of not saved frames.
-        Accepts a frame per line'''
+        Accepts a frame per line.
+        @return True on success, False otherwise
+        '''
         from protocols.constructs.structs import hexstr2buffer
         from protocols.constructs import MaraFrame
 
         buff = hexstr2buffer(a_text_frame)
         frame = MaraFrame.parse(buff)
-        print "OK"
+        success = True
+        try:
+            self.process_frame(frame)
+        except Exception as e:
+            success = False
+            print e
+        return success
 
     _frame_regex = re.compile(r'(FE ([0-9A-F]{2}\s?){2,512})', re.IGNORECASE)
 
     def _process_text_frames(self, text, **flags):
-        '''Process many frames. Looks insde text, and can accept file object'''
+        '''Process many frames. Looks insde text, and can accept file object.
+        @returns (frames_found, frames_processed)'''
         if hasattr(text, 'read'):
             text = text.read()
         found, processed = 0, 0
@@ -306,6 +316,20 @@ class COMaster(models.Model, ExcelImportMixin):
                 processed += 1
 
         return found, processed
+
+    def _process_frame_file(self, path, **flags):
+        with open(path) as fp:
+            ok, n = 0, 0
+            for n, line in enumerate(fp.readlines()):
+                if not line:
+                    continue
+                print n
+                match = self._frame_regex.search(line)
+                if match:
+                    text_frame = match.group()
+                    if self._process_str_frame(text_frame, **flags):
+                        ok += 1
+        return n, ok
 
 
     def set_ai_quality(self, value):
@@ -613,8 +637,6 @@ class Event(models.Model):
     # Keys are profiles, then textev2, value, then text
     _descriptions = {}
 
-
-
     def get_current_descriptions(self):
         '''Returns a dictionary of descriptions for current profile'''
         profile = self.di.ied.co_master.profile
@@ -640,6 +662,7 @@ class Event(models.Model):
     class Meta:
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
+        unique_together = ('di', 'timestamp', 'value')
 
     def propagate_changes(self):
         from apps.hmi.models import SVGElement
@@ -926,7 +949,7 @@ class Energy(models.Model):
     class Meta:
         verbose_name = _("Energy Measure")
         verbose_name_plural = _("Energy Measures")
-
+        unique_together = ('ai', 'timestamp', 'value')
 
 class Action(models.Model, ExcelImportMixin):
     profile = models.ForeignKey(Profile)
