@@ -455,7 +455,7 @@
                                 $dlg.dialog('close');
 
                             }, function (xhr, error, status) {
-                                var erorr = JSON.parse(xhr.responseText);
+                                var error = JSON.parse(xhr.responseText);
                                 var developer = SMVE.hasPermission('mara.change_comaster');
                                 $dlg.dialog('option', 'title', "Ocurrió un error");
                                 $dlg.html('');
