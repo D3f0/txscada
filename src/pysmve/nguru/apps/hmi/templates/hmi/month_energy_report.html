@@ -37,7 +37,7 @@
                     <span class="label label-info">{{ ai.offset }}</span>
                     </th>
                     {% for d in daterange %}
-                    <td class="measure"
+                    <td class="measure {% add_class_if_weekend d "weekend" %}"
                         data-ai-date='{{ d|date:"Y-m-d" }}'>
                         <span "value">{{ measures|getitem:d }}</span>
 

@@ -39,3 +39,30 @@
     background-repeat: no-repeat;
     background-position: center center;
 }
+
+.day-measures-ai {
+    border: 1px solid #ccc;
+}
+
+.day-measures-ai tr td {
+    padding-left: 2px;
+    padding-right: 2px;
+    text-align: center;
+}
+
+.day-measures-ai tr {
+    border-bottom: 1px solid #ccc;
+}
+
+.day-measures-ai tr:first th {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.day-measures-ai tr td:nth-of-type(odd) {
+    background-color:#ccc;
+}
+
+td.weekend {
+    border: 1px dashed red;
+}

@@ -6,6 +6,7 @@
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         });
     };
+
     function objectsToTableInnerHTML(opts) {
         var obects = opts.objects || [],
             columns = opts.columns || [],
@@ -45,6 +46,7 @@
         return body;
 
     }
+
     function createDialogForAIinDate() {
         var $this = $(this);
         var $tr = $this.parents('tr');
@@ -92,7 +94,7 @@
         request.then(function (data, state, resp){
             $dlg.find('p.loading').remove();
             $dlg.css('max-height', '80%').css('overflow-y', 'scroll');
-            var table = $('<table/>').html(
+            var table = $('<table/>').addClass('day-measures-ai').html(
                 objectsToTableInnerHTML({
                     objects: data.objects,
                     columns: ['index', 'timestamp', 'value', 'repr_value'],
@@ -110,9 +112,8 @@
             );
             $dlg.append(table);
             $dlg.dialog("option", "position", "center");
-
-
-
+        }, function () {
+            console.error("Plotting", arguments);
         });
     }
 
