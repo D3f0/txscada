@@ -700,7 +700,7 @@ class Event(models.Model):
             elif tipo == 1:
                 return
             elif tipo == 2:
-                value = int(tag_qs.get(tag=tag).value)
+                value = int(tag_qs.get(tag=tag).text)
                 if value:
                     tag_qs.filter(tag=tag).update(text=1)
 
