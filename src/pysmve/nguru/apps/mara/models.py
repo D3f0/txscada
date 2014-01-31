@@ -154,8 +154,6 @@ class COMaster(models.Model, ExcelImportMixin):
         verbose_name = _("CO Master")
         verbose_name_plural = _("CO Masters")
 
-    from memory_profiler import profile
-    @profile
     def process_frame(self, mara_frame,
                       update_states=True,
                       update_di=True,
