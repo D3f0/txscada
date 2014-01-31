@@ -957,6 +957,7 @@ class Energy(models.Model):
         verbose_name_plural = _("Energy Measures")
         unique_together = ('ai', 'timestamp', 'value')
         permissions = (
+                       ('can_view_power_plot', _('Can view power plot')),
                        ('can_see_month_report', _('Can see month report')),
 
         )
