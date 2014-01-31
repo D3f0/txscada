@@ -90,7 +90,9 @@ class SVGScreen(Screen, ExcelImportMixin):
         unique_together = ('prefix', 'profile')
         verbose_name = _('SVG Screen')
         verbose_name_plural = _('SVG Screens')
-
+        permissions = (
+            ('can_view_realtime', _('Can view realtime screen')),
+        )
 
     @classmethod
     def do_import_excel(cls, workbook, models):

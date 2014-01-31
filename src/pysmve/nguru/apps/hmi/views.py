@@ -14,7 +14,7 @@ from django.db.models.aggregates import Count
 from collections import OrderedDict
 
 
-@login_required(login_url='/login')
+@permission_required('hmi.can_view_realtime')
 def realtime_watch(request):
     """Real time monitoring"""
     # This view could be well be sent to a generic template View.
