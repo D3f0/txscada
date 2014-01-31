@@ -10,6 +10,7 @@
         <title>{%block title%}{% if title %}{{title}}{% else %}S.M.V.E.{% endif %}{%endblock%}</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
+        <link rel="shortcut icon" href="{% static "img/favicon.png" %}" />
 
         <link rel="stylesheet" href="{% static "jquery-ui-bootstrap/assets/css/bootstrap.min.css" %}">
         <style>
@@ -61,6 +62,9 @@
                                 <ul class="dropdown-menu">
                                     {% if user.is_staff %}
                                         <li><a href="{% url mara:index %}">Administración</a></li>
+                                    {% endif %}
+                                    {% if perms.mara.can_see_month_report %}
+                                        <li><a href="{% url month_energy_report %}">Reporte Mediciones</a></li>
                                     {% endif %}
                                     {# <li><a href="{% url websocket_demo %}">Websocket Demo</a></li> #}
                                     {#<li><a href="{% url mara_frame_analizer %}">Analizador de Tramas</a></li>#}

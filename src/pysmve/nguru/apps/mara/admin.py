@@ -39,10 +39,10 @@ class COMasterAdmin(admin.ModelAdmin):
                     'rs485_source', 'rs485_destination', 'peh_time')
 
     fieldsets = (
-        (_("Internal"), {
-            'classes': ('collapse', ),
-            'fields': ('profile', )
-            }),
+         # (_("Internal"), {
+         #   'classes': ('collapse', ),
+         #   'fields': ('profile', )
+         #   }),
         (_("Connection"),{
             'fields': ('enabled', ('ip_address', 'port'), )
             }),

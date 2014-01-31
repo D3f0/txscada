@@ -426,12 +426,21 @@ class Formula(models.Model, ExcelImportMixin):
             formula.save()
 
     @classmethod
-    def calculate(cls, now=None):
+    def calculate(cls, comaster_pk=None, now=None):
+        '''
+        Calculates and updates EGs based on the formula table.
+        '''
         if not now:
             now = datetime.now()
 
-        ai = generate_tag_context(AI.objects.values('tag', 'escala', 'value', 'q'))
-        di = generate_tag_context(DI.objects.values('tag', 'value'))
+        filters = dict(ied__co_master__pk=comaster_pk)
+        filters = {}
+
+        ai = generate_tag_context(AI.objects.filter(**filters).values(
+                                  'tag', 'escala', 'value', 'q')
+                                  )
+        di = generate_tag_context(DI.objects.filter(**filters).values('tag', 'value')
+                                  )
         eg = generate_tag_context(
             SVGElement.objects.values('tag', 'text', 'fill', 'stroke', 'mark'))
         # Generate context for formula evaluation

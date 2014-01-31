@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
 {% load i18n %}
+
+
 {% block extraheader %}
-<link rel="stylesheet" href="{% static "jqGrid/css/ui.jqgrid.css" %}">
-<link rel="stylesheet" href="{% static "hmi/css/realtime_watch.css" %}">
+    <link rel="stylesheet" href="{% static "jqGrid/css/ui.jqgrid.css" %}">
+    <link rel="stylesheet" href="{% static "hmi/css/realtime_watch.css" %}">
 {% endblock %}
 
 
@@ -95,13 +97,15 @@
     <script type="text/javascript" src="{% static "jquery.svg/jquery.svggraph.js" %}"></script>
     <script type="text/javascript" src="{% static "jquery.svg/jquery.svgplot.js" %}"></script>
     <script type="text/javascript" src="{% static "jquery.svg/jquery.svg.js" %}"></script>
+    {% load jsutils %}
     <script type="text/javascript">
         // Global namespace
         if (typeof(SMVE) == 'undefined') {
             SMVE = {};
         }
         jQuery.extend(SMVE, {
-            update: true
+            update: true,
+            perms: {% user_perm_array %} {# permission dump #}
         });
 
     </script>

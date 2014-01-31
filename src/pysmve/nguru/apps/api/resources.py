@@ -159,6 +159,9 @@ class AIResource(ModelResource):
         queryset = AI.objects.all()
         allowed_methods = ['get', ]
         ordering = AI._meta.get_all_field_names()
+        filtering = {
+            'id': ALL,
+        }
 api.register(AIResource())
 
 
@@ -173,11 +176,26 @@ api.register(AIResource())
 class EnergyResource(ModelResource):
 
     """REST resource for Energy"""
+
+    ai = fields.ForeignKey(AIResource, 'ai')
+
     class Meta:
         resource_name = 'energy'
-        queryset = Energy.objects.all()
+        queryset = Energy.objects.select_related('ai')
         allowed_methods = ['get', ]
         ordering = Energy._meta.get_all_field_names()
+        filtering = {
+            'timestamp': ALL,
+            'ai': ALL_WITH_RELATIONS,
+        }
+
+    def dehydrate(self, bundle):
+        ing_value = bundle.obj.value * bundle.obj.ai.escala
+        bundle.data['ing_value'] = ing_value
+        bundle.data['repr_value'] = '%s %s' % (ing_value, bundle.obj.ai.unit)
+
+        return bundle
+
 api.register(EnergyResource())
 
 

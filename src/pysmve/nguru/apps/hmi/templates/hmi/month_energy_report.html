@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load utils %}
+{% load static %}
+
+{% block extraheader %}
+    {{ block.super}}
+    <link rel="stylesheet" href="{% static "hmi/css/month_energy_report.css" %}">
+{% endblock extraheader %}
+
+{% block content %}
+    <h1>Reporte Mensual de Energía: {{ period }}</h1>
+    <div class="well" style="text-align: center">
+
+        {% if prev_url %}
+            <a href="{{ prev_url }}" class="btn previous">&laquo; Anterior</a>
+        {% endif %}
+        Solo se muestran los COMaster que tiene alguna AI
+        {% if next_url %}
+            <a href="{{ next_url }}" class="btn next">Siguiente &raquo;</a>
+        {% endif %}
+
+    </div>
+    {% for comaster, ais in energy_dict.iteritems %}
+        <h4 class="comaster_title">{{ comaster }}</h4>
+        <table class="measures">
+            <tr>
+                <th>Medición</th>
+                {% for d in daterange %}
+                    <th>{{ d.day }}</th>
+                {% endfor %}
+
+            </tr>
+            {% for ai, measures in ais.iteritems %}
+                <tr data-ai-pk='{{ ai.pk }}' data-ai-description='{{ai.description}}'>
+                    <th title="{{ai}}" class="ai_description">
+                    <span class="label">{{ ai.ied.rs485_address }}</span>
+                    <span class="label label-info">{{ ai.offset }}</span>
+                    </th>
+                    {% for d in daterange %}
+                    <td class="measure"
+                        data-ai-date='{{ d|date:"Y-m-d" }}'>
+                        <span "value">{{ measures|getitem:d }}</span>
+
+                    </td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+
+        </table>
+
+    {% endfor %}
+        <hr />
+        <div class="well">
+
+        {% if prev_url %}
+
+            <a href="{{ prev_url }}" class="btn previous">&laquo; Anterior</a>
+        {% endif %}
+        {% if next_url %}
+            <a href="{{ next_url }}" class="btn next">Siguiente &raquo;</a>
+        {% endif %}
+
+        </div>
+{% endblock content %}
+
+{% block endscripts %}
+    <script type="text/javascript" src="{% static "js/string-format.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/xdate.js" %}"></script>
+    <script type="text/javascript" src="{% static "hmi/js/jqobjectools.js" %}"></script>
+    <script type="text/javascript" src="{% static "hmi/js/queryobj.js" %}"></script>
+    <script src="{% static "hmi/js/month_energy_report.js" %}"></script>
+{% endblock endscripts %}

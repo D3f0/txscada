@@ -6,8 +6,32 @@ from twisted.internet import reactor
 from optparse import make_option
 from protocols.mara.client import MaraClientProtocolFactory, MaraClientDBUpdater
 import logging
+from multiprocessing import Process
+
+def dbsaver(frame_queue_address):
+    '''
+    Pops frames from a ZMQ queue (PUB/SUB) and save them to
+    database. It executes blocking django code that may hurt twisted
+    asynchronous nature
+
+    [twisted poll] ---> [ queue device] ---> [dbsaver]
+    '''
+    import zmq
+    context = zmq.Context()
+    socket = context.socket(zmq.SUB)
+    socket.connect(frame_queue_address)
+
+    while True:
+        data = sock.get_data()
+        if data['msg_type'] == 'FRAME':
+            comaster = comasters[data['ip_address']]
+            comaster.process_frame(data['frame'])
+
 
 class Command(NoArgsCommand):
+    '''
+    Poll for data
+    '''
     option_list = NoArgsCommand.option_list + (
         make_option('-p', '--profile', default=None),
         make_option('-r', '--reconnect', default=False,

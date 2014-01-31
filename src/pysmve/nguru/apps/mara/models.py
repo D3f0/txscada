@@ -154,6 +154,8 @@ class COMaster(models.Model, ExcelImportMixin):
         verbose_name = _("CO Master")
         verbose_name_plural = _("CO Masters")
 
+    from memory_profiler import profile
+    @profile
     def process_frame(self, mara_frame,
                       update_states=True,
                       update_di=True,
@@ -162,7 +164,8 @@ class COMaster(models.Model, ExcelImportMixin):
                       create_events=True,
                       create_ev_digital=True,
                       create_ev_energy=True,
-                      create_ev_comsys=True):
+                      create_ev_comsys=True,
+                      calculate=True):
         '''Takes a Mara frame (from construct) and saves its components
         in related COMaster models (DI, AI, SV) and Events.
         It accepts flags for processing. There are two general flags called
@@ -268,11 +271,12 @@ class COMaster(models.Model, ExcelImportMixin):
                 except ComEvent.DoesNotExist:
                     print "No se puede crear el Evento tipo 3"
 
-        from apps.hmi.models import Formula
-        try:
-            Formula.calculate()
-        except Exception, e:
-            print e
+        if calculate:
+            from apps.hmi.models import Formula
+            try:
+                Formula.calculate()
+            except Exception, e:
+                print e
 
         return di_count, ai_count, sv_count, event_count
 
@@ -318,6 +322,8 @@ class COMaster(models.Model, ExcelImportMixin):
         return found, processed
 
     def _process_frame_file(self, path, **flags):
+        #from pympler import tracker
+        #tr = tracker.SummaryTracker()
         with open(path) as fp:
             ok, n = 0, 0
             for n, line in enumerate(fp.readlines()):
@@ -329,6 +335,8 @@ class COMaster(models.Model, ExcelImportMixin):
                     text_frame = match.group()
                     if self._process_str_frame(text_frame, **flags):
                         ok += 1
+                #print tr.print_diff()
+
         return n, ok
 
 
@@ -950,6 +958,11 @@ class Energy(models.Model):
         verbose_name = _("Energy Measure")
         verbose_name_plural = _("Energy Measures")
         unique_together = ('ai', 'timestamp', 'value')
+        permissions = (
+                       ('can_see_month_report', _('Can see month report')),
+
+        )
+
 
 class Action(models.Model, ExcelImportMixin):
     profile = models.ForeignKey(Profile)

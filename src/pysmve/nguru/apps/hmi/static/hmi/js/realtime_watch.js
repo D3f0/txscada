@@ -455,13 +455,29 @@
                                 $dlg.dialog('close');
 
                             }, function (xhr, error, status) {
+                                var erorr = JSON.parse(xhr.responseText);
+                                var developer = SMVE.hasPermission('mara.change_comaster');
                                 $dlg.dialog('option', 'title', "Ocurrió un error");
-                                $dlg.html("El servidor respondió: "+status);
+                                $dlg.html('');
+                                $dlg.append($('<p>').text(
+                                        "El servidor respondio: %s".format(status)
+                                    )
+                                );
+                                if (developer) {
+                                    $dlg.append(
+
+                                        $('<pre>').text(error.traceback)
+                                    );
+                                }
+
+                                //debugger;
                                 $(".ui-dialog-buttonpane button").button("disable");
                                 $(".ui-dialog-buttonpane button.ui-state-focus").button("disable");
-                                window.setTimeout(function () {
-                                    $dlg.dialog('close');
-                                }, 1000);
+                                if (!developer) {
+                                    window.setTimeout(function () {
+                                        $dlg.dialog('close');
+                                    }, 1000);
+                                }
                             });
 
                         }
@@ -796,6 +812,9 @@
             },
             getScreen: function (resource_uri) {
                 return screenResource[resource_uri];
+            },
+            hasPermission: function (permission) {
+                return SMVE.perms.indexOf(permission) > 0;
             }
         });
         $(init);

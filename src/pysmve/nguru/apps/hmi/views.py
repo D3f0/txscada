@@ -5,8 +5,13 @@ from apps.hmi.models import SVGScreen
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from django.http import HttpResponseRedirect
-from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.urlresolvers import reverse
+from apps.mara.models import Profile, COMaster, Energy, AI
+import calendar
+from datetime import date, datetime, timedelta
+from django.db.models.aggregates import Count
+from collections import OrderedDict
 
 
 @login_required(login_url='/login')
@@ -44,3 +49,64 @@ def formula_calc(request):
     """This view is meant for debugging formula calc bakend"""
     pass
 
+
+@permission_required('mara.can_see_month_report')
+def month_energy_report(request, year=None, month=None):
+    today = date.today()
+    try:
+        year, month = int(year), int(month)
+        start_date = date(year, month, 1)
+    except (ValueError, TypeError):
+        url = reverse('month_energy_report', kwargs={'month': today.month,
+                                                     'year': today.year})
+        return HttpResponseRedirect(url)
+
+    cal = calendar.Calendar()
+    daterange = [ d for d in cal.itermonthdates(year, month) if d.month == month ]
+
+    comaster_month_energies = {}
+    date_from = datetime(year, month, 1)
+    _, last_day = calendar.monthrange(year, month)
+    date_to = datetime(year, month, last_day, 23, 59, 59)
+
+
+    # COMaster -> AI
+    for comaster in COMaster.objects.all():
+        ai_qs = AI.objects.filter(ied__co_master=comaster).order_by('ied__pk', 'pk')
+
+        if not ai_qs.count():
+            continue
+        ais = comaster_month_energies.setdefault(comaster, OrderedDict())
+        for n, ai in enumerate(ai_qs):
+            by_date = ais.setdefault(ai, {})
+            ai_measures = Energy.objects.filter(ai=ai,
+                                                timestamp__gte=date_from,
+                                                timestamp__lte=date_to)
+            ai_measures = ai_measures.extra({'d': 'date(timestamp)'})
+            ai_measures = ai_measures.values('d').annotate(count=Count('id'))
+            for date_count in ai_measures:
+                by_date[date_count['d']] = date_count['count']
+
+    # Previous and next links
+    prev_url, next_url = None, None
+
+    prev_date = date_from - timedelta(days=1)
+    if Energy.objects.filter(timestamp__lte=prev_date).count():
+        prev_url = reverse('month_energy_report', kwargs={'month': prev_date.month,
+                                                          'year': prev_date.year})
+    next_date = date(year, month, last_day) + timedelta(days=1)
+    if next_date < today:
+        next_url = reverse('month_energy_report', kwargs={'month': next_date.month,
+                                                          'year': next_date.year})
+
+
+    period = start_date.strftime('%m/%y')
+    data = {
+        'energy_dict': comaster_month_energies,
+        'daterange': daterange,
+        'prev_url': prev_url,
+        'next_url': next_url,
+        'period': period,
+    }
+    return render_to_response('hmi/month_energy_report.html',
+                              context_instance=RequestContext(request, data))
