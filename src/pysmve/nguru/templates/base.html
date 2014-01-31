@@ -78,7 +78,7 @@
                                     <li class="divider"></li>
                                     <!--<li class="nav-header">Nav header</li>-->
                                     {% if user.is_authenticated %}
-                                    <li><a href="{% url mara:logout %}">Cerrar Sesión</a></li>
+                                    <li><a href="{% url logout %}">Cerrar Sesión</a></li>
                                     {% else %}
                                     <li><a href="{% url login %}">Iniciar Sesión</a></li>
                                     {% endif %}
