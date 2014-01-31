@@ -129,6 +129,11 @@ def update_static_media():
             print(colors.green("Installing dependencies"))
             run('python manage.py collectstatic --noinput')
 
+def update_permissions():
+    with cd(env.code_path):
+        with prefix(env.venv_prefix):
+            run('python manage.py update_permissions')
+
 
 @task
 def install(host=''):
@@ -155,6 +160,7 @@ def update(host=''):
             get_repo()
             install_dependencies()
             update_static_media()
+            update_permissions()
 
 
 @task
