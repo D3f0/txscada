@@ -27,8 +27,11 @@ from __future__ import division
 # Uncomment the line below for readline support on interactive terminal
 # import readline
 import re
-from pyparsing import Word, alphas, ParseException, Literal, CaselessLiteral \
-    , Combine, Optional, nums, Or, Forward, ZeroOrMore, StringEnd, alphanums
+from pyparsing import (Word, alphas, ParseException,
+                       Literal, CaselessLiteral,
+                       Combine, Optional, nums, Or, Forward,
+                       ZeroOrMore, StringEnd, alphanums)
+
 import math
 
 # Debugging flag can be set to either "debug_flag=True" or "debug_flag=False"
@@ -94,6 +97,10 @@ opn = {"+": (lambda a, b: a + b),
 # Recursive function that evaluates the stack
 
 
+print "Hola"
+import sys
+sys.exit()
+
 def evaluateStack(s):
     op = s.pop()
     if op in "+-*/^":
@@ -113,6 +120,9 @@ def evaluateStack(s):
         return long(op)
     else:
         return float(op)
+
+
+formula = 'SI(int(eg.E4289S01.text),eg.E42BAR00.stroke,12)'
 
 if __name__ == '__main__':
     # input_string
@@ -141,7 +151,8 @@ if __name__ == '__main__':
                 if debug_flag:
                     print "exprStack=", exprStack
 
-                # calculate result , store a copy in ans , display the result to user
+                # calculate result , store a copy in ans , display the result
+                # to user
                 result = evaluateStack(exprStack)
                 variables['ans'] = result
                 print result

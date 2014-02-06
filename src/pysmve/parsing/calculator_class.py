@@ -1,6 +1,9 @@
 from pyparsing import Word, nums, Literal, ParseException
 from string import lowercase
 
+
+'str(ai.E4CVV_01.value*ai.E4CVV_01.escala)'
+
 class Calculator(object):
     nonzero = ''.join([str(i) for i in range(1, 10)])
     integer = Word(nonzero, nums)
