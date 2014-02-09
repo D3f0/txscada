@@ -51,13 +51,27 @@ dictStr.setParseAction( cvtDict )
 
 identifier = Word(alphas+'_', alphanums+'_')
 
-# definitions of real, integer, dict_literal, list_literal, tuple_literal go here
-# see further text below
-
-number = Regex(r"\-?\d+(\.\d+)?")
 
 # define a placeholder for func_call - we don't have it yet, but we need it now
 func_call = Forward()
+
+# Arithmetics (from http://pyparsing.wikispaces.com/file/view/simpleArith.py)
+expop = Literal('^')
+signop = oneOf('+ -')
+multop = oneOf('* /')
+plusop = oneOf('+ -')
+factop = Literal('!')
+
+operand = identifier | real | integer | func_call
+
+arithmetic_expr = operatorPrecedence( operand,
+    [("!", 1, opAssoc.LEFT),
+     ("^", 2, opAssoc.RIGHT),
+     (signop, 1, opAssoc.RIGHT),
+     (multop, 2, opAssoc.LEFT),
+     (plusop, 2, opAssoc.LEFT),]
+    )
+
 
 #arg_expr = identifier | real | integer | dictStr | listStr | tupleStr | func_call
 arg_expr = identifier | real | integer | func_call
@@ -66,7 +80,7 @@ named_arg = identifier + '=' + arg_expr
 
 # to define func_arg, must first see if it is a named_arg
 # why do you think this is?
-func_arg = named_arg | arg_expr
+func_arg = named_arg | arg_expr | arithmetic_expr
 
 #deref_list = '*' + (identifier | list_literal | tuple_literal)
 #deref_dict = '**' + (identifier | dict_literal)
@@ -81,8 +95,12 @@ func_arg = named_arg | arg_expr
 # string
 func_call << identifier + lparen + delimitedList(func_arg) + rparen
 
+
+grammar = (arithmetic_expr | func_call)
+
 def test():
-    print func_call.parseString('sin(cos(20))')
+    print grammar.parseString('3+4')
+    print grammar.parseString('sin(3+4)')
 
 
 

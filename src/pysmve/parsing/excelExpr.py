@@ -4,23 +4,21 @@
 #
 # A partial implementation of a parser of Excel formula expressions.
 #
-
 from pyparsing import (CaselessKeyword, Suppress, Word, alphas,
-                       alphanums, nums, Optional, Group, oneOf, Forward, Regex,
-                       operatorPrecedence, opAssoc, dblQuotedString, delimitedList,
-                       Combine, Literal, QuotedString)
+    alphanums, nums, Optional, Group, oneOf, Forward, Regex,
+    operatorPrecedence, opAssoc, dblQuotedString, delimitedList,
+    Combine, Literal, QuotedString)
 
-
-EQ, EXCL, LPAR, RPAR, COLON, COMMA = map(Suppress, '=!():,')
-EXCL, DOLLAR = map(Literal, "!$")
-sheetRef = Word(alphas, alphanums) | QuotedString("'", escQuote="''")
-colRef = Optional(DOLLAR) + Word(alphas, max=2)
+EQ,EXCL,LPAR,RPAR,COLON,COMMA = map(Suppress, '=!():,')
+EXCL, DOLLAR = map(Literal,"!$")
+sheetRef = Word(alphas, alphanums) | QuotedString("'",escQuote="''")
+colRef = Optional(DOLLAR) + Word(alphas,max=2)
 rowRef = Optional(DOLLAR) + Word(nums)
 cellRef = Combine(Group(Optional(sheetRef + EXCL)("sheet") + colRef("col") +
-                  rowRef("row")))
+                    rowRef("row")))
 
-cellRange = (Group(cellRef("start") + COLON + cellRef("end"))("range") | cellRef |
-             Word(alphas, alphanums))
+cellRange = (Group(cellRef("start") + COLON + cellRef("end"))("range")
+                | cellRef | Word(alphas,alphanums))
 
 expr = Forward()
 
@@ -33,7 +31,7 @@ ifFunc = (CaselessKeyword("if") +
           COMMA + expr("if_true") +
           COMMA + expr("if_false") + RPAR)
 
-statFunc = lambda name: CaselessKeyword(name) + LPAR + delimitedList(expr) + RPAR
+statFunc = lambda name : CaselessKeyword(name) + LPAR + delimitedList(expr) + RPAR
 sumFunc = statFunc("sum")
 minFunc = statFunc("min")
 maxFunc = statFunc("max")
