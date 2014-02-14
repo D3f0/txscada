@@ -1,0 +1,220 @@
+/**
+ * Django style
+ *
+ * Backgrounds:
+ * Green1: #94DA3A;
+ * Green2: #487858;
+ * Green3: #326343;
+ * Green4: #235033;
+ * Green5: #092d1f;
+ *
+ * Titles:
+ * Dark: #063233;
+ * GreenPastel: #7bb09c;
+ * Yellow: #ffe971;
+ *
+ */
+body {
+  font: 14px "Calibri", "Trebuchet MS", Verdana, sans-serif;
+  background: #235033;
+}
+
+pre, code {
+  font-family: Monaco, monospace;
+}
+
+pre {
+  background: #092d1f;
+  color: #fff;
+  padding: 1em;
+  border-radius: 10px;
+}
+
+blockquote {
+    border-left: 0px;
+}
+
+p code, li code {
+  color: #487858;
+}
+
+div.slide strong {
+  color: #326343;
+}
+
+div.slide {
+  background: #092d1f;
+}
+
+div.slide .inner {
+  background: #fff;
+  border-radius: 13px;
+  width: 880px;
+  margin: 0 auto;
+}
+
+section {
+  min-height: 590px;
+}
+
+header:not(:only-child) {
+  font-family: "Calibri";
+  color: #fff;
+}
+
+aside {
+  font-family: "Calibri";
+  color: #092d1f;
+  bottom: 16px;
+}
+
+div.slide.title header {
+  background: #092d1f;
+  border-radius: 10px;
+}
+
+div.slide.title header h1 {
+  color: #fff;
+}
+
+div.slide.title blockquote p {
+    color: #fff;
+    font-size: 0.8em;
+}
+
+div.slide blockquote p {
+  color: #444;
+  font-family: Georgia, serif;
+  font-size: 1.2em;
+  font-style: italic;
+  line-height: 1em;
+  text-align: center;
+}
+
+div.slide.fullimage section {
+  text-align: center;
+}
+
+div.slide.fullimage li {
+  text-align: left;
+}
+
+div.slide.fullimage img {
+  max-width: 96%;
+  max-height: 78%;
+  border-radius: 4px;
+  /*-moz-box-shadow: 0px 7px 15px #aaa;
+  -webkit-box-shadow: 0px 7px 15px #aaa;
+  box-shadow: 0px 7px 15px #aaa;*/
+}
+
+div.slide p.cite {
+  text-align: right;
+}
+
+div.slide.smallest {
+  font-size: 80%;
+}
+
+div.slide.bigbullet h3 {
+  font-size: 250%;
+}
+
+div.slide.bigbullet ul li {
+  font-size: 240%;
+}
+
+div.slide.bigbullet ul li li {
+  font-size: 90%;
+}
+
+div.slide.bigbullet ul li small {
+  font-size: 50%;
+}
+
+div.slide.smallbullet h3 {
+  font-size: 90%;
+}
+
+div.slide.smallbullet ul li {
+    font-size: 90%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+div.slide.smallbullet ul li li {
+    font-size: 70%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+div.slide.smallbullet ul li small {
+    font-size: 60%;
+}
+
+div.slide.centerquote section {
+  min-height: 590px;
+}
+
+div.slide.centerquote blockquote {
+  display: table-cell;
+  width: 800px;
+  height: 500px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+div.slide.centerquote blockquote p {
+  font-size: 280%;
+  padding: 0 20px;
+}
+
+div.slide.larger section * {
+  font-size: 200%;
+}
+
+div.slide.larger section pre {
+  font-size: 70%;
+}
+
+div.slide.larger section p code,
+div.slide.larger section h3 code,
+div.slide.larger section li code {
+  font-size: 90%;
+}
+
+p.cop {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  margin: 0;
+  padding: .2em 0;
+  color: #fff;
+  text-align: center;
+  color: #fff;
+  background: #092d1f;
+}
+
+p.cop strong {
+  color: ##092d1f;
+}
+
+p.cop a {
+  color: #ffe971;
+}
+
+dt, dl {
+  font: 20px "Calibri", "Trebuchet MS", Verdana, sans-serif;
+}
+
+dl {
+  margin-bottom: 1em;
+}
+
+dt {
+  font-weight: bolder;
+  margin-top: 5px;
+}
+.highlight > pre {
+  background: #98C088;
+}
