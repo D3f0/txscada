@@ -88,7 +88,7 @@ class MaraClientProtocol(protocol.Protocol):
         return Container(
             source=self.output.source,
             dest=0xFF,
-            sequence=self.output.sequence,
+            sequence=0xBB,
             command=0x12,
             peh=datetime.now()
         )
