@@ -701,7 +701,7 @@
                     svg_bg = $svg_attributes.attr('pagecolor');
 
             });
-            //$('#update_toggle').on('click', updateToggle);
+            $('#update_toggle').on('click', updateToggle);
         }
 
         function setUpdatesEnabled(enabled) {
