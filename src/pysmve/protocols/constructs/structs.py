@@ -62,8 +62,7 @@ CodeIdle = BitStruct('codeidle',
 
 # Segundo byte del evento de diangóstico
 CodeMotiv = BitStruct('codemotiv',
-                    BitField('code', 4),
-                    BitField('motiv', 4),
+                    BitField('motiv', 8),
                     )
 
 TimerTicks = Struct('ticks',
