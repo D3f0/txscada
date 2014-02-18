@@ -149,6 +149,12 @@ class MaraClientProtocol(protocol.Protocol):
 
             # Calcular próxima sequencia
             # FIXME: Checkear que la secuencia sea == a self.output.sequence
+            if self.input.length < 0xA:
+                self.logger.error("Paquete de largo insuficiente")
+                return
+            if self.input.sequence != self.output.sequence:
+                self.logger.error("Paquete secuencia diferente")
+                return
 
             self.logger.debug("Message OK")
             #self.incrementSequenceNumber()
