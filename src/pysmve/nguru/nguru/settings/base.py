@@ -170,7 +170,6 @@ INSTALLED_APPS = (
 
     'django_js_reverse',
 
-    'redisboard',
 )
 
 try:
