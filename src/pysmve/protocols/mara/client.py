@@ -29,7 +29,6 @@ class MaraClientProtocol(protocol.Protocol):
 
     save_events = True
 
-
     def __init__(self, factory):
         self.factory = factory
         self.state = 'IDLE'
@@ -294,6 +293,19 @@ class MaraClientDBUpdater(MaraClientProtocol):
     def saveInDatabase(self):
         self.factory.comaster.process_frame(self.input)
         #transaction.commit()
+
+
+class MaraClientPackageRedisPublisher(MaraClientProtocol):
+    '''
+    Every time a package has been received, it sends it through
+    Redis for processing
+    '''
+    redis_host = None
+    redis_port = None
+
+    def saveInDatabase(self):
+        clientCreator = protocol.ClientCreator(reactor, RedisClient)
+        redis = yield clientCreator.connectTCP(HOST, PORT)
 
 class MaraClientProtocolFactory(protocol.ClientFactory):
 
