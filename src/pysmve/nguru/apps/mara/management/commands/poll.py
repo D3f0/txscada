@@ -4,7 +4,9 @@ from django.core.management.base import NoArgsCommand, CommandError
 from apps.mara.models import Profile
 from twisted.internet import reactor
 from optparse import make_option
-from protocols.mara.client import MaraClientProtocolFactory, MaraClientDBUpdater
+from protocols.mara.client import (MaraClientProtocolFactory,
+                                   MaraClientDBUpdater,
+                                   MaraClientPackageRedisPublisher)
 import logging
 from multiprocessing import Process
 
@@ -54,11 +56,14 @@ class Command(NoArgsCommand):
     def handle_noargs(self, **options):
         self.logger = logging.getLogger('commands')
 
-
         profile = self.get_profile(options.get('profile'))
 
-        MaraClientProtocolFactory.protocol = MaraClientDBUpdater
-        MaraClientProtocolFactory.defer_db_save = options.get('defer_db_save')
+        # COnfigure Protocol
+        MaraClientProtocolFactory.protocol = MaraClientPackageRedisPublisher
+        # Redis class setup
+        MaraClientProtocolFactory.protocol.redis_host = settings.REDIS_HOST
+        MaraClientProtocolFactory.protocol.redis_port = settings.REDIS_PORT
+        MaraClientProtocolFactory.protocol.redis_password = settings.REDIS_PASSWORD
 
         for comaster in profile.comasters.filter(enabled=True):
             self.logger.debug("Conectando con %s" % comaster)
