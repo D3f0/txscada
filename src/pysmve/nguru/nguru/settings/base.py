@@ -170,7 +170,15 @@ INSTALLED_APPS = (
 
     'django_js_reverse',
 
+    'redisboard',
 )
+
+try:
+    import gunicorn
+except ImportError as e:
+    pass
+else:
+    INSTALLED_APPS += ('gunicorn',)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

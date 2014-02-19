@@ -8,6 +8,8 @@ from zmq import *
 from websockets import *
 # Django query by example
 from qbe import *
+# Redis
+from redis import *
 
 try:
     from local_settings import *
