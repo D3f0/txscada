@@ -257,12 +257,7 @@ class COMaster(models.Model, ExcelImportMixin):
                 try:
                     ied = self.ieds.get(rs485_address=event.addr485)
                     timestamp = container_to_datetime(event)
-                    try:
-                        kind = ComEventKind.objects.get(code=event.code)
-                    except ComEventKind.DoesNotExist:
-                        kind = None
                     ied.comevent_set.create(
-                        kind=kind,
                         motiv=event.motiv,
                         timestamp=timestamp
                     )
@@ -668,7 +663,7 @@ class Event(models.Model):
     class Meta:
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
-        unique_together = ('di', 'timestamp', 'value')
+        #unique_together = ('di', 'timestamp', 'value')
 
     def propagate_changes(self):
         from apps.hmi.models import SVGElement
@@ -687,7 +682,7 @@ class Event(models.Model):
         if not self.timestamp_ack:
             if tipo == 0:
                 tag_tmp = tag.replace('51_', '52B')
-                text = '1' if self.timestamp_ack else '0'
+                text = '1' 
                 if self.value:
                     tag_qs.filter(tag=tag).update(text=text)
                     tag_qs.filter(tag=tag_tmp).update(text=text)
@@ -702,7 +697,7 @@ class Event(models.Model):
             elif tipo == 2:
                 value = int(tag_qs.get(tag=tag).text)
                 if value:
-                    tag_qs.filter(tag=tag).update(text=1)
+                    tag_qs.filter(tag=tag).update(text='0')
 
 
 
@@ -796,7 +791,6 @@ class ComEventKind(models.Model, ExcelImportMixin):
 class ComEvent(GenericEvent):
     motiv = models.IntegerField()
     ied = models.ForeignKey(IED)
-    kind = models.ForeignKey(ComEventKind, blank=True, null=True)
 
     @property
     def description(self):
@@ -955,7 +949,7 @@ class Energy(models.Model):
     class Meta:
         verbose_name = _("Energy Measure")
         verbose_name_plural = _("Energy Measures")
-        unique_together = ('ai', 'timestamp', 'value')
+        #unique_together = ('ai', 'timestamp', 'value')
         permissions = (
                        ('can_view_power_plot', _('Can view power plot')),
                        ('can_see_month_report', _('Can see month report')),
