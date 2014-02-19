@@ -10,6 +10,5 @@ class ProfileFactory(factory.Factory):
 class COMasterFactory(factory.Factory):
     FACTORY_FOR = COMaster
 
-
 class IEDFactory(factory.Factory):
     FACTORY_FOR = IED
