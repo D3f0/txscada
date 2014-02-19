@@ -2,23 +2,24 @@ import pyparsing
 # esto es para acelerar el proceso de parseo
 pyparsing.ParserElement.enablePackrat()
 
-from pyparsing import nestedExpr
-from pyparsing import Group
-from pyparsing import Literal
-from pyparsing import CaselessLiteral
-from pyparsing import delimitedList
-from pyparsing import Optional
-from pyparsing import nums
-from pyparsing import Combine
-from pyparsing import oneOf
-from pyparsing import opAssoc
-from pyparsing import operatorPrecedence
-from pyparsing import Suppress
-from pyparsing import alphanums
-from pyparsing import alphas
-from pyparsing import Word
-from pyparsing import Forward
-
+from pyparsing import (nestedExpr,
+                       Group,
+                       Literal,
+                       CaselessLiteral,
+                       delimitedList,
+                       Optional,
+                       nums,
+                       Combine,
+                       oneOf,
+                       opAssoc,
+                       operatorPrecedence,
+                       Suppress,
+                       alphanums,
+                       alphas,
+                       Word,
+                       Forward,
+                       Regex,
+                       )
 
 dot = Literal(".")
 underscore = "_"
@@ -38,12 +39,18 @@ eq = Literal("=")
 alphanums_extended = alphanums + "-_"
 
 # deficion de numero estilo JSON
-number = Combine( Optional('-') +
+number_ext = Combine( Optional('-') +
                     ( '0' | Word('123456789', nums) ) +
                     Optional( '.' + Word(nums) ) +
                     Optional( Word('eE', exact=1) +
                     Word(nums + '+-', nums) ) ).setName("number")
 
+number = Regex(r"\-?\d+(\.\d+)?")
+
+def numberParseAction(s, p, t):
+    import ipdb; ipdb.set_trace()
+
+number.setParseAction(numberParseAction)
 
 # queda para definir mas adelante en el codigo
 expression = Forward()
@@ -73,16 +80,21 @@ lambda_expression << Group(lambda_name +
                            Suppress(":") +
                            term).setName("lambda expr")
 
+def operations_parse_action(s, p, ts):
+    import ipdb; ipdb.set_trace()
+
 expression << operatorPrecedence(term,[
     (oneOf("* /"), 2, opAssoc.LEFT),
     (oneOf("+ -"), 2, opAssoc.LEFT),
     (lt | le | gt | ge | eq, 2, opAssoc.LEFT),
-])
+]).setParseAction(operations_parse_action)
 
-def experssionParseAction(a, b, c):
-    print a, b, c
 
-expression.setParseAction(experssionParseAction)
+
+#def experssionParseAction(a, b, c):
+#    print a, b, c
+
+#expression.setParseAction(experssionParseAction)
 
 
 function_name = Word(alphas).setName("function_name")
@@ -91,7 +103,7 @@ function << Group(function_name +
                 Suppress(lparen) +
                 arguments +
                 Suppress(rparen)).setName("function")
-rule = function | expression
+#rule = function | expression
 
 entity << Group((si | ai | eg).setName("entity class") +
                 Suppress(dot) +
@@ -102,7 +114,9 @@ entity << Group((si | ai | eg).setName("entity class") +
 
 
 
-def test():
+def test(*args, **kwargs):
+    '''Test experssion against a set of formulas stored in
+    a plain text file'''
     ok, errors, count = 0, 0, 0
     with open('formulas.txt') as fp:
         for line in fp:
@@ -123,5 +137,42 @@ def test():
             print "=" * 10
     print "Lines %d OK: %d Errors: %d" % (count, ok, errors)
 
+
+# Testing
+import unittest
+class TestFormula(unittest.TestCase):
+    def setUp(self):
+        self.fp = open('formulas.txt')
+
+    def test_function(self):
+        result = expression.parseString('SUM(1,1)')
+        self.assertEqual(len(result), 1, "Result evaulation should be only length 1")
+
+    def test_function_1(self):
+        result = expression.parseString('2+2+4')
+
+        self.assertEqual(len(result), 1, "Result evaulation should be only length 1")
+
+    def tearDown(self):
+        self.fp.close()
+
+
+def evaluate(parsed, context):
+
+    for expr in parsed:
+        if expr[0] == 'SUM':
+            pass
+
+def main(argv):
+    parsed = expression.parseString(argv[1])
+    evaluate(parsed, context={})
+
+
 if __name__ == '__main__':
-    test()
+    import sys
+    if sys.argv[1] == 'test':
+        test()
+    elif len(argv[1:]):
+        main(argv)
+    else:
+        pass
