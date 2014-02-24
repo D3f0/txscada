@@ -1,0 +1,16 @@
+{
+  "name": "string-format",
+  "main": "string-format.js",
+  "version": "1.0.2",
+  "homepage": "https://github.com/jsoverson/string-format",
+  "_release": "1.0.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.2",
+    "commit": "66138ab0420836dc9030b82a17b42569e6030ecf"
+  },
+  "_source": "git://github.com/jsoverson/string-format.git",
+  "_target": "~1.0.2",
+  "_originalSource": "string-format",
+  "_direct": true
+}
