@@ -212,7 +212,24 @@
         });
         $export_button.click(function (event) {
             event.preventDefault();
+            var url_date_format = 'yyyy-MM-dd',
+                d1 = new XDate($date_from.datepicker('getDate')),
+                d2 = new XDate($date_to.datepicker('getDate'));
+            try {
+                var from = d1.toString(url_date_format);
+                var to = d2.toString(url_date_format);
+            } catch (e) {
+                alert("Fecha inválida");
+                return;
+            };
 
+            var ai_pk = $ai_select.val();
+            if (!ai_pk) {
+                alert("Medidor inválido");
+            } else {
+                var url = Urls.energy_export(ai_pk, from, to)
+                window.open(url, '_blank');
+            }
         });
         // Filter intial
         filter_ais();
