@@ -3,7 +3,7 @@
 from apps.hmi.models import SVGScreen
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
 from apps.mara.models import Profile, COMaster, Energy, AI
@@ -11,6 +11,7 @@ import calendar
 from datetime import date, datetime, timedelta
 from django.db.models.aggregates import Count
 from collections import OrderedDict
+from cStringIO import StringIO
 
 
 @permission_required('hmi.can_view_realtime')
@@ -46,7 +47,51 @@ def energy_export(request, ai_pk, date_from, date_to):
     05/11/13,11:45,0.1200,0.0814
     05/11/13,12:00,0.0776,0.0534
     '''
+    try:
+        year, month, day = map(int, date_from.split('-'))
+        date_from = datetime(year, month, day, 0, 0, 0)
+    except ValueError:
+        return HttpResponseBadRequest("Invalid date")
+    try:
+        year, month, day = map(int, date_to.split('-'))
+        date_to = datetime(year, month, day, 23, 59, 59, 9999)
+    except ValueError:
+        return HttpResponseBadRequest("Invalid date")
     ai = get_object_or_404(AI, pk=ai_pk)
+    try:
+        other_ai = ai.ied.ai_set.exclude(channel=ai.channel).get()
+    except (AI.DoesNotExist, AI.MultipleObjectsReturned):
+        return HttpResponseBadRequest("Invalid AI looking for the other channel")
+    # Sort by channel
+    if ai.channel == 0:
+        ai_active, ai_reactive = ai, other_ai
+    elif ai.channel == 1:
+        ai_active, ai_reactive = other_ai, ai
+    else:
+        return HttpResponseBadRequest("AI channel missmatch")
+    values = ('timestamp', 'value', 'ai__escala')
+    active = ai_active.energy_set.filter(timestamp__gte=date_from,
+                                         timestamp__lte=date_to)
+
+    active = active.exclude(hnn=True).values(*values).order_by('timestamp')
+    reactive = ai_reactive.energy_set.filter(timestamp__gte=date_from,
+                                             timestamp__lte=date_to).values(*values)
+    reactive = reactive.exclude(hnn=True).values(*values).order_by('timestamp')
+    if not active.count() or not reactive.count():
+        return HttpResponseBadRequest("No records")
+    output = StringIO()
+    for v1, v2 in zip(active, reactive):
+        row_date = v1['timestamp']
+        output.write('%s,%s,%s,%s\n' % (
+                     row_date.strftime('%d/%m/%y'),
+                     row_date.strftime('%H:%M'),
+                     v1['value'] * v1['ai__escala'],
+                     v2['value'] * v2['ai__escala']
+                     ))
+
+    return HttpResponse(output.getvalue(), content_type='text/plain')
+
+
 
 
 def svg_file(request, svg_pk):
