@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-from apps.hmi.forms import EnergyDatePlotForm
 from apps.hmi.models import SVGScreen
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
@@ -30,13 +29,24 @@ def realtime_watch(request):
 
 
 def energy_plot(request, ):
-    form = EnergyDatePlotForm()
+    # TODO: Filter by profile
     data = {
-        'form': form
+        'comasters': COMaster.objects.all(),
+        'ais': AI.objects.exclude(unit__iendswith='v'),
+        'today': date.today(),
     }
     return render_to_response('hmi/energy_plot.html',
                               context_instance=RequestContext(request, data)
                               )
+
+
+def energy_export(request, ai_pk, date_from, date_to):
+    '''Generates export of energy values of one AI
+    i.e:
+    05/11/13,11:45,0.1200,0.0814
+    05/11/13,12:00,0.0776,0.0534
+    '''
+    ai = get_object_or_404(AI, pk=ai_pk)
 
 
 def svg_file(request, svg_pk):

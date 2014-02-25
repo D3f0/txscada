@@ -2,11 +2,53 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
+{% block extraheader %}
+    <link rel="stylesheet" href="{% static "bower_components/nvd3/nv.d3.css" %}">
+{% endblock extraheader %}
+
 {% block content %}
     <div>
+        <form action="">
+            <!-- Estación -->
+            <label class="control-label" for="id_comaster">Estación</label>
+            <select name="comaster" id="id_comaster">
+                {% for comaster in comasters %}
+                    <option value="{{ comaster.pk }}">{{comaster}}</option>
+                {% endfor %}
+            </select>
+            <label for="id_magnitud" class="control-label">Magnitud</label>
+            <select id="id_magnitud">
+                <option value="kw">Potencia Activa</option>
+                <option value="kvar">Potencia Aparente</option>
+            </select>
+            <div class="form-inline">
+                <input type="text" id="id_date_from" class="datepicker input-small"
+                placeholder="Desde"
+                value="{{ today|date:"j/n/o" }}">
+                <input type="text" id="id_date_to" class="datepicker input-small"
+                placeholder="Hasta"
+                value="{{ today|date:"j/n/o" }}">
+            </div>
+            <label for="id_ai" class="control-label">Medidor</label>
+            <select name="ai" id="id_ai" class="input-xxlarge">
+                {% for ai in ais %}
+                    <option value="{{ai.pk}}"
+                        data-comaster-pk="{{ai.ied.co_master.pk}}"
+                        data-measure="{{ai.unit|lower}}">
+                        {{ ai.description}}</option>
+                {% endfor %}
+            </select>
+            <div class="well">
 
-        {% crispy form form.helper %}
+            <button class="btn btn-primary" id="id_plot">Graficar</button>
+            <button class="btn" id="id_export">Exportar</button>
 
+            </div>
+        </form>
+    </div>
+
+    <div id="plot">
+        <svg></svg>
     </div>
     {% comment %}
     <div id="chart">
@@ -16,36 +58,164 @@
 {% endblock content %}
 
 {% block endscripts %}
+    <script type="text/javascript" src="{% static "js/xdate.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/errors.js" %}"></script>
+    <script type="text/javascript" src="{% static "hmi/js/queryobj.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/d3/d3.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/nvd3/nv.d3.js" %}"></script>
     <script type="text/javascript">
+    $(function (){
 
-        new Highcharts.Chart({
-            chart: {
-                renderTo: "chart"
-            },
-            title: {
-                text: "Curva de potencia"
-            },
-            yAxis: {
-                title: {text:"KW/h - KVA/h"},
+        var $date_from = $('#id_date_from'),
+            $date_to = $('#id_date_to'),
+            $comaster_select = $('#id_comaster'),
+            $mag_select = $('#id_magnitud'),
+            $ai_select = $('#id_ai'),
+            $plot_button = $('#id_plot'),
+            $export_button = $('#id_export');
 
-            },
-            xAxis: {
-                type: 'datetime',
-                /*dateTimeLabelFormats: {
-                    month: '%e. %b',
-                    day: '%b %e',
-                    hour: '%b %e',
-                    year: '%b'
-                }*/
-                //, tickInterval: 24 * 3600 * 1000
-            },
-            series: [
-                // {
-                //     data: [[Date.UTC(2011, 4, 23), 194.0], [Date.UTC(2011, 4, 24), 195.00000000000003], [Date.UTC(2011, 4, 25), 192.00000000000003], ],
-                //     name: "Potencia Activa"
-                // }
-
-            ]
+        $date_from.datepicker({
+            defaultDate: "+1d",
+            changeMonth: true,
+            numberOfMonths: 2,
+            maxDate: new Date(),
+            dateFormat: 'dd/mm/yy',
+            onClose: function( selectedDate ) {
+                $date_to.datepicker( "option", "minDate", selectedDate );
+                if ($date_to.datepicker('getDate') == null) {
+                    $date_to.datepicker('setDate', selectedDate);
+                }
+            }
         });
+        $date_to.datepicker({
+            defaultDate: "+1d",
+            changeMonth: true,
+            numberOfMonths: 2,
+            maxDate: new Date(),
+            dateFormat: 'dd/mm/yy',
+            onClose: function( selectedDate ) {
+                $date_from.datepicker( "option", "maxDate", selectedDate );
+            }
+        });
+
+        var all_ai_options = $ai_select.find('option').clone();
+
+        function filter_ais() {
+            var current_comaster = $comaster_select.val();
+            var current_measure = $mag_select.val();
+            $ai_select.find('option').remove();
+            var count = 0;
+            $.each(all_ai_options, function () {
+                var $opt = $(this);
+                if ($opt.attr('data-measure') == current_measure &&
+                    $opt.attr('data-comaster-pk') == current_comaster
+                ) {
+                    $ai_select.append($opt.clone());
+                    count += 1;
+                }
+            });
+            if (count < 1) {
+                $ai_select.attr('disabled', 'disabled');
+            } else {
+                $ai_select.removeAttr('disabled');
+            }
+        }
+
+        $comaster_select.change(filter_ais);
+        $mag_select.change(filter_ais);
+
+        /* NVD3 Plot
+        */
+        var duration = 300;
+        function redraw(data) {
+           nv.addGraph(function () {
+               chart = nv.models.lineChart()
+                              .x(function (d) { return d.x })
+                              .y(function (d) { return d.y })
+                               .useInteractiveGuideline(true);
+                              //.color(d3.scale.category10().range());
+
+
+                chart.xAxis
+                    .tickFormat(function (d) {
+                        debugger;
+                        return d3.time.format('%H:%M')(new Date(d.getTime()))
+                    });
+
+                chart.yAxis
+                    .tickFormat(d3.format(',.1%'));
+
+                d3.select('#plot svg')
+                    .datum(data)
+                    .transition().duration(duration)
+                    .call(chart);
+
+                nv.utils.windowResize(chart.update);
+
+                return chart;
+            });
+        }
+        // Buttons
+
+        $plot_button.click(function (event) {
+            event.preventDefault();
+            // $('form').block({message: "Processing"});
+            // window.setTimeout(function () {
+            //     $('form').unblock();
+            // },1000);
+            var $dlg = $('<div>').dialog({
+                modal: true,
+                title: "Graficando",
+            }).html('<p class="loading"></p>');
+
+            var url = Urls.api_dispatch_list('v1', 'energy');
+
+            var queryUrl = new QueryObj({
+                format: 'json',
+                limit: 5000,
+                order_by: '-timestamp',
+                ai__id: $ai_select.val(),
+                timestamp__gte: $date_from.datepicker( "getDate" ),
+                timestamp__lte: $date_to.datepicker( "getDate" ),
+
+            }, url);
+
+            console.log("Querying "+queryUrl);
+            $.ajax({
+                url: queryUrl,
+                success: function (data, xhr) {
+                    $dlg.dialog('close');
+                    var points = $.map(data.objects, function (record, index) {
+                        return {
+                            x: record.timestamp,
+                            y: record.ing_value
+                        }
+                    });
+
+                    redraw([
+                        {
+                            "key": $ai_select.find('option:selected').text(),
+                            "values": [
+                            {
+                                x: '2014-01-15T00:15:00', y:1
+                            },
+                            {
+                                x: '2014-01-15T00:16:00', y:2
+                            }
+
+                            ]
+                        }
+                    ]);
+                },
+                error: SMVE.errors.showRESTErrorDialog
+            });
+        });
+        $export_button.click(function (event) {
+            event.preventDefault();
+
+        });
+        // Filter intial
+        filter_ais();
+    });
     </script>
 {% endblock endscripts %}
