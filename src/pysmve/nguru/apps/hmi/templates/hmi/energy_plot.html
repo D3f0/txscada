@@ -7,44 +7,53 @@
 {% endblock extraheader %}
 
 {% block content %}
-    <div>
-        <form action="">
-            <!-- Estación -->
-            <label class="control-label" for="id_comaster">Estación</label>
-            <select name="comaster" id="id_comaster">
-                {% for comaster in comasters %}
-                    <option value="{{ comaster.pk }}">{{comaster}}</option>
-                {% endfor %}
-            </select>
-            <label for="id_magnitud" class="control-label">Magnitud</label>
-            <select id="id_magnitud">
-                <option value="kw">Potencia Activa</option>
-                <option value="kvar">Potencia Aparente</option>
-            </select>
-            <div class="form-inline">
-                <input type="text" id="id_date_from" class="datepicker input-small"
-                placeholder="Desde"
-                value="{{ today|date:"j/n/o" }}">
-                <input type="text" id="id_date_to" class="datepicker input-small"
-                placeholder="Hasta"
-                value="{{ today|date:"j/n/o" }}">
+    <div class="row">
+        <div class="span6">
+            <form action="">
+                <!-- Estación -->
+                <label class="control-label" for="id_comaster">Estación</label>
+                <select name="comaster" id="id_comaster">
+                    {% for comaster in comasters %}
+                        <option value="{{ comaster.pk }}">{{comaster}}</option>
+                    {% endfor %}
+                </select>
+                <label for="id_magnitud" class="control-label">Magnitud</label>
+                <select id="id_magnitud">
+                    <option value="kw">Potencia Activa</option>
+                    <option value="kvar">Potencia Aparente</option>
+                </select>
+                <div class="form-inline">
+                    <input type="text" id="id_date_from" class="datepicker input-small"
+                    placeholder="Desde"
+                    value="{{ today|date:"j/n/o" }}">
+                    <input type="text" id="id_date_to" class="datepicker input-small"
+                    placeholder="Hasta"
+                    value="{{ today|date:"j/n/o" }}">
+                </div>
+                <label for="id_ai" class="control-label">Medidor</label>
+                <select name="ai" id="id_ai" class="input-xxlarge">
+                    {% for ai in ais %}
+                        <option value="{{ai.pk}}"
+                            data-comaster-pk="{{ai.ied.co_master.pk}}"
+                            data-measure="{{ai.unit|lower}}">
+                            {{ ai.description}}</option>
+                    {% endfor %}
+                </select>
+                            </form>
             </div>
-            <label for="id_ai" class="control-label">Medidor</label>
-            <select name="ai" id="id_ai" class="input-xxlarge">
-                {% for ai in ais %}
-                    <option value="{{ai.pk}}"
-                        data-comaster-pk="{{ai.ied.co_master.pk}}"
-                        data-measure="{{ai.unit|lower}}">
-                        {{ ai.description}}</option>
-                {% endfor %}
-            </select>
-            <div class="well">
-
-            <button class="btn btn-primary" id="id_plot">Graficar</button>
-            <button class="btn" id="id_export">Exportar</button>
-
+            <div class="span3">
+                <div class="alert alert-success" id="max_energy_period">
+                    Sin información de demandas
+                </div>
             </div>
-        </form>
+
+
+    </div>
+    <div class="well">
+
+    <button class="btn btn-primary" id="id_plot">Graficar</button>
+    <button class="btn" id="id_export">Exportar</button>
+
     </div>
 
     <div id="plot">
@@ -65,6 +74,7 @@
     <script type="text/javascript" src="{% static "bower_components/nvd3/nv.d3.js" %}"></script>
     <script type="text/javascript">
     $(function (){
+        var URL_DATE_FORMAT = 'yyyy-MM-dd';
 
         var $date_from = $('#id_date_from'),
             $date_to = $('#id_date_to'),
@@ -163,6 +173,35 @@
             // window.setTimeout(function () {
             //     $('form').unblock();
             // },1000);
+
+            var d1 = new XDate($date_from.datepicker('getDate')),
+                d2 = new XDate($date_to.datepicker('getDate'));
+            try {
+                var from = d1.toString(URL_DATE_FORMAT);
+                var to = d2.toString(URL_DATE_FORMAT);
+            } catch (e) {
+                alert("Fecha inválida");
+                return;
+            };
+
+            var ai_pk = $ai_select.val();
+            if (!ai_pk) {
+                alert("Medidor inválido");
+                return;
+            } else {
+                var url = Urls.max_energy_period(ai_pk, from, to);
+                $.ajax({
+                    url: url,
+                    success: function (data, status, xhr) {
+                        $('#max_energy_period').html(data.value+" MVA");
+
+                    },
+                    error: function () {
+                        $('#max_energy_period').html("No se encontró valor valor");
+                    }
+                });
+            }
+
             var $dlg = $('<div>').dialog({
                 modal: true,
                 title: "Graficando",
@@ -212,12 +251,11 @@
         });
         $export_button.click(function (event) {
             event.preventDefault();
-            var url_date_format = 'yyyy-MM-dd',
-                d1 = new XDate($date_from.datepicker('getDate')),
+            var d1 = new XDate($date_from.datepicker('getDate')),
                 d2 = new XDate($date_to.datepicker('getDate'));
             try {
-                var from = d1.toString(url_date_format);
-                var to = d2.toString(url_date_format);
+                var from = d1.toString(URL_DATE_FORMAT);
+                var to = d2.toString(URL_DATE_FORMAT);
             } catch (e) {
                 alert("Fecha inválida");
                 return;
@@ -226,6 +264,7 @@
             var ai_pk = $ai_select.val();
             if (!ai_pk) {
                 alert("Medidor inválido");
+                return;
             } else {
                 var url = Urls.energy_export(ai_pk, from, to)
                 window.open(url, '_blank');

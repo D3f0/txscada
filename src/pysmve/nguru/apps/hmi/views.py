@@ -6,6 +6,8 @@ from django.template.context import RequestContext
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 from apps.mara.models import Profile, COMaster, Energy, AI
 import calendar
 from datetime import date, datetime, timedelta
@@ -41,23 +43,37 @@ def energy_plot(request, ):
                               )
 
 
+def _validate_date_range(date_from, date_to):
+    '''
+    date_from and date_to have the 2013-1-1 format
+    '''
+    try:
+        year, month, day = map(int, date_from.split('-'))
+        date_from = datetime(year, month, day, 0, 0, 0)
+    except ValueError:
+        raise ValueError("Invalid from date")
+    try:
+        year, month, day = map(int, date_to.split('-'))
+        date_to = datetime(year, month, day, 23, 59, 59, 9999)
+    except ValueError:
+        raise ValueError("Invalid to date")
+    if date_from > date_to:
+        raise ValueError("From date is after to date")
+    return date_from, date_to
+
+
 def energy_export(request, ai_pk, date_from, date_to):
     '''Generates export of energy values of one AI
     i.e:
     05/11/13,11:45,0.1200,0.0814
     05/11/13,12:00,0.0776,0.0534
     '''
-    try:
-        year, month, day = map(int, date_from.split('-'))
-        date_from = datetime(year, month, day, 0, 0, 0)
-    except ValueError:
-        return HttpResponseBadRequest("Invalid date")
-    try:
-        year, month, day = map(int, date_to.split('-'))
-        date_to = datetime(year, month, day, 23, 59, 59, 9999)
-    except ValueError:
-        return HttpResponseBadRequest("Invalid date")
+
     ai = get_object_or_404(AI, pk=ai_pk)
+    try:
+        date_from, date_to = _validate_date_range(date_from, date_to)
+    except ValueError as e:
+        return HttpResponseBadRequest(e)
     try:
         other_ai = ai.ied.ai_set.exclude(channel=ai.channel).get()
     except (AI.DoesNotExist, AI.MultipleObjectsReturned):
@@ -92,6 +108,47 @@ def energy_export(request, ai_pk, date_from, date_to):
     return HttpResponse(output.getvalue(), content_type='text/plain')
 
 
+def max_energy_period(request, ai_pk, date_from, date_to):
+    '''
+    Returns JSON with the maximum value of energy in a period
+    '''
+    ai = get_object_or_404(AI, pk=ai_pk)
+    try:
+        date_from, date_to = _validate_date_range(date_from, date_to)
+    except ValueError as e:
+        return HttpResponseBadRequest(e)
+    try:
+        other_ai = ai.ied.ai_set.exclude(channel=ai.channel).get()
+    except (AI.DoesNotExist, AI.MultipleObjectsReturned):
+        return HttpResponseBadRequest("Invalid AI looking for the other channel")
+    # Sort by channel
+    if ai.channel == 0:
+        ai_active, ai_reactive = ai, other_ai
+    elif ai.channel == 1:
+        ai_active, ai_reactive = other_ai, ai
+    else:
+        return HttpResponseBadRequest("AI channel missmatch")
+    active = ai_active.energy_set.filter(timestamp__gte=date_from,
+                                         timestamp__lte=date_to)
+    reactive = ai_reactive.energy_set.filter(timestamp__gte=date_from,
+                                             timestamp__lte=date_to)
+    max_active = active.exclude(hnn=True).order_by('-value')[0]
+    max_reactive = reactive.filter(timestamp=max_active.timestamp).get()
+
+    ing_active = max_active.value * max_active.ai.escala
+    ing_reactive = max_reactive.value * max_reactive.ai.escala
+    # Pythagorean theorem
+    value = ((ing_active ** 2) + (ing_reactive ** 2)) ** 0.5
+    data = {
+        'value_active': max_active.value,
+        'value_reactive': max_reactive.value,
+        'timestamp': max_active.timestamp,
+        'ing_active': ing_active,
+        'ing_reactive': ing_reactive,
+        'value': value
+    }
+    json_data = json.dumps(data, cls=DjangoJSONEncoder)
+    return HttpResponse(json_data, content_type='application/json')
 
 
 def svg_file(request, svg_pk):
