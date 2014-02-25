@@ -7,8 +7,10 @@ from optparse import make_option
 from protocols.mara.client import (MaraClientProtocolFactory,
                                    MaraClientDBUpdater,
                                    MaraClientPackageRedisPublisher)
-import logging
+from django.conf import settings
 from multiprocessing import Process
+import logging
+
 
 def dbsaver(frame_queue_address):
     '''
@@ -18,7 +20,10 @@ def dbsaver(frame_queue_address):
 
     [twisted poll] ---> [ queue device] ---> [dbsaver]
     '''
-    import zmq
+    import redis
+    connection = redis.StrictRedis(host=settings.REDIS_HOST,
+                                   port=settings.REDIS_PORT,
+                                   password=settings.REDIS_PASSWORD,)
     context = zmq.Context()
     socket = context.socket(zmq.SUB)
     socket.connect(frame_queue_address)
