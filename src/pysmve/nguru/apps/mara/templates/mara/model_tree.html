@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+        {% for comaster in profile.comasters.all %}
+            <h4>{{ comaster }}</h4>
+            <div class="tabs">
+            <ul class="">
+                <li><a class="active" href="#dis_{{comaster.pk}}">DI</a></li>
+                <li><a href="#ais_{{comaster.pk}}">AI</a></li>
+                <li><a href="#svs_{{comaster.pk}}">SV</a></li>
+            </ul>
+            <div id="dis_{{comaster.pk}}">
+                <table class="table table-bordered table-condensed">
+                    <tr>
+                        <th>PK</th>
+                        <th>Description</th>
+                        <th>Tag</th>
+                        <th>Port</th>
+                        <th>Bit</th>
+                        <th>Trasducer</th>
+                        <th>Tipo</th>
+                        <th>Events</th>
+                    </tr>
+                    {% for di in comaster.dis %}
+                        <tr>
+                            <td>{{ di.pk }}</td>
+                            <td>{{ di.description }}</td>
+                            <td>{{ di.tag }}</td>
+                            <td>{{ di.port }}</td>
+                            <td>{{ di.bit }}</td>
+                            <td>{{ di.trasducer }}</td>
+                            <td>{{ di.tipo }}</td>
+                            <td><a href="">Events</a></td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div> <!--dis -->
+
+            <div class="tab-pane" id="ais_{{comaster.pk}}">
+                <table class="table table-bordered table-condensed">
+                    <tr>
+                        <th>PK</th>
+                        <th>Description</th>
+                    </tr>
+                    {% for ai in comaster.ais %}
+                        <tr>
+                            <td>{{ ai.pk }}</td>
+                            <td>{{ ai.description }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div> <!-- ais -->
+            <div class="tab-pane" id="svs_{{comaster.pk}}">
+                Nothing yet
+            </div>
+            </div>
+        {% endfor %}
+
+{% endblock content %}
+
+{% block endscripts %}
+    <script>
+    $(function function_name (argument) {
+
+         $('.tabs').tabs();
+
+    })
+    </script>
+{% endblock endscripts %}
