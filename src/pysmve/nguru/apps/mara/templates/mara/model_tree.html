@@ -52,8 +52,26 @@
                     {% endfor %}
                 </table>
             </div> <!-- ais -->
+
+            <div class="tab-pane" id="svs"></div>
             <div class="tab-pane" id="svs_{{comaster.pk}}">
-                Nothing yet
+                <table class="table table-bordered table-condensed">
+                    <tr>
+                        <th>PK</th>
+                        <th>Offset</th>
+                        <th>Description</th>
+                        <th>Value</th>
+
+                    </tr>
+                    {% for sv in comaster.svs %}
+                        <tr>
+                            <td>{{ sv.pk }}</td>
+                            <td>{{ sv.offset }}</td>
+                            <td>{{ sv.description }}</td>
+                            <td>{{ sv.value }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
             </div>
             </div>
         {% endfor %}
