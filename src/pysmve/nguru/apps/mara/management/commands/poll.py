@@ -4,9 +4,10 @@ from django.core.management.base import NoArgsCommand, CommandError
 from apps.mara.models import Profile
 from twisted.internet import reactor
 from optparse import make_option
-from protocols.mara.client import (MaraClientProtocolFactory,
-                                   MaraClientDBUpdater,
-                                   MaraClientPackageRedisPublisher)
+from protocols.mara import client
+# MaraClientProtocolFactory,
+# MaraClientDBUpdater,
+# MaraClientPackageRedisPublisher
 from django.conf import settings
 from multiprocessing import Process
 import logging
@@ -64,18 +65,17 @@ class Command(NoArgsCommand):
         profile = self.get_profile(options.get('profile'))
 
         # COnfigure Protocol
-        MaraClientProtocolFactory.protocol = MaraClientPackageRedisPublisher
+        client.MaraClientProtocolFactory.protocol = client.MaraClientDBUpdater
         # Redis class setup
-        MaraClientProtocolFactory.protocol.redis_host = settings.REDIS_HOST
-        MaraClientProtocolFactory.protocol.redis_port = settings.REDIS_PORT
-        MaraClientProtocolFactory.protocol.redis_password = settings.REDIS_PASSWORD
-
+        #MaraClientProtocolFactory.protocol.redis_host = settings.REDIS_HOST
+        #MaraClientProtocolFactory.protocol.redis_port = settings.REDIS_PORT
+        #MaraClientProtocolFactory.protocol.redis_password = settings.REDIS_PASSWORD
+        reconnect = options.get('reconnect')
         for comaster in profile.comasters.filter(enabled=True):
             self.logger.debug("Conectando con %s" % comaster)
-            client_fatory = MaraClientProtocolFactory(
-                                comaster,
-                                reconnect=options.get('reconnect')
-                            )
+            client_fatory = client.MaraClientProtocolFactory(comaster=comaster,
+                                                             reconnect=reconnect
+                                                             )
             reactor.connectTCP(host=comaster.ip_address,
                                port=comaster.port,
                                factory=client_fatory,
