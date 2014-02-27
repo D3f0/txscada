@@ -129,6 +129,7 @@ def update_static_media():
             print(colors.green("Installing dependencies"))
             run('python manage.py collectstatic --noinput')
 
+
 def update_permissions():
     with cd(env.code_path):
         with prefix(env.venv_prefix):
@@ -187,9 +188,11 @@ def extract_strings():
 
                 call(['xdg-open', '../' + fname])
 
+SMVE_DEFAULT_BACKUP_PATH = '/tmp/smve_backup.dmp'
+
 
 @task
-def get_remote_dump(host='', backupfile='/tmp/backup.dmp'):
+def get_remote_dump(host='', backupfile=SMVE_DEFAULT_BACKUP_PATH):
     h = get_host_settings(host)
     with settings(**h):
         print(
@@ -209,23 +212,54 @@ SQL_CREATE_USER = ("DROP ROLE IF EXISTS {user};"
 
 
 @task
+def restore_database(path=SMVE_DEFAULT_BACKUP_PATH,
+                     user='nguru',
+                     database='nguru',
+                     password='nguru',
+                     no_confirm=False):
+    if not os.path.isfile(path):
+        abort("Path not given or invalid file. Please indicate a path: %s" % path)
+    with hide('running', 'stdout'):
+        print(colors.yellow("Droping and creating fresh database"))
+        with settings(warn_only=True):
+            local('dropdb {database}'.format(database=database))
+
+        local('createdb {database}'.format(database=database))
+        print(colors.yellow("Creating user"))
+        local(
+            ('psql -d {database} -c "' + SQL_CREATE_USER + '"').format(database=database,
+                                                                       user=user,
+                                                                       password=password)
+        )
+        print(colors.yellow("Restoring data", True))
+        local('pg_restore -d {database} {path}'.format(
+            path=path, database=database)
+        )
+
+
+@task
 def copy_database(host='', no_confirm=False):
     path = get_remote_dump(host=host)
     with settings(**get_host_settings(host)):
         msg = colors.red('Replace local database ''with dump?')
         if no_confirm or confirm(msg):
-            with hide('running', 'stdout'):
-                print(colors.yellow("Droping and creating fresh database"))
-                with settings(warn_only=True):
-                    local('dropdb {database}'.format(**env.database))
+            restore_database(path=path,
+                             user=env.user,
+                             database=env.database,
+                             no_confirm=no_confirm)
 
-                local('createdb {database}'.format(**env.database))
-                print(colors.yellow("Creating user"))
-                local(
-                    ('psql -d {database} -c "' + SQL_CREATE_USER + '"').format(**env.database))
-                print(colors.yellow("Restoring data", True))
-                local('pg_restore -d {database} {path}'.format(
-                    path=path, **env.database))
+            # with hide('running', 'stdout'):
+            #     print(colors.yellow("Droping and creating fresh database"))
+            #     with settings(warn_only=True):
+            #         local('dropdb {database}'.format(**env.database))
+
+            #     local('createdb {database}'.format(**env.database))
+            #     print(colors.yellow("Creating user"))
+            #     local(
+            #         ('psql -d {database} -c "' + SQL_CREATE_USER + '"').format(**env.database))
+            #     print(colors.yellow("Restoring data", True))
+            #     local('pg_restore -d {database} {path}'.format(
+            #         path=path, **env.database))
 
 
 def extract_path_from_stdout(path):
