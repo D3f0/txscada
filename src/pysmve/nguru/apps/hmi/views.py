@@ -89,10 +89,10 @@ def energy_export(request, ai_pk, date_from, date_to):
     active = ai_active.energy_set.filter(timestamp__gte=date_from,
                                          timestamp__lte=date_to)
 
-    active = active.exclude(hnn=True).values(*values).order_by('timestamp')
+    active = active.exclude(code=1).values(*values).order_by('timestamp')
     reactive = ai_reactive.energy_set.filter(timestamp__gte=date_from,
                                              timestamp__lte=date_to).values(*values)
-    reactive = reactive.exclude(hnn=True).values(*values).order_by('timestamp')
+    reactive = reactive.exclude(code=1).values(*values).order_by('timestamp')
     if not active.count() or not reactive.count():
         return HttpResponseBadRequest("No records")
     output = StringIO()
@@ -100,12 +100,15 @@ def energy_export(request, ai_pk, date_from, date_to):
         row_date = v1['timestamp']
         output.write('%s,%s,%s,%s\n' % (
                      row_date.strftime('%d/%m/%y'),
-                     row_date.strftime('%H:%M'),
+                     row_date.strftime('%H:%M') if row_date.minute != 59 else '24:00',
                      v1['value'] * v1['ai__escala'],
                      v2['value'] * v2['ai__escala']
                      ))
 
-    return HttpResponse(output.getvalue(), content_type='text/plain')
+    response = HttpResponse(output.getvalue(), content_type='text/plain')
+    content_disposition = 'attachment; filename=%s.txt' % ai_active.tag
+    response['Content-Disposition'] = content_disposition
+    return response
 
 
 def max_energy_period(request, ai_pk, date_from, date_to):
