@@ -35,14 +35,24 @@ class IEDInline(admin.TabularInline):
 
 
 class COMasterAdmin(admin.ModelAdmin):
-    list_display = ('ip_address', 'enabled', 'port', 'poll_interval',
-                    'rs485_source', 'rs485_destination', 'peh_time')
+    list_display = ('ip_address',
+                    'enabled',
+                    'port',
+                    'poll_interval',
+                    'rs485_source',
+                    'rs485_destination',
+                    'peh_time',
+                    'description'
+                    )
 
     fieldsets = (
          # (_("Internal"), {
          #   'classes': ('collapse', ),
          #   'fields': ('profile', )
          #   }),
+        (None, {
+            'fields': ('description', ),
+         }),
         (_("Connection"),{
             'fields': ('enabled', ('ip_address', 'port'), )
             }),
@@ -98,6 +108,7 @@ class SVAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'value', 'ied', 'offset', 'value')
     list_filter = ('ied',)
     exclude = ('last_update', )
+
 
 site.register(SV, SVAdmin)
 
@@ -286,8 +297,18 @@ site.register(ComEventKind, ComEventKindAdmin)
 
 
 class ComEventAdmin(admin.ModelAdmin):
-    list_display = ('ied', 'description', 'motiv', 'timestamp', 'timestamp_ack', 'user')
-    list_display_links = ('description', )
+    list_display = ('id',
+                    'comaster_desc',
+                    'timestamp',
+                    'motiv',
+                    'timestamp_ack',
+                    'user')
+    list_display_links = ('timestamp', )
+
+    def comaster_desc(self, obj):
+        return obj.ied.co_master.description or obj.ied.co_master.ip_address
+    comaster_desc.short_description = "CO Master"
+
 site.register(ComEvent, ComEventAdmin)
 
 
