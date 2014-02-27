@@ -10,10 +10,12 @@
 
 {% block content %}
         <div class="hero-unit">
-                <h2>Análisis de Tramas Mara</h2>
-                <p>Ingrese el frame a analizar en formato hexadecimal ASCII</p>
-                <textarea id="frame" style="width: 100%;"></textarea>
-                <p><a class="btn btn-primary btn-large" id="analizar">Analizar &raquo;</a></p>
+                <h2>Inserción manual de tramas Mara</h2>
+                <form action="" method="POST">
+
+                    {{ form }}
+                    <input type="submit" value="Enviar" class="btn btn-default">
+                </form>
             </div>
 {% endblock %}
 
