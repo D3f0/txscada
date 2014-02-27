@@ -14,13 +14,13 @@
                 <label class="control-label" for="id_comaster">Estación</label>
                 <select name="comaster" id="id_comaster">
                     {% for comaster in comasters %}
-                        <option value="{{ comaster.pk }}">{{comaster}}</option>
+                        <option value="{{ comaster.pk }}">{{comaster.description}}</option>
                     {% endfor %}
                 </select>
-                <label for="id_magnitud" class="control-label">Magnitud</label>
-                <select id="id_magnitud">
-                    <option value="kw">Potencia Activa</option>
-                    <option value="kvar">Potencia Aparente</option>
+                <label for="id_channel" class="control-label">Magnitud</label>
+                <select id="id_channel">
+                    <option value="0">Potencia Activa</option>
+                    <option value="1">Potencia Reactiva</option>
                 </select>
                 <div class="form-inline">
                     <input type="text" id="id_date_from" class="datepicker input-small"
@@ -35,7 +35,7 @@
                     {% for ai in ais %}
                         <option value="{{ai.pk}}"
                             data-comaster-pk="{{ai.ied.co_master.pk}}"
-                            data-measure="{{ai.unit|lower}}">
+                            data-channel="{{ai.channel}}">
                             {{ ai.description}}</option>
                     {% endfor %}
                 </select>
@@ -79,7 +79,7 @@
         var $date_from = $('#id_date_from'),
             $date_to = $('#id_date_to'),
             $comaster_select = $('#id_comaster'),
-            $mag_select = $('#id_magnitud'),
+            $channel_select = $('#id_channel'),
             $ai_select = $('#id_ai'),
             $plot_button = $('#id_plot'),
             $export_button = $('#id_export');
@@ -112,12 +112,13 @@
 
         function filter_ais() {
             var current_comaster = $comaster_select.val();
-            var current_measure = $mag_select.val();
+            var current_channel = $channel_select.val();
+            console.log(current_comaster, current_channel);
             $ai_select.find('option').remove();
             var count = 0;
             $.each(all_ai_options, function () {
                 var $opt = $(this);
-                if ($opt.attr('data-measure') == current_measure &&
+                if ($opt.attr('data-channel') == current_channel &&
                     $opt.attr('data-comaster-pk') == current_comaster
                 ) {
                     $ai_select.append($opt.clone());
@@ -132,7 +133,7 @@
         }
 
         $comaster_select.change(filter_ais);
-        $mag_select.change(filter_ais);
+        $channel_select.change(filter_ais);
 
         /* NVD3 Plot
         */
