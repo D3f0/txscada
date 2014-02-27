@@ -73,6 +73,9 @@
                                     {% if perms.mara.can_see_month_report %}
                                         <li><a href="{% url month_energy_report %}">Reporte Mediciones</a></li>
                                     {% endif %}
+                                    {% if perms.mara.can_insert_frame_manually %}
+                                        <li><a href="{% url mara_frame_analizer %}">Tramas Manuales</a></li>
+                                    {% endif %}
                                     {# <li><a href="{% url websocket_demo %}">Websocket Demo</a></li> #}
                                     {#<li><a href="{% url mara_frame_analizer %}">Analizador de Tramas</a></li>#}
                                     <li class="divider"></li>

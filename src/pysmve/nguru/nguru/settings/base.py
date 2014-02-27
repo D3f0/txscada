@@ -170,8 +170,6 @@ INSTALLED_APPS = (
     'object_tools',
     'django.contrib.admin',
 
-    'tastypie_jqgrid',
-
     'django_js_reverse',
 
 )
@@ -254,6 +252,7 @@ LOGGING = {
 #=========================================================================================
 
 def show_toolbar(request):
+    return False
     if request.user and request.user.username == "nahuel":
         return True
     return False

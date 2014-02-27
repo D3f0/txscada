@@ -14,6 +14,7 @@ from protocols.utils.words import expand
 from protocols.constructs.structs import container_to_datetime
 from utils import ExcelImportMixin, counted
 import re  # For text frame procsessing
+import logging
 
 
 class Profile(models.Model):
@@ -181,6 +182,7 @@ class COMaster(models.Model, ExcelImportMixin):
         update_states and create_events, that when false disable processing
         of states and events acordingly.
         There are 3 fine grained flags for states and 3 for event types'''
+        logger = logging.getLogger('commands')
         # Flags for states
         update_di = update_di and update_states
         update_ai = update_ai and update_states
@@ -206,6 +208,9 @@ class COMaster(models.Model, ExcelImportMixin):
                 # Poener en 0 en
                 di.update_value(value, q=0, last_update=timestamp)
                 di_count += 1
+        else:
+            if len(payload.dis):
+                logger.info("Skipping DI")
 
         if update_ai:
             for value, ai in zip(payload.ais, self.ais):
@@ -220,23 +225,24 @@ class COMaster(models.Model, ExcelImportMixin):
                 sv.update_value(value, last_update=timestamp)
                 sv_count += 1
 
+        logger.info(_("Processing %s events") % len(payload.event))
         for event in payload.event:
             if event.evtype == 'DIGITAL' and create_ev_digital:
                 # Los eventos digitales van con una DI
                 try:
-                    di = DI.objects.get(
-                                        ied__rs485_address=event.addr485,
+                    di = DI.objects.get(ied__rs485_address=event.addr485,
                                         ied__co_master=self,
                                         port=event.port,
                                         bit=event.bit)
-                    di.events.create(
+                    ev = di.events.create(
                         timestamp=container_to_datetime(event),
                         q=event.q,
                         value=event.status
                     )
-                    print "Evento recibido de", di.port, di.bit
+                    logger.info(_("Digital event created %s") % ev)
                 except DI.DoesNotExist:
-                    print "Evento para una DI que no existe!!!"
+                    logger.warning(_("DI does not exist for %s:%s") % (port, bit))
+
             elif event.evtype == 'ENERGY' and create_ev_energy:
                 try:
                     query = dict(
@@ -250,35 +256,39 @@ class COMaster(models.Model, ExcelImportMixin):
                     #for i, v in enumerate(event.data):
                     #    value += v << (8 * i)
                     # Parsing construct arrray bogus data
-                    value = event.data[1] + (event.data[0] << 8 ) + (event.data[2] << 16)
-                    ai.energy_set.create(
+                    value = event.data[1] + (event.data[0] << 8) + (event.data[2] << 16)
+                    ev = ai.energy_set.create(
                         timestamp=timestamp,
                         code=event.code,
                         q=event.q,
                         hnn=event.hnn,
                         value=value
                     )
+                    logger.info(_("Energy created: %s") % ev)
                 except AI.DoesNotExist:
-                    print "Medicion de energia no reconcible", event
+                    logger.warning(_("AI for energy does not exist"))
                 except AI.MultipleObjectsReturned:
-                    print "Demaciadas AI con ", query
+                    logger.warning(_("AI for energy has multiple matches"))
             elif event.evtype == 'COMSYS' and create_ev_comsys:
                 try:
                     ied = self.ieds.get(rs485_address=event.addr485)
                     timestamp = container_to_datetime(event)
-                    ied.comevent_set.create(
+                    ev = ied.comevent_set.create(
                         motiv=event.motiv,
                         timestamp=timestamp
                     )
+                    logger.info("ComEvent created: %s" % ev)
                 except ComEvent.DoesNotExist:
-                    print "No se puede crear el Evento tipo 3"
+                    logger.warning(_("Cannot create COMSYS event"))
 
         if calculate:
             from apps.hmi.models import Formula
+            logger.info("Starting formula update")
             try:
                 Formula.calculate()
-            except Exception, e:
-                print e
+                logger.info("Formula update OK")
+            except Exception as e:
+                logger.error(unicode(e), exc_info=True)
 
         return di_count, ai_count, sv_count, event_count
 
