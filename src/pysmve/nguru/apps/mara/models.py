@@ -161,6 +161,9 @@ class COMaster(models.Model, ExcelImportMixin):
     class Meta:
         verbose_name = _("CO Master")
         verbose_name_plural = _("CO Masters")
+        permissions = (
+            ('can_insert_frame_manually', _('Can insert frames manually')),
+        )
 
     def process_frame(self, mara_frame,
                       update_states=True,
