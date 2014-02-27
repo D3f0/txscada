@@ -13,19 +13,19 @@ from struct import pack
 # Mara protocol SubConstructs
 #===============================================================================
 
-TCD = BitStruct('TCD',
-                Enum(
-                BitField("evtype", 2),
-                DIGITAL=0,
-                ENERGY=1,
-                # Evento no definido aún
-                IDLE=2,
-                # Eventos de diagnóstico
-                COMSYS=3,
-                ),
-                BitField("q", 2),
-                BitField("addr485", 4),
-                )
+TCD = BitStruct(
+    'TCD',
+    Enum(BitField("evtype", 2),
+         DIGITAL=0,
+         ENERGY=1,
+         # Evento no definido aún
+         IDLE=2,
+         # Eventos de diagnóstico
+         COMSYS=3,
+         ),
+    BitField("q", 2),
+    BitField("addr485", 4),
+)
 
 #=========================================================================================
 # Old Bit Port Status
@@ -55,15 +55,15 @@ CodeCan = BitStruct('idlecan',
 
 # Segudno byte del evento IDLE
 CodeIdle = BitStruct('codeidle',
-                    BitField('idle', 2),
-                    BitField('code', 3),
-                    BitField('idle2', 3)
-                    )
+                     BitField('idle', 2),
+                     BitField('code', 3),
+                     BitField('idle2', 3),
+                     )
 
 # Segundo byte del evento de diangóstico
 CodeMotiv = BitStruct('codemotiv',
-                    BitField('motiv', 8),
-                    )
+                      BitField('motiv', 8),
+                      )
 
 TimerTicks = Struct('ticks',
                     # UBInt8('cseg'),
@@ -85,20 +85,21 @@ DateTime = Struct('datetime',
                   UBInt8('minute'),
                   UBInt8('second'),
                   )
+
 GenericTimeStamp = Struct('generic_time_stamp',
-    Byte('year'),
-    Byte('month'),
-    Byte('day'),
-    Byte('hour'),
-    Byte('minute'),
-)
+                          Byte('year'),
+                          Byte('month'),
+                          Byte('day'),
+                          Byte('hour'),
+                          Byte('minute'),
+                          )
 
 
 GenericEventTail = Struct('generic_event_tail',
-                                Embed(GenericTimeStamp),
-                                Byte('second'),
-                                UBInt16('fraction')
-                                )
+                          Embed(GenericTimeStamp),
+                          Byte('second'),
+                          UBInt16('fraction'),
+                          )
 
 SECONDS_FRACTION = 2 ** 15
 
@@ -127,9 +128,9 @@ class GenericEventTailAdapter(Adapter):
                          fraction=int(fraction))
 
 EnergyEventTail = Struct('energy_event_tail',
-    Embed(GenericTimeStamp),
-    Array(3, Byte('data'))
-)
+                         Embed(GenericTimeStamp),
+                         Array(3, Byte('data')),
+                         )
 
 
 class EnergyEventTailAdapter(Adapter):
@@ -149,15 +150,17 @@ class EnergyEventTailAdapter(Adapter):
 
 
 Event = Struct("event",
-    Embed(TCD),
-    Switch("evdetail", lambda ctx: ctx.evtype,
-        {
-            "DIGITAL": Embed(EPB),
-            "ENERGY":  Embed(CodeCan),
-            "IDLE":    Embed(CodeIdle),
-            "COMSYS":  Embed(CodeMotiv),
-        }
-    ),
+               Embed(TCD),
+               Switch("evdetail",
+                      lambda ctx: ctx.evtype,
+                      {
+                        "DIGITAL": Embed(EPB),
+                        "ENERGY":  Embed(CodeCan),
+                        "IDLE":    Embed(CodeIdle),
+                        "COMSYS":  Embed(CodeMotiv),
+                       }
+                ),
+
     Switch('tail', lambda ctx: ctx.evtype, {
         'ENERGY':   Embed(EnergyEventTailAdapter(EnergyEventTail)),
         'DIGITAL':  Embed(GenericEventTailAdapter(GenericEventTail)),
@@ -172,7 +175,7 @@ Event = Struct("event",
 #===============================================================================
 Payload_10 = Struct("payload_10",
     ULInt8('canvarsys'),
-    Array(lambda ctx: ctx.canvarsys / 2, ULInt16('varsys')),
+    Array(lambda ctx: ctx.canvarsys, UBInt8('varsys')),
     ULInt8('candis'),
     Array(lambda ctx: ctx.candis / 2, ULInt16('dis')),
     ULInt8('canais'),
