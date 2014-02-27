@@ -13,7 +13,8 @@ from protocols import constants
 from protocols.utils.words import expand
 from protocols.constructs.structs import container_to_datetime
 from utils import ExcelImportMixin, counted
-import re # For text frame procsessing
+import re  # For text frame procsessing
+
 
 class Profile(models.Model):
     name = models.CharField(max_length=80)
@@ -54,12 +55,14 @@ class Profile(models.Model):
         return tags
 
     _tag_info = {}
+
     def tag_description(self, tag, empty_text=''):
         if not self.pk in Profile._tag_info:
             Profile._tag_info[self.pk] = self.load_tags()
         return Profile._tag_info[self.pk].get(tag, empty_text)
 
     __tags = None
+
     @property
     def tags(self):
         if not self.__tags:
@@ -117,17 +120,22 @@ class COMaster(models.Model, ExcelImportMixin):
     process_pid = models.IntegerField(blank=True, null=True,
                                       default=None,
                                       editable=False,
-                                      help_text="PID del proceso que se encuentra utilizando el proceso")
+                                      help_text="PID del proceso que se encuentra utiliza"
+                                      "ndo el proceso")
 
     peh_time = models.TimeField(default=time(1, 0, 0),
                                 help_text="Tiempo entre puesta en hora")
 
-    custom_payload = models.TextField(
-                            null=True,
-                            blank=True,
-                            help_text=_('Custom payload without SOF SEQ SRC DST // CRH CRL'))
+    custom_payload = models.TextField(null=True,
+                                      blank=True,
+                                      help_text=_('Custom payload without SOF SEQ SRC DST'
+                                                  '// CRH CRL'))
 
     custom_payload_enabled = models.BooleanField(default=False)
+
+    description = models.CharField(max_length=100,
+                                   null=True,
+                                   blank=True)
 
     @property
     def dis(self):
@@ -205,9 +213,7 @@ class COMaster(models.Model, ExcelImportMixin):
                 ai_count += 1
 
         if update_sv:
-            variable_widths = [v.width for v in self.svs]
-
-            for value, sv in zip(expand(payload.varsys, variable_widths), self.svs):
+            for value, sv in zip(payload.varsys, self.svs):
                 sv.update_value(value, last_update=timestamp)
                 sv_count += 1
 
@@ -682,7 +688,7 @@ class Event(models.Model):
         if not self.timestamp_ack:
             if tipo == 0:
                 tag_tmp = tag.replace('51_', '52B')
-                text = '1' 
+                text = '1'
                 if self.value:
                     tag_qs.filter(tag=tag).update(text=text)
                     tag_qs.filter(tag=tag_tmp).update(text=text)
