@@ -212,29 +212,22 @@ SQL_CREATE_USER = ("DROP ROLE IF EXISTS {user};"
 
 
 @task
-def restore_database(path=SMVE_DEFAULT_BACKUP_PATH,
-                     user='nguru',
-                     database='nguru',
-                     password='nguru',
-                     no_confirm=False):
+def restore_database(path=SMVE_DEFAULT_BACKUP_PATH, dbsettings=None, no_confirm=False):
     if not os.path.isfile(path):
         abort("Path not given or invalid file. Please indicate a path: %s" % path)
     with hide('running', 'stdout'):
         print(colors.yellow("Droping and creating fresh database"))
         with settings(warn_only=True):
-            local('dropdb {database}'.format(database=database))
 
-        local('createdb {database}'.format(database=database))
+            local('dropdb {database}'.format(**dbsettings))
+
+        local('createdb {database}'.format(**dbsettings))
         print(colors.yellow("Creating user"))
-        local(
-            ('psql -d {database} -c "' + SQL_CREATE_USER + '"').format(database=database,
-                                                                       user=user,
-                                                                       password=password)
-        )
+
+        cmd = ('psql -d {database} -c "' + SQL_CREATE_USER + '"').format(**dbsettings)
+        local(cmd)
         print(colors.yellow("Restoring data", True))
-        local('pg_restore -d {database} {path}'.format(
-            path=path, database=database)
-        )
+        local('pg_restore -d {database} {path}'.format(path=path, **dbsettings))
 
 
 @task
@@ -243,23 +236,7 @@ def copy_database(host='', no_confirm=False):
     with settings(**get_host_settings(host)):
         msg = colors.red('Replace local database ''with dump?')
         if no_confirm or confirm(msg):
-            restore_database(path=path,
-                             user=env.user,
-                             database=env.database,
-                             no_confirm=no_confirm)
-
-            # with hide('running', 'stdout'):
-            #     print(colors.yellow("Droping and creating fresh database"))
-            #     with settings(warn_only=True):
-            #         local('dropdb {database}'.format(**env.database))
-
-            #     local('createdb {database}'.format(**env.database))
-            #     print(colors.yellow("Creating user"))
-            #     local(
-            #         ('psql -d {database} -c "' + SQL_CREATE_USER + '"').format(**env.database))
-            #     print(colors.yellow("Restoring data", True))
-            #     local('pg_restore -d {database} {path}'.format(
-            #         path=path, **env.database))
+            restore_database(path=path, dbsettings=env.database, no_confirm=no_confirm)
 
 
 def extract_path_from_stdout(path):
@@ -279,8 +256,7 @@ def get_remote_media(host='', no_confirm=False):
                 with hide():
                     local_media_root = extract_path_from_stdout(
                         local(media_cmd, True))
-                    # local_media_root = os.path.join(os.path.dirname(__file__),
-                    #                                 'nguru/media/')
+
                     local_media_root = os.path.abspath(
                         os.path.join(local_media_root, '..'))
                     with prefix(env.venv_prefix):
