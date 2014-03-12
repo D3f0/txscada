@@ -95,7 +95,7 @@ class SVGScreen(Screen, ExcelImportMixin):
         )
 
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         """ Import SVG Screens from XLS sheet, it must be run in appropiate directory"""
         fields = ('path name  description prefix  parent'.split())
         inserted = {}
@@ -106,7 +106,7 @@ class SVGScreen(Screen, ExcelImportMixin):
                     raise ValueError("Screen %s is not previously defined" % parent)
                 parent = inserted[parent]
             else:
-                parent = None # Root screen
+                parent = None  # Root screen
             screen = cls.objects.create(profile=models.profile,
                                         name=name,
                                         parent=parent,
@@ -132,7 +132,7 @@ class Color(ProfileBound, ExcelImportMixin):
         return self.name
 
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         colour_map = workbook.colour_map
         sheet = workbook.sheet_by_name('color')
         rows, cols = sheet.nrows, sheet.ncols
@@ -173,7 +173,7 @@ class SVGPropertyChangeSet(ProfileBound, ExcelImportMixin):
         return self.description
 
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         fields = 'id_col color description'.split()
         for index, color, description in workbook.iter_as_dict('color', fields=fields):
             color_prop = None
@@ -193,7 +193,6 @@ class SVGPropertyChangeSet(ProfileBound, ExcelImportMixin):
         verbose_name_plural = _('SVG Property Change Sets')
 
 
-
 class SVGElement(models.Model, ExcelImportMixin):
 
     '''
@@ -210,7 +209,8 @@ class SVGElement(models.Model, ExcelImportMixin):
 
     tag = models.CharField(max_length=16)
 
-    description = models.CharField(max_length=120, verbose_name =_("description"))
+    description = models.CharField(max_length=120,
+                                   verbose_name=_("description"))
 
     # Attributes
     text = models.CharField(max_length=120,
@@ -255,23 +255,19 @@ class SVGElement(models.Model, ExcelImportMixin):
         \s?
         (\([\w\d\s]+\))?
         $
-    ''', flags= re.VERBOSE | re.UNICODE)
+    ''', flags=re.VERBOSE | re.UNICODE)
 
     on_click_text_toggle = models.CharField(max_length=50,
                                             blank=True, null=True,
                                             verbose_name=_('on click text toggle'),
                                             help_text=_("Text to toggle on click. "
-                                                "Separated by coma (,)."),
+                                                        "Separated by coma (,)."),
                                             validators=[
-                                            validators.RegexValidator(
-                                                regex=TEXT_TOGGLE_REGEX,
-                                                #message,
-                                                #code
+                                                        validators.RegexValidator(
+                                                                regex=TEXT_TOGGLE_REGEX,
+                                                            )
+                                                        ]
                                             )
-
-
-
-                                            ])
 
     linked_text_change = models.CharField(max_length=120,
                                           blank=True,
@@ -280,6 +276,7 @@ class SVGElement(models.Model, ExcelImportMixin):
                                           help_text=_('Text on related element will be '
                                                       'upon save')
                                           )
+
     @property
     def linked_text_change_dict(self):
         d = {}
@@ -295,7 +292,6 @@ class SVGElement(models.Model, ExcelImportMixin):
                     value = name
                 d[name] = value
         return d
-
 
     def __unicode__(self):
         return self.tag
@@ -333,9 +329,8 @@ class SVGElement(models.Model, ExcelImportMixin):
             d.update({formula.attribute: formula.formula})
         return d
 
-
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         """Import form excel file, sheet 'eg'"""
         fields = ('tag', 'description', 'text', 'fill', 'stroke', 'mark')
         created_tags = set()
@@ -345,10 +340,11 @@ class SVGElement(models.Model, ExcelImportMixin):
         for tag, description, text, fill, stroke, mark in\
                 workbook.iter_as_dict('eg', fields=fields):
             # Prevent tag from repeating
+            logger.info(_("Importing %s") % tag)
             i = 0
             base_tag = tag
             while base_tag in created_tags:
-                cls.get_logger().warning(unicode(_("Tag repeated %s" % base_tag)))
+                logger.warning(unicode(_("Tag repeated %s" % base_tag)))
                 base_tag = '%s_%d' % (base_tag, i)
                 i += 1
             tag = base_tag
@@ -519,7 +515,7 @@ class Formula(models.Model, ExcelImportMixin):
         return not len(stack)
 
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         """Import form excel file, sheet 'formulas'"""
         attr_trans = {}
         fields = ('tabla', 'tag', 'atributo', 'formula')

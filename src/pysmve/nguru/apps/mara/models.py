@@ -3,6 +3,7 @@
 import operator
 from datetime import datetime, time
 from django.db import models
+from django.db import IntegrityError
 from django.contrib.auth.models import User
 from django.db.models import signals
 from apps.mara.utils import get_relation_managers
@@ -214,10 +215,9 @@ class COMaster(models.Model, ExcelImportMixin):
 
         if update_ai:
             for value, ai in zip(payload.ais, self.ais):
-                # TODO: Copiar Q
                 value = value & 0x0FFF
-                ai.q = (value & 0xC000) >> 14
-                ai.update_value(value, last_update=timestamp)
+                q = (value & 0xC000) >> 14
+                ai.update_value(value, last_update=timestamp, q=q)
                 ai_count += 1
 
         if update_sv:
@@ -351,7 +351,6 @@ class COMaster(models.Model, ExcelImportMixin):
 
         return n, ok
 
-
     def set_ai_quality(self, value):
         pass
 
@@ -359,12 +358,12 @@ class COMaster(models.Model, ExcelImportMixin):
         pass
 
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         """Import COMaster from excel sheet. This is the base import, does not any
         filtering."""
         fields = ('id', 'ip_address', 'port', 'enabled')
-        for i, (pk, ip_address, port, enabled) in\
-            enumerate(workbook.iter_as_dict('comaster', fields=fields)):
+        dataiter = workbook.iter_as_dict('comaster', fields=fields)
+        for i, (pk, ip_address, port, enabled) in enumerate(dataiter):
 
             enabled = bool(int(enabled))
             # TODO: Make imports work
@@ -402,7 +401,7 @@ class IED(models.Model, ExcelImportMixin):
                 self.ied_set.create(port=port, bit=bit, param=param)
 
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         '''Import IED from XLS "ied" sheet. Filters IEDs belonging to comaster
         passed in models bunch'''
         fields = ('comaster_id', 'id', 'offset', 'rs485_address',)
@@ -490,23 +489,13 @@ class SV(MV, ExcelImportMixin):
         # Default ordering
         ordering = ('ied__offset', 'offset')
 
-    BIT = 1
-    BYTE = 8
-    # TODO Optimize
-
-    @property
-    def width(self):
-        '''Returns width 1 or 8'''
-        try:
-            self.ied.sv_set.get(offset=self.offset, bit=2)
-            return self.BIT
-        except SV.DoesNotExist:
-            return self.BYTE
-
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         """Import SV (System Variables) from excel sheet"""
         fields = "ied_id    offset  bit param   description value".split()
+        # Determine call
+        update = 'ieds' in models
+
         def sv_belongs_to_ied(row):
             try:
                 if (row.ied_id) != models.ied.pk:
@@ -515,17 +504,39 @@ class SV(MV, ExcelImportMixin):
                 return False
             return True
 
-        for (ied_id, offset, bit, param, description, value)\
-            in workbook.iter_as_dict('varsys',
-                                     fields=fields,
-                                     row_filter=sv_belongs_to_ied):
-            models.ied.sv_set.create(
-                offset=offset,
-                bit=bit,
-                param=param,
-                description=description,
-                value=value or 0
-            )
+        if not update:
+
+            for (ied_id, offset, bit, param, description, value)\
+                in workbook.iter_as_dict('varsys',
+                                         fields=fields,
+                                         row_filter=sv_belongs_to_ied):
+                models.ied.sv_set.create(
+                    offset=offset,
+                    bit=bit,
+                    param=param,
+                    description=description,
+                    value=value or 0
+                )
+        else:
+            logger.info("Deleting")
+            SV.objects.filter(ied__in=models.ieds).delete()
+            # Update
+            for ied in models.ieds:
+                rows = workbook.iter_as_dict('varsys', fields=fields)
+                logger.info(_("Importing IED: %s"), ied)
+                for (ied_id, offset, bit, param, description, value) in \
+                    (row for row in rows if row.ied_id == ied.pk):
+                    try:
+                        ied.sv_set.create(
+                            offset=offset,
+                            bit=bit,
+                            param=param,
+                            description=description,
+                            value=value or 0
+                        )
+                    except IntegrityError as e:
+                        logger.error(_("Error in %s"), e)
+
 
 
 
@@ -575,11 +586,12 @@ class DI(MV, ExcelImportMixin):
                                                              instance.last_update)
         except Exception, e:
             print e
-    @classmethod
-    def do_import_excel(cls, workbook, models):
-         """Import DI for IED from XLS di sheet"""
 
-         def di_belongs_to_ied(row):
+    @classmethod
+    def do_import_excel(cls, workbook, models, logger):
+        """Import DI for IED from XLS di sheet"""
+
+        def di_belongs_to_ied(row):
             try:
                 if int(row.ied_id) != models.ied.pk:
                     return False
@@ -587,22 +599,21 @@ class DI(MV, ExcelImportMixin):
                 return False
             return True
 
-         fields = (
-                    'id',
-                    'ied_id',
-                    'tag',
-                    'port',
-                    'bit',
-                    'value',
-                    'q',
-                    'trasducer',
-                    'maskinv',
-                    'description',
-                    'idtextoev2',
-                    'pesoaccionh',
-                    'pesoaccionl'
-                )
-         for i, (pk, ied_id, tag, port, bit, value, q, trasducer, maskinv, description,
+        fields = ('id',
+                  'ied_id',
+                  'tag',
+                  'port',
+                  'bit',
+                  'value',
+                  'q',
+                  'trasducer',
+                  'maskinv',
+                  'description',
+                  'idtextoev2',
+                  'pesoaccionh',
+                  'pesoaccionl'
+                  )
+        for i, (pk, ied_id, tag, port, bit, value, q, trasducer, maskinv, description,
                 idtextoev2, pesoaccion_h, pesoaccion_l)\
             in enumerate(workbook.iter_as_dict('di',
                                                fields=fields,
@@ -663,7 +674,8 @@ class Event(models.Model):
         if not profile.pk in Event._descriptions:
             desc_dict = Event._descriptions.setdefault(profile.pk, {})
             fields = 'textoev2', 'value', 'text'
-            for textoev2, value, text in profile.eventdescription_set.values_list(*fields):
+            value_list = profile.eventdescription_set.values_list(*fields)
+            for textoev2, value, text in value_list:
                 values_dict = desc_dict.setdefault(textoev2, {})
                 values_dict[value] = text
         return Event._descriptions[profile.pk]
@@ -747,7 +759,7 @@ class EventText(models.Model, ExcelImportMixin):
 
 
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         """Import text for events from XLS sheet 'com'"""
         fields = 'id    code    description idTextoEv2  pesoaccion'.lower().split()
         for pk, code, description, idtextoev2, pesoaccion in\
@@ -771,7 +783,7 @@ class EventDescription(models.Model, ExcelImportMixin):
         return self.text
 
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         # models.profile.eventdescription_set.create()
         fields = ('idtextoev2', 'value', 'textoev2')
         for idtextoev2, value, textoev2 in workbook.iter_as_dict('textoevtipo', fields):
@@ -804,7 +816,7 @@ class ComEventKind(models.Model, ExcelImportMixin):
         verbose_name = _("Communication Event Kinds")
 
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         pass
 
 class ComEvent(GenericEvent):
@@ -875,7 +887,7 @@ class AI(MV, ExcelImportMixin):
 
     @classmethod
     @counted
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         """Import AI for IED from 'ai' sheet"""
 
         def ai_belongs_to_ied(row):
@@ -970,10 +982,9 @@ class Energy(models.Model):
         verbose_name_plural = _("Energy Measures")
         #unique_together = ('ai', 'timestamp', 'value')
         permissions = (
-                       ('can_view_power_plot', _('Can view power plot')),
-                       ('can_see_month_report', _('Can see month report')),
-
-        )
+                           ('can_view_power_plot', _('Can view power plot')),
+                           ('can_see_month_report', _('Can see month report')),
+                           )
 
 
 class Action(models.Model, ExcelImportMixin):
@@ -996,7 +1007,7 @@ class Action(models.Model, ExcelImportMixin):
         return self.description
 
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         fields = ('idaccion', 'accion', 'direccion')
         for bit, description, arguments in workbook.iter_as_dict('accionev', fields):
             models.profile.action_set.create(

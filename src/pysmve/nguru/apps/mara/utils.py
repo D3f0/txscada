@@ -114,13 +114,13 @@ class ExcelImportMixin(object):
     @classmethod
     def import_excel(cls, workbook, **models):
         '''Import from excel'''
-        retval = cls.do_import_excel(workbook, bunchify(models))
-        cls.get_logger().info("Importing %s" % unicode(cls._meta.verbose_name))
-
+        logger = cls.get_logger()
+        retval = cls.do_import_excel(workbook, bunchify(models), logger=logger)
+        logger.info("Importing %s" % unicode(cls._meta.verbose_name))
         return retval
 
     @classmethod
-    def do_import_excel(cls, workbook, models):
+    def do_import_excel(cls, workbook, models, logger):
         raise NotImplementedError("Not implemented for %s" % cls)
 
 
@@ -271,4 +271,5 @@ def get_energy_23_59_from_logs(*args, **kwargs):
             pass
         return False
     return Indexable((container for container in get_structs_from_logs(*args, **kwargs)
-            if f_filter(container)))
+                     if f_filter(container)))
+
