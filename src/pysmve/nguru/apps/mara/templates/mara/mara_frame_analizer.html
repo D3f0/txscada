@@ -26,7 +26,9 @@
                     <div class="form-group">
 
                         <input type="submit" value="Enviar" class="btn btn-default">
-                        <input type="reset" class="btn" vlaue="Reset">
+                        <input type="submit" class="btn"
+                        id="analize_frame_button" name="analizar" value="Analizar">
+                        <input type="reset" class="btn" value="Reset">
                     </div>
                 </form>
             </div>
@@ -68,7 +70,7 @@
         ]
     });
 
-    $('#analizar').click(function (){
+    $('#analize_frame_button').click(function (){
         var that = this;
         var value = frame.val();
         if ($(this).hasClass('disabled') || !value) {
