@@ -133,6 +133,7 @@ class Color(ProfileBound, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models, logger):
+        '''Import Color'''
         colour_map = workbook.colour_map
         sheet = workbook.sheet_by_name('color')
         rows, cols = sheet.nrows, sheet.ncols
@@ -340,29 +341,20 @@ class SVGElement(models.Model, ExcelImportMixin):
         for tag, description, text, fill, stroke, mark in\
                 workbook.iter_as_dict('eg', fields=fields):
             # Prevent tag from repeating
-            logger.info(_("Importing %s") % tag)
-            i = 0
-            base_tag = tag
-            while base_tag in created_tags:
-                logger.warning(unicode(_("Tag repeated %s" % base_tag)))
-                base_tag = '%s_%d' % (base_tag, i)
-                i += 1
-            tag = base_tag
-            if type(text) is float:
-                frac, val = math.modf(text)
-                if not frac:
-                    text = str(int(val))
-            screen = longest_prefix_match(tag, screen_prefix_map)
 
-            screen.elements.create(
-                tag=tag,
-                description=description,
-                text=text,
-                fill=fill or None,
-                stroke=stroke or None,
-                mark=mark or None,
-            )
-            created_tags.add(tag)
+            screen = longest_prefix_match(tag, screen_prefix_map)
+            element, created = screen.elements.get_or_create(tag=tag)
+            if created:
+                logger.info(_("Importing %s") % tag)
+            else:
+                logger.info(_("Updating %s") % tag)
+            element.description = description
+            element.text = text
+            element.fill = fill or None
+            element.stroke = stroke or None
+            element.mark = mark or None
+
+            element.save()
 
     class Meta:
         verbose_name = _("SVG Element")
@@ -516,23 +508,27 @@ class Formula(models.Model, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models, logger):
-        """Import form excel file, sheet 'formulas'"""
+        """Import form excel file, sheet 'formulas'
+        Profile is ensured from screen SVGElement lookup"""
         attr_trans = {}
         fields = ('tabla', 'tag', 'atributo', 'formula')
         for tabla, tag, atributo, formula in workbook.iter_as_dict('formulas',
                                                                    fields=fields):
             if not formula or not atributo:
                 continue
+
+            screen = models.screens.get(name=tag[:2])
             try:
-                target= SVGElement.objects.get(tag=tag, screen__in = models.screens)
+                target = SVGElement.objects.get(tag=tag, screen=screen)
             except SVGElement.DoesNotExist:
                 print("Skipping %s %s" % (tag, formula))
 
-            Formula.objects.create(
-                target=target,
-                formula=formula,
-                attribute=attr_trans.get(atributo, atributo)
-            )
+            instance, created = Formula.objects.get_or_create(target=target,
+                                                              attribute=atributo)
+            action = 'created' if created else 'updated'
+            instance.formula = formula
+            instance.save()
+            logger.info("Formula %s %s", instance, action)
 
     class Meta:
         verbose_name = _("Formula")

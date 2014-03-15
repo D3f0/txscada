@@ -10,6 +10,7 @@ from bunch import bunchify
 from django.core.management.base import CommandError, NoArgsCommand
 from django.utils.translation import ugettext_lazy as _
 from apps.mara.utils import WorkBook
+from django.db import transaction
 from logging import getLogger
 
 
@@ -20,17 +21,42 @@ result_type = namedtuple('Result', 'ok error total')
 logger = getLogger('excel_import')
 
 
+def add_vs_to_comaster(comaster):
+    '''VS or 'varsys' have the same structure to every IED
+    so insted of defining them'''
+    param_descriptions = (
+        ("ComErrorL", "MOTIV -CoMaster"),
+        ("ComErrorH", "No Implementado"),
+        ("Sesgo L", "Sesgo (Entero)"),
+        ("Sesgo H", "Sesgo (Entero)"),
+        ("CalifL", "GaP del clock"),
+        ("CalifH", "Error-Arranque UART"),
+    )
+    offset = 1
+    for ied in comaster.ieds.order_by('offset'):
+        ied.sv_set.all().delete()
+        for param, description in param_descriptions:
+            sv = ied.sv_set.create(
+                offset=offset,
+                param=param,
+                description=description,
+            )
+            offset += 1
+            logger.info("Added %s", sv)
+
+
 def import_profile_from_workbook(profile, workbook, no_calculate=False,):
     """Command independent importer"""
 
     # Process COMaster for profile
-    ieds = IED.objects.filter(co_master__profile=Profile.objects.get())
 
-    # Update
-    #SV.import_excel(workbook, ieds=ieds)
+    for comaster in profile.comasters.all():
+        add_vs_to_comaster(comaster)
+
     #svg_elements = SVGElement.objects.filter(screen__profile=profile)
-    SVGElement.import_excel(workbook, screens=profile.screens.all())
-
+    screens = profile.screens.all()
+    SVGElement.import_excel(workbook, screens=screens)
+    Formula.import_excel(workbook, screens=screens)
     #Formula.import_excel(workbook, screens=profile.screens.all())
 
     if not no_calculate:
