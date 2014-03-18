@@ -175,7 +175,7 @@ Event = Struct("event",
 #===============================================================================
 Payload_10 = Struct("payload_10",
     ULInt8('canvarsys'),
-    Array(lambda ctx: ctx.canvarsys, UBInt8('varsys')),
+    Array(lambda ctx: ctx.canvarsys -1, UBInt8('varsys')),
     ULInt8('candis'),
     Array(lambda ctx: ctx.candis / 2, ULInt16('dis')),
     ULInt8('canais'),
