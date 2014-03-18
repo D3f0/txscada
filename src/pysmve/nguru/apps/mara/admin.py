@@ -299,6 +299,7 @@ site.register(ComEventKind, ComEventKindAdmin)
 class ComEventAdmin(admin.ModelAdmin):
     list_display = ('id',
                     'comaster_desc',
+                    'ied',
                     'timestamp',
                     'motiv',
                     'timestamp_ack',
