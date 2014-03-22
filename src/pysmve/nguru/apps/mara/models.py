@@ -11,7 +11,7 @@ from apps.mara.utils import get_relation_managers
 from django.utils.translation import ugettext as _
 from protocols.utils.bitfield import iterbits
 from protocols import constants
-from protocols.utils.words import expand
+#from protocols.utils.words import expand
 from protocols.constructs.structs import container_to_datetime
 from utils import ExcelImportMixin, counted
 import re  # For text frame procsessing
@@ -241,7 +241,7 @@ class COMaster(models.Model, ExcelImportMixin):
                     )
                     logger.info(_("Digital event created %s") % ev)
                 except DI.DoesNotExist:
-                    logger.warning(_("DI does not exist for %s:%s") % (port, bit))
+                    logger.warning("DI does not exist for %s:%s", event.port, event.bit)
 
             elif event.evtype == 'ENERGY' and create_ev_energy:
                 try:
@@ -308,9 +308,8 @@ class COMaster(models.Model, ExcelImportMixin):
         success = True
         try:
             self.process_frame(frame)
-        except Exception as e:
+        except Exception:
             success = False
-            print e
         return success
 
     _frame_regex = re.compile(r'(FE ([0-9A-F]{2}\s?){2,512})', re.IGNORECASE)
@@ -326,7 +325,6 @@ class COMaster(models.Model, ExcelImportMixin):
             if match:
                 found += 1
                 text_frame = match.group()
-                print text_frame
 
                 self._process_str_frame(text_frame, **flags)
                 processed += 1
@@ -341,7 +339,6 @@ class COMaster(models.Model, ExcelImportMixin):
             for n, line in enumerate(fp.readlines()):
                 if not line:
                     continue
-                print n
                 match = self._frame_regex.search(line)
                 if match:
                     text_frame = match.group()
@@ -524,8 +521,8 @@ class SV(MV, ExcelImportMixin):
             for ied in models.ieds:
                 rows = workbook.iter_as_dict('varsys', fields=fields)
                 logger.info(_("Importing IED: %s"), ied)
-                for (ied_id, offset, bit, param, description, value) in \
-                    (row for row in rows if row.ied_id == ied.pk):
+                for t in (row for row in rows if row.ied_id == ied.pk):
+                    ied_id, offset, bit, param, description, value = t
                     try:
                         ied.sv_set.create(
                             offset=offset,
@@ -536,9 +533,6 @@ class SV(MV, ExcelImportMixin):
                         )
                     except IntegrityError as e:
                         logger.error(_("Error in %s"), e)
-
-
-
 
 
 class DI(MV, ExcelImportMixin):
@@ -580,59 +574,67 @@ class DI(MV, ExcelImportMixin):
             if instance.pk:
                 old_value = DI.objects.get(pk=instance.pk).value
                 if old_value != instance.value:
-                    print "%s change from %s -> %s at %s" % (instance,
+                    print("%s change from %s -> %s at %s" % (instance,
                                                              old_value,
                                                              instance.value,
-                                                             instance.last_update)
-        except Exception, e:
-            print e
+                                                             instance.last_update))
+        except Exception as e:
+            print(e)
 
     @classmethod
     def do_import_excel(cls, workbook, models, logger):
         """Import DI for IED from XLS di sheet"""
 
-        def di_belongs_to_ied(row):
-            try:
-                if int(row.ied_id) != models.ied.pk:
-                    return False
-            except ValueError:
-                return False
-            return True
-
         fields = ('id',
                   'ied_id',
-                  'tag',
+                  'offset',
                   'port',
                   'bit',
-                  'value',
-                  'q',
+                  'tag',
                   'trasducer',
-                  'maskinv',
                   'description',
+                  'q',
+                  'value',
+                  'maskinv',
+                  'tipodi',
+                  'nrodi',
                   'idtextoev2',
                   'pesoaccionh',
                   'pesoaccionl'
                   )
-        for i, (pk, ied_id, tag, port, bit, value, q, trasducer, maskinv, description,
-                idtextoev2, pesoaccion_h, pesoaccion_l)\
+        for i, (pk, ied_id, offset, port, bit, tag, trasducer, description, q, value,
+                maskinv, tipodi, nrodi, idtextoev2, pesoaccion_h, pesoaccion_l)\
             in enumerate(workbook.iter_as_dict('di',
-                                               fields=fields,
-                                               row_filter=di_belongs_to_ied)):
+                                               fields=fields)):
 
-            models.ied.di_set.create(
-                pk=pk,
-                tag=tag,
-                port=port,
-                bit=bit,
-                value=value,
-                q=q,
-                trasducer=trasducer,
-                maskinv=maskinv,
-                description=description,
-                idtextoev2=idtextoev2 or 0,
-                pesoaccion_h=pesoaccion_h or 0,
-                pesoaccion_l=pesoaccion_l or 0,
-            )
+            ied = models.ieds.get(pk=ied_id)
+
+            instance, created = ied.di_set.get_or_create(pk=pk)
+
+            if created:
+                action = "Created"
+            else:
+                action = "Updated"
+
+            # Get related ied
+            ied = models.ieds.get(pk=ied_id)
+
+            instance.offset = offset
+            instance.ied = ied
+            instance.tag = tag
+            instance.port = port
+            instance.bit = bit
+            instance.value = value
+            instance.q = q
+            instance.trasducer = trasducer
+            instance.maskinv = maskinv
+            instance.description = description
+            instance.idtextoev2 = idtextoev2 or 0
+            instance.pesoaccion_h = pesoaccion_h or 0
+            instance.pesoaccion_l = pesoaccion_l or 0
+            instance.save()
+            logger.info("DI %s %s", instance, action)
+
 
 signals.pre_save.connect(DI.check_value_change, sender=DI)
 
@@ -731,9 +733,6 @@ class Event(models.Model):
                     tag_qs.filter(tag=tag).update(text='0')
 
 
-
-
-
 def sync_event_with_svgelements(instance=None, **kwargs):
     if instance:
         instance.propagate_changes()
@@ -757,13 +756,12 @@ class EventText(models.Model, ExcelImportMixin):
     def __unicode__(self):
         return self.description
 
-
     @classmethod
     def do_import_excel(cls, workbook, models, logger):
         """Import text for events from XLS sheet 'com'"""
         fields = 'id    code    description idTextoEv2  pesoaccion'.lower().split()
-        for pk, code, description, idtextoev2, pesoaccion in\
-            workbook.iter_as_dict('com', fields=fields):
+        for t in workbook.iter_as_dict('com', fields=fields):
+            pk, code, description, idtextoev2, pesoaccion = t
             models.profile.event_kinds.create(
                 description=description,
                 value=code,
@@ -771,8 +769,8 @@ class EventText(models.Model, ExcelImportMixin):
                 pesoaccion=pesoaccion,
             )
 
-class EventDescription(models.Model, ExcelImportMixin):
 
+class EventDescription(models.Model, ExcelImportMixin):
     """Extra table for text composition"""
     profile = models.ForeignKey(Profile)
     textoev2 = models.IntegerField(blank=True, null=True)
@@ -798,8 +796,6 @@ class EventDescription(models.Model, ExcelImportMixin):
         verbose_name = _('Event Descriptions')
 
 
-
-
 class ComEventKind(models.Model, ExcelImportMixin):
     '''Gives a type to communication event'''
     code = models.IntegerField()
@@ -818,6 +814,7 @@ class ComEventKind(models.Model, ExcelImportMixin):
     @classmethod
     def do_import_excel(cls, workbook, models, logger):
         pass
+
 
 class ComEvent(GenericEvent):
     motiv = models.IntegerField()
@@ -852,12 +849,15 @@ class AI(MV, ExcelImportMixin):
     divider = models.FloatField(default=1)
     rel_tv = models.FloatField(db_column="reltv", default=1)
     rel_ti = models.FloatField(db_column="relti", default=1)
-    rel_33_13 = models.FloatField(db_column="rel33-13", default=1)
+    #rel_33_13 = models.FloatField(db_column="rel33-13", default=1)
+    peso_p = models.FloatField(verbose_name="PesoP", default=1)
     q = models.IntegerField(db_column="q", default=0)
     value = models.SmallIntegerField(default=-1)
 
     escala = models.FloatField(help_text="Precalculo de multip_asm, divider, reltv, "
                                "relti y rel33-13", default=0)
+    escala_e = models.FloatField(help_text="Escala para energía",
+                                 default=0)
 
     nroai = models.IntegerField(default=0)
     idtextoevm = models.IntegerField(null=True, blank=True)
@@ -880,7 +880,7 @@ class AI(MV, ExcelImportMixin):
                   self.divider,
                   self.rel_tv,
                   self.rel_ti,
-                  self.rel_33_13,
+                  self.peso_p,
                   self.value
                   ]
         return "%.2f %s" % (reduce(operator.mul, values), self.unit)
@@ -888,17 +888,9 @@ class AI(MV, ExcelImportMixin):
     @classmethod
     @counted
     def do_import_excel(cls, workbook, models, logger):
-        """Import AI for IED from 'ai' sheet"""
+        """Import AI for IED from 'ai' sheet."""
 
-        def ai_belongs_to_ied(row):
-            try:
-                if int(row.ied_id) != models.ied.pk:
-                    return False
-            except ValueError:
-                return False
-            return True
-        fields = (
-                  'id',
+        fields = ('id',
                   'ied_id',  # Taken as IED offset
                   'offset',
                   'channel',
@@ -910,10 +902,11 @@ class AI(MV, ExcelImportMixin):
                   'divider',
                   'reltv',
                   'relti',
-                  'rel33_13',
+                  'pesop',
                   'escala',
-                  'q',
-                  'value',
+                  'esce',
+                  #'q',
+                  #'value',
                   'nroai',
                   'valuemax', 'valuemin',
                   'idtextoevm',
@@ -922,46 +915,60 @@ class AI(MV, ExcelImportMixin):
                   'pesoaccionh', 'pesoaccionl'
                   )
 
-
         for n, (pk, ied_id, offset, channel, trasducer,
                 description, tag, unit, multip_asm, divider,
-                rel_tv, rel_ti, rel_33_13, escala, q, value,
+                rel_tv, rel_ti, peso_p, escala, escala_e,
+                #q, value,
                 nroai, value_max, value_min, idtextoevm,
                 delta_h, delta_l, idtextoev2, pesoaccion_h, pesoaccion_l
                 )\
             in enumerate(workbook.iter_as_dict('ai',
-                                               fields=fields,
-                                               row_filter=ai_belongs_to_ied)):
-            try:
-                pk = int(pk)
-                if ied_id != models.ied.pk:
-                    raise ValueError("Not related row")
-            except ValueError as e:
-                print e
+                                               fields=fields)):
 
-            models.ied.ai_set.create(
-                pk=pk,
-                offset=offset,
-                channel=channel,
-                trasducer=trasducer,
-                description=description,
-                tag=tag,
-                unit=unit,
-                multip_asm=multip_asm,
-                divider=divider,
-                rel_tv=rel_tv,
-                rel_ti=rel_ti,
-                rel_33_13=rel_33_13,
-                escala=escala,
-                q=q,
-                value=value,
-                nroai=nroai,
-                value_max=value_max or None, value_min=value_min or None,
-                idtextoevm=idtextoevm,
-                delta_h=delta_h or None, delta_l=delta_l or None,
-                idtextoev2=idtextoev2,
-                pesoaccion_h=pesoaccion_h or None, pesoaccion_l=pesoaccion_l or None,
-            )
+            pk = int(pk)
+            ied_id = int(ied_id)
+
+            try:
+
+                ied = models.ieds.get(pk=ied_id)
+                instance, created = AI.objects.get_or_create(pk=pk)
+
+            except IED.DoesNotExist:
+                logger.error("AI related IED cound not be found: %d", ied_id)
+                raise
+
+            if created:
+                instance.ied = ied
+
+            instance.offset = offset
+            instance.channel = channel
+            instance.trasducer = trasducer
+            instance.description = description
+            instance.tag = tag
+            instance.unit = unit
+            instance.multip_asm = multip_asm
+            instance.divider = divider
+            instance.rel_tv = rel_tv
+            instance.rel_ti = rel_ti
+            instance.peso_p = peso_p or 1.0
+            instance.escala = escala
+            instance.escala_e = escala_e or 1.0
+            #instance.q = q
+            #instance.value = value
+            instance.nroai = nroai
+            instance.value_max = value_max or None
+            instance.value_min = value_min or None
+            instance.idtextoevm = idtextoevm
+            instance.delta_h = delta_h or None
+            instance.delta_l = delta_l or None
+            instance.idtextoev2 = idtextoev2
+            instance.pesoaccion_h = pesoaccion_h or None
+            instance.pesoaccion_l = pesoaccion_l or None
+            try:
+                instance.save()
+            except Exception as e:
+                raise e
+            logger.info("AI %s %s", instance, 'created' if created else 'updated')
 
 
 class Energy(models.Model):
@@ -982,9 +989,9 @@ class Energy(models.Model):
         verbose_name_plural = _("Energy Measures")
         #unique_together = ('ai', 'timestamp', 'value')
         permissions = (
-                           ('can_view_power_plot', _('Can view power plot')),
-                           ('can_see_month_report', _('Can see month report')),
-                           )
+            ('can_view_power_plot', _('Can view power plot')),
+            ('can_see_month_report', _('Can see month report')),
+        )
 
 
 class Action(models.Model, ExcelImportMixin):
@@ -1020,4 +1027,3 @@ class Action(models.Model, ExcelImportMixin):
         unique_together = ('bit',)
         verbose_name = _("Action")
         verbose_name_plural = _("Actions")
-
