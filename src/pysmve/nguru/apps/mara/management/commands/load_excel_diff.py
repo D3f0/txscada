@@ -1,16 +1,12 @@
 from collections import namedtuple
 from optparse import make_option
 
-from apps.hmi.models import (Color, Formula, SVGElement, SVGPropertyChangeSet,
-                             SVGScreen)
-from apps.mara.models import (SV, IED,
-                              Action, COMaster, ComEventKind, EventDescription,
-                              EventText, Profile)
+from apps.hmi.models import (Formula, SVGElement)
+from apps.mara.models import (IED, DI, AI, Profile)
 from bunch import bunchify
 from django.core.management.base import CommandError, NoArgsCommand
 from django.utils.translation import ugettext_lazy as _
 from apps.mara.utils import WorkBook
-from django.db import transaction
 from logging import getLogger
 
 
@@ -48,16 +44,16 @@ def add_vs_to_comaster(comaster):
 def import_profile_from_workbook(profile, workbook, no_calculate=False,):
     """Command independent importer"""
 
-    # Process COMaster for profile
-
     for comaster in profile.comasters.all():
         add_vs_to_comaster(comaster)
 
-    #svg_elements = SVGElement.objects.filter(screen__profile=profile)
+    ieds = IED.objects.filter(co_master__profile=profile)
+    DI.import_excel(workbook, ieds=ieds)
+    AI.import_excel(workbook, ieds=ieds)
+
     screens = profile.screens.all()
     SVGElement.import_excel(workbook, screens=screens)
     Formula.import_excel(workbook, screens=screens)
-    #Formula.import_excel(workbook, screens=profile.screens.all())
 
     if not no_calculate:
         ok, error = Formula.calculate()
@@ -107,6 +103,8 @@ class Command(NoArgsCommand):
     ) + NoArgsCommand.option_list
 
     def handle_noargs(self, **options):
+
+        # Remote debugging
 
         options = bunchify(options)
         if options.clear_models:
