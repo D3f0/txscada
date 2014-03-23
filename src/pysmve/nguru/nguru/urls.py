@@ -8,7 +8,7 @@ from django.conf import settings
 # from django.contrib import admin
 # admin.autodiscover()
 
-from apps.mara.admin import site, config_site
+from apps.mara.admin import site
 from apps.api.resources import api
 
 
@@ -67,7 +67,7 @@ urlpatterns = patterns('',
     #=========================================================================================
     #(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', site.urls),
-    url(r'^config/', config_site.urls),
+
     #=========================================================================================
     # Graphical Query Browser
     #=========================================================================================
