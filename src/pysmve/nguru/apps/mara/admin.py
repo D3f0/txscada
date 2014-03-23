@@ -13,12 +13,15 @@ from models import (
 )
 from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
 from apps.hmi.forms import SVGElementForm, FormuluaInlineForm, SVGScreenAdminForm
+from django.contrib.admin.models import LogEntry
+from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import ugettext as _
+
+from apps.hmi.forms import UserForm
 
 logger = logging.getLogger(__name__)
 
 site = admin.AdminSite('mara')
-
 
 
 class COMasterTabularInline(admin.TabularInline):
@@ -466,14 +469,9 @@ class ActionAdmin(admin.ModelAdmin):
 
 site.register(Action, ActionAdmin)
 
-
 # Config
-from django.contrib.admin.models import LogEntry
-from django.contrib.auth.models import User, Group, Permission
 
-from apps.hmi.forms import UserForm
-config_site = admin.AdminSite('config')
-config_site.register(Profile)
+site.register(Profile)
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -503,9 +501,9 @@ class UserAdmin(admin.ModelAdmin):
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
 
-config_site.register(User, UserAdmin)
-config_site.register(Group)
-config_site.register(Permission)
+site.register(User, UserAdmin)
+site.register(Group)
+site.register(Permission)
 
 
 class LogEntryAdmin(admin.ModelAdmin):
@@ -526,4 +524,4 @@ class LogEntryAdmin(admin.ModelAdmin):
     get_object_link.allow_tags = True
     get_object_link.short_description = "Enlace"
 
-config_site.register(LogEntry, LogEntryAdmin)
+site.register(LogEntry, LogEntryAdmin)
