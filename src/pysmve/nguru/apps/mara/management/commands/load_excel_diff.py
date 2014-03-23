@@ -67,8 +67,9 @@ def open_workbook(path):
     try:
         return WorkBook(path, formatting_info=True)
     except IOError as e:
-        raise CommandError(_("File %s could not be read or it's not an "
-                           "excel file (%s)") % (path, e))
+        msg = "File {path} could not be read or it's not an exce file {error}"
+        msg.format(path=path, error=e)
+        raise CommandError(msg)
 
 
 def get_models_to_clear(model_list):
