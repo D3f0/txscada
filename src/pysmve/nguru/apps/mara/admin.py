@@ -105,10 +105,16 @@ site.register(IED, IEDAdmin)
 
 
 class SVAdmin(admin.ModelAdmin):
-    list_display = ('__unicode__', 'value', 'ied', 'offset', 'value')
-    list_filter = ('ied',)
+    list_display = ('__unicode__', 'ied', 'offset', 'get_value')
+    list_filter = ('ied', 'offset', )
+    list_search = ('description', )
     exclude = ('last_update', )
 
+    def get_value(self, obj):
+        return ("%.4x" % obj.value).upper()
+
+    get_value.short_description = _('value')
+    get_value.admin_order_field = 'value'
 
 site.register(SV, SVAdmin)
 
