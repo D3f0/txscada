@@ -7,6 +7,7 @@ from models import SVGElement, Formula
 from django.contrib.auth.models import User, Permission
 import string
 
+
 class EnergyDatePlotForm(forms.Form):
     date = forms.DateField(label="Fecha de la curva")
     # estacion = forms.
@@ -22,12 +23,13 @@ class EnergyDatePlotForm(forms.Form):
 
         #self.helper.add_input(Submit('submit', 'Submit'))
 
+
 class SVGScreenAdminForm(forms.ModelForm):
     def __init__(self, *largs, **kwargs):
         super(SVGScreenAdminForm, self).__init__(*largs, **kwargs)
         instance = kwargs.get('instance')
         if instance:
-            qs = SVGScreen.objects.filter(profile = instance.profile)
+            qs = SVGScreen.objects.filter(profile=instance.profile)
             qs = qs.exclude(pk=instance.pk)
             self.fields['parent'].queryset = qs
 
@@ -53,12 +55,13 @@ class SVGScreenForm(forms.Form):
     svg_screen = forms.ModelChoiceField(SVGScreen.objects.all(),
                                         label=_("SVG Screen"),
                                         empty_label=None)
-    ALARM_CHOICES = [ (qty, _('%d alarms') % qty) for qty in [3, 5, 7,]]
+    ALARM_CHOICES = [(qty, _('%d alarms') % qty) for qty in [3, 5, 7,]]
     alarm_count = forms.ChoiceField(choices=ALARM_CHOICES, initial=5)
 
 
 def make_svg_change_label(p):
     return "%d %s" % (p.index, p.description)
+
 
 class SVGElementForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -107,31 +110,16 @@ class SVGElementForm(forms.ModelForm):
         }
 
 
-
 class FormuluaInlineForm(forms.ModelForm):
 
     class Meta:
         model = Formula
         widgets = {
-            'formula': forms.widgets.TextInput(attrs={'autocomplete':'off',
-                                                      'style': 'width: 100%',})
+            'formula': forms.widgets.TextInput(attrs={'autocomplete': 'off',
+                                                      'style': 'width: 100%',
+                                                      })
         }
         fields = ('attribute', 'formula', )
-
-# class AlarmFilterForm(forms.Form):
-#     timestamp__gte = forms.DateField(
-#                                      )
-#     timestamp__lte = forms.DateField(
-#                                     )
-#     tag__istartswith = forms.CharField(
-#                                     )
-#     class Meta:
-#         widgets = {
-#             'timestamp__gte': forms.widgets.TextInput(attrs={'placeholder': _('date from')}),
-#             'timestamp__lte': forms.widgets.TextInput(attrs={'placeholder': _('date until')}),
-#             'tag__istartswith': forms.widgets.TextInput(attrs={'placeholder': _('tag')}),
-#         }
-
 
 MIN_PASS_LEN = 6
 MAX_PASS_LEN = 24
@@ -149,7 +137,9 @@ class UserForm(forms.ModelForm):
             self.fields['pass_2'].required = False
 
     pass_1 = forms.CharField(label='Clave', widget=forms.PasswordInput,
-                             help_text="Calve de acceso al sistema, la longitud mínima son %d caracteres y la máxima %d" % (MIN_PASS_LEN, MAX_PASS_LEN))
+                             help_text="Calve de acceso al sistema, la longitud mínima "
+                             "son %d caracteres y la máxima %d" % (MIN_PASS_LEN,
+                                                                   MAX_PASS_LEN))
     pass_2 = forms.CharField(label='Repetir calve', widget=forms.PasswordInput)
 
     user_permissions = forms.ModelMultipleChoiceField(Permission.objects.all(),
