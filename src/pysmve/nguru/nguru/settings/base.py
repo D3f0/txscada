@@ -252,7 +252,6 @@ LOGGING = {
 #=========================================================================================
 
 def show_toolbar(request):
-    return False
     if request.user and request.user.username == "nahuel":
         return True
     return False
