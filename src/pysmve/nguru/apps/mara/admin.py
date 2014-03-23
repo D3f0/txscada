@@ -454,7 +454,6 @@ class SVGElementAdmin(admin.ModelAdmin):
     get_last_update.short_description = _("last update")
     get_last_update.admin_order_field = 'last_update'
 
-
     form = SVGElementForm
 
 
@@ -476,9 +475,24 @@ from apps.hmi.forms import UserForm
 config_site = admin.AdminSite('config')
 config_site.register(Profile)
 
+
 class UserAdmin(admin.ModelAdmin):
     model = User
     form = UserForm
+    list_display = ('__unicode__', 'is_active',
+                    'last_login', 'email', 'is_staff', 'get_groups', )
+
+    def get_groups(self, obj):
+        groups = [u'<li>%s</li>' % g for g in obj.groups.all()]
+        if groups:
+
+            retval = u'<ul>%s</ul>' % ''.join(groups)
+        else:
+            retval = _('None')
+        return retval
+
+    get_groups.short_description = _("groups")
+    get_groups.allow_tags = True
 
     ## Static overriding
     fieldsets = (
@@ -493,9 +507,10 @@ config_site.register(User, UserAdmin)
 config_site.register(Group)
 config_site.register(Permission)
 
+
 class LogEntryAdmin(admin.ModelAdmin):
     list_display = ('change_message', 'user', 'content_type', 'action_time',
-        'get_object_link', )
+                    'get_object_link', )
     list_display_links = ('change_message', )
     list_filter = ('user', 'content_type', 'action_flag')
 
@@ -503,8 +518,8 @@ class LogEntryAdmin(admin.ModelAdmin):
         from django.core.urlresolvers import reverse
         #import ipdb; ipdb.set_trace()
         view = 'mara:%s_%s_change' % (logentry.content_type.app_label,
-            logentry.content_type.model)
-        url =  reverse(view, args=(logentry.object_id, ))
+                                      logentry.content_type.model)
+        url = reverse(view, args=(logentry.object_id, ))
         return '''
         <a href="%s" target="_blank">%s</a>
         ''' % (url, 'Ver')
