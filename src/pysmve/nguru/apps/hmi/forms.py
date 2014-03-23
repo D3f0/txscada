@@ -142,14 +142,12 @@ class UserForm(forms.ModelForm):
                                                                    MAX_PASS_LEN))
     pass_2 = forms.CharField(label='Repetir calve', widget=forms.PasswordInput)
 
-    user_permissions = forms.ModelMultipleChoiceField(Permission.objects.all(),
-                                                      #widget=jQueryUIMultiSelect(filter=True)
-                                                      )
+    user_permissions = forms.ModelMultipleChoiceField(Permission.objects.all())
 
-    def poner_error_en_los_pass(self, mensaje):
+    def add_error_to_pass_fields(self, message):
         ''' Acceso a bajo nivel de los errores de los campos, sirve para
         poener de manera automática en varios campos un mismo error'''
-        error = [mensaje, ]
+        error = [message, ]
         self._errors['pass_1'] = self.error_class(error)
         self._errors['pass_2'] = self.error_class(error)
 
@@ -162,31 +160,36 @@ class UserForm(forms.ModelForm):
         if pass_1 or pass_2:
             # Primero deben ser iguales
             if pass_1 != pass_2:
-                self.poner_error_en_los_pass('Las claves deben ser iguales')
+                self.add_error_to_pass_fields(_("Password should match"))
             else:
-                self.es_clave_usable(pass_1)
+                self.is_good_password(pass_1)
 
         return self.cleaned_data
 
-
-    def es_clave_usable(self, clave):
+    def is_good_password(self, clave):
         # Mayor al mínimo
         if len(clave) < MIN_PASS_LEN:
-            self.poner_error_en_los_pass('La calve no debe ser inferior a %d caracteres' % MIN_PASS_LEN)
+            msg = _('Password should be at least %d character long') % MIN_PASS_LEN
+            self.add_error_to_pass_fields(msg)
             return False
         # Menos al maximo
         elif len(clave) > MAX_PASS_LEN:
-            self.poner_error_en_los_pass('La calve no debe ser superior a %d caracteres' % MAX_PASS_LEN)
+            msg = _('Password should be at top %d characters long') % MAX_PASS_LEN
+            self.add_error_to_pass_fields(msg)
             return False
         # Caracteres validos
         elif not(all(map(lambda c: c in VALID_PASS_CHARS, clave))):
-            self.poner_error_en_los_pass(u'La clave solo puede contener letras, números y los símbolos %s' % EXTRA_PASS_SYMBOLS)
+            msg = _('Password can lonly contain letters, numbers and the following '
+                    'symbols %s') % EXTRA_PASS_SYMBOLS
+            self.add_error_to_pass_fields()
             return False
         # No puede user el nombre de usuario
         else:
             username = self.cleaned_data.get('username')
+
             if clave.count(username) > 0:
-                self.poner_error_en_los_pass(u'No se puede user el nombre de usuario como clave ni como parte de ella')
+                msg = _('Username can not be included in password')
+                self.add_error_to_pass_fields(msg)
                 return False
         return True
 
