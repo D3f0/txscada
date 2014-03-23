@@ -256,14 +256,14 @@ def show_toolbar(request):
         return True
     return False
 
-
-
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
     'SHOW_TOOLBAR_CALLBACK': show_toolbar,
-
 }
 
+#=========================================================================================
+# Testing Config
+#=========================================================================================
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
@@ -277,18 +277,12 @@ NOSE_ARGS = [
     #'--processes=8'
 ]
 
-#import warnings
-#warnings.filterwarnings(
-#        'error', r"DateTimeField received a naive datetime",
-#        warnings.RuntimeWarning, r'django\.db\.models\.fields')
-
-
 
 LOCALE_PATHS = (
     join(PROJECT_ROOT, 'conf/locale'),
 )
 
-TIMESTAMP_FORMAT='%Y-%m-%d %H:%M:%S.%f'
+TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
 
 LOGIN_URL = '/login/'
