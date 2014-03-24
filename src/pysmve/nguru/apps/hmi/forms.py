@@ -142,7 +142,7 @@ class UserForm(forms.ModelForm):
                                                                    MAX_PASS_LEN))
     pass_2 = forms.CharField(label='Repetir calve', widget=forms.PasswordInput)
 
-    user_permissions = forms.ModelMultipleChoiceField(Permission.objects.all())
+    #user_permissions = forms.ModelMultipleChoiceField(Permission.objects.all())
 
     def add_error_to_pass_fields(self, message):
         ''' Acceso a bajo nivel de los errores de los campos, sirve para
@@ -207,7 +207,9 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        exclude = ('password', 'user_permissions', )
+        exclude = ('password',
+                   'user_permissions',
+                   )
         widgets = {
             'groups': forms.CheckboxSelectMultiple,
         }
