@@ -331,6 +331,7 @@ class FormulaAdmin(admin.ModelAdmin):
                     'last_error',
                     )
 
+    search_fields = ('formula', )
     list_search = ('tag', )
     list_display_links = ('target', )
     list_filter = ('attribute', 'target__screen', )
