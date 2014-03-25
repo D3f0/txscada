@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-23 19:57-0300\n"
-"PO-Revision-Date: 2014-03-23 20:04-0300\n"
+"POT-Creation-Date: 2014-03-25 01:58-0300\n"
+"PO-Revision-Date: 2014-03-25 01:59-0300\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
 "Language: es\n"
@@ -17,47 +17,51 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 1.5\n"
 
-#: apps/hmi/forms.py:56 apps/hmi/models.py:91
+#: apps/hmi/forms.py:57 apps/hmi/models.py:91
 msgid "SVG Screen"
 msgstr "Pantalla"
 
-#: apps/hmi/forms.py:58
+#: apps/hmi/forms.py:59
 #, python-format
 msgid "%d alarms"
 msgstr "%d alarmas"
 
-#: apps/hmi/forms.py:99
+#: apps/hmi/forms.py:100
 msgid "Can not create a dependency loop"
 msgstr "No se puede crear una dependencia en círculo"
 
-#: apps/hmi/forms.py:101
+#: apps/hmi/forms.py:102
 msgid "Tag does not belong to screen"
 msgstr "El tag no pertenece a la pantalla"
 
-#: apps/hmi/forms.py:163
+#: apps/hmi/forms.py:164
 msgid "Password should match"
 msgstr "Los passwords no coinciden"
 
-#: apps/hmi/forms.py:172
+#: apps/hmi/forms.py:173
 #, python-format
 msgid "Password should be at least %d character long"
 msgstr "El password debería ser de al menos %d caracteres"
 
-#: apps/hmi/forms.py:177
+#: apps/hmi/forms.py:178
 #, python-format
 msgid "Password should be at top %d characters long"
 msgstr "El password debe tener a lo sumo %d caracteres"
 
-#: apps/hmi/forms.py:182
+#: apps/hmi/forms.py:183
 #, python-format
 msgid ""
 "Password can lonly contain letters, numbers and the following symbols %s"
 msgstr ""
 "El password puede contener letras, numeros y los siguientes simbolos %s"
 
-#: apps/hmi/forms.py:191
+#: apps/hmi/forms.py:192
 msgid "Username can not be included in password"
 msgstr "El nombre de usuario no puede ser incluido como parte de la clave"
+
+#: apps/hmi/forms.py:224 apps/mara/admin.py:519
+msgid "Permissions"
+msgstr "Permisos"
 
 #: apps/hmi/models.py:47
 msgid "Label"
@@ -95,7 +99,7 @@ msgstr "Cambio de Coloración"
 msgid "SVG Property Change Sets"
 msgstr "Cambios de Coloración"
 
-#: apps/hmi/models.py:209 apps/mara/admin.py:340
+#: apps/hmi/models.py:209 apps/mara/admin.py:342
 msgid "screen"
 msgstr "pantalla"
 
@@ -103,15 +107,15 @@ msgstr "pantalla"
 msgid "description"
 msgstr "descripción"
 
-#: apps/hmi/models.py:220 apps/hmi/models.py:389
+#: apps/hmi/models.py:220 apps/hmi/models.py:390
 msgid "text"
 msgstr "texto"
 
-#: apps/hmi/models.py:224 apps/hmi/models.py:387 apps/mara/admin.py:450
+#: apps/hmi/models.py:224 apps/hmi/models.py:388 apps/mara/admin.py:470
 msgid "fill"
 msgstr "relleno"
 
-#: apps/hmi/models.py:228 apps/hmi/models.py:388
+#: apps/hmi/models.py:228 apps/hmi/models.py:389
 msgid "stroke"
 msgstr "contorno"
 
@@ -119,7 +123,7 @@ msgstr "contorno"
 msgid "enabled"
 msgstr "habliltado"
 
-#: apps/hmi/models.py:240 apps/mara/admin.py:457
+#: apps/hmi/models.py:240 apps/mara/admin.py:477
 msgid "last update"
 msgstr "última actualización"
 
@@ -165,19 +169,23 @@ msgstr "Elemento Gráfico"
 msgid "SVG Elements"
 msgstr "Elementos Gráficos"
 
-#: apps/hmi/models.py:394
+#: apps/hmi/models.py:395
 msgid "target"
 msgstr "elemento gráfico"
 
-#: apps/hmi/models.py:396 apps/mara/admin.py:348
+#: apps/hmi/models.py:397 apps/mara/admin.py:350
 msgid "attribute"
 msgstr "atributo"
 
-#: apps/hmi/models.py:534
+#: apps/hmi/models.py:430
+msgid "Cannot generate context if no target is defined"
+msgstr "No se puede generar contexto si el objeto relacionado no está definido"
+
+#: apps/hmi/models.py:553
 msgid "Formula"
 msgstr "Formula"
 
-#: apps/hmi/models.py:535
+#: apps/hmi/models.py:554
 msgid "Formulas"
 msgstr "Formulas"
 
@@ -251,39 +259,39 @@ msgstr "Descargar"
 msgid "label"
 msgstr "etiqueta "
 
-#: apps/mara/admin.py:347
+#: apps/mara/admin.py:349
 msgid "Invalid"
 msgstr "Inválido"
 
-#: apps/mara/admin.py:410
+#: apps/mara/admin.py:361 apps/mara/admin.py:369
+msgid "Calculate"
+msgstr "Calcular"
+
+#: apps/mara/admin.py:430
 msgid "General information"
 msgstr "Información General"
 
-#: apps/mara/admin.py:411
+#: apps/mara/admin.py:431
 msgid "Graphical attributes"
 msgstr "Atributos gráficos"
 
-#: apps/mara/admin.py:412
+#: apps/mara/admin.py:432
 msgid "Interaction"
 msgstr "Interacciones "
 
-#: apps/mara/admin.py:453 apps/mara/admin.py:489
+#: apps/mara/admin.py:473 apps/mara/admin.py:509
 msgid "None"
 msgstr "Nada"
 
-#: apps/mara/admin.py:492
+#: apps/mara/admin.py:512
 msgid "groups"
 msgstr "grupos"
 
-#: apps/mara/admin.py:498
+#: apps/mara/admin.py:518
 msgid "Personal info"
 msgstr "Información Personal"
 
-#: apps/mara/admin.py:499
-msgid "Permissions"
-msgstr "Permisos"
-
-#: apps/mara/admin.py:501
+#: apps/mara/admin.py:521
 msgid "Important dates"
 msgstr "Fechas importantes"
 
