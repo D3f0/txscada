@@ -17,7 +17,7 @@ from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import ugettext as _
 
-from apps.hmi.forms import UserForm
+from apps.hmi.forms import UserForm, GroupForm
 
 logger = logging.getLogger(__name__)
 
@@ -502,8 +502,13 @@ class UserAdmin(admin.ModelAdmin):
     )
 
 site.register(User, UserAdmin)
-site.register(Group)
-site.register(Permission)
+
+
+class GroupAdmin(admin.ModelAdmin):
+    form = GroupForm
+
+site.register(Group, GroupAdmin)
+#site.register(Permission)
 
 
 class LogEntryAdmin(admin.ModelAdmin):
