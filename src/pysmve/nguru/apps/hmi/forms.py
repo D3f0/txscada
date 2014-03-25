@@ -4,7 +4,8 @@ from crispy_forms.helper import FormHelper
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from models import SVGElement, Formula
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User, Permission, Group
+from django.contrib.admin.widgets import FilteredSelectMultiple
 import string
 
 
@@ -212,4 +213,16 @@ class UserForm(forms.ModelForm):
                    )
         widgets = {
             'groups': forms.CheckboxSelectMultiple,
+        }
+
+
+class GroupForm(forms.ModelForm):
+
+    class Meta:
+        model = Group
+        widgets = {
+            'permissions': FilteredSelectMultiple(_("Permissions"),
+                                                  False,
+                                                  attrs={'rows': '10'}
+                                                  ),
         }
