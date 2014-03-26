@@ -4,7 +4,7 @@ import re
 import logging
 from django.contrib import admin
 from django.conf import settings
-
+from json import dumps
 from models import (
     Profile,
     COMaster, IED, SV, DI, AI, Event, Energy,
@@ -16,7 +16,7 @@ from apps.hmi.forms import SVGElementForm, FormuluaInlineForm, SVGScreenAdminFor
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import ugettext as _
-
+from django.forms.util import flatatt
 from apps.hmi.forms import UserForm, GroupForm
 
 logger = logging.getLogger(__name__)
@@ -329,6 +329,7 @@ class FormulaAdmin(admin.ModelAdmin):
                     'get_attribute',
                     'get_formula',
                     'last_error',
+                    'get_calculate_link'
                     )
 
     search_fields = ('formula', )
@@ -349,6 +350,24 @@ class FormulaAdmin(admin.ModelAdmin):
     get_attribute.short_description = _('attribute')
     get_attribute.admin_order_field = 'attribute'
 
+    def get_calculate_link(self, obj):
+        '''Debug function'''
+        html = '<a {attrs} href="{link}">{text}</a>'
+        data = {
+                    'title': 'Calculate %s' % obj,
+                    'formula': obj.formula,
+                }
+        html = html.format(link='#',
+                           text=_("Calculate"),
+                           attrs=flatatt({
+                                         'class': 'do_calculate',
+                                         'data': dumps(data)
+                                         })
+                           )
+        return html
+
+    get_calculate_link.short_description = _('Calculate')
+    get_calculate_link.allow_tags = True
 
     def get_formula(self, obj):
         '''Renders formula with JS hints'''
@@ -478,19 +497,26 @@ site.register(Profile)
 class UserAdmin(admin.ModelAdmin):
     model = User
     form = UserForm
-    list_display = ('__unicode__', 'is_active',
+    list_display = ('username', 'get_name', 'is_active',
                     'last_login', 'email', 'is_staff', 'get_groups', )
 
-    def get_groups(self, obj):
-        groups = [u'<li>%s</li>' % g for g in obj.groups.all()]
-        if groups:
+    def get_name(self, obj):
+        if not obj.last_name and not obj.first_name:
+            return ''
+        return ', '.join((obj.last_name or '', obj.first_name or ''))
 
-            retval = u'<ul>%s</ul>' % ''.join(groups)
+    get_name.short_description = _('name').title()
+    get_name.admin_order_field = 'last_name'
+
+    def get_groups(self, obj):
+        groups = [u'%s' % g for g in obj.groups.all()]
+        if groups:
+            retval = ', '.join(groups)
         else:
             retval = _('None')
         return retval
 
-    get_groups.short_description = _("groups")
+    get_groups.short_description = _("profile")
     get_groups.allow_tags = True
 
     ## Static overriding
