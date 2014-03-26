@@ -17,7 +17,7 @@ import object_tools
 object_tools.autodiscover()
 
 
-urlpatterns = patterns('',
+app_urls = patterns('',
 
     #=========================================================================================
     # Index
@@ -78,6 +78,18 @@ urlpatterns = patterns('',
     # Django object tools
     #=========================================================================================
     (r'^object-tools/', include(object_tools.tools.urls)),
+)
+
+
+urlpatterns = patterns('',
+
+    #  Only for local purpouses
+    (r'^$',
+     'django.views.generic.simple.redirect_to',
+     {'url': '/%s' % settings.BASE_URL},
+    ),
+    # URLS de aplicaciones namespaceadas bajo RRHH
+    (r'^%s' % settings.BASE_URL, include(app_urls))
 )
 
 if settings.DEBUG:
