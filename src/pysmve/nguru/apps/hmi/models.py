@@ -7,7 +7,7 @@ from logging import getLogger
 
 from apps.mara.models import AI, DI, Profile
 from apps.mara.utils import ExcelImportMixin
-from bunch import bunchify
+from bunch import bunchify, Bunch
 from colorful.fields import RGBColorField
 from django.core.files import File
 from django.db import models
@@ -17,7 +17,7 @@ from apps.mara.utils import longest_prefix_match
 from lxml.etree import ElementTree as ET
 from django.core import validators
 from utils import generate_tag_context, IF, OR, FILTRAR, FLOAT
-
+from traceback import format_exc  # To be removed once eval is removed
 # Formulas
 # Internationalization
 
@@ -349,6 +349,11 @@ class SVGElement(models.Model, ExcelImportMixin):
             else:
                 logger.info(_("Updating %s") % tag)
             element.description = description
+            try:
+                text = '%d' % float(text)  # XLRD exports
+            except ValueError:
+                text = ''
+
             element.text = text
             element.fill = fill or None
             element.stroke = stroke or None
@@ -379,9 +384,11 @@ signals.pre_save.connect(SVGElement.update_modification_timestamp,
                          sender=SVGElement)
 
 signals.post_save.connect(SVGElement.update_linked_text_change,
-                         sender=SVGElement)
+                          sender=SVGElement)
+
 
 class Formula(models.Model, ExcelImportMixin):
+    '''This model holds'''
 
     ATTRIBUTE_CHOICES = (
         ('fill', _('fill')),
@@ -415,6 +422,157 @@ class Formula(models.Model, ExcelImportMixin):
             formula.target = element
             formula.save()
 
+    RELATED_ENTITY_RE = re.compile(
+        r'(?P<table>di|ai|eg)\.(?P<tag>[\d\w]+)\.(?P<attr>[\w\d]+)'
+    )
+
+    def get_related(self):
+        '''Returns a dict wich keys are eiter ai, di, eg.
+        Optimization function that only queries the associated functinos.
+        '''
+        related = {}
+        for table, tag, attr in self.RELATED_ENTITY_RE.findall(self.formula):
+            elements = related.setdefault(table, [])
+            elements.append(tag)
+        return related
+
+    # These names are the attributes that the ORM will look and will use for
+    # each table. i.e: if escala is in AI, then in formulas ai.TAG0001.escala
+    # will be valid (and will not generate AttributeError)
+
+    AI_ATTRS = ('tag', 'escala', 'value', 'q',)
+    DI_ATTRS = ('tag', 'value', )
+    EG_ATTRS = ('tag', 'text', 'fill', 'stroke', 'mark', )
+
+    DSL_FUNCTIONS = dict(
+        RAIZ=lambda v: v ** .5,
+        SI=IF, si=IF,
+        O=OR,
+        SUMA=sum,
+        APLICAR=map,
+        FILTRAR=FILTRAR,
+        FLOAT=FLOAT
+    )
+
+    @classmethod
+    def build_context(cls, **kwargs):
+        '''Takes a dict with typically ai, di and eg queryset and generate a
+        iterable, item accesible dict and then adds DSL functions.
+        returns an object that supports attribute and item access
+        for eval's locals use (values and functions)'''
+        context = {t: generate_tag_context(vs) for t, vs in kwargs.iteritems()}
+        context.update(cls.DSL_FUNCTIONS)
+        return bunchify(context)
+
+    @classmethod
+    def full_context(cls, co_master=None):
+        '''Returns all AI, DI, EG elements'''
+        # TODO: Implement filters
+        filters = {}
+        ai = AI.objects.filter(**filters).values(*cls.AI_ATTRS)
+        di = DI.objects.filter(**filters).values(*cls.DI_ATTRS)
+        eg = SVGElement.objects.values(*cls.EG_ATTRS)
+        # Generate context for formula evaluation
+        return cls.build_context(ai=ai, di=di, eg=eg)
+
+    def context(self):
+        '''Get context for a formula instance.
+        Do not call context with every formula. It may perform slowly.
+        It's better to get a full_context and pass it to evaluate'''
+        assert self.target is not None, _("Cannot generate context if no "
+                                          "target is defined")
+        related = self.get_related()
+        if not related:
+            # Generate full context
+            ctx = self.full_context()
+        else:
+            # Generate only those tags that are related to this formula
+
+            ai = AI.objects.filter(tag__in=related.get('ai', [])).values(*self.AI_ATTRS)
+            di = DI.objects.filter(tag__in=related.get('di', [])).values(*self.DI_ATTRS)
+            eg = SVGElement.objects.filter(tag__in=related.get('eg', []))
+            eg = eg.values(*self.EG_ATTRS)
+            return self.build_context(ai=ai, di=di, eg=eg)
+        return ctx
+
+    _prepeared_formula = None
+
+    @property
+    def prepeared_formula(self):
+        if self._prepeared_formula is None:
+            self._prepeared_formula = self.formula.replace('=', '==')
+        return self._prepeared_formula
+
+    @classmethod
+    def clean_intance_cache(cls, instance, **kwargs):
+        instance._prepeared_formula = None
+
+    @classmethod
+    def _patch_context(cls, context, overrides):
+        for key, value in overrides.iteritems():
+            table, tag, attr = key.split('.')
+
+            tags = context[table]
+            entity = tags.setdefault(tag, Bunch())
+            entity[attr] = value
+
+    def evaluate(self, context=None, overrides=None):
+        '''Evaulate formula. Will not update value in model.
+        Use update to save the result in database.
+        Overrides is a mapping of values that should overwirte the context'''
+        if not context:
+            context = self.context()
+        if overrides:
+            self._patch_context(context, overrides)
+
+        try:
+            result = eval(self.prepeared_formula, {}, context)
+            success = True
+        except Exception as e:
+            result = "{}: {}\n{}".format(type(e).__name__, e.message, format_exc())
+            success = False
+
+        return (success, result)
+
+    def evaluate_and_save(self, context=None):
+        '''Calls evealute and if it succeeds and the value is different
+        from the previous one, the target attribute is saved.
+        If evaluate fails, it stores the result (exception info) in
+        last_error attribute.
+        On succeed last_error is cleared if previous value is present.'''
+        success, result = self.evaluate(context=context)
+        if not success:
+            self.last_error = result
+        else:
+            if self.last_error:
+                self.last_error = None
+
+            prev_value = getattr(self.target, self.attribute)
+            if prev_value != result:
+                # Update
+                setattr(self.target, self.attribute, result)
+                self.target.save()
+        self.save()
+        return success
+
+    @classmethod
+    def evaluate_and_save_many(cls, context=None, **filters):
+        '''Convenience function'''
+        ok, error = 0, 0
+        for formula in cls.objects.filter(**filters):
+            success = formula.evaluate_and_save(context=context)
+            if success:
+                ok += 1
+            else:
+                error += 1
+        return (ok, error)
+
+    @classmethod
+    def evaluate_and_save_many_fast(cls, **filters):
+        '''Convenience function that will only use a context instance.
+        Does not use custom context for every evaluate call'''
+        return cls.evaluate_and_save_many(context=cls.full_context())
+
     @classmethod
     def calculate(cls, comaster_pk=None, now=None):
         '''
@@ -426,29 +584,15 @@ class Formula(models.Model, ExcelImportMixin):
         filters = dict(ied__co_master__pk=comaster_pk)
         filters = {}
 
-        ai = generate_tag_context(AI.objects.filter(**filters).values(
-                                  'tag', 'escala', 'value', 'q')
+        ai = generate_tag_context(AI.objects.filter(**filters).values(*cls.AI_ATTRS)
                                   )
-        di = generate_tag_context(DI.objects.filter(**filters).values('tag', 'value')
+        di = generate_tag_context(DI.objects.filter(**filters).values(*cls.DI_ATTRS)
                                   )
-        eg = generate_tag_context(
-            SVGElement.objects.values('tag', 'text', 'fill', 'stroke', 'mark'))
+        eg = generate_tag_context(SVGElement.objects.values(*cls.EG_ATTRS))
         # Generate context for formula evaluation
-        context = bunchify(dict(
-            # Datos
-            ai=ai,
-            di=di,
-            eg=eg,
-            # Funciones
-            RAIZ=lambda v: v ** .5,
-            SI=IF, si=IF,
-            O=OR,
-            SUMA=sum,
-            APLICAR=map,
-            FILTRAR=FILTRAR,
-            FLOAT=FLOAT
-            )
-        )
+        ctx = dict(ai=ai, di=di, eg=eg,)
+        ctx.update(cls.DSL_FUNCTIONS)
+        context = bunchify(ctx)
 
         success, fail = 0, 0
 
@@ -533,3 +677,6 @@ class Formula(models.Model, ExcelImportMixin):
     class Meta:
         verbose_name = _("Formula")
         verbose_name_plural = _("Formulas")
+
+
+signals.post_save.connect(Formula.clean_intance_cache, sender=Formula)
