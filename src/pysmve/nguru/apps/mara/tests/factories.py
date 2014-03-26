@@ -5,6 +5,8 @@ from apps.mara.models import (Profile, COMaster, IED, AI, DI, SV
                               #, Energy, Event, ComEvent)
                               )
 
+from apps.hmi.models import (SVGElement, SVGScreen, Formula, SVGPropertyChangeSet, Color)
+
 
 class ContentTypeSequencer(object):
     def __init__(self):
@@ -52,6 +54,15 @@ class AIFactory(ORMFactory):
     FACTORY_FOR = AI
     ied = factory.SubFactory(IEDFactory)
     offset = factory.LazyAttribute(lambda s: insance_sequence(s.ied))
+    value = 0
+
+    @factory.sequence
+    def param(n):
+        return 'param %d' % n
+
+    @factory.sequence
+    def description(n):
+        return 'description %d' % n
 
     @classmethod
     def _adjust_kwargs(cls, **kwargs):
@@ -65,6 +76,41 @@ class AIFactory(ORMFactory):
 class DIFactory(ORMFactory):
     FACTORY_FOR = DI
 
+    @classmethod
+    def _adjust_kwargs(cls, **kwargs):
+        """Ensure sequential offset for every DI related to a IED"""
+        if not 'offset' in kwargs and 'ied' in kwargs:
+            ied = kwargs['ied']
+            kwargs['offset'] = ied.di_set.count()
+        return kwargs
+
 
 class SVFactory(ORMFactory):
     FACTORY_FOR = SV
+
+    @classmethod
+    def _adjust_kwargs(cls, **kwargs):
+        """Ensure sequential offset for every SV related to a IED"""
+        if not 'offset' in kwargs and 'ied' in kwargs:
+            ied = kwargs['ied']
+            kwargs['offset'] = ied.sv_set.count()
+        return kwargs
+
+
+class SVGScreenFactory(ORMFactory):
+    FACTORY_FOR = SVGScreen
+
+
+class SVGElementFactory(ORMFactory):
+    FACTORY_FOR = SVGElement
+
+
+class SVGPropertyChangeSet(ORMFactory):
+    FACTORY_FOR = SVGPropertyChangeSet
+
+
+class FormulaFactory(ORMFactory):
+    FACTORY_FOR = Formula
+
+class ColorFactory(ORMFactory):
+    FACTORY_FOR = Color
