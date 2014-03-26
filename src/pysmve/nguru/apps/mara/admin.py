@@ -216,7 +216,7 @@ class SVGScreenAdmin(admin.ModelAdmin):
     list_display = ['get_hierachy', 'description', 'parent', 'show_svg', ]
 
     def show_svg(self, model):
-        return '<a href="{}" target="_blank">Download {}</a>'.format(
+        return u'<a href="{}" target="_blank">Download {}</a>'.format(
             model.svg.url,
             model.name
             )

@@ -343,7 +343,7 @@ class SVGElement(models.Model, ExcelImportMixin):
             # Prevent tag from repeating
 
             screen = longest_prefix_match(tag, screen_prefix_map)
-            element, created = screen.elements.get_or_create(tag=tag)
+            element, created = screen.elements.get_or_create(tag=tag, screen=screen)
             if created:
                 logger.info(_("Importing %s") % tag)
             else:
@@ -355,9 +355,21 @@ class SVGElement(models.Model, ExcelImportMixin):
                 text = ''
 
             element.text = text
-            element.fill = fill or None
-            element.stroke = stroke or None
-            element.mark = mark or None
+            try:
+                fill = float(fill)
+            except Exception, e:
+                fill = None
+            element.fill = fill
+            try:
+                stroke = float(stroke)
+            except Exception, e:
+                stroke = None
+            element.stroke = stroke
+            try:
+                mark = float(mark)
+            except Exception, e:
+                mark = None
+            element.mark = mark
 
             element.save()
 

@@ -931,7 +931,7 @@ class AI(MV, ExcelImportMixin):
             try:
 
                 ied = models.ieds.get(pk=ied_id)
-                instance, created = AI.objects.get_or_create(pk=pk)
+                instance, created = AI.objects.get_or_create(pk=pk, ied=ied)
 
             except IED.DoesNotExist:
                 logger.error("AI related IED cound not be found: %d", ied_id)
