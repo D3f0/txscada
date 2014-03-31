@@ -187,12 +187,14 @@ class EnergyResource(ModelResource):
         filtering = {
             'timestamp': ALL,
             'ai': ALL_WITH_RELATIONS,
+            'code': ALL,
         }
 
     def dehydrate(self, bundle):
-        ing_value = bundle.obj.value * bundle.obj.ai.escala
-        bundle.data['ing_value'] = ing_value
-        bundle.data['repr_value'] = '%s %s' % (ing_value, bundle.obj.ai.unit)
+        '''This values are used to plot energy with D3'''
+        eng_value = bundle.obj.value * bundle.obj.ai.escala_e
+        bundle.data['eng_value'] = eng_value
+        bundle.data['repr_value'] = '%s %s' % (eng_value, bundle.obj.ai.unit)
 
         return bundle
 
