@@ -74,7 +74,7 @@
     <script type="text/javascript" src="{% static "bower_components/nvd3/nv.d3.js" %}"></script>
     <script type="text/javascript">
     $(function (){
-        var URL_DATE_FORMAT = 'yyyy-MM-dd';
+        var URL_DATE_FORMAT = 'yyyy-MM-dd HH:mm:ss(.fff)';
 
         var $date_from = $('#id_date_from'),
             $date_to = $('#id_date_to'),
@@ -192,8 +192,14 @@
             //     $('form').unblock();
             // },1000);
 
-            var d1 = new XDate($date_from.datepicker('getDate')),
-                d2 = new XDate($date_to.datepicker('getDate'));
+            // Get date boundaries, correcting hour:minute:seconds.milliseconds
+            var d1 = new XDate($date_from.datepicker('getDate')).setHours(0)
+                                .setMinutes(0).setSeconds(0).setMilliseconds(0),
+                d2 = new XDate($date_to.datepicker('getDate')).setHours(23)
+                                .setMinutes(59).setSeconds(59).setMilliseconds(999);
+
+            console.log('Date boundaries from: '+ d1 +' to:'+ d2);
+
             try {
                 var from = d1.toString(URL_DATE_FORMAT);
                 var to = d2.toString(URL_DATE_FORMAT);
@@ -233,11 +239,11 @@
                 order_by: 'timestamp',
                 ai__id: $ai_select.val(),
                 code: 0, // 1 Code is for totalizer measures
-                timestamp__gte: $date_from.datepicker( "getDate" ),
-                timestamp__lte: $date_to.datepicker( "getDate" )
+                timestamp__gte: d1.toISOString(),
+                timestamp__lte: d2.toISOString()
             }, url);
 
-            console.log("Querying "+queryUrl);
+            console.log("Querying "+unescape(queryUrl));
             $.ajax({
                 url: queryUrl,
                 success: function (data, xhr) {
