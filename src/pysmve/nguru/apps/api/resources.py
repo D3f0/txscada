@@ -190,6 +190,16 @@ class EnergyResource(ModelResource):
             'code': ALL,
         }
 
+    def alter_list_data_to_serialize(self, request, data):
+        '''Add unit for plotting energy'''
+        ai_pk = request.REQUEST.get('ai__id')
+        if ai_pk:
+            ai = AI.objects.get(pk=ai_pk)
+            channel = ai.channel
+            data['meta']['unit'] = 'MW' if channel == 0 else 'MVAR'
+
+        return data
+
     def dehydrate(self, bundle):
         '''This values are used to plot energy with D3'''
         eng_value = bundle.obj.value * bundle.obj.ai.escala_e

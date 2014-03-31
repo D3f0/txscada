@@ -1,5 +1,5 @@
 $(function (){
-    var URL_DATE_FORMAT = 'yyyy-MM-dd HH:mm:ss(.fff)';
+    var URL_DATE_FORMAT = 'yyyy-MM-dd';
 
     var $date_from = $('#id_date_from'),
         $date_to = $('#id_date_to'),
@@ -63,7 +63,7 @@ $(function (){
     /* NVD3 Plot
     */
     var duration = 300;
-    var MINUTES_DISPLAYED = [0, 15, 30, 45, 59];
+
     function redraw(data) {
        nv.addGraph(function () {
            chart = nv.models.lineChart()
@@ -71,7 +71,6 @@ $(function (){
                           .y(function (d) { return d.y })
                            .useInteractiveGuideline(true);
                           //.color(d3.scale.category10().range());
-
             chart.xAxis.tickFormat(function (d) {
                 var date = new Date(d),
                     retval = '';
@@ -88,6 +87,9 @@ $(function (){
                 return retval;
             });
 
+            chart.yAxis.tickFormat(function (v) {
+                return v.toFixed(3) + data[0].unit;
+            });
             // chart.yAxis
             //     .tickFormat(d3.format(',.1%'));
 
@@ -147,8 +149,8 @@ $(function (){
 
         var $dlg = $('<div>').dialog({
             modal: true,
-            title: "Graficando",
-        }).html('<p class="loading"></p>');
+            title: "Obteniendo datos",
+        }).html('<p class="loading">Aguarde mientras se reucperan los datos...</p>');
 
         var url = Urls.api_dispatch_list('v1', 'energy');
 
@@ -167,18 +169,13 @@ $(function (){
             url: queryUrl,
             success: function (data, xhr) {
                 $dlg.dialog('close');
-                var points = $.map(data.objects, function (record, index) {
-                    return {
-                        x: new XDate(record.timestamp),
-                        y: record.eng_value
-                    }
-                });
                 // Trim select's option text
                 var key = $.trim($ai_select.find('option:selected').text());
                 redraw([
                     {
                         "key": key,
-                        "values": points
+                        "values": energyResponseToPoints(data),
+                        "unit": data.meta.unit
                     }
                 ]);
             },
@@ -188,6 +185,19 @@ $(function (){
             }
         });
     });
+
+    function energyResponseToPoints(jsonResponse) {
+        if (!jsonResponse.hasOwnProperty('objects')) {
+            throw new Exception("Invalid Tastypie response");
+        }
+        return $.map(jsonResponse.objects, function (record, index) {
+            return {
+                x: new XDate(record.timestamp),
+                y: record.eng_value
+            }
+        });
+    }
+
     $export_button.click(function (event) {
         event.preventDefault();
         var d1 = new XDate($date_from.datepicker('getDate')),
