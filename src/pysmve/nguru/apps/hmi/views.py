@@ -34,7 +34,7 @@ def realtime_watch(request):
 def energy_plot(request, ):
     # TODO: Filter by profile
     data = {
-        'comasters': COMaster.objects.all(),
+        'comasters': COMaster.objects.all().order_by('-pk'),
         'ais': AI.objects.exclude(unit__iendswith='v'),
         'today': date.today(),
     }
