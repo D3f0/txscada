@@ -138,28 +138,45 @@
         /* NVD3 Plot
         */
         var duration = 300;
+        var MINUTES_DISPLAYED = [0, 15, 30, 45, 59];
         function redraw(data) {
            nv.addGraph(function () {
                chart = nv.models.lineChart()
-                              .x(function (d) { return d.x })
+                              .x(function (d) { return new XDate(d.x) })
                               .y(function (d) { return d.y })
                                .useInteractiveGuideline(true);
                               //.color(d3.scale.category10().range());
 
+                chart.xAxis.tickFormat(function (d) {
+                    var date = new Date(d),
+                        retval = '';
+                        hour = date.getHours(),
+                        minute = date.getMinutes();
+                    // Dates
 
-                chart.xAxis
-                    .tickFormat(function (d) {
-                        debugger;
-                        return d3.time.format('%H:%M')(new Date(d.getTime()))
-                    });
+                    if (hour == 23 && minute == 59) {
+                        retval = '00:00';
+                    } else {
+                        retval = d3.time.format('%d/%m %H:%M')(date);
+                    }
 
-                chart.yAxis
-                    .tickFormat(d3.format(',.1%'));
+                    return retval;
+                });
 
-                d3.select('#plot svg')
-                    .datum(data)
-                    .transition().duration(duration)
-                    .call(chart);
+                // chart.xAxis
+                //     .tickFormat(function (d) {
+                //         debugger;
+                //         return d3.time.format('%H:%M')(new Date(d.getTime()))
+                //     });
+
+                // chart.yAxis
+                //     .tickFormat(d3.format(',.1%'));
+
+                var svg = d3.select('#plot svg');
+                svg.datum(data);
+                svg.transition().duration(duration);
+                svg.call(chart);
+                console.log(data);
 
                 nv.utils.windowResize(chart.update);
 
@@ -213,11 +230,11 @@
             var queryUrl = new QueryObj({
                 format: 'json',
                 limit: 5000,
-                order_by: '-timestamp',
+                order_by: 'timestamp',
                 ai__id: $ai_select.val(),
+                code: 0, // 1 Code is for totalizer measures
                 timestamp__gte: $date_from.datepicker( "getDate" ),
-                timestamp__lte: $date_to.datepicker( "getDate" ),
-
+                timestamp__lte: $date_to.datepicker( "getDate" )
             }, url);
 
             console.log("Querying "+queryUrl);
@@ -227,27 +244,23 @@
                     $dlg.dialog('close');
                     var points = $.map(data.objects, function (record, index) {
                         return {
-                            x: record.timestamp,
-                            y: record.ing_value
+                            x: new XDate(record.timestamp),
+                            y: record.eng_value
                         }
                     });
-
+                    // Trim select's option text
+                    var key = $.trim($ai_select.find('option:selected').text());
                     redraw([
                         {
-                            "key": $ai_select.find('option:selected').text(),
-                            "values": [
-                            {
-                                x: '2014-01-15T00:15:00', y:1
-                            },
-                            {
-                                x: '2014-01-15T00:16:00', y:2
-                            }
-
-                            ]
+                            "key": key,
+                            "values": points
                         }
                     ]);
                 },
-                error: SMVE.errors.showRESTErrorDialog
+                error: function () {
+                    $dlg.dialog('close');
+                    SMVE.errors.showRESTErrorDialog(arguments); // XHR VAlues
+                }
             });
         });
         $export_button.click(function (event) {
@@ -267,7 +280,7 @@
                 alert("Medidor inválido");
                 return;
             } else {
-                var url = Urls.energy_export(ai_pk, from, to)
+                var url = Urls.energy_export(ai_pk, from, to);
                 window.open(url, '_blank');
             }
         });
