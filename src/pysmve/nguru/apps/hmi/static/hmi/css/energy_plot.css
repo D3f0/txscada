@@ -1,15 +1,9 @@
-#plot {
-    min-height: 200px;
-    max-width: 100%;
-    border: 1px solid #ccc;
-}
 
 #id_form_fields_hide {
     display: none;
 }
 
-.loading {
-    background-image: url(../img/loading.gif);
-    background-repeat: no-repeat;
-    background-position: center center;
+
+#plot svg {
+    min-height: 400px;
 }
