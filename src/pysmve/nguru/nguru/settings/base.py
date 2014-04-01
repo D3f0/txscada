@@ -40,8 +40,6 @@ LANGUAGE_CODE = 'es'
 SITE_ID = 1
 
 
-GRAPPELLI_ADMIN_TITLE = "S.M.V.E."
-
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
@@ -167,7 +165,6 @@ INSTALLED_APPS = (
     'django_qbe',
     'django_qbe.savedqueries',
 
-    #'grappelli',
     'object_tools',
     'django.contrib.admin',
 
