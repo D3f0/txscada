@@ -101,8 +101,8 @@ def energy_export(request, ai_pk, date_from, date_to):
         output.write('%s,%s,%s,%s\n' % (
                      row_date.strftime('%d/%m/%y'),
                      row_date.strftime('%H:%M') if row_date.minute != 59 else '24:00',
-                     v1['value'] * v1['ai__escala'],
-                     v2['value'] * v2['ai__escala']
+                     v1['value'] * v1['ai__escala_e'],
+                     v2['value'] * v2['ai__escala_e']
                      ))
 
     response = HttpResponse(output.getvalue(), content_type='text/plain')
