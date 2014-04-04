@@ -7,7 +7,7 @@ from os.path import abspath, dirname, join
 SETTINGS_PATH = dirname(__file__)  # Settings es un modulo
 PROJECT_ROOT = abspath(join(SETTINGS_PATH, '../..'))
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -53,7 +53,7 @@ USE_TZ = False
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = join(PROJECT_ROOT, 'media')
+MEDIA_ROOT = join(PROJECT_ROOT , 'static', 'media')
 
 
 # Absolute path to the directory static files should be collected to.
@@ -71,7 +71,7 @@ STATIC_URL = '/{}static/'.format(BASE_URL)
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = '/{}media/'.format(BASE_URL)
+MEDIA_URL = STATIC_URL + 'media/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
