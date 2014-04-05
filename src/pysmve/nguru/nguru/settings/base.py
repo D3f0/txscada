@@ -169,7 +169,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
 
     'django_js_reverse',
-
+    # Django Mailer
+    'mailer',
 )
 
 try:
