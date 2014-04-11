@@ -23,6 +23,7 @@ from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import ugettext as _
 from django.forms.util import flatatt
 from apps.hmi.forms import UserForm, GroupForm
+from mailer.models import Message, MessageLog
 
 logger = logging.getLogger(__name__)
 
@@ -625,3 +626,12 @@ class LogEntryAdmin(admin.ModelAdmin):
     get_object_link.short_description = "Enlace"
 
 site.register(LogEntry, LogEntryAdmin)
+
+# Mail contol
+site.register(Message)
+
+class MessageLogAdmin(admin.ModelAdmin):
+    list_display = ('when_added', 'to_address', 'when_attempted', 'result', )
+    list_filter = ('result', 'when_added')
+
+site.register(MessageLog, MessageLogAdmin)
