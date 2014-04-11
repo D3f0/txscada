@@ -16,6 +16,13 @@ from protocols.constructs.structs import container_to_datetime
 from utils import ExcelImportMixin, counted
 import re  # For text frame procsessing
 import logging
+from django.conf import settings
+
+
+if "mailer" in settings.INSTALLED_APPS:
+    from mailer import send_mail
+else:
+    from django.core.mail import send_mail
 
 
 class Profile(models.Model):
@@ -348,11 +355,11 @@ class COMaster(models.Model, ExcelImportMixin):
 
         return n, ok
 
-    def set_ai_quality(self, value):
-        pass
-
-    def set_sv_quality(self, value):
-        pass
+    def set_ai_qualifier(self, value, last_update=None):
+        '''Propagates q for all AI belonging to an COMaster (through IED)'''
+        if not last_update:
+            last_update = datetime.now()
+        return self.ais.update(q=value, last_update=last_update)
 
     @classmethod
     def do_import_excel(cls, workbook, models, logger):
