@@ -4,6 +4,11 @@ import re
 import logging
 from django.contrib import admin
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.conf.urls import url, patterns
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from datetime import datetime
 from json import dumps
 from models import (
     Profile,
@@ -146,10 +151,10 @@ class DIAdmin(admin.ModelAdmin):
     def get_tipo(self, obj):
         attrs = {
                     'class': 'generate_event',
-                    'href': '#',
+                    'href': reverse('admin:create_event', args=(obj.pk,)),
                     'title': 'Haga click para generar enveto de prueba',
                     'data-dialog-title': 'Generar evento para %s' % obj.tag,
-                    'data-dialog-description': obj.description
+                    'data-dialog-description': obj.description,
                 }
         return '<a %s>Tipo %s</a>' % (flatatt(attrs), obj.tipo)
 
@@ -170,9 +175,8 @@ class DIAdmin(admin.ModelAdmin):
         )
 
     def get_urls(self):
-        from django.conf.urls import patterns, url
         urls = patterns('',
-            url(r'^create_event/(?P<di_pk>\d+)/?$',
+            url(r'^create_event/(?P<di_pk>\d+)/$',
                 self.admin_site.admin_view(self.create_event_view),
                 name="create_event"),
         )
@@ -182,7 +186,21 @@ class DIAdmin(admin.ModelAdmin):
         '''
         Creates an evento for simulation (called from admin_di.js on tipo column)
         '''
-        return None
+        di = get_object_or_404(self.model, pk=di_pk)
+        try:
+            value = int(request.REQUEST.get('value', 0))
+        except ValueError:
+            response = HttpResponse("Valor no permitido: %s" % value, status=503)
+
+        timestamp = datetime.now()
+        created_event = di.events.create(timestamp=timestamp,
+                                         value=value, q=0)
+        resp = '''
+            Se creó el evento <b>{created_event}</b> con ID={pk} y value={value}
+        '''.format(created_event=created_event,
+                   pk=created_event.pk,
+                   value=value)
+        return HttpResponse(resp)
 
 
 
