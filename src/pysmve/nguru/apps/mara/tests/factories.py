@@ -31,14 +31,55 @@ class ProfileFactory(ORMFactory):
 
 class COMasterFactory(ORMFactory):
     FACTORY_FOR = COMaster
+    profile = factory.SubFactory(ProfileFactory, name='default')
     ip_address = factory.Sequence(lambda n: '192.168.1.%d' % (n + 1))
     enabled = True
     description = factory.LazyAttribute(lambda s: 'Description for %s' % s.ip_address)
 
 
+
+def SMVETreeCOMaseterFactory(can_ieds=3, can_dis=48, *args, **kwargs):
+    '''
+    Created a COMaster that mimics hardware configuration.
+    SV are always 6.
+    DI are all tied to first IED (COMaster acting as IED)
+    AI are 4 to the first IED (with channel=0) and then 2 for each IED.
+    This configuraion is specific to SMVE.
+    '''
+
+    co_master = COMasterFactory(*args, **kwargs)
+
+    for n_ied in range(can_ieds):
+        ied = IEDFactory(co_master=co_master, rs485_address=n_ied+1)
+
+        if n_ied == 0:
+            # Only first IED has DIs
+            for n_di in range(can_dis):
+                port = n_di / 16
+                bit = n_di % 16
+                DIFactory(ied=ied, port=port, bit=bit)
+            # Create 4 AIs for first IED (voltage)
+            for i in range(4):
+                AIFactory(ied=ied, channel=0)
+        else:
+            # AIs
+            AIFactory(ied=ied, channel=0)
+            AIFactory(ied=ied, channel=1)
+
+
+        SVFactory(ied=ied, param='ComErrorL', description='MOTIV -CoMaster')
+        SVFactory(ied=ied, param='ComErrorH', description='No Implementado')
+        SVFactory(ied=ied, param='Sesgo', description='L Sesgo (Entero)')
+        SVFactory(ied=ied, param='Sesgo', description='H Sesgo (Entero)')
+        SVFactory(ied=ied, param='CalifL', description='GaP del clock')
+        SVFactory(ied=ied, param='CalifH', description='Error-Arranque UART')
+
+    return co_master
+
 class IEDFactory(ORMFactory):
     FACTORY_FOR = IED
     co_master = factory.SubFactory(COMasterFactory)
+    rs485_address = factory.Sequence(lambda n: n+1)
     #offset = factory.LazyAttribute(lambda s: insance_sequence(s.co_master))
 
     @classmethod
