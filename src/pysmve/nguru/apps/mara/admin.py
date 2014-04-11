@@ -123,8 +123,16 @@ site.register(SV, SVAdmin)
 
 
 class DIAdmin(admin.ModelAdmin):
-    list_display = ('get_tag', 'description', 'port', 'bit', 'trasducer', 'value', 'q',
-                    'trasducer', 'maskinv', 'tipo', )
+    list_display = ('get_tag',
+                    'description',
+                    'port',
+                    'bit',
+                    'trasducer',
+                    'value',
+                    'q',
+                    'trasducer',
+                    'maskinv',
+                    'get_tipo', )
     list_filter = ('ied', 'tipo', )
     search_fields = ('tag', 'description')
 
@@ -133,8 +141,50 @@ class DIAdmin(admin.ModelAdmin):
         if not tag:
             tag = "Sin tag"
         return tag
-
     get_tag.short_description = "Tag"
+
+    def get_tipo(self, obj):
+        attrs = {
+                    'class': 'generate_event',
+                    'href': '#',
+                    'title': 'Haga click para generar enveto de prueba',
+                    'data-dialog-title': 'Generar evento para %s' % obj.tag,
+                    'data-dialog-description': obj.description
+                }
+        return '<a %s>Tipo %s</a>' % (flatatt(attrs), obj.tipo)
+
+    get_tipo.allow_tags = True
+    get_tipo.admin_order_field = 'tipo'
+    get_tipo.short_description = 'tipo'
+
+    class Media:
+        css = {
+            "all": (
+                'js/jquery-ui-1.10.0.custom/development-bundle/themes/base/jquery-ui.css',
+            )
+        }
+        js = (
+            'initializr/js/vendor/jquery-1.9.0.min.js',
+            'js/jquery-ui-1.10.0.custom/development-bundle/ui/jquery-ui.custom.js',
+            'hmi/js/admin_di.js',
+        )
+
+    def get_urls(self):
+        from django.conf.urls import patterns, url
+        urls = patterns('',
+            url(r'^create_event/(?P<di_pk>\d+)/?$',
+                self.admin_site.admin_view(self.create_event_view),
+                name="create_event"),
+        )
+        return urls + admin.ModelAdmin.get_urls(self)
+
+    def create_event_view(self, request, di_pk):
+        '''
+        Creates an evento for simulation (called from admin_di.js on tipo column)
+        '''
+        return None
+
+
 
 
 site.register(DI, DIAdmin)
