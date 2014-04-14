@@ -54,10 +54,10 @@
                     <div class="nav-collapse collapse">
                         <ul class="nav">
                             {% block navbar %}
-                            <li class="active"><a href="/">Inicio</a></li>
+                            <li class="active"><a href="{% url index %}">Inicio</a></li>
 
                             {% if perms.hmi.can_view_realtime %}
-                            <li><a href="{% url realtime_watch %}">Monitoreo</a></li>
+                            <li><a href="{% url realtime_watch %}">Mapa</a></li>
                             {% endif %}
 
                             {% if perms.mara.can_view_power_plot %}

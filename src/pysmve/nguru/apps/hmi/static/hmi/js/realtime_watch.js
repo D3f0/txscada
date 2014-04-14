@@ -660,7 +660,7 @@
                         break;
 
                     case 'tab-volver':
-                        window.location = '/';
+                        window.location = Urls.index();
                         break;
                 }
               }
