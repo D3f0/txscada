@@ -156,13 +156,14 @@ def update(host=''):
     """Updates deployment to upstream git version"""
     h = get_host_settings(host)
     with settings(**h):
-        procs = ('gunicorn_production', 'poll_mara')
+        procs = ('poll_mara')
         with hold(procs):
             get_repo()
             install_dependencies()
             update_static_media()
             update_permissions()
-
+        run('pkill -KILL gunicorn') # Gunicorn refuses to restart, so killing it
+                                    # will force supervisor to restartit
 
 @task
 def shell(host=''):
