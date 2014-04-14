@@ -64,34 +64,62 @@ $(function (){
     */
     var duration = 300;
 
+
+    function tickFormatX(d) {
+        var date = new Date(d),
+            retval = '';
+            hour = date.getHours(),
+            minute = date.getMinutes();
+        // Dates
+
+        if (hour == 23 && minute == 59) {
+            retval = '00:00';
+        } else {
+            retval = d3.time.format('%d/%m %H:%M')(date);
+        }
+
+        return retval;
+    }
+
+
+
     function redraw(data) {
        nv.addGraph(function () {
-           chart = nv.models.lineChart()
-                          .x(function (d) { return new XDate(d.x) })
-                          .y(function (d) { return d.y })
-                           .useInteractiveGuideline(true);
+            // Try nv.models.lineWithFocusChart
+            //chart = nv.models.lineChart()
+            // Clear previous chart
+            $('.nvd3').remove();
+            // More than ten days
+            var days = data[0].values.length / 96;
+            if (days > 10){
+                console.info("More days");
+                chart = nv.models.lineWithFocusChart();
+                hasSecondAxis = true;
+            } else {
+                console.info("Few days");
+                chart = nv.models.lineChart();
+                chart.useInteractiveGuideline(true);
+                hasSecondAxis = false;
+            }
+
+            console.log(chart);
+
+            chart.x(function (d) { return new XDate(d.x) });
+            chart.y(function (d) { return d.y });
+
                           //.color(d3.scale.category10().range());
-            chart.xAxis.tickFormat(function (d) {
-                var date = new Date(d),
-                    retval = '';
-                    hour = date.getHours(),
-                    minute = date.getMinutes();
-                // Dates
 
-                if (hour == 23 && minute == 59) {
-                    retval = '00:00';
-                } else {
-                    retval = d3.time.format('%d/%m %H:%M')(date);
-                }
+            chart.xAxis.tickFormat(tickFormatX);
 
-                return retval;
-            });
-
-            chart.yAxis.tickFormat(function (v) {
+            function tickFormatY(v) {
                 return v.toFixed(3) + data[0].unit;
-            });
-            // chart.yAxis
-            //     .tickFormat(d3.format(',.1%'));
+            }
+            chart.yAxis.tickFormat(tickFormatY);
+
+            if (hasSecondAxis) {
+                chart.x2Axis.tickFormat(tickFormatX);
+                chart.y2Axis.tickFormat(tickFormatY);
+            }
 
             var svg = d3.select('#plot svg');
             svg.datum(data);
@@ -99,7 +127,10 @@ $(function (){
             svg.call(chart);
             console.log(data);
 
-            nv.utils.windowResize(chart.update);
+            nv.utils.windowResize(function () {
+                console.log("Update");
+                chart.update();
+            });
 
             return chart;
         });
@@ -156,7 +187,7 @@ $(function (){
 
         var queryUrl = new QueryObj({
             format: 'json',
-            limit: 5000,
+            limit: 1000,
             order_by: 'timestamp',
             ai__id: $ai_select.val(),
             code: 0, // 1 Code is for totalizer measures
@@ -164,38 +195,57 @@ $(function (){
             timestamp__lte: d2.toISOString()
         }, url);
 
-        console.log("Querying "+unescape(queryUrl));
-        $.ajax({
-            url: queryUrl,
-            success: function (data, xhr) {
-                $dlg.dialog('close');
-                // Trim select's option text
-                var key = $.trim($ai_select.find('option:selected').text());
+
+        var graphTitle = $.trim($ai_select.find('option:selected').text());
+        // Tastypie API limits the amount of records it outputs
+        // so if meta has next, it'll be queried again until data
+        // is taken
+        var points = [];
+
+        function successAndPollMore(data, xhr) {
+            //debugger
+            points = points.concat(energyResponseToPoints(data.objects));
+            var next = data.meta.next;
+            if (next) {
+                console.info("Getting more from ", unescape(next));
+                var progress = Math.round(data.meta.offset/data.meta.total_count*100)+'%';
+                $dlg.html('Recibiendo datos '+progress);
+                var more = $.getJSON(next, successAndPollMore);
+
+            } else {
+                // No more to get, now render on screen
+                $dlg.html('Recibiendo datos 100%');
+                //console.info("Got all, plotting");
                 redraw([
                     {
-                        "key": key,
-                        "values": energyResponseToPoints(data),
+                        "key": graphTitle,
+                        "values": points,
                         "unit": data.meta.unit
                     }
                 ]);
-            },
-            error: function () {
                 $dlg.dialog('close');
-                SMVE.errors.showRESTErrorDialog(arguments); // XHR VAlues
+
             }
-        });
+        }
+
+        function errorGettingPoints() {
+            $dlg.dialog('close');
+            SMVE.errors.showRESTErrorDialog(arguments); // XHR Values
+        }
+
+        console.log("Querying "+unescape(queryUrl));
+        $.getJSON(queryUrl, successAndPollMore);
+
     });
 
-    function energyResponseToPoints(jsonResponse) {
-        if (!jsonResponse.hasOwnProperty('objects')) {
-            throw new Exception("Invalid Tastypie response");
-        }
-        return $.map(jsonResponse.objects, function (record, index) {
+    function energyResponseToPoints(objects) {
+        var result = $.map(objects, function (record, index) {
             return {
                 x: new XDate(record.timestamp),
                 y: record.eng_value
             }
         });
+        return result;
     }
 
     $export_button.click(function (event) {
