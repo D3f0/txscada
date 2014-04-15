@@ -18,6 +18,7 @@ from lxml.etree import ElementTree as ET
 from django.core import validators
 from utils import generate_tag_context, IF, OR, FILTRAR, FLOAT
 from traceback import format_exc  # To be removed once eval is removed
+from django.contrib.auth.models import User
 # Formulas
 # Internationalization
 
@@ -692,3 +693,23 @@ class Formula(models.Model, ExcelImportMixin):
 
 
 signals.post_save.connect(Formula.clean_intance_cache, sender=Formula)
+
+
+class UserProfile(models.Model):
+
+    user = models.ForeignKey(User, )
+
+
+    cellphone = models.CharField(max_length=20,
+                                 verbose_name=_('Cell pone'),
+                                 help_text=_('Cell phone'))
+
+    def __unicode__(self):
+        return unicode(_(u"%s profile" % self.user.username))
+
+
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+signals.post_save.connect(create_user_profile, sender=User)
