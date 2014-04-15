@@ -24,6 +24,7 @@ from django.utils.translation import ugettext as _
 from django.forms.util import flatatt
 from apps.hmi.forms import UserForm, GroupForm
 from mailer.models import Message, MessageLog
+from constance.admin import Config, ConstanceAdmin
 
 logger = logging.getLogger(__name__)
 
@@ -635,3 +636,4 @@ class MessageLogAdmin(admin.ModelAdmin):
     list_filter = ('result', 'when_added')
 
 site.register(MessageLog, MessageLogAdmin)
+site.register([Config], ConstanceAdmin)
