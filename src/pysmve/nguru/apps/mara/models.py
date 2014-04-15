@@ -17,8 +17,11 @@ from utils import ExcelImportMixin, counted
 import re  # For text frame procsessing
 import logging
 from django.conf import settings
+from constance import config
+from django.template import Template, Context
 
 
+# Dettached email handler
 if "mailer" in settings.INSTALLED_APPS:
     from mailer import send_mail
 else:
@@ -80,7 +83,6 @@ class Profile(models.Model):
 
     @classmethod
     def get_profile(cls, name, clear=False):
-
         """Returns a profile"""
 
         profile, created = cls.objects.get_or_create(
@@ -107,7 +109,7 @@ class COMaster(models.Model, ExcelImportMixin):
     enabled = models.BooleanField(default=False)
     port = models.IntegerField(verbose_name="TCP port for connection",
                                default=constants.DEFAULT_COMASTER_PORT)
-    # ------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------
     # Timing values
     # ------------------------------------------------------------------------
     poll_interval = models.FloatField(verbose_name="Poll interval in seconds",
@@ -248,7 +250,8 @@ class COMaster(models.Model, ExcelImportMixin):
                     )
                     logger.info(_("Digital event created %s") % ev)
                 except DI.DoesNotExist:
-                    logger.warning("DI does not exist for %s:%s", event.port, event.bit)
+                    logger.warning(
+                        "DI does not exist for %s:%s", event.port, event.bit)
 
             elif event.evtype == 'ENERGY' and create_ev_energy:
                 try:
@@ -260,10 +263,11 @@ class COMaster(models.Model, ExcelImportMixin):
                     ai = AI.objects.get(**query)
                     timestamp = container_to_datetime(event)
                     #value = 0
-                    #for i, v in enumerate(event.data):
+                    # for i, v in enumerate(event.data):
                     #    value += v << (8 * i)
                     # Parsing construct arrray bogus data
-                    value = event.data[1] + (event.data[0] << 8) + (event.data[2] << 16)
+                    value = event.data[
+                        1] + (event.data[0] << 8) + (event.data[2] << 16)
                     ev = ai.energy_set.create(
                         timestamp=timestamp,
                         code=event.code,
@@ -351,7 +355,7 @@ class COMaster(models.Model, ExcelImportMixin):
                     text_frame = match.group()
                     if self._process_str_frame(text_frame, **flags):
                         ok += 1
-                #print tr.print_diff()
+                # print tr.print_diff()
 
         return n, ok
 
@@ -377,7 +381,8 @@ class COMaster(models.Model, ExcelImportMixin):
                                                        port=port,
                                                        enabled=enabled,
                                                        )
-            IED.import_excel(workbook, profile=models.profile, comaster=comaster)
+            IED.import_excel(
+                workbook, profile=models.profile, comaster=comaster)
 
 
 class IED(models.Model, ExcelImportMixin):
@@ -609,7 +614,8 @@ class DI(MV, ExcelImportMixin):
                   'pesoaccionh',
                   'pesoaccionl'
                   )
-        for i, (pk, ied_id, offset, port, bit, tag, trasducer, description, q, value,
+        for i, (
+            pk, ied_id, offset, port, bit, tag, trasducer, description, q, value,
                 maskinv, tipodi, nrodi, idtextoev2, pesoaccion_h, pesoaccion_l)\
             in enumerate(workbook.iter_as_dict('di',
                                                fields=fields)):
@@ -692,7 +698,8 @@ class Event(models.Model):
     @property
     def text2(self):
         try:
-            text2 = self.get_current_descriptions()[self.di.idtextoev2][self.value]
+            text2 = self.get_current_descriptions()[
+                self.di.idtextoev2][self.value]
         except Exception as e:
             text2 = unicode(e)
         return text2
@@ -744,11 +751,18 @@ def sync_event_with_svgelements(instance=None, **kwargs):
     if instance:
         instance.propagate_changes()
 
+
+def send_emails(instance, **kwargs):
+    '''Email notification when an event occurs'''
+
+
 signals.pre_save.connect(sync_event_with_svgelements, sender=Event)
 
-
 # FIXME: Remove this table
+
+
 class EventText(models.Model, ExcelImportMixin):
+
     '''Abstracción de textoev2'''
     profile = models.ForeignKey(Profile, related_name='event_kinds')
     description = models.CharField(max_length=50, blank=True, null=True)
@@ -766,7 +780,8 @@ class EventText(models.Model, ExcelImportMixin):
     @classmethod
     def do_import_excel(cls, workbook, models, logger):
         """Import text for events from XLS sheet 'com'"""
-        fields = 'id    code    description idTextoEv2  pesoaccion'.lower().split()
+        fields = 'id    code    description idTextoEv2  pesoaccion'.lower(
+        ).split()
         for t in workbook.iter_as_dict('com', fields=fields):
             pk, code, description, idtextoev2, pesoaccion = t
             models.profile.event_kinds.create(
@@ -778,6 +793,7 @@ class EventText(models.Model, ExcelImportMixin):
 
 
 class EventDescription(models.Model, ExcelImportMixin):
+
     """Extra table for text composition"""
     profile = models.ForeignKey(Profile)
     textoev2 = models.IntegerField(blank=True, null=True)
@@ -804,6 +820,7 @@ class EventDescription(models.Model, ExcelImportMixin):
 
 
 class ComEventKind(models.Model, ExcelImportMixin):
+
     '''Gives a type to communication event'''
     code = models.IntegerField()
     texto_2 = models.IntegerField()
@@ -832,10 +849,7 @@ class ComEvent(GenericEvent):
         return self.kind.description
 
     def __unicode__(self):
-        if not self.kind:
-            return "No description"
-        else:
-            return EventText.objects.get(idtextoev2=self.kind.texto_2)
+        return "COMEV %s MOTIV:%s" % (self.ied, self.motiv)
 
     class Meta:
         db_table = 'eventcom'
@@ -975,7 +989,8 @@ class AI(MV, ExcelImportMixin):
                 instance.save()
             except Exception as e:
                 raise e
-            logger.info("AI %s %s", instance, 'created' if created else 'updated')
+            logger.info(
+                "AI %s %s", instance, 'created' if created else 'updated')
 
 
 class Energy(models.Model):
@@ -1034,3 +1049,36 @@ class Action(models.Model, ExcelImportMixin):
         unique_together = ('bit',)
         verbose_name = _("Action")
         verbose_name_plural = _("Actions")
+
+
+def send_emails(created, instance, **kwargs):
+
+    from constance import context_processors
+    extra_context = context_processors.config(request=None)
+
+    def comma_sep_to_users(comma_sep_str):
+        users = [
+            u for u in map(lambda s: s.strip(), comma_sep_str.split(',')) if u]
+        return [user for user in User.objects.filter(username__in=users)]
+
+    if created:
+        if isinstance(instance, Event):
+            users = comma_sep_to_users(config.EVENT_0_EMAIL)
+        elif isinstance(instance, ComEvent):
+            users = comma_sep_to_users(config.EVENT_3_EMAIL)
+        else:
+            users = []
+        template = Template(config.TEMPLATE_EMAIL)
+        for user in users:
+
+            context = Context({'event': instance, 'user': user})
+            context.update(extra_context)
+
+            message = template.render(context)
+            send_mail(subject='Alerta SMVE',
+                      message=message,
+                      from_email=settings.SERVER_EMAIL,
+                      recipient_list=[user.email])
+
+signals.post_save.connect(send_emails, sender=Event)
+signals.post_save.connect(send_emails, sender=ComEvent)
