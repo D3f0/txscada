@@ -257,7 +257,9 @@ LOGGING = {
 #=========================================================================================
 
 def show_toolbar(request):
-    if request.user and request.user.username == "nahuel":
+    from constance import config
+    debug_users = set(map(lambda x: x.strip(), config.DEBUG_USERS.split(',')))
+    if request.user and request.user.username in debug_users:
         return True
     return False
 
