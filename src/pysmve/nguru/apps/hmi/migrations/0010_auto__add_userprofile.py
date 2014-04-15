@@ -15,7 +15,6 @@ class Migration(SchemaMigration):
             ('cellphone', self.gf('django.db.models.fields.CharField')(max_length=20)),
         ))
         db.send_create_signal('hmi', ['UserProfile'])
-        import ipdb; ipdb.set_trace()
 
 
     def backwards(self, orm):
