@@ -10,6 +10,8 @@ PROJECT_ROOT = abspath(join(SETTINGS_PATH, '../..'))
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
+from django.utils.translation import ugettext_lazy as _
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
@@ -171,6 +173,10 @@ INSTALLED_APPS = (
     'django_js_reverse',
     # Django Mailer
     'mailer',
+
+    'constance',
+
+    'constance.backends.database',
 )
 
 try:
@@ -297,4 +303,35 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
     "dealer.contrib.django.staff.context_processor",
+    "constance.context_processors.config",
+
 )
+
+
+AUTH_PROFILE_MODULE = 'hmi.UserProfile'
+
+
+CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
+
+email_template = '''Estimado
+Se ha producido un evento {{ event }} a las {{ event.timestamp|date:config.EVENT_DATE_FORMAT }}
+'''
+
+sms_template = '''Estimado
+Se ha producido un evento {{ event }} a las {{ event.timestamp|date:config.EVENT_DATE_FORMAT }}
+'''
+
+CONSTANCE_CONFIG = {
+    'EVENT_0_EMAIL': ('admin', _('Users to be notified of a Event type 0 by email. '
+                                 'Comma separated.')),
+    'EVENT_3_EMAIL': ('admin', _('Users to be notified of a Event type 3 by email. '
+                                 'Comma separated.')),
+    'EVENT_0_SMS': ('admin', _('Users to be notified of a Event type 0 by SMS. '
+                               'Comma separated')),
+    'EVENT_3_SMS': ('admin', _('Users to be notified of a Event type 3 by SMS. '
+                               'Comma separated')),
+    'DEBUG_USERS': ('nahuel', _('Users that have debug toolbar enabled')),
+    'TEMPLATE_EMAIL': (email_template, _('Email template.')),
+    'TEMPLATE_SMS': (sms_template, _('SMS template.')),
+    'EVENT_DATE_FORMAT': ('G:i:s.u d/m/Y', _('Format for date in SMS and email.'))
+}
