@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-25 01:58-0300\n"
-"PO-Revision-Date: 2014-03-25 01:59-0300\n"
+"POT-Creation-Date: 2014-04-14 23:38-0300\n"
+"PO-Revision-Date: 2014-04-14 23:43-0300\n"
 "Last-Translator: \n"
 "Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
 "Language: es\n"
@@ -17,7 +17,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 1.5\n"
 
-#: apps/hmi/forms.py:57 apps/hmi/models.py:91
+#: apps/common/models.py:11
+msgid ""
+"User uses debug toolbar. This may slow down requests by a factor of 10x to "
+"100x."
+msgstr ""
+"Usuarios que son depuradores. Su sesión se ralentiza hasta entre un 10x y más "
+"de 100x."
+
+#: apps/hmi/forms.py:57 apps/hmi/models.py:92
 msgid "SVG Screen"
 msgstr "Pantalla"
 
@@ -59,135 +67,148 @@ msgstr ""
 msgid "Username can not be included in password"
 msgstr "El nombre de usuario no puede ser incluido como parte de la clave"
 
-#: apps/hmi/forms.py:224 apps/mara/admin.py:519
+#: apps/hmi/forms.py:224 apps/mara/admin.py:596
 msgid "Permissions"
 msgstr "Permisos"
 
-#: apps/hmi/models.py:47
+#: apps/hmi/models.py:48
 msgid "Label"
 msgstr "Etiqueta"
 
-#: apps/hmi/models.py:49
+#: apps/hmi/models.py:50
 msgid "Related formula prefix"
 msgstr "Prefijo de formulas relacionadas"
 
-#: apps/hmi/models.py:50
+#: apps/hmi/models.py:51
 msgid "Prefix"
 msgstr "Prefijo"
 
-#: apps/hmi/models.py:92
+#: apps/hmi/models.py:93
 msgid "SVG Screens"
 msgstr "Pantallas"
 
-#: apps/hmi/models.py:94
+#: apps/hmi/models.py:95
 msgid "Can view realtime screen"
 msgstr "Puede ver pantalla de tiempo real"
 
-#: apps/hmi/models.py:153
+#: apps/hmi/models.py:154
 msgid "Color"
 msgstr "Color"
 
-#: apps/hmi/models.py:154
+#: apps/hmi/models.py:155
 msgid "Colors"
 msgstr "Colores"
 
-#: apps/hmi/models.py:193
+#: apps/hmi/models.py:194
 msgid "SVG Property Change Set"
 msgstr "Cambio de Coloración"
 
-#: apps/hmi/models.py:194
+#: apps/hmi/models.py:195
 msgid "SVG Property Change Sets"
 msgstr "Cambios de Coloración"
 
-#: apps/hmi/models.py:209 apps/mara/admin.py:342
+#: apps/hmi/models.py:210 apps/mara/admin.py:412
 msgid "screen"
 msgstr "pantalla"
 
-#: apps/hmi/models.py:214
+#: apps/hmi/models.py:215
 msgid "description"
 msgstr "descripción"
 
-#: apps/hmi/models.py:220 apps/hmi/models.py:390
+#: apps/hmi/models.py:221 apps/hmi/models.py:409
 msgid "text"
 msgstr "texto"
 
-#: apps/hmi/models.py:224 apps/hmi/models.py:388 apps/mara/admin.py:470
+#: apps/hmi/models.py:225 apps/hmi/models.py:407 apps/mara/admin.py:540
 msgid "fill"
 msgstr "relleno"
 
-#: apps/hmi/models.py:228 apps/hmi/models.py:389
+#: apps/hmi/models.py:229 apps/hmi/models.py:408
 msgid "stroke"
 msgstr "contorno"
 
-#: apps/hmi/models.py:235
+#: apps/hmi/models.py:236
 msgid "enabled"
 msgstr "habliltado"
 
-#: apps/hmi/models.py:240 apps/mara/admin.py:477
+#: apps/hmi/models.py:241 apps/mara/admin.py:547
 msgid "last update"
 msgstr "última actualización"
 
-#: apps/hmi/models.py:245
+#: apps/hmi/models.py:246
 msgid "on click jump"
 msgstr "saltar con click"
 
-#: apps/hmi/models.py:246
+#: apps/hmi/models.py:247
 msgid "Screen destination when the object is clicked"
 msgstr "Pantalla destino cuando el objeto es clickeado"
 
-#: apps/hmi/models.py:263
+#: apps/hmi/models.py:264
 msgid "on click text toggle"
 msgstr "cambiar texto con click"
 
-#: apps/hmi/models.py:264
+#: apps/hmi/models.py:265
 msgid "Text to toggle on click. Separated by coma (,)."
 msgstr "Texto para intercambiar. Separado por coma (,)."
 
-#: apps/hmi/models.py:276
+#: apps/hmi/models.py:277
 msgid "linked text change"
 msgstr "cambio de texto enlazado"
 
-#: apps/hmi/models.py:277
+#: apps/hmi/models.py:278
 msgid "Text on related element will be upon save"
 msgstr "Cuando se cambie el texto, el elemento relacionado será actualizado"
 
-#: apps/hmi/models.py:348
+#: apps/hmi/models.py:349
 #, python-format
 msgid "Importing %s"
 msgstr "Importing %s"
 
-#: apps/hmi/models.py:350
+#: apps/hmi/models.py:351
 #, python-format
 msgid "Updating %s"
 msgstr "Actualizando %s"
 
-#: apps/hmi/models.py:360
+#: apps/hmi/models.py:378
 msgid "SVG Element"
 msgstr "Elemento Gráfico"
 
-#: apps/hmi/models.py:361
+#: apps/hmi/models.py:379
 msgid "SVG Elements"
 msgstr "Elementos Gráficos"
 
-#: apps/hmi/models.py:395
+#: apps/hmi/models.py:414
 msgid "target"
 msgstr "elemento gráfico"
 
-#: apps/hmi/models.py:397 apps/mara/admin.py:350
+#: apps/hmi/models.py:416 apps/mara/admin.py:420
 msgid "attribute"
 msgstr "atributo"
 
-#: apps/hmi/models.py:430
+#: apps/hmi/models.py:495
 msgid "Cannot generate context if no target is defined"
 msgstr "No se puede generar contexto si el objeto relacionado no está definido"
 
-#: apps/hmi/models.py:553
+#: apps/hmi/models.py:691
 msgid "Formula"
 msgstr "Formula"
 
-#: apps/hmi/models.py:554
+#: apps/hmi/models.py:692
 msgid "Formulas"
 msgstr "Formulas"
+
+#: apps/hmi/models.py:704
+msgid "Cell pone"
+msgstr "Número celular"
+
+#: apps/hmi/models.py:705
+msgid "Cell phone"
+msgstr "Número celular"
+
+#: apps/hmi/models.py:708
+#, python-format
+msgid "%s profile"
+msgstr "Perfil de %s"
 
 #: apps/hmi/management/commands/load_formulas.py:166
 #, python-format
@@ -199,99 +220,103 @@ msgstr "%d formulas creadas"
 msgid "%d formulas were deleted (bacause of -c/--clear)"
 msgstr "%d formulas fueron eliminadas (por opción -c/--clear)"
 
-#: apps/hmi/templates/hmi/realtime_watch.html:16
+#: apps/hmi/templates/hmi/realtime_watch.html:15
 msgid "Real time"
 msgstr "Tiempo Real"
 
-#: apps/hmi/templates/hmi/realtime_watch.html:18 apps/mara/models.py:698
+#: apps/hmi/templates/hmi/realtime_watch.html:16 apps/mara/models.py:712
 msgid "Events"
 msgstr "Eventos"
 
-#: apps/hmi/templates/hmi/realtime_watch.html:20
+#: apps/hmi/templates/hmi/realtime_watch.html:17
 msgid "Back"
 msgstr "Atrás"
 
-#: apps/hmi/templates/hmi/realtime_watch.html:54
+#: apps/hmi/templates/hmi/realtime_watch.html:51
 msgid "Date after"
 msgstr "Fecha desde"
 
-#: apps/hmi/templates/hmi/realtime_watch.html:55
+#: apps/hmi/templates/hmi/realtime_watch.html:52
 msgid "Date before"
 msgstr "Fecha hasta"
 
-#: apps/hmi/templates/hmi/realtime_watch.html:56
+#: apps/hmi/templates/hmi/realtime_watch.html:53
 msgid "Tag"
 msgstr "Tag"
 
-#: apps/mara/admin.py:59
+#: apps/mara/admin.py:66
 msgid "Connection"
 msgstr "Conexión"
 
-#: apps/mara/admin.py:62
+#: apps/mara/admin.py:69
 msgid "Timming"
 msgstr "Temporización "
 
-#: apps/mara/admin.py:67
+#: apps/mara/admin.py:74
 msgid "Mara settings"
 msgstr "Configuración Mara"
 
-#: apps/mara/admin.py:72
+#: apps/mara/admin.py:79
 msgid "Mara debug"
 msgstr "Depuración Mara"
 
-#: apps/mara/admin.py:119
+#: apps/mara/admin.py:126
 msgid "value"
 msgstr "valor"
 
-#: apps/mara/admin.py:157
+#: apps/mara/admin.py:227
 msgid "Attend"
 msgstr "Atender"
 
-#: apps/mara/admin.py:162
+#: apps/mara/admin.py:232
 msgid "actions"
 msgstr "acciones"
 
-#: apps/mara/admin.py:224
+#: apps/mara/admin.py:294
 msgid "Download"
 msgstr "Descargar"
 
-#: apps/mara/admin.py:235
+#: apps/mara/admin.py:305
 msgid "label"
 msgstr "etiqueta "
 
-#: apps/mara/admin.py:349
+#: apps/mara/admin.py:419
 msgid "Invalid"
 msgstr "Inválido"
 
-#: apps/mara/admin.py:361 apps/mara/admin.py:369
+#: apps/mara/admin.py:431 apps/mara/admin.py:439
 msgid "Calculate"
 msgstr "Calcular"
 
-#: apps/mara/admin.py:430
+#: apps/mara/admin.py:500
 msgid "General information"
 msgstr "Información General"
 
-#: apps/mara/admin.py:431
+#: apps/mara/admin.py:501
 msgid "Graphical attributes"
 msgstr "Atributos gráficos"
 
-#: apps/mara/admin.py:432
+#: apps/mara/admin.py:502
 msgid "Interaction"
 msgstr "Interacciones "
 
-#: apps/mara/admin.py:473 apps/mara/admin.py:509
+#: apps/mara/admin.py:543 apps/mara/admin.py:586
 msgid "None"
 msgstr "Nada"
 
-#: apps/mara/admin.py:512
-msgid "groups"
-msgstr "grupos"
+#: apps/mara/admin.py:578
+msgid "name"
+msgstr "nombre"
 
-#: apps/mara/admin.py:518
+#: apps/mara/admin.py:589
+msgid "profile"
+msgstr "perfil"
+
+#: apps/mara/admin.py:595
 msgid "Personal info"
 msgstr "Información Personal"
 
-#: apps/mara/admin.py:521
+#: apps/mara/admin.py:598
 msgid "Important dates"
 msgstr "Fechas importantes"
 
@@ -299,165 +324,165 @@ msgstr "Fechas importantes"
 msgid "Paste frame here"
 msgstr "Pegue la trama aquí"
 
-#: apps/mara/models.py:35
+#: apps/mara/models.py:45
 msgid "Profile"
 msgstr "Perfil"
 
-#: apps/mara/models.py:36
+#: apps/mara/models.py:46
 msgid "Profiles"
 msgstr "Perfiles"
 
-#: apps/mara/models.py:133
+#: apps/mara/models.py:142
 msgid "Custom payload without SOF SEQ SRC DST// CRH CRL"
 msgstr "Payload personalizado sin  SOF SEQ SRC DST // CRH CRL"
 
-#: apps/mara/models.py:164
+#: apps/mara/models.py:173
 msgid "CO Master"
 msgstr "CO Master"
 
-#: apps/mara/models.py:165
+#: apps/mara/models.py:174
 msgid "CO Masters"
 msgstr "CO Masters"
 
-#: apps/mara/models.py:167
+#: apps/mara/models.py:176
 msgid "Can insert frames manually"
 msgstr "Puede insertar tramas mara manualmente"
 
-#: apps/mara/models.py:200
+#: apps/mara/models.py:209
 #, python-format
 msgid "Mara payload not present. %s does not look like a frame"
 msgstr "Payload mara no encontrado. %s no parece una trama"
 
-#: apps/mara/models.py:228
+#: apps/mara/models.py:237
 #, python-format
 msgid "Processing %s events"
 msgstr "Procesando %s eventos"
 
-#: apps/mara/models.py:242
+#: apps/mara/models.py:251
 #, python-format
 msgid "Digital event created %s"
 msgstr "Evento digital creado %s"
 
-#: apps/mara/models.py:267
+#: apps/mara/models.py:278
 #, python-format
 msgid "Energy created: %s"
 msgstr "Mediciones de Energía creada: %s"
 
-#: apps/mara/models.py:269
+#: apps/mara/models.py:280
 msgid "AI for energy does not exist"
 msgstr "AI para Energía no existe"
 
-#: apps/mara/models.py:271
+#: apps/mara/models.py:282
 msgid "AI for energy has multiple matches"
 msgstr "Energía tiene múltiples AI a para la relación"
 
-#: apps/mara/models.py:282
+#: apps/mara/models.py:293
 msgid "Cannot create COMSYS event"
 msgstr "No se puede crear un Evento de Comunicaciones"
 
-#: apps/mara/models.py:389
+#: apps/mara/models.py:401
 msgid "IED"
 msgstr "IED"
 
-#: apps/mara/models.py:390
+#: apps/mara/models.py:402
 msgid "IEDs"
 msgstr "IEDs"
 
-#: apps/mara/models.py:484
+#: apps/mara/models.py:496
 msgid "System Variable"
 msgstr "Vairable de Sistema"
 
-#: apps/mara/models.py:485
+#: apps/mara/models.py:497
 msgid "System Variables"
 msgstr "Vairables de Sistema"
 
-#: apps/mara/models.py:523
+#: apps/mara/models.py:535
 #, python-format
 msgid "Importing IED: %s"
 msgstr "Importando IED: %s"
 
-#: apps/mara/models.py:535
+#: apps/mara/models.py:547
 #, python-format
 msgid "Error in %s"
 msgstr "Error en %s"
 
-#: apps/mara/models.py:568
+#: apps/mara/models.py:580
 msgid "Digital Input"
 msgstr "Entrada Digital"
 
-#: apps/mara/models.py:569
+#: apps/mara/models.py:581
 msgid "Digital Inputs"
 msgstr "Entradas Digitales"
 
-#: apps/mara/models.py:668
+#: apps/mara/models.py:681
 msgid "Show in alarm grid"
 msgstr "Mostrar en la grilla de alarmas"
 
-#: apps/mara/models.py:697
+#: apps/mara/models.py:711
 msgid "Event"
 msgstr "Evento"
 
-#: apps/mara/models.py:753
+#: apps/mara/models.py:774
 msgid "Event Text"
 msgstr "Texto de Evento"
 
-#: apps/mara/models.py:754
+#: apps/mara/models.py:775
 msgid "Event Texts"
 msgstr "Texto de Eventos"
 
-#: apps/mara/models.py:795
+#: apps/mara/models.py:818
 msgid "Event Description"
 msgstr "Descripción de evento"
 
-#: apps/mara/models.py:796
+#: apps/mara/models.py:819
 msgid "Event Descriptions"
 msgstr "Descripción de Eventos"
 
-#: apps/mara/models.py:811
+#: apps/mara/models.py:835
 msgid "Communication Event Kind"
 msgstr "Tipo de Evento de Comunicaciones"
 
-#: apps/mara/models.py:812
+#: apps/mara/models.py:836
 msgid "Communication Event Kinds"
 msgstr "Tipos de Evento de Comunicaciones"
 
-#: apps/mara/models.py:835
+#: apps/mara/models.py:856
 msgid "Communication Event"
 msgstr "Evento de Comunicaciones"
 
-#: apps/mara/models.py:836
+#: apps/mara/models.py:857
 msgid "Communication Events"
 msgstr "Eventos de Comunicaciones"
 
-#: apps/mara/models.py:875
+#: apps/mara/models.py:896
 msgid "Analog Input"
 msgstr "Entrada Analógica"
 
-#: apps/mara/models.py:876
+#: apps/mara/models.py:897
 msgid "Analog Inputs"
 msgstr "Entradas Analógicas"
 
-#: apps/mara/models.py:988
+#: apps/mara/models.py:1010
 msgid "Energy Measure"
 msgstr "Medición de Energía"
 
-#: apps/mara/models.py:989
+#: apps/mara/models.py:1011
 msgid "Energy Measures"
 msgstr "Mediciones de Energía"
 
-#: apps/mara/models.py:992
+#: apps/mara/models.py:1014
 msgid "Can view power plot"
 msgstr "Puede ver curvas de energía"
 
-#: apps/mara/models.py:993
+#: apps/mara/models.py:1015
 msgid "Can see month report"
 msgstr "Puede ver reporte mensual"
 
-#: apps/mara/models.py:1028
+#: apps/mara/models.py:1050
 msgid "Action"
 msgstr "Acción"
 
-#: apps/mara/models.py:1029
+#: apps/mara/models.py:1051
 msgid "Actions"
 msgstr "Acciones"
 
@@ -512,6 +537,51 @@ msgstr "Total: %2d"
 #: apps/mara/templates/admin/base_site.html:58
 msgid "Django site admin"
 msgstr "Administración del sistema"
+
+#: nguru/settings/base.py:325
+msgid "Users to be notified of a Event type 0 by email. Comma separated."
+msgstr ""
+"Nombres de usuario a ser notificados por email ante un evento tipo 0. "
+"Separados por coma"
+
+#: nguru/settings/base.py:327
+msgid "Users to be notified of a Event type 3 by email. Comma separated."
+msgstr ""
+"Nombres de usuario a ser notificados por email ante un evento tipo 3. "
+"Separados por coma"
+
+#: nguru/settings/base.py:329
+msgid "Users to be notified of a Event type 0 by SMS. Comma separated"
+msgstr ""
+"Nombres de usuario a ser notificados por SMS ante un evento tipo 0. Separados "
+"por coma"
+
+#: nguru/settings/base.py:331
+msgid "Users to be notified of a Event type 3 by SMS. Comma separated"
+msgstr ""
+"Nombres de usuario a ser notificados por SMS ante un evento tipo 3. Separados "
+"por coma"
+
+#: nguru/settings/base.py:333
+msgid "Users that have debug toolbar enabled"
+msgstr ""
+"Usuarios que son depuradores del sistema. Puede ralentizar la sesión entre "
+"100x a 1000x."
+
+#: nguru/settings/base.py:334
+msgid "Email template."
+msgstr "Plantilla de email."
+
+#: nguru/settings/base.py:335
+msgid "SMS template."
+msgstr "Plantilla de SMS."
+
+#: nguru/settings/base.py:336
+msgid "Format for date in SMS and email."
+msgstr "Formato de la fecha, tanto para email como SMS."
+
+#~ msgid "groups"
+#~ msgstr "grupos"
 
 #~ msgid "Tag repeated %s"
 #~ msgstr "Tag %s repetido"
