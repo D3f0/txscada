@@ -5,6 +5,12 @@ from apps.mara.models import (Profile, COMaster, IED, AI, DI, SV
                               #, Energy, Event, ComEvent)
                               )
 
+from django.contrib.auth.models import User
+
+
+class UserFactory(ORMFactory):
+    FACTORY_FOR = User
+
 from apps.hmi.models import (SVGElement, SVGScreen, Formula, SVGPropertyChangeSet, Color)
 
 
