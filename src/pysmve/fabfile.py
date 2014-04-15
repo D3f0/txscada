@@ -160,6 +160,8 @@ def update(host=''):
         with hold(procs):
             get_repo()
             install_dependencies()
+            run('python manage.py syncdb')
+            run('python manage.py migrate')
             update_static_media()
             update_permissions()
         run('pkill -KILL gunicorn') # Gunicorn refuses to restart, so killing it
