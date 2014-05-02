@@ -136,6 +136,18 @@ def update_permissions():
             run('python manage.py update_permissions')
 
 
+def syncdb():
+    with cd(env.code_path):
+        with prefix(env.venv_prefix):
+            run('python manage.py syncdb')
+
+
+def migrate(app=''):
+    with cd(env.code_path):
+        with prefix(env.venv_prefix):
+            run('python manage.py migrate %s' % app)
+
+
 @task
 def install(host=''):
     """Instala SMVE en servidor"""
@@ -160,12 +172,13 @@ def update(host=''):
         with hold(procs):
             get_repo()
             install_dependencies()
-            run('python manage.py syncdb')
-            run('python manage.py migrate')
+            syncdb()
+            migrate()
             update_static_media()
             update_permissions()
-        run('pkill -KILL gunicorn') # Gunicorn refuses to restart, so killing it
-                                    # will force supervisor to restartit
+        # Gunicorn refuses to restart, so killing it will force supervisor to restart it
+        run('pkill -KILL gunicorn')
+
 
 @task
 def shell(host=''):
