@@ -231,7 +231,8 @@ def restore_database(path=SMVE_DEFAULT_BACKUP_PATH, dbsettings=None, no_confirm=
         local(cmd)
         print(colors.yellow("Restoring data", True))
         local('pg_restore -d {database} {path}'.format(path=path, **dbsettings))
-
+        print("Running migrations")
+        local('python manage.py migrate')
 
 @task
 def copy_database(host='', no_confirm=False):
