@@ -89,18 +89,9 @@ $(function (){
             //chart = nv.models.lineChart()
             // Clear previous chart
             $('.nvd3').remove();
-            // More than ten days
-            var days = data[0].values.length / 96;
-            if (days > 10){
-                console.info("More days");
-                chart = nv.models.lineWithFocusChart();
-                hasSecondAxis = true;
-            } else {
-                console.info("Few days");
-                chart = nv.models.lineChart();
-                chart.useInteractiveGuideline(true);
-                hasSecondAxis = false;
-            }
+
+            chart = nv.models.lineChart();
+            chart.useInteractiveGuideline(true);
 
             console.log(chart);
 
@@ -115,11 +106,6 @@ $(function (){
                 return v.toFixed(3) + data[0].unit;
             }
             chart.yAxis.tickFormat(tickFormatY);
-
-            if (hasSecondAxis) {
-                chart.x2Axis.tickFormat(tickFormatX);
-                chart.y2Axis.tickFormat(tickFormatY);
-            }
 
             var svg = d3.select('#plot svg');
             svg.datum(data);
