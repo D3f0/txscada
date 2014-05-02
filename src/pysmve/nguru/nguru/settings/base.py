@@ -259,8 +259,9 @@ LOGGING = {
 def show_toolbar(request):
     from constance import config
     debug_users = set(map(lambda x: x.strip(), config.DEBUG_USERS.split(',')))
-    if request.user and request.user.username in debug_users:
-        return True
+    if request.user.is_authenticated():
+        if request.user.username in debug_users:
+            return True
     return False
 
 DEBUG_TOOLBAR_CONFIG = {
