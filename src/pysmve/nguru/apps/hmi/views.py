@@ -104,9 +104,9 @@ def energy_export(request, ai_pk, date_from, date_to):
                      v1['value'],
                      v2['value']
                      ))
-
+    filename = request.REQUEST.get('filename', ai_active.tag)
     response = HttpResponse(output.getvalue(), content_type='text/plain')
-    content_disposition = 'attachment; filename=%s.txt' % ai_active.tag
+    content_disposition = 'attachment; filename=%s.txt' % filename
     response['Content-Disposition'] = content_disposition
     return response
 

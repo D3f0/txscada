@@ -266,6 +266,7 @@ $(function (){
             return;
         } else {
             var url = Urls.energy_export(ai_pk, from, to);
+            url += '?filename='+$.trim($ai_select.find('option:selected').text());
             window.open(url, '_blank');
         }
     });
