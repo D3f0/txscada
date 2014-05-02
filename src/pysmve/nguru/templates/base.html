@@ -19,12 +19,12 @@
                 padding-bottom: 40px;
             }
         </style>
-        <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap-responsive.min.css" %}">
         <link rel="stylesheet" type="text/css" href="{% static "jquery-ui-bootstrap/css/custom-theme/jquery-ui-1.9.2.custom.css" %}">
         <!-- Uniform -->
         <!-- note that there's also blue.uni-form.css and dark.uni-form.css available if you want to try changing defaults up -->
-        <link rel="stylesheet" href="{{ STATIC_URL }}uni_form/uni-form.css" type="text/css" />
-        <link rel="stylesheet" href="{{ STATIC_URL }}uni_form/default.uni-form.css" type="text/css" />
+        <link rel="stylesheet" href="{% static "uni_form/uni-form.css" %}" type="text/css"/>
+        <link rel="stylesheet" href="{% static "uni_form/default.uni-form.css" %}" type="text/css" />
         <script src="{% static "initializr/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js" %}"></script>
         <style>
             .svg_container {
@@ -148,7 +148,7 @@
         <script src="{% static "jquery-ui-bootstrap/assets/js/holder.js" %}"></script>
         <script src="{% static "jquery-ui-bootstrap/assets/js/jquery-ui-1.10.0.custom.min.js" %}"></script>
         <!-- uni-form JS library, optional -->
-        <script src="{{ STATIC_URL }}uni_form/uni-form.jquery.js" type="text/javascript"></script>
+        <script src="{% static "uni_form/uni-form.jquery.js" %}" type="text/javascript"></script>
         <script>
           $(function(){
             $('form.uniForm').uniform();
