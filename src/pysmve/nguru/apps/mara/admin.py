@@ -629,10 +629,21 @@ class LogEntryAdmin(admin.ModelAdmin):
 site.register(LogEntry, LogEntryAdmin)
 
 # Mail contol
-site.register(Message)
+
+def make_active(modeladmin, request, queryset):
+    queryset.update(priority='2')
+
+make_active.short_description = _('Put in queue')
+
+class MessageAdmin(admin.ModelAdmin):
+    actions = [make_active, ]
+    list_display = ('to_address', 'priority', 'subject', 'when_added', )
+
+
+site.register(Message, MessageAdmin)
 
 class MessageLogAdmin(admin.ModelAdmin):
-    list_display = ('when_added', 'to_address', 'when_attempted', 'result', )
+    list_display = ('when_added', 'when_attempted', 'to_address', 'when_attempted', 'result', )
     list_filter = ('result', 'when_added')
 
 site.register(MessageLog, MessageLogAdmin)
