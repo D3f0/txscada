@@ -255,7 +255,7 @@ class SVGElementResource(ModelResource):
         resource_name = 'svgelement'
         queryset = SVGElement.objects.select_related('formula')
         allowed_methods = ['get', 'put', ]
-        limit = 200
+        limit = 1000
         filtering = {
             'screen': ALL_WITH_RELATIONS,
             'last_update': ALL_WITH_RELATIONS,
