@@ -679,6 +679,7 @@ class Event(models.Model):
     q = models.IntegerField()
     value = models.IntegerField()
     show = models.BooleanField(default=True, help_text=_("Show in alarm grid"))
+    user = models.ForeignKey(User, blank=True, null=True)
 
     # Keys are profiles, then textev2, value, then text
     _descriptions = {}
