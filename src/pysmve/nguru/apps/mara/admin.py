@@ -212,7 +212,8 @@ site.register(DI, DIAdmin)
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('tag', '__unicode__', 'bit', 'port', 'value',
-                    'get_timestamp', 'get_timestamp_ack', 'operations')
+                    'get_timestamp', 'get_timestamp_ack', 'operations',
+                    'user',)
 
     def get_timestamp(self, obj):
         if obj.timestamp:
