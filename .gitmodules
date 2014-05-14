@@ -1,15 +1,10 @@
 [submodule "src/pysmve/nguru/static/jquery-ui-bootstrap"]
 	path = src/pysmve/nguru/static/jquery-ui-bootstrap
 	url = https://github.com/addyosmani/jquery-ui-bootstrap
-[submodule "src/pysmve/nguru/static/pretty-json"]
-	path = src/pysmve/nguru/static/pretty-json
-	url = https://github.com/warfares/pretty-json.git
 [submodule "src/pysmve/nguru/static/jqGrid"]
 	path = src/pysmve/nguru/static/jqGrid
 	url = https://github.com/tonytomov/jqGrid.git
 [submodule "src/pysmve/nguru/static/jquery-migrate"]
 	path = src/pysmve/nguru/static/jquery-migrate
 	url = https://github.com/jquery/jquery-migrate.git
-[submodule "src/pysmve/nguru/static/jquery.svg"]
-	path = src/pysmve/nguru/static/jquery.svg
-	url = https://github.com/doedje/jquery.svg.git
+
