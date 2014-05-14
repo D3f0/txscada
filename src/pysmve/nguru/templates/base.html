@@ -140,13 +140,14 @@
         # ================================================================================
         jQuery, jQueryUI, Bootstrap Widgets, Clident side Image placeholder
         # ================================================================================
+        <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
         {% endcomment %}
 
-        {#<script src="{% static "jquery-ui-bootstrap/assets/js/jquery-1.9.0.min.js" %}"></script>#}
-        <script src="{% static "js/jquery-ui-1.10.0.custom/js/jquery-1.9.0-svg.js" %}"></script>
+        <script src="{% static "bower_components/jquery/dist/jquery.min.js" %}"></script>
         <script src="{% static "jquery-ui-bootstrap/assets/js/bootstrap.min.js" %}"></script>
         <script src="{% static "jquery-ui-bootstrap/assets/js/holder.js" %}"></script>
         <script src="{% static "jquery-ui-bootstrap/assets/js/jquery-ui-1.10.0.custom.min.js" %}"></script>
+        <script src="{% static "bower_components/noty/js/noty/packaged/jquery.noty.packaged.min.js" %}"></script>
         <!-- uni-form JS library, optional -->
         <script src="{% static "uni_form/uni-form.jquery.js" %}" type="text/javascript"></script>
         <script>
