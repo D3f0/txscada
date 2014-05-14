@@ -1,8 +1,16 @@
 (function ($){
+
     // AMD Namespace
     if (typeof(SMVE) == "undefined"){
         SMVE = {};
     }
+    // Taken from https://groups.google.com/forum/#!topic/d3-js/qSwsOYMo9mA
+    d3.selection.prototype.size = function() {
+        var n = 0;
+        this.each(function() { ++n; });
+        return n;
+    };
+
     $(function (){
         // Some of these variables are exposed to the SMVE namespace
         var alarmGrid,
@@ -27,6 +35,21 @@
                 }
             });
             return retval;
+        }
+
+        function makeInkscapeSVGResponsive (svgNode)  {
+            var h = svgNode.attributes['height'].value;
+            var w = svgNode.attributes['width'].value;
+            svgNode.setAttribute('viewBox', '0 0 '+w+' '+h);
+            console.log(svgNode.attributes['viewBox'].value);
+            svgNode.setAttribute('preserveAspectRatio', "xMaxYMid meet");
+        }
+
+        function useSVGColorOnContainer(svgNode) {
+            var svg = d3.select(svgNode);
+            var page_color = svg.select('[pagecolor]').attr('pagecolor');
+            var element = svg.node().parentElement;
+            d3.select(element).style('background-color', page_color);
         }
 
         function loadTagResource() {
@@ -167,11 +190,31 @@
         }
 
         function clickOnSVGElement(node, nodeData) {
-            // TODO: Check
-            if (nodeData === undefined) {
-                console.error("No info for", node);
+            var tag = d3.select(this).attr('tag'),
+                nodeData;
+
+            if (d3.select(this).selectAll('[tag='+tag+']').size() > 0) {
+                console.log("Nested Elements!");
+                var n = noty({
+                    text: "Nested elements %s".format(tag)
+                });
                 return;
             }
+            // REST reource cache, Tastypie
+            nodeData = SMVE.getTag(tag);
+
+            // If there's no SVGElement model
+            if (nodeData === undefined) {
+                console.error("No info for", tag, this || "No tag");
+                if (SMVE.hasPermission('hmi.can_debug_screen')) {
+                    var n = noty({
+                        text: "No SVGElement data for <b>%s</b>".format(tag),
+                        type: "warning"
+                    });
+                }
+                return;
+            }
+
             if (nodeData.on_click_text_toggle) {
                 return createDialogForTextToggle(node, nodeData);
             }
@@ -702,6 +745,27 @@
 
             });
             $('#update_toggle').on('click', updateToggle);
+
+            // Debug button to hillight tags
+            btnJumpToUpperScreen.parent()
+                .after('<div style="float: right;" >'+
+                       '<input id="find-tag" type="text" placeholder="Buscar tag...">'+
+                       +'<span id="tag-count" class="label">0</span>'+
+                       '</div>');
+            $('#find-tag').css('text-transform', 'uppercase').on('keyup', highlighTag);
+        }
+
+        // Debug function
+        function highlighTag () {
+            var tag = $(this).val();
+            console.log(tag);
+            if (tag.length < 2) {
+                return;
+            }
+            console.log("Looking up for", tag);
+
+            var elements = d3.select('svg').selectAll('[tag^='+tag+']');
+            $('#tag-count').text(''+elements.size());
         }
 
         function setUpdatesEnabled(enabled) {
@@ -719,13 +783,22 @@
         }
 
         function svgScreenLoaded(svg) {
+            var $container = $(this),
+                svg = $container.find('svg').get(0);
 
-            if (svg.root().childNodes.length === 0) {
+            if (svg == 'undefined') {
                 fatalError("No se pudo cargar la pantalla actual");
                 return;
             }
-            var parent = svg._svg.parentElement;
-            $(parent).height(svg._height());
+
+            makeInkscapeSVGResponsive(svg);
+            useSVGColorOnContainer(svg);
+
+            d3.select(svg).selectAll('[tag],[jump-to]').on('click',
+                                                           clickOnSVGElement);
+            return;
+            debugger;
+
             // Bind click
             $('[tag],[jump-to]', svg.root()).click(function (){
                 var tag = $(this).attr('tag');
@@ -737,6 +810,8 @@
 
 
         function setCurrentScreenUri(uri) {
+            console.log('setCurrentScreenUri');
+
             var svg_screen = SMVE.getScreen(uri);
             var url = svg_screen.svg;
             console.info("Loading ", svg_screen.description,
@@ -762,11 +837,14 @@
                 enabled: true
             });
 
-            $('#svg').removeClass('hasSVG').find('svg').remove();
-            $('#svg').svg({
-                loadURL: url,
-                onLoad: svgScreenLoaded
-            });
+            $('.svg-container svg').remove();
+            $('.svg-container').load(url, svgScreenLoaded);
+            //$('#svg').removeClass('hasSVG').find('svg').remove();
+
+            // $('#svg').svg({
+            //     loadURL: url,
+            //     onLoad: svgScreenLoaded
+            // });
         }
 
         function findInitialScreenAndFireLoad() {
