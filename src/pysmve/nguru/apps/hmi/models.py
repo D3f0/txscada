@@ -119,6 +119,9 @@ class SVGScreen(Screen, ExcelImportMixin):
             inserted[name] = screen
             screen.save()
 
+    @classmethod
+    def clean_unused_files(cls):
+        pass
 
 def get_elements(et):
     tag = lambda t: re.sub('\{.*\}', '', t)
@@ -377,6 +380,11 @@ class SVGElement(models.Model, ExcelImportMixin):
     class Meta:
         verbose_name = _("SVG Element")
         verbose_name_plural = _("SVG Elements")
+        permissions = (
+            # This permissions allows the user to view notifications when clicks
+            # on a SVGElement that has no associated instance on this model
+            ('can_debug_screen', _("Cand debug realtime")),
+        )
 
     @classmethod
     def update_modification_timestamp(cls, instance=None, **kwargs):

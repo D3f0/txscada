@@ -5,7 +5,7 @@ import os
 
 from fabric import colors
 from fabric.api import (abort, cd, env, get, hide, lcd, local, prefix, run,
-                        settings, sudo, task)
+                        settings, sudo, task, prompt)
 from fabric.context_managers import quiet
 from fabric.contrib import files
 from fabric.contrib.console import confirm
@@ -163,10 +163,74 @@ def install(host=''):
         configure_gunicorn()
 
 
+def get_tags():
+    '''Get local tags'''
+    tags = local('git tag -l', True)
+    tags = tags.split()
+    return tags
+
+
+def _validate_tag(tag):
+    tag = tag.strip()
+    if tag:
+        available_tags = get_tags()
+        if tag in available_tags:
+            raise ValueError('This tag is already given')
+        return tag
+    else:
+        raise ValueError('Should be a non empty text')
+
+
 @task
-def update(host=''):
+def tag():
+    '''Tag code'''
+    print('Last release tag is:')
+    with hide('running'):
+        local('git describe --tags `git rev-list --tags --max-count=1`')
+
+    print('Insert release tag number to create.\n'
+          'Format: X.Y.Z, (sometimes just X.Y).\n'
+          'If deploying a new iteration, change the Y value.\n'
+          'If re-deploying with minor changes on same iteration, increment the Z value.')
+    new_tag = prompt('Number: ', validate=_validate_tag)
+
+    if confirm('Will create and push tag %s. Are you sure to continue?' % new_tag):
+        pass
+
+
+
+
+
+def get_release(release):
+    with cd(env.repo_path):
+        run('{proxy_command} git fetch origin --tags')
+        run('git checkout {}'.format(release))
+        run('git checout -- .')  # Reset repo
+
+@task
+def update(host='', release=''):
     """Updates deployment to upstream git version"""
+
     h = get_host_settings(host)
+    available_tags = get_tags()
+    if release:
+
+        if not release in available_tags:
+            abort(("Release {} is not a valid tag (Latest tags were: {})."
+                  " Run fab tag first").format(
+                    colors.red(release, True),
+                    colors.green('; '.join(available_tags[-3:]))
+                    )
+            )
+    else:
+        if confirm('Create tag from current code?'):
+            release = tag()
+
+
+    local('git push --tags')
+    local('git push origin master')
+    # update local repo (needed?)
+    local('git fetch')
     with settings(**h):
         procs = ('poll_mara')
         with hold(procs):
