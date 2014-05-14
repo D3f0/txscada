@@ -35,7 +35,8 @@
             </div>
         </div>
         <br/>
-        <div id="svg" class="svg_container" style="height: 500px; width: 100%px;">
+        <!-- SVG will be loaded here -->
+        <div id="svg" class="svg-container">
         </div>
         <div>
 
@@ -86,16 +87,8 @@
     <script src="{% static "jqGrid/js/JsonXml.js" %}"></script>
     <script src="{% static "jqGrid/js/grid.jqueryui.js" %}"></script>
     <script src="{% static "jqGrid/js/grid.filter.js" %}"></script>
-    <!-- jQuery SVG -->
-    <script type="text/javascript" src="{% static "jquery.svg/jquery.svg.js" %}"></script>
-    <script type="text/javascript" src="{% static "jquery.svg/jquery.svganim.js" %}"></script>
-    <script type="text/javascript" src="{% static "jquery.svg/jquery.svgdom.js" %}"></script>
-    <script type="text/javascript" src="{% static "jquery.svg/jquery.svgfilter.js" %}"></script>
-    <script type="text/javascript" src="{% static "jquery.svg/jquery.svggraph.js" %}"></script>
-    <script type="text/javascript" src="{% static "jquery.svg/jquery.svgplot.js" %}"></script>
-    <script type="text/javascript" src="{% static "jquery.svg/jquery.svg.js" %}"></script>
 
-    <script type="text/javascript" src="{% static "bower_components/d3/d3.js" %}"></script>
+    <script type="text/javascript" src="{% static "bower_components/d3/d3.min.js" %}"></script>
     {% load jsutils %}
     <script type="text/javascript">
         // Global namespace
@@ -116,6 +109,8 @@
     <script type="text/javascript" src="{% static "hmi/js/jqobjectools.js" %}"></script>
     <script type="text/javascript" src="{% static "hmi/js/queryobj.js" %}"></script>
     <script type="text/javascript" src="{% static "hmi/js/tastyjqgrid.js" %}"></script>
+    <script type="text/javascript" src="{% static "hmi/js/tastypie.js" %}"></script>
+    <!-- Main code -->
     <script type="text/javascript" src="{% static "hmi/js/realtime_watch.js" %}"></script>
 
 {% endblock endscripts %}
