@@ -1,11 +1,21 @@
 (function () {
     // Functions to pull from tastypie when partial content (conut < total)
     // is returned
-    jQuery.getRest = function (url, onSuccess, onProgress) {
-        var result = [];
+    var nullFunction = function () {};
 
-        onSuccess = onSuccess || function () {};
-        onProgress = onProgress || function () {};
+    jQuery.getRest = function (url, onSuccess, onProgress) {
+        var result = [],
+            opts = arguments[0]; // Alias
+
+        if (arguments.length == 1) {
+
+            url = opts.url;
+            onSuccess = opts.success || nullFunction;
+            onProgress = opts.progress || nullFunction;
+        } else {
+            onSuccess = onSuccess || nullFunction;
+            onProgress = onProgress || nullFunction;
+        }
 
 
         function perXHRsuccess (data, xhr) {
