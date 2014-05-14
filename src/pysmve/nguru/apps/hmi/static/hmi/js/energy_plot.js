@@ -167,7 +167,9 @@ $(function (){
         var $dlg = $('<div>').dialog({
             modal: true,
             title: "Obteniendo datos",
-        }).html('<p class="loading">Aguarde mientras se reucperan los datos...</p>');
+        }).html('<p class="loading">Aguarde mientras se reucperan los datos...</p>'+
+                '<div class="pbar"></div>');
+        var $pbar = $dlg.find('.pbar').progressbar({value: 0});
 
         var url = Urls.api_dispatch_list('v1', 'energy');
 
@@ -188,42 +190,29 @@ $(function (){
         // is taken
         var points = [];
 
-        function successAndPollMore(data, xhr) {
-            //debugger
-            points = points.concat(energyResponseToPoints(data.objects));
-            var next = data.meta.next;
-            if (next) {
-                console.info("Getting more from ", unescape(next));
-                var progress = Math.round(data.meta.offset/data.meta.total_count*100)+'%';
-                $dlg.html('Recibiendo datos '+progress);
-                var more = $.getJSON(next, successAndPollMore);
-
-            } else {
-                // No more to get, now render on screen
-                $dlg.html('Recibiendo datos 100%');
-                //console.info("Got all, plotting");
+        $.getRest({
+            url: queryUrl,
+            progress: function (current, total) {
+                var percent = (current/total) * 100;
+                $pbar.progressbar({value: percent});
+            },
+            success: function (data, meta) {
+                $pbar.progressbar({value: 100});
+                var points = energyResponseToPoints(data);
                 redraw([
                     {
                         "key": graphTitle,
                         "values": points,
-                        "unit": data.meta.unit
+                        "unit": meta.unit
                     }
                 ]);
                 $dlg.dialog('close');
-
             }
-        }
-
-        function errorGettingPoints() {
-            $dlg.dialog('close');
-            SMVE.errors.showRESTErrorDialog(arguments); // XHR Values
-        }
-
-        console.log("Querying "+unescape(queryUrl));
-        $.getJSON(queryUrl, successAndPollMore);
-
+        });
     });
-
+    /* Converts Tastypie response to points for NVD3 plot
+        {Array} list of serialized objects by tastypie
+    */
     function energyResponseToPoints(objects) {
         var result = $.map(objects, function (record, index) {
             return {
@@ -233,6 +222,9 @@ $(function (){
         });
         return result;
     }
+    /*  Export button event handler.
+        Calls the view that genreates an attachment
+    */
 
     $export_button.click(function (event) {
         event.preventDefault();
