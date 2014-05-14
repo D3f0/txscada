@@ -8,3 +8,7 @@
 }
 
 */
+
+.svg-container svg {
+    width: 100%;
+}
