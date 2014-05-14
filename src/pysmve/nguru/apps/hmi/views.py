@@ -14,6 +14,7 @@ from datetime import date, datetime, timedelta
 from django.db.models.aggregates import Count
 from collections import OrderedDict
 from cStringIO import StringIO
+import urllib
 
 
 @permission_required('hmi.can_view_realtime')
@@ -106,7 +107,8 @@ def energy_export(request, ai_pk, date_from, date_to):
                      ))
     filename = request.REQUEST.get('filename', ai_active.tag)
     response = HttpResponse(output.getvalue(), content_type='text/plain')
-    content_disposition = 'attachment; filename=%s.txt' % filename
+    content_disposition = 'attachment; filename=%s.txt' % (filename.replace(' ', '_'))
+    print content_disposition
     response['Content-Disposition'] = content_disposition
     return response
 
