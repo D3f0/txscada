@@ -5,6 +5,9 @@ from apps.mara.models import (Profile, COMaster, IED, AI, DI, SV
                               #, Energy, Event, ComEvent)
                               )
 
+import logging
+logging.getLogger("factory").setLevel(logging.WARN)
+
 from django.contrib.auth.models import User
 
 
