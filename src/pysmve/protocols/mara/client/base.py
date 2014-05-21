@@ -94,7 +94,7 @@ class MaraClientProtocol(protocol.Protocol):
 
     def pehTimerEvent(self):
         '''Evento que inidica que se debe enviar la puesta en hora'''
-
+        # FIXME: Se deben enconlar la petición de puesta en hora.
         if self.state == 'IDLE':
             buffer = self.construct.build(self.getPEHContainer())
             self.transport.write(buffer)
