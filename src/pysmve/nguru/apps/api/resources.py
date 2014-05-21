@@ -4,14 +4,21 @@ from apps.hmi.models import Formula, SVGElement, SVGScreen
 from apps.mara.models import AI, COMaster, DI, Energy, Event, IED, Profile, SV
 from tastypie import fields
 from tastypie.api import Api
-from tastypie.authorization import Authorization
+from tastypie.authorization import DjangoAuthorization
+from tastypie.authentication import (BasicAuthentication, ApiKeyAuthentication,
+                                     SessionAuthentication, MultiAuthentication)
+
 from tastypie.resources import ALL, ALL_WITH_RELATIONS, ModelResource
 from tastypie.exceptions import NotFound, BadRequest
 from datetime import datetime
 
 # API Entry Point
 api = Api(api_name='v1')
-auth = Authorization()
+authentication = MultiAuthentication(
+                                     #BasicAuthentication(),
+                                     SessionAuthentication())
+authorization = DjangoAuthorization()
+
 
 class ProfileResource(ModelResource):
 
@@ -21,6 +28,8 @@ class ProfileResource(ModelResource):
         queryset = Profile.objects.all()
         allowed_methods = ['get', ]
         ordering = Profile._meta.get_all_field_names()
+        authentication = authentication
+        authorization = authorization
 
 api.register(ProfileResource())
 
@@ -73,6 +82,18 @@ class DIResource(ModelResource):
 api.register(DIResource())
 
 
+class EventResourceAuthorization(DjangoAuthorization):
+    def update_detail(self, object_list, bundle):
+        """
+        Returns either ``True`` if the user is allowed to update the object in
+        question or throw ``Unauthorized`` if they are not.
+
+        Returns ``True`` by default.
+        """
+        from ipdb import set_trace; set_trace()
+        return True
+
+
 class EventResource(ModelResource):
 
     """REST resource for Event"""
@@ -89,7 +110,8 @@ class EventResource(ModelResource):
             'di': ALL_WITH_RELATIONS,
         }
         ordering = Event._meta.get_all_field_names()
-        authorization = auth
+        authorization = EventResourceAuthorization()
+        authentication = authentication
         order_by = ('-timestamp')
 
     def dehydrate(self, bundle):
@@ -263,7 +285,7 @@ class SVGElementResource(ModelResource):
         }
         ordering = SVGElement._meta.get_all_field_names()
         order_by = 'last_update'
-        authorization = auth
+        authorization = authorization
 
     def _obj_update(self, *args, **kwargs):
 
