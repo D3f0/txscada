@@ -146,24 +146,6 @@ $(function (){
             return;
         };
 
-        var ai_pk = $ai_select.val();
-        if (!ai_pk) {
-            alert("Medidor inválido");
-            return;
-        } else {
-            var url = Urls.max_energy_period(ai_pk, from, to);
-            $.ajax({
-                url: url,
-                success: function (data, status, xhr) {
-                    $('#max_energy_period').html(data.value+" MVA");
-
-                },
-                error: function () {
-                    $('#max_energy_period').html("No se encontró valor valor");
-                }
-            });
-        }
-
         var $dlg = $('<div>').dialog({
             modal: true,
             title: "Obteniendo datos",
@@ -206,6 +188,15 @@ $(function (){
                         "unit": meta.unit
                     }
                 ]);
+
+                // Update label
+                var max_measure = _.max(_.map(points, function (e) {return e['y']}));
+                var new_text = _.str.sprintf("%.3f%s (Escala: %.6f)",
+                                  max_measure,
+                                  meta.unit,
+                                  meta.escala_e);
+                $('#max_energy_period').text(new_text);
+
                 $dlg.dialog('close');
             }
         });
