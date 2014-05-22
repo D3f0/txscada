@@ -218,7 +218,9 @@ class EnergyResource(ModelResource):
         if ai_pk:
             ai = AI.objects.get(pk=ai_pk)
             channel = ai.channel
-            data['meta']['unit'] = 'MW' if channel == 0 else 'MVAR'
+            data['meta'].update(unit=('MW' if channel == 0 else 'MVAR'),
+                                escala_e=ai.escala_e)
+
 
         return data
 
