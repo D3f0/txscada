@@ -815,7 +815,7 @@
 
 
         function setCurrentScreenUri(uri) {
-            console.log('setCurrentScreenUri');
+            console.log('setCurrentScreenUri', uri);
 
             var svg_screen = SMVE.getScreen(uri);
             var url = svg_screen.svg;
@@ -852,14 +852,35 @@
             // });
         }
 
+        function locationSearchToObject (line) {
+            var result = {};
+            if (_.str.startsWith(line, '?')){
+                line = line.slice(1);
+            }
+            _.each(line.split('&'), function (part) {
+                var tuple = part.split('=');
+                result[tuple[0]] = tuple[1];
+            });
+
+            return result;
+        }
+
         function findInitialScreenAndFireLoad() {
-            try {
-                var uri = grepObjectContent(screenResource,
-                    function (o){
-                        return o.parent === null;
-                    }).resource_uri;
-                setCurrentScreenUri(uri);
-            } catch(error) {
+            var search = locationSearchToObject(window.location.search),
+                screenToLoad;
+                pk = parseInt(search['screen_pk']);
+            if (!_.isNaN(pk) && (pk>0) ) {
+                screenToLoad = _.find(screenResource, function (o){
+                    return o.id == pk;
+                });
+            } else {
+                screenToLoad = _.find(screenResource, function (o){
+                    return o.parent === null;
+                });
+            }
+            if (screenToLoad) {
+                setCurrentScreenUri(screenToLoad.resource_uri);
+            } else {
                 fatalError("No hay pantalla inicial definida");
             }
 
