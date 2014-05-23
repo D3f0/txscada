@@ -53,18 +53,19 @@
         }
 
         function loadTagResource() {
-            // SVGElement
-            return $.ajax({
-                method: 'GET',
-                url: Urls.api_dispatch_list('v1', 'svgelementdetail'),
-            }).then(function (data, state, resp) {
-                tagResource = {};
-                $.each(data.objects, function (obj, index){
-                    tagResource[this.tag] = this;
+            // This will be a promise since we have to do potentially
+            // many calls
+            var defer = $.Deferred(),
+                url = Urls.api_dispatch_list('v1', 'svgelementdetail');
+
+            $.getRest(url, function (data, meta) {
+                _.map(data, function (obj) {
+                    tagResource[obj.tag] = obj;
                 });
-            }, function () {
-                fatalError("Falla al obtener recurso");
+                defer.resolve();
             });
+
+            return defer;
         }
 
         function loadScreenResource() {
@@ -110,10 +111,14 @@
             $dlg.dialog('open');
         }
 
-        function createDialogForTextToggle(node, nodeData) {
-            var text = SMVE.getTag(nodeData.tag).text;
-            var options = nodeData.linked_text_change;
-            var newText;
+        /** This functions shows a dialog that allow to toggle text data in SVGElements
+        using tastypie api*/
+        function createDialogForTextToggle(nodeData) {
+            var text = SMVE.getTag(nodeData.tag).text,
+                options = nodeData.linked_text_change,
+                node = this,
+                newText;
+
             // Ugly lookup (Array was better)
             for (var key in options) {
                 if (key == text)
@@ -216,7 +221,7 @@
             }
 
             if (nodeData.on_click_text_toggle) {
-                return createDialogForTextToggle(node, nodeData);
+                return createDialogForTextToggle.call(this, nodeData);
             }
             if (nodeData.on_click_jump !== null) {
                 return setCurrentScreenUri(nodeData.on_click_jump);
@@ -884,6 +889,9 @@
             },
             getTags: function() {
                 return tagResource;
+            },
+            getTagCount: function () {
+                return _.map(tagResource, function () {return true}).length;
             },
             getTag: function (tag) {
                 return tagResource[tag];
