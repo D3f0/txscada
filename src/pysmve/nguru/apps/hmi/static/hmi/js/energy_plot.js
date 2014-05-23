@@ -91,14 +91,15 @@ $(function (){
             $('.nvd3').remove();
 
             chart = nv.models.lineChart();
-            chart.useInteractiveGuideline(true);
+            chart.margin({left: 100, right: 80});
+            //chart.useInteractiveGuideline(true);
 
-            console.log(chart);
+            chart.tooltipContent(function(key, x, y, e, graph) {
+                return _.str.sprintf("<b>%s</b><p>%s</p>", x, y);
+            });
 
             chart.x(function (d) { return new XDate(d.x) });
             chart.y(function (d) { return d.y });
-
-                          //.color(d3.scale.category10().range());
 
             chart.xAxis.tickFormat(tickFormatX);
 
