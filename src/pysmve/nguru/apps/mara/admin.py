@@ -491,7 +491,7 @@ class SVGElementAdmin(admin.ModelAdmin):
     list_display = ('tag', 'description', 'text', 'fill', 'stroke', 'get_mark',
                     'enabled', 'get_last_update', 'screen')
 
-    list_filter = ('mark', )
+    list_filter = ('screen', 'mark', )
     inlines = [
         FormulaTabularInline,
     ]
