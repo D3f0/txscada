@@ -16,14 +16,10 @@ js_info_dict = {
 }
 
 app_urls = patterns('',
-
-    #=========================================================================================
-    # Index
-    #=========================================================================================
-    url('^$', 'django.views.generic.simple.direct_to_template',
-        {
-         'template': 'base.html'
-         }, name='index'),
+    url(
+        '^$', 'django.views.generic.simple.direct_to_template',
+        {'template': 'base.html'},
+        name='index'),
 
     url('^login/$',
         'django.contrib.auth.views.login',
@@ -38,9 +34,9 @@ app_urls = patterns('',
             'next_page': '/'
         },
         name='logout'),
-    #=========================================================================================
+    # ========================================================================================
     # Mara application
-    #=========================================================================================
+    # ========================================================================================
     ('^mara/', include('apps.mara.urls')),
     ('^hmi/', include('apps.hmi.urls')),
 
@@ -50,44 +46,32 @@ app_urls = patterns('',
     # Tastypie API
     ('^api/', include(api.urls)),
 
-    ('^test/$', 'django.views.generic.simple.direct_to_template',
+    (
+        '^test/$', 'django.views.generic.simple.direct_to_template',
         {'template': 'test.html'}
     ),
 
-    #=========================================================================================
-    # Mapeo directo a templates
-    #=========================================================================================
-    # url('^sockjsdemo/', {
-    #         'template': 'websocket-demo.html',
-    #     }, name='websocket_demo'),
-    #=========================================================================================
-    # Administración
-    #=========================================================================================
-    #(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', site.urls),
 
-    #=========================================================================================
+    # ========================================================================================
     # Graphical Query Browser
-    #=========================================================================================
+    # ========================================================================================
     url(r'^qbe/', include('django_qbe.urls')),
 
     url(r'^admin_tools/', include('admin_tools.urls')),
-    #=========================================================================================
-    # Django object tools
-    #=========================================================================================
+
     (r'^object-tools/', include(object_tools.tools.urls)),
-
-    #(r'^jsi18n/(?P<packages>\S+?)/$', 'django.views.i18n.javascript_catalog'),
-
+    # FIXME: i18n in JS
+    # (r'^jsi18n/(?P<packages>\S+?)/$', 'django.views.i18n.javascript_catalog'),
 )
 
 
 urlpatterns = patterns('',
-
-    #  Only for local purpouses
-    (r'^$',
-     'django.views.generic.simple.redirect_to',
-     {'url': '/%s' % settings.BASE_URL},
+    # Only for local purpouses
+    (
+        r'^$',
+        'django.views.generic.simple.redirect_to',
+        {'url': '/%s' % settings.BASE_URL},
     ),
     # URLS de aplicaciones namespaceadas bajo RRHH
     (r'^%s' % settings.BASE_URL, include(app_urls))
