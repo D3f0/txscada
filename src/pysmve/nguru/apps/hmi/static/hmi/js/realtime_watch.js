@@ -243,24 +243,21 @@
                 });
 
             } else {
-                _.each(updates, function (attribute, value) {
+
+                _.each(updates, function (value, attribute) {
+                    if (node.attr('tag') == 'nopaint') {
+                        console.info("Skipping");
+                        return;
+                    }
                     if (attribute == 'text') {
                         // TODO: Move to serverside(formulas)
                         if (value.indexOf(' ')==-1 && value.indexOf('.')>-1){
                             value = parseFloat(value).toFixed(2);
                         }
+
                         node.text(value);
                     } else {
-                        _.each(updates, function (value, attr){
-                            // Interactive zone
-                            if (node.attr('tag') == 'nopaint') {
-                                //console.info("Excluding node", node, "because nopaint");
-                                return;
-                            }
-                            //console.log(node.node(), attr, value);
-                            node.style(attr, value);
-                            //node.css('fill-opacity', 1);
-                        });
+                        node.style(attribute, value);
                     }
 
                 });
@@ -292,7 +289,6 @@
             }
             return str.join("&");
         }
-
 
         function getSVGUpdatesUrl(extra_args){
             var baseUrl = Urls.api_dispatch_list('v1', 'svgelement');
@@ -484,7 +480,11 @@
                                 $dlg.dialog('close');
 
                             }, function (xhr, error, status) {
-                                var error = JSON.parse(xhr.responseText);
+                                try {
+                                    traceback = JSON.parse(xhr.responseText);
+                                } catch(e) {
+                                    traceback = {};
+                                };
                                 var developer = SMVE.hasPermission('mara.change_comaster');
                                 $dlg.dialog('option', 'title', "Ocurrió un error");
                                 $dlg.html('');
@@ -492,14 +492,11 @@
                                         "El servidor respondio: %s".format(status)
                                     )
                                 );
-                                if (developer) {
-                                    $dlg.append(
 
-                                        $('<pre>').text(error.traceback)
-                                    );
+                                if (developer && traceback.hasOwnProperty('traceback')) {
+                                    $dlg.append($('<pre>').text(traceback.traceback));
                                 }
 
-                                //debugger;
                                 $(".ui-dialog-buttonpane button").button("disable");
                                 $(".ui-dialog-buttonpane button.ui-state-focus").button("disable");
                                 if (!developer) {
@@ -670,6 +667,25 @@
 
             });
 
+            // Taken from http://stackoverflow.com/questions/875225/resize-jqgrid-when-browser-is-resized
+            // $(window).bind('resize', function() {
+
+            //     // Get width of parent container
+            //     var width = jQuery(targetContainer).attr('clientWidth');
+            //     if (width == null || width < 1){
+            //         // For IE, revert to offsetWidth if necessary
+            //         width = jQuery(targetContainer).attr('offsetWidth');
+            //     }
+            //     width = width - 2; // Fudge factor to prevent horizontal scrollbars
+            //     if (width > 0 &&
+            //         // Only resize if new width exceeds a minimal threshold
+            //         // Fixes IE issue with in-place resizing when mousing-over frame bars
+            //         Math.abs(width - jQuery(targetGrid).width()) > 5)
+            //     {
+            //         jQuery(targetGrid).setGridWidth(width);
+            //     }
+
+            // }).trigger('resize');
 
             return alarmGrid;
         }
@@ -709,11 +725,7 @@
         /* Initializes buttons
          */
         function setupExtraWidgets() {
-            // if (typeof(SMVE.updateButton)) {
-            //     // Initialize update button trigger
-            //     SMVE.updateButton = $('#update_toggle');
-            //     SMVE.updateButton.button().click(updateToggle);
-            // }
+
             btnJumpToUpperScreen = $('#jump_to_upper_screen');
             btnJumpToUpperScreen.on('click', function (e){
                 e.preventDefault();
@@ -731,27 +743,6 @@
 
             });
             $('#update_toggle').on('click', updateToggle);
-
-            // Debug button to hillight tags
-            btnJumpToUpperScreen.parent()
-                .after('<div style="float: right;" >'+
-                       '<input id="find-tag" type="text" placeholder="Buscar tag...">'+
-                       +'<span id="tag-count" class="label">0</span>'+
-                       '</div>');
-            $('#find-tag').css('text-transform', 'uppercase').on('keyup', highlighTag);
-        }
-
-        // Debug function
-        function highlighTag () {
-            var tag = $(this).val();
-            console.log(tag);
-            if (tag.length < 2) {
-                return;
-            }
-            console.log("Looking up for", tag);
-
-            var elements = d3.select('svg').selectAll('[tag^='+tag+']');
-            $('#tag-count').text(''+elements.size());
         }
 
         function setUpdatesEnabled(enabled) {
@@ -793,11 +784,11 @@
 
 
         function setCurrentScreenUri(uri) {
+            var svg_screen = SMVE.getScreen(uri),
+                url = svg_screen.svg;
 
-            console.log('setCurrentScreenUri', uri);
+            window.location.hash = '#screen_uri='+uri;
 
-            var svg_screen = SMVE.getScreen(uri);
-            var url = svg_screen.svg;
             console.info("Loading ", svg_screen.description,
                                      svg_screen.name,
                                      svg_screen.svg);
@@ -824,12 +815,6 @@
             $('.svg-container svg').remove();
 
             $('.svg-container').addClass('loading').load(url, svgScreenLoaded);
-            //$('#svg').removeClass('hasSVG').find('svg').remove();
-
-            // $('#svg').svg({
-            //     loadURL: url,
-            //     onLoad: svgScreenLoaded
-            // });
         }
 
         function locationHashToObject (line) {
@@ -850,17 +835,18 @@
                 hashUri = search['screen_uri'],
                 screenToLoad;
 
-            screenToLoad = _.first(screenResource, function (screen) {
-                return screen.resource_uri == hashUri;
-            });
-            if (_.isEmpty(screenToLoad)) {
+            if (!_.isUndefined(hashUri)) {
+                console.info("Loading screen", hashUri);
+            }
+            if (screenResource.hasOwnProperty(hashUri)) {
+                screenToLoad = screenResource[hashUri];
+            } else {
                 screenToLoad = _.find(screenResource, function (o){
                     return o.parent === null;
                 });
             }
 
             if (!_.isEmpty(screenToLoad)) {
-
                 setCurrentScreenUri(screenToLoad.resource_uri);
             } else {
                 console.error('Could not find screen. Not even root!');
