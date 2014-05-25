@@ -12,3 +12,14 @@
 .svg-container svg {
     width: 100%;
 }
+
+.svg-container {
+    min-height: 500px;
+    background-color: #000;
+}
+
+.svg-container.loading {
+    background-image: url('../img/ajax-loader.gif');
+    background-repeat: no-repeat;
+    background-position: center center;
+}

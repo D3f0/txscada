@@ -20,7 +20,8 @@
             currentScreenUri = null,
             // Extra widgets
             btnJumpToUpperScreen = null,
-            btnChangeSVGBackground = null;
+            btnChangeSVGBackground = null,
+            svgNode;
 
         function fatalError(msg, description) {
             return alert(msg);
@@ -230,41 +231,40 @@
 
         }
 
-        function isGroup(elem) {
-            try {
-                return (elem.get(0).tagName == 'g');
-            } catch (e) {}
-            return false;
-        }
-
+        /** Apply changes to nodes
+         *  node {Object} d3 selection of node
+         *  updates {Object} Stores updates
+        */
         function applyChanges(node, updates) {
-            //console.log(arguments);
-            // Aplicación recursiva de atributs a grupos
-            var $node = $(node);
-            if (isGroup($node)) {
-                return $.each($('path, rect', $node), function (index, elem){
-                    applyChanges(elem, updates);
+            // Call itself recureisvely if the target element is a group
+            if (node.node().tagName == "g") {
+                node.selectAll('path, rect').each(function () {
+                    applyChanges(d3.select(this), updates);
+                });
+
+            } else {
+                _.each(updates, function (attribute, value) {
+                    if (attribute == 'text') {
+                        // TODO: Move to serverside(formulas)
+                        if (value.indexOf(' ')==-1 && value.indexOf('.')>-1){
+                            value = parseFloat(value).toFixed(2);
+                        }
+                        node.text(value);
+                    } else {
+                        _.each(updates, function (value, attr){
+                            // Interactive zone
+                            if (node.attr('tag') == 'nopaint') {
+                                //console.info("Excluding node", node, "because nopaint");
+                                return;
+                            }
+                            //console.log(node.node(), attr, value);
+                            node.style(attr, value);
+                            //node.css('fill-opacity', 1);
+                        });
+                    }
+
                 });
             }
-            $.each(updates, function (attribute, value){
-                if (attribute == 'text') {
-                    // TODO: Move to serverside(formulas)
-                    if (value.indexOf(' ')==-1 && value.indexOf('.')>-1){
-                        value = parseFloat(value).toFixed(2);
-                    }
-                    $node.text(value);
-                } else {
-                    $.each(updates, function (key, value){
-                        // Interactive zone
-                        if ($(node).attr('tag') == 'nopaint') {
-                            //console.info("Excluding node", node, "because nopaint");
-                            return;
-                        }
-                        $node.css(key, value);
-                        //node.css('fill-opacity', 1);
-                    });
-                }
-            });
         }
 
 
@@ -335,25 +335,6 @@
             return dlg;
         }
 
-        var _svg = null;
-        /**
-         * Low level function for SVG/Markup interaction
-         */
-        function setCurrentSVG(svg) {
-            var $svg_attributes = $('#base', svg.root());
-            var $container_div = $(svg.root().parentElement);
-            var page_color = $svg_attributes.attr('pagecolor');
-            //var height = $svg_attributes.attr('inkscape:window-height');
-            var height = $(svg.root()).attr('height');
-            $container_div.css({'background': page_color, 'height': height+'px'});
-
-            _svg = svg;
-        }
-
-        function getCurrentSVG() {
-            return _svg;
-        }
-
         function updatesReceived(data, status) {
             var objs = data.objects,
                 count = data.objects.length, // The same as data.meta.count (Tastypie)
@@ -363,17 +344,17 @@
 
             console.info("Applying", count, "changes");
 
-            for (i=0; i<count; i++){
-                var obj = objs[i];
-                //console.log(obj)
-                var node = $('[tag='+obj.tag+']', getCurrentSVG().root());
-                if (node.length) {
-                    var updates = {};
-                    updates['text'] = obj.text;
-                    $.extend(updates, obj.style);
+            _.each(data.objects, function (data, index) {
+                var selector = _.str.sprintf('[tag=%s]', data.tag),
+                    node = svgNode.select(selector),
+                    updates={};
+
+                if (!node.empty()) {
+                    updates['text'] = data['text'];
+                    _.extend(updates, data.style);
                     applyChanges(node, updates);
                 }
-            }
+            });
 
             if (count > 0){
                 if (count > 1) {
@@ -788,8 +769,11 @@
         }
 
         function svgScreenLoaded(svg) {
+
             var $container = $(this),
                 svg = $container.find('svg').get(0);
+
+            $container.removeClass('loading');
 
             if (svg == 'undefined') {
                 fatalError("No se pudo cargar la pantalla actual");
@@ -799,22 +783,17 @@
             makeInkscapeSVGResponsive(svg);
             useSVGColorOnContainer(svg);
 
-            d3.select(svg).selectAll('[tag],[jump-to]').on('click',
+            // Set SVG Node
+            svgNode = d3.select(svg);
+            svgNode.selectAll('[tag],[jump-to]').on('click',
                                                            clickOnSVGElement);
-            return;
-            debugger;
 
-            // Bind click
-            $('[tag],[jump-to]', svg.root()).click(function (){
-                var tag = $(this).attr('tag');
-                clickOnSVGElement(this, SMVE.getTag(tag));
-            });
-            setCurrentSVG(svg);
             setUpdatesEnabled(true);
         }
 
 
         function setCurrentScreenUri(uri) {
+
             console.log('setCurrentScreenUri', uri);
 
             var svg_screen = SMVE.getScreen(uri);
@@ -843,7 +822,8 @@
             });
 
             $('.svg-container svg').remove();
-            $('.svg-container').load(url, svgScreenLoaded);
+
+            $('.svg-container').addClass('loading').load(url, svgScreenLoaded);
             //$('#svg').removeClass('hasSVG').find('svg').remove();
 
             // $('#svg').svg({
@@ -852,9 +832,9 @@
             // });
         }
 
-        function locationSearchToObject (line) {
+        function locationHashToObject (line) {
             var result = {};
-            if (_.str.startsWith(line, '?')){
+            if (_.str.startsWith(line, '#')){
                 line = line.slice(1);
             }
             _.each(line.split('&'), function (part) {
@@ -866,21 +846,24 @@
         }
 
         function findInitialScreenAndFireLoad() {
-            var search = locationSearchToObject(window.location.search),
+            var search = locationHashToObject(window.location.hash),
+                hashUri = search['screen_uri'],
                 screenToLoad;
-                pk = parseInt(search['screen_pk']);
-            if (!_.isNaN(pk) && (pk>0) ) {
-                screenToLoad = _.find(screenResource, function (o){
-                    return o.id == pk;
-                });
-            } else {
+
+            screenToLoad = _.first(screenResource, function (screen) {
+                return screen.resource_uri == hashUri;
+            });
+            if (_.isEmpty(screenToLoad)) {
                 screenToLoad = _.find(screenResource, function (o){
                     return o.parent === null;
                 });
             }
-            if (screenToLoad) {
+
+            if (!_.isEmpty(screenToLoad)) {
+
                 setCurrentScreenUri(screenToLoad.resource_uri);
             } else {
+                console.error('Could not find screen. Not even root!');
                 fatalError("No hay pantalla inicial definida");
             }
 

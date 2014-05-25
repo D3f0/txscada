@@ -1,7 +1,7 @@
 from django import template
 from apps.hmi.models import SVGScreen
 from django.core.urlresolvers import reverse
-
+from apps.api import resources
 
 register = template.Library()
 
@@ -27,7 +27,14 @@ def screen_menu_html(context):
     base_link = reverse('realtime_watch')
 
     def link_to_screen(screen):
-        link = '?'.join((base_link, 'screen_pk=%s' % screen.pk, ))
+        meta = resources.SVGScreenResource._meta
+        uri = reverse('api_dispatch_detail',
+                      args=(meta.api_name,
+                            meta.resource_name,
+                            screen.pk,
+                            )
+                      )
+        link = '?'.join((base_link, '#screen_uri=%s' % uri, ))
         return '<li><a href="%s">%s</a></li>' % (link, screen)
 
     screens = SVGScreen.objects.order_by('-parent', 'name')
