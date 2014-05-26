@@ -679,7 +679,10 @@ class Event(models.Model):
     q = models.IntegerField()
     value = models.IntegerField()
     show = models.BooleanField(default=True, help_text=_("Show in alarm grid"))
-    user = models.ForeignKey(User, blank=True, null=True)
+    #user = models.ForeignKey(User, blank=True, null=True)
+    username = models.CharField(max_length=100, blank=True, null=True,
+                                help_text=_('User who attended the event.'
+                                            'Typically through API call.'))
 
     # Keys are profiles, then textev2, value, then text
     _descriptions = {}
