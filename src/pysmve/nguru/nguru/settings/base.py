@@ -293,7 +293,8 @@ LOCALE_PATHS = (
 TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
 
-LOGIN_URL = '/login/'
+LOGIN_URL = '/smve/login/'
+
 LOGIN_REDIRECT_URL = '/' + BASE_URL
 
 
