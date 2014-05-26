@@ -76,7 +76,7 @@ def create_project_dir():
         run('mkdir -p {repo_path}'.format(**env))
 
 
-def get_repo(branch='master'):
+def get_repo(tag=''):
     with cd(env.repo_path):
         if not files.exists('.git'):
             print(colors.yellow("Cloning repo"), env.repo_url)
@@ -84,7 +84,8 @@ def get_repo(branch='master'):
         else:
             print(colors.green("Pulling code"))
             run('git checkout -- .')
-            run('{proxy_command} git pull origin {}'.format(branch, **env))
+            run('{proxy_command} git fetch -t'.format(**env))
+            run('git checkout {}'.format(tag, **env))
 
 
 def create_app_dirs():
@@ -198,9 +199,6 @@ def tag():
         pass
 
 
-
-
-
 def get_release(release):
     with cd(env.repo_path):
         run('{proxy_command} git fetch origin --tags')
@@ -212,14 +210,14 @@ def update(host='', release=''):
     """Updates deployment to upstream git version"""
 
     h = get_host_settings(host)
+
     available_tags = get_tags()
     if release:
-
-        if not release in available_tags:
+        if release not in available_tags:
             abort(("Release {} is not a valid tag (Latest tags were: {})."
                   " Run fab tag first").format(
-                    colors.red(release, True),
-                    colors.green('; '.join(available_tags[-3:]))
+                        colors.red(release, True),
+                        colors.green('; '.join(available_tags[-3:]))
                     )
             )
     else:
