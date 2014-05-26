@@ -1,0 +1,25 @@
+{
+  "name": "multiselect",
+  "version": "0.9.11",
+  "description": "A user-friendlier drop-in replacement for the standard select with multiple attribute activated.",
+  "license": "WTFPL",
+  "main": [
+    "./css/multi-select.css",
+    "./img/switch.png",
+    "./js/jquery.multi-select.js"
+  ],
+  "dependencies": {
+    "jquery": ">= 1.7.1"
+  },
+  "homepage": "https://github.com/lou/multi-select",
+  "_release": "0.9.11",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.9.11",
+    "commit": "0eff9e3fe0f2cab88100cfefdd903478a03a4786"
+  },
+  "_source": "git://github.com/lou/multi-select.git",
+  "_target": "~0.9.11",
+  "_originalSource": "multiselect",
+  "_direct": true
+}
