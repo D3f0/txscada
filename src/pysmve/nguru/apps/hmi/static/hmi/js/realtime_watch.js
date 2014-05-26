@@ -718,7 +718,7 @@
                 }
               }
             });
-            $('.navbar-fixed-top').slideUp('slow');
+            // $('.navbar-fixed-top').slideUp('slow');
         }
 
         function updateToggle(event) {
@@ -742,14 +742,7 @@
                     setCurrentScreenUri(parent);
                 }
             });
-            btnChangeSVGBackground = $('#change_svg_background');
-            btnChangeSVGBackground.on('click', function () {
-                var svg_bg = $('#svg').css('background-color'),
-                    body_bg = $('#svg').css('background-color'),
-                    $svg_attributes = $('#base', svg.root());
-                    svg_bg = $svg_attributes.attr('pagecolor');
 
-            });
             $('#update_toggle').on('click', updateToggle);
         }
 
