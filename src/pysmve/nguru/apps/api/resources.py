@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
+from django.contrib.auth.models import User
 from apps.hmi.models import Formula, SVGElement, SVGScreen
 from apps.mara.models import AI, COMaster, DI, Energy, Event, IED, Profile, SV
 from tastypie import fields
 from tastypie.api import Api
-from tastypie.authorization import DjangoAuthorization
+from tastypie.authorization import (DjangoAuthorization, Authorization, )
 from tastypie.authentication import (BasicAuthentication, ApiKeyAuthentication,
-                                     SessionAuthentication, MultiAuthentication)
+                                     SessionAuthentication, MultiAuthentication,
+                                     )
+
 
 from tastypie.resources import ALL, ALL_WITH_RELATIONS, ModelResource
 from tastypie.exceptions import NotFound, BadRequest
@@ -82,17 +85,21 @@ class DIResource(ModelResource):
 api.register(DIResource())
 
 
-class EventResourceAuthorization(DjangoAuthorization):
-    def update_detail(self, object_list, bundle):
-        """
-        Returns either ``True`` if the user is allowed to update the object in
-        question or throw ``Unauthorized`` if they are not.
+# class EventAuthorization(DjangoAuthorization):
+#     def update_list(self, object_list, bundle):
+#         import ipdb; ipdb.set_trace()
+#         allowed = []
 
-        Returns ``True`` by default.
-        """
-        from ipdb import set_trace; set_trace()
-        return True
+#         # Since they may not all be saved, iterate over them.
+#         for obj in object_list:
+#             if obj.user == bundle.request.user:
+#                 allowed.append(obj)
 
+#         return allowed
+
+#     def update_detail(self, object_list, bundle):
+#         import ipdb; ipdb.set_trace()
+#         return bundle.obj.user == bundle.request.user
 
 class EventResource(ModelResource):
 
@@ -108,10 +115,11 @@ class EventResource(ModelResource):
             'pk': ALL,
             'timestamp_ack': ALL,
             'di': ALL_WITH_RELATIONS,
+            'username': ALL_WITH_RELATIONS
         }
         ordering = Event._meta.get_all_field_names()
-        authorization = EventResourceAuthorization()
         authentication = authentication
+        authorization = authorization
         order_by = ('-timestamp')
 
     def dehydrate(self, bundle):
@@ -123,7 +131,6 @@ class EventResource(ModelResource):
         """
         A ORM-specific implementation of ``obj_update``.
         """
-        #import ipdb; ipdb.set_trace()
         if not bundle.obj or not self.get_bundle_detail_data(bundle):
             try:
                 lookup_kwargs = self.lookup_kwargs_with_identifiers(bundle, kwargs)
@@ -142,6 +149,7 @@ class EventResource(ModelResource):
 
         if bundle.data.get('timestamp_ack', None) == 'now':
             bundle.data['timestamp_ack'] = datetime.now()
+        bundle.data['username'] = bundle.request.user.username
 
         bundle = self.full_hydrate(bundle)
         return self.save(bundle, skip_errors=skip_errors)
