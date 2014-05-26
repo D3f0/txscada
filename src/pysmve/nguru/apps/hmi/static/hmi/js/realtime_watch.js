@@ -440,6 +440,14 @@
                     return retval;
                 }
             },
+            {
+                name: 'username',
+                index: 'username',
+                label: 'Atendido por',
+                align: 'center',
+                width: 80
+
+            }
         ];
 
         function reloadAlarmGrids() {
