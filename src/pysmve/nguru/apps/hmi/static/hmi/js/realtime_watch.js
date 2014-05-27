@@ -699,7 +699,7 @@
         }
 
         function createTabs() {
-            $("body").animate({ 'padding-top': 0}, 'slow');
+            //$("body").animate({ 'padding-top': 0}, 'slow');
             $('#tabs').tabs({
               activate: function (event, ui){
                 var tab_id = ui.newPanel.attr('id');
