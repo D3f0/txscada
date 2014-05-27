@@ -76,7 +76,7 @@ def create_project_dir():
         run('mkdir -p {repo_path}'.format(**env))
 
 
-def get_repo(tag=''):
+def update_git(tag=''):
     with cd(env.repo_path):
         if not files.exists('.git'):
             print(colors.yellow("Cloning repo"), env.repo_url)
@@ -156,7 +156,7 @@ def install(host=''):
     with settings(**h):
         create_virtualenv()
         create_project_dir()
-        get_repo()
+        update_git()
         create_app_dirs()
         install_system_packages()
         install_dependencies()
@@ -224,7 +224,6 @@ def update(host='', release=''):
         if confirm('Create tag from current code?'):
             release = tag()
 
-
     local('git push --tags')
     local('git push origin master')
     # update local repo (needed?)
@@ -232,14 +231,14 @@ def update(host='', release=''):
     with settings(**h):
         procs = ('poll_mara')
         with hold(procs):
-            get_repo()
+            update_git(tag=release)
             install_dependencies()
             syncdb()
             migrate()
             update_static_media()
             update_permissions()
         # Gunicorn refuses to restart, so killing it will force supervisor to restart it
-        run('pkill -KILL gunicorn')
+        run('killall -KILL gunicorn')
 
 
 @task
