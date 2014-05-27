@@ -785,8 +785,14 @@
 
 
         function setCurrentScreenUri(uri) {
-            var svg_screen = SMVE.getScreen(uri),
-                url = svg_screen.svg;
+            var svg_screen, url;
+
+            if (currentScreenUri == uri) {
+                console.info("Skipping screen change");
+            }
+
+            svg_screen = SMVE.getScreen(uri);
+            url = svg_screen.svg;
 
             window.location.hash = '#screen_uri='+uri;
 
@@ -831,6 +837,21 @@
             return result;
         }
 
+        /**
+         * Takes a URI and get the Object reosurce (from Tastypie cache)
+         */
+        function uriToResource(uri) {
+
+            if (screenResource.hasOwnProperty(uri)) {
+                return screenResource[uri];
+            } else {
+                // Find root screen
+                return _.find(screenResource, function (o){
+                    return o.parent === null;
+                });
+            }
+        }
+
         function findInitialScreenAndFireLoad() {
             var search = locationHashToObject(window.location.hash),
                 hashUri = search['screen_uri'],
@@ -839,13 +860,8 @@
             if (!_.isUndefined(hashUri)) {
                 console.info("Loading screen", hashUri);
             }
-            if (screenResource.hasOwnProperty(hashUri)) {
-                screenToLoad = screenResource[hashUri];
-            } else {
-                screenToLoad = _.find(screenResource, function (o){
-                    return o.parent === null;
-                });
-            }
+
+            screenToLoad = uriToResource(hashUri);
 
             if (!_.isEmpty(screenToLoad)) {
                 setCurrentScreenUri(screenToLoad.resource_uri);
@@ -853,7 +869,12 @@
                 console.error('Could not find screen. Not even root!');
                 fatalError("No hay pantalla inicial definida");
             }
-
+            // Bind Hash change
+            $(window).on('hashchange', function () {
+                var uri = locationHashToObject(window.location.hash);
+                console.info("Hash Change to ", uri);
+                setCurrentScreenUri(uri.screen_uri);
+            });
         }
 
         function init() {
@@ -863,6 +884,7 @@
                 loadScreenResource()
             ).done(
                 findInitialScreenAndFireLoad
+
             );
             setupExtraWidgets();
             createMiniAlarmGrid();
