@@ -11,6 +11,9 @@ from fabric import colors
 
 supervisor_configs_dir = '/etc/supervisor/'
 
+BASE_PATH = os.path.abspath(os.path.dirname(__file__))
+SETUP_FILES_PATH = os.path.abspath(os.path.join(BASE_PATH, '..'))
+
 
 def install_supervisor(reinstall=False):
     sudo('pip install supervisor')
@@ -32,7 +35,7 @@ def install_supervisor(reinstall=False):
         sudo('mkdir -p ' + logs_dir)
 
         # TODO: Change to files.upload_template()
-        put(os.path.join('setup', 'supervisor', 'supervisord.conf'),
+        put(os.path.join(SETUP_FILES_PATH, 'setup', 'supervisor', 'supervisord.conf'),
             config,
             use_sudo=True)
 
@@ -45,7 +48,7 @@ def install_supervisor(reinstall=False):
         sudo('chmod 644 ' + config)
 
         # add supervisord to the sistem start
-        put(os.path.join('setup', 'supervisor', 'initd_supervisord'),
+        put(os.path.join(SETUP_FILES_PATH, 'setup', 'supervisor', 'initd_supervisord'),
             init_script,
             use_sudo=True)
 
@@ -54,6 +57,7 @@ def install_supervisor(reinstall=False):
         sudo('update-rc.d supervisord defaults')
 
     sudo(init_script + ' start')
+
 
 def uninstall_supervisord():
     """Removes supervisord"""

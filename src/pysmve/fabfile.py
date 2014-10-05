@@ -6,7 +6,7 @@ import os
 from fabric import colors
 from fabric.api import (abort, cd, env, get, hide, lcd, local, prefix, run,
                         settings, sudo, task, prompt)
-from fabric.context_managers import quiet
+from fabric.context_managers import quiet, shell_env
 from fabric.contrib import files
 from fabric.contrib.console import confirm
 from fabsettings import HOSTS as HOST_SETTINGS
@@ -70,10 +70,10 @@ def create_virtualenv():
     run('mkdir -p /home/{user}/.pip_download_cache'.format(**env))
 
 
-def create_project_dir():
+def create_project_paths():
     """Project path will contain the repository"""
     if not files.exists(env.repo_path):
-        run('mkdir -p {repo_path}'.format(**env))
+        run('mkdir -p {repo_path} {repo_path}/logs {repo_path}/scripts'.format(**env))
 
 
 def update_git(tag=''):
@@ -88,17 +88,16 @@ def update_git(tag=''):
             run('git checkout {}'.format(tag, **env))
 
 
-def create_app_dirs():
-    with cd(env.repo_path):
-        run('mkdir -p scripts logs')
 
 
-def install_dependencies():
+
+def install_pip_requirements():
     with cd(env.code_path):
-        with prefix(env.venv_prefix):
-            print(colors.green("Installing dependencies"))
-            run('{proxy_command} pip install -r '
-                'setup/requirements/production.txt'.format(**env))
+        with shell_env(PIP_DOWNLOAD_CACHE='~/.pip_download_cache'):
+            with prefix(env.venv_prefix):
+                print(colors.green("Installing dependencies"))
+                run('{proxy_command} pip install -r '
+                    'setup/requirements/production.txt'.format(**env))
 
 
 def install_system_packages(update=False):
@@ -155,11 +154,11 @@ def install(host=''):
     h = get_host_settings(host)
     with settings(**h):
         create_virtualenv()
-        create_project_dir()
+        create_project_paths()
         update_git()
         create_app_dirs()
         install_system_packages()
-        install_dependencies()
+        install_pip_requirements()
         install_supervisor()
         configure_gunicorn()
 
@@ -363,3 +362,73 @@ def get_remote_all(host='', no_confirm=False):
 def install_sentry(host=''):
     with settings(**get_host_settings(host)):
         run("ls")
+
+
+def check_command(command):
+    '''Returns True if the command succeeds'''
+    with hide('stdout', 'stderr', 'running'):
+        with settings(warn_only=True):
+            result = run(command, shell=True)
+            if result.return_code == 0:
+                return True
+    return False
+
+
+def command_available(command):
+    return check_command('which ' + command)
+
+
+def install_virtualenv():
+    sudo('pip install virtualenvwrapper')
+
+
+def install_deb_packages():
+    '''Install required services'''
+    packages = [
+        'nginx',
+        'python-dev',
+        'python-software-properties',
+        'postgresql-9.3', 'postgresql-server-dev-9.3',
+        'wget',
+        'git',
+        'libxml2-dev', 'libxslt1-dev',
+        'libzmq-dev'
+    ]
+    sudo('apt-get install {} -qq -y'.format(' '.join(packages)))
+
+
+def install_pip():
+    '''Install latest pip'''
+    run('wget https://bootstrap.pypa.io/get-pip.py -O /tmp/get_pip.py')
+    sudo('python /tmp/get_pip.py')
+
+
+def enusre_pip_package(name, with_sudo=False):
+    if not check_command('pip freeze | grep virtualenvwrapper'):
+        if with_sudo:
+            sudo('pip install '+name)
+        else:
+            run('pip install '+name)
+
+@task
+def install_server(host=''):
+    h = get_host_settings(host)
+    with settings(**h):
+
+        install_deb_packages()
+        if not command_available('pip'):
+            install_pip()
+
+        enusre_pip_package('virtualenvwrapper', with_sudo=True)
+        create_project_paths()
+
+        update_git()
+        create_virtualenv()
+        install_pip_requirements()
+
+        install_supervisor()
+
+
+@task
+def migrate_database(host_origin='coop', host_destination='server_propio'):
+    pass
