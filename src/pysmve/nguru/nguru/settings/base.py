@@ -18,16 +18,6 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-# DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-#        'NAME': 'txscada',                      # Or path to database file if using sqlite3.
-#        'USER': '',                      # Not used with sqlite3.
-#        'PASSWORD': '',                  # Not used with sqlite3.
-#        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-#        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-#    }
-#}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -55,7 +45,7 @@ USE_TZ = False
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = join(PROJECT_ROOT , 'static', 'media')
+MEDIA_ROOT = join(PROJECT_ROOT, 'static', 'media')
 
 
 # Absolute path to the directory static files should be collected to.
@@ -77,10 +67,6 @@ MEDIA_URL = STATIC_URL + 'media/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    #join(PROJECT_ROOT, 'static-conent'),
     'static',
     join(PROJECT_ROOT, 'static'),
 )
@@ -134,11 +120,6 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    # Django admin tools
-    #'admin_tools',
-    #'admin_tools.theming',
-    #'admin_tools.menu',
-    #'admin_tools.dashboard',
     'crispy_forms',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -153,38 +134,34 @@ INSTALLED_APPS = (
     # Graphical Query Browser
 
     'django_extensions',
-    'django_socketio',
+    #'django_socketio',
     'debug_toolbar',
+    # Testing
     'django_nose',
 
+    # Core applications
     'apps.mara',
     'apps.hmi',
     'apps.api',
 
-    'apps.research',
-
-    #'admin_bootstrap',
+    # Query by example
     'django_qbe',
     'django_qbe.savedqueries',
 
+    # Admin actions
     'object_tools',
     'django.contrib.admin',
 
+    # URLs in JS
     'django_js_reverse',
     # Django Mailer
     'mailer',
 
+    # Admin editable configration
     'constance',
-
     'constance.backends.database',
 )
 
-try:
-    import gunicorn
-except ImportError as e:
-    pass
-else:
-    INSTALLED_APPS += ('gunicorn',)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -197,7 +174,7 @@ LOGGING = {
 
     'formatters': {
         'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'  # noqa
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -252,9 +229,9 @@ LOGGING = {
 }
 
 
-#=========================================================================================
+# ========================================================================================
 # Debug Toolbar
-#=========================================================================================
+# ========================================================================================
 
 def show_toolbar(request):
     from constance import config
@@ -264,25 +241,26 @@ def show_toolbar(request):
             return True
     return False
 
+
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
     'SHOW_TOOLBAR_CALLBACK': show_toolbar,
 }
 
-#=========================================================================================
+# ========================================================================================
 # Testing Config
-#=========================================================================================
+# ========================================================================================
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 NOSE_ARGS = [
-    #'--nologcapture', '--nocapture',
+    # '--nologcapture', '--nocapture',
     '--with-id', '--logging-clear-handlers',
     '--with-progressive', '--progressive-function-color=1', '--progressive-bar-filled=2',
-    #'--with-noseprofhooks',
-    #'--cprofile-stats-erase',
-    #'--cprofile-stats-file=stats.stats',
-    #'--processes=8'
+    # '--with-noseprofhooks',
+    # '--cprofile-stats-erase',
+    # '--cprofile-stats-file=stats.stats',
+    # '--processes=8'
 ]
 
 
@@ -314,15 +292,20 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 AUTH_PROFILE_MODULE = 'hmi.UserProfile'
 
+# ========================================================================================
+# Constance configuration
+# ========================================================================================
 
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
 
 email_template = '''Estimado
-Se ha producido un evento {{ event }} a las {{ event.timestamp|date:config.EVENT_DATE_FORMAT }}
+Se ha producido un evento {{ event }} a
+las {{ event.timestamp|date:config.EVENT_DATE_FORMAT }}
 '''
 
 sms_template = '''Estimado
-Se ha producido un evento {{ event }} a las {{ event.timestamp|date:config.EVENT_DATE_FORMAT }}
+Se ha producido un evento {{ event }} a las
+{{ event.timestamp|date:config.EVENT_DATE_FORMAT }}
 '''
 
 CONSTANCE_CONFIG = {
