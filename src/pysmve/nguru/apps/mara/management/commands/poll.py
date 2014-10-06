@@ -5,35 +5,7 @@ from apps.mara.models import Profile
 from twisted.internet import reactor
 from optparse import make_option
 from protocols.mara import client
-# MaraClientProtocolFactory,
-# MaraClientDBUpdater,
-# MaraClientPackageRedisPublisher
-from django.conf import settings
-from multiprocessing import Process
 import logging
-
-
-def dbsaver(frame_queue_address):
-    '''
-    Pops frames from a ZMQ queue (PUB/SUB) and save them to
-    database. It executes blocking django code that may hurt twisted
-    asynchronous nature
-
-    [twisted poll] ---> [ queue device] ---> [dbsaver]
-    '''
-    import redis
-    connection = redis.StrictRedis(host=settings.REDIS_HOST,
-                                   port=settings.REDIS_PORT,
-                                   password=settings.REDIS_PASSWORD,)
-    context = zmq.Context()
-    socket = context.socket(zmq.SUB)
-    socket.connect(frame_queue_address)
-
-    while True:
-        data = sock.get_data()
-        if data['msg_type'] == 'FRAME':
-            comaster = comasters[data['ip_address']]
-            comaster.process_frame(data['frame'])
 
 
 class Command(NoArgsCommand):
@@ -64,12 +36,8 @@ class Command(NoArgsCommand):
 
         profile = self.get_profile(options.get('profile'))
 
-        # COnfigure Protocol
+        # Switch protocol
         client.MaraClientProtocolFactory.protocol = client.MaraClientDBUpdater
-        # Redis class setup
-        #MaraClientProtocolFactory.protocol.redis_host = settings.REDIS_HOST
-        #MaraClientProtocolFactory.protocol.redis_port = settings.REDIS_PORT
-        #MaraClientProtocolFactory.protocol.redis_password = settings.REDIS_PASSWORD
         reconnect = options.get('reconnect')
         for comaster in profile.comasters.filter(enabled=True):
             self.logger.debug("Conectando con %s" % comaster)
