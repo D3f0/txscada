@@ -51,19 +51,24 @@ class MaraClientProtocol(protocol.Protocol):
         self.poll_timer = LoopingCall(self.pollTimerEvent)
         self.poll_timer.start(interval=self.factory.comaster.poll_interval, now=False)
 
-        self.setupPEH()
+        interval = self.factory.comaster.peh_time
+        self.peh_interval = (interval.hour * 60 * 60 +
+                             interval.minute * 60 +
+                             interval.second)
+        self.peh_last = None
 
         self.dataLogger = self.getDataLogger()
         self.logger = self.getLogger()
 
-    def setupPEH(self, initial_delay=0.1):
-        # Puesta en hora
-        self.peh_timer = LoopingCall(self.pehTimerEvent)
-        interval = self.factory.comaster.peh_time
-        interval = interval.hour * 60 * 60 + interval.minute * 60 + interval.second
-        self.peh_timer.start(interval=interval, now=False)
-        # Puesta en hora inmediata
-        reactor.callLater(initial_delay, self.pehTimerEvent)
+    def sendPEH(self):
+        buffer = self.construct.build(self.getPEHContainer())
+        self.transport.write(buffer)
+
+    def connectionMade(self):
+        self.logger.debug("Conection made to %s:%s" % self.transport.addr)
+        self.sendPEH()
+        self.peh_last = datetime.now()
+        reactor.callLater(0.01, self.sendCommand)  # @UndefinedVariable
 
     def getDataLogger(self):
         '''Build logger where all communication will be printed'''
@@ -79,10 +84,6 @@ class MaraClientProtocol(protocol.Protocol):
         ip = comaster.ip_address.replace('.', '_')
         return logging.getLogger('protocol.%s.%s' % (profile_name, ip))
 
-    def connectionMade(self):
-        self.logger.debug("Conection made to %s:%s" % self.transport.addr)
-        reactor.callLater(0.01, self.sendCommand)  # @UndefinedVariable
-
     def getPEHContainer(self):
         return Container(
             source=self.output.source,
@@ -91,14 +92,6 @@ class MaraClientProtocol(protocol.Protocol):
             command=0x12,
             peh=datetime.now()
         )
-
-    def pehTimerEvent(self):
-        '''Evento que inidica que se debe enviar la puesta en hora'''
-        # FIXME: Se deben enconlar la petición de puesta en hora.
-        if self.state == 'IDLE':
-            buffer = self.construct.build(self.getPEHContainer())
-            self.transport.write(buffer)
-            print "PEH >>", format_buffer(buffer)
 
     def pollTimerEvent(self):
         '''Event'''
@@ -216,8 +209,6 @@ class MaraClientProtocol(protocol.Protocol):
         self.__construct = value
 
 
-
-
 class MaraClientProtocolFactory(protocol.ClientFactory):
 
     '''Creates Protocol instances to interact with mara servers'''
@@ -244,20 +235,13 @@ class MaraClientProtocolFactory(protocol.ClientFactory):
         print "Connection failed: %s" % reason
         if self.reconnect:
             reactor.callLater(5, self.restart_connector, connector=connector)
-        else:
-            reactor.stop()
+        # TODO: Check if it's the only reactor
 
     def clientConnectionLost(self, connector, reason):
-        from twisted.internet import error
         self.logger.warn("Connection lost: %s" % reason)
-        print "Connection lost: %s. Restarting..." % reason
-        # if reason.type == error.ConnectionLost:
-        #     return
         if self.reconnect:
             print "Recconnection in 5"
             reactor.callLater(5, self.restart_connector, connector=connector)
-        else:
-            reactor.stop()
 
     def restart_connector(self, connector):
         print "Reconnecting"
