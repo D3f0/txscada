@@ -231,7 +231,7 @@ def update(host='', release=''):
         procs = ('poll_mara')
         with hold(procs):
             update_git(tag=release)
-            install_dependencies()
+            install_pip_requirements()
             syncdb()
             migrate()
             update_static_media()
