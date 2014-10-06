@@ -1,6 +1,5 @@
 # encoding: utf-8
 import logging
-from time import time
 from twisted.internet import protocol, reactor
 from twisted.internet.task import LoopingCall
 from twisted.internet.threads import deferToThread
@@ -96,7 +95,7 @@ class MaraClientProtocol(protocol.Protocol):
     def pollTimerEvent(self):
         '''Event'''
         if self.pending == 0:
-            print "Sending command to:", self.factory.comaster.ip_address, self.factory.comaster.sequence
+            print "Sending command to:", self.factory.comaster.ip_address, self.factory.comaster.sequence  # noqa
         else:
             print "Sending retry %s %d" % (self.factory.comaster, self.pending)
 
@@ -135,7 +134,7 @@ class MaraClientProtocol(protocol.Protocol):
 
             # Command 17
             if self.input.command != self.output.command:
-                self.logger.warn("Command not does not match with sent command %d" % self.input.command)
+                self.logger.warn("Command not does not match with sent command %d" % self.input.command)  # noqa
                 self.state = 'IDLE'
                 return
 
