@@ -1,24 +1,23 @@
 # encoding: utf-8
 
-import operator
 from datetime import datetime, time
-from django.db import models
-from django.db import IntegrityError
-from django.contrib.auth.models import User
-from django.db.models import signals
-from apps.mara.utils import get_relation_managers
-# from jsonfield import JSONField
-from django.utils.translation import ugettext as _
-from protocols.utils.bitfield import iterbits
-from protocols import constants
-#from protocols.utils.words import expand
-from protocols.constructs.structs import container_to_datetime
-from utils import ExcelImportMixin, counted
-import re  # For text frame procsessing
 import logging
-from django.conf import settings
+import operator
+import re  # For text frame procsessing
+
+from apps.mara.utils import get_relation_managers
 from constance import config
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.db import IntegrityError
+from django.db import models
+from django.db.models import signals
 from django.template import Template, Context
+from django.utils.translation import ugettext as _
+from protocols import constants
+from protocols.constructs.structs import container_to_datetime
+from protocols.utils.bitfield import iterbits
+from utils import ExcelImportMixin, counted
 
 
 # Dettached email handler
@@ -384,6 +383,8 @@ class COMaster(models.Model, ExcelImportMixin):
             IED.import_excel(
                 workbook, profile=models.profile, comaster=comaster)
 
+    def get_protocol_factory(self):
+        pass
 
 class IED(models.Model, ExcelImportMixin):
 
