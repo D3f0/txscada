@@ -11,6 +11,8 @@ import xlrd
 from bunch import bunchify
 import glob
 import re
+from importlib import import_module
+
 try:
     from fabric.colors import red, green, blue, yellow
 except ImportError:
@@ -273,3 +275,12 @@ def get_energy_23_59_from_logs(*args, **kwargs):
     return Indexable((container for container in get_structs_from_logs(*args, **kwargs)
                      if f_filter(container)))
 
+
+def import_class(module_dot_class):
+    '''Given a class name returns the calss reference'''
+    module_name, class_name = module_dot_class.rsplit('.', 1)
+    module = import_module(module_name)
+    try:
+        return getattr(module, class_name)
+    except AttributeError:
+        raise ImportError('Module %s has no %s' % (module_name, class_name))
