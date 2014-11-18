@@ -1,3 +1,6 @@
 from base import MaraClientProtocol, MaraClientProtocolFactory
 from dbupdater import MaraClientDBUpdater
-from redis import MaraClientPackageRedisPublisher
+try:
+    from redis import MaraClientPackageRedisPublisher
+except ImportError:
+    pass
