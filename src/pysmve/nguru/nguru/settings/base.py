@@ -322,3 +322,9 @@ CONSTANCE_CONFIG = {
     'TEMPLATE_SMS': (sms_template, _('SMS template.')),
     'EVENT_DATE_FORMAT': ('G:i:s.u d/m/Y', _('Format for date in SMS and email.'))
 }
+
+
+POLL_FRAME_HANDLERS = (
+    'nguru.apps.mara.handlers.DjangoORMMaraFrameHandler',
+    'nguru.apps.mara.handlers.AMQPPublishHandler',
+)

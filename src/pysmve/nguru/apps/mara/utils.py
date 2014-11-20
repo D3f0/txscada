@@ -12,6 +12,8 @@ from bunch import bunchify
 import glob
 import re
 from importlib import import_module
+from django.conf import settings
+
 
 try:
     from fabric.colors import red, green, blue, yellow
@@ -284,3 +286,11 @@ def import_class(module_dot_class):
         return getattr(module, class_name)
     except AttributeError:
         raise ImportError('Module %s has no %s' % (module_name, class_name))
+
+
+def get_setting(name, default=None):
+    '''Returns configuration from django'''
+    if default:
+        return getattr(settings, name, default)
+    else:
+        return getattr(settings, name)
