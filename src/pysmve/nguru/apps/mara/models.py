@@ -4,7 +4,6 @@ import logging
 import operator
 import re  # For text frame procsessing
 
-from apps.mara.utils import get_relation_managers
 from constance import config
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -67,7 +66,7 @@ class Profile(models.Model):
     _tag_info = {}
 
     def tag_description(self, tag, empty_text=''):
-        if not self.pk in Profile._tag_info:
+        if self.pk not in Profile._tag_info:
             Profile._tag_info[self.pk] = self.load_tags()
         return Profile._tag_info[self.pk].get(tag, empty_text)
 
@@ -207,7 +206,7 @@ class COMaster(models.Model, ExcelImportMixin):
             )
         # Some counters
         di_count, ai_count, sv_count, event_count = 0, 0, 0, 0
-        t0, timestamp = time(), datetime.now()
+        timestamp = datetime.now()
 
         if update_di:
             for value, di in zip(iterbits(payload.dis, length=16), self.dis):
@@ -258,9 +257,6 @@ class COMaster(models.Model, ExcelImportMixin):
                     )
                     ai = AI.objects.get(**query)
                     timestamp = container_to_datetime(event)
-                    #value = 0
-                    # for i, v in enumerate(event.data):
-                    #    value += v << (8 * i)
                     # Parsing construct arrray bogus data
                     value = event.data[
                         1] + (event.data[0] << 8) + (event.data[2] << 16)
@@ -339,8 +335,6 @@ class COMaster(models.Model, ExcelImportMixin):
         return found, processed
 
     def _process_frame_file(self, path, **flags):
-        #from pympler import tracker
-        #tr = tracker.SummaryTracker()
         with open(path) as fp:
             ok, n = 0, 0
             for n, line in enumerate(fp.readlines()):
@@ -700,7 +694,6 @@ class Event(models.Model):
     q = models.IntegerField()
     value = models.IntegerField()
     show = models.BooleanField(default=True, help_text=_("Show in alarm grid"))
-    #user = models.ForeignKey(User, blank=True, null=True)
     username = models.CharField(max_length=100, blank=True, null=True,
                                 help_text=_('User who attended the event.'
                                             'Typically through API call.'))
@@ -711,7 +704,7 @@ class Event(models.Model):
     def get_current_descriptions(self):
         '''Returns a dictionary of descriptions for current profile'''
         profile = self.di.ied.co_master.profile
-        if not profile.pk in Event._descriptions:
+        if profile.pk not in Event._descriptions:
             desc_dict = Event._descriptions.setdefault(profile.pk, {})
             fields = 'textoev2', 'value', 'text'
             value_list = profile.eventdescription_set.values_list(*fields)
@@ -735,7 +728,6 @@ class Event(models.Model):
     class Meta:
         verbose_name = _("Event")
         verbose_name_plural = _("Events")
-        #unique_together = ('di', 'timestamp', 'value')
 
     def propagate_changes(self):
         from apps.hmi.models import SVGElement
@@ -775,11 +767,6 @@ class Event(models.Model):
 def sync_event_with_svgelements(instance=None, **kwargs):
     if instance:
         instance.propagate_changes()
-
-
-def send_emails(instance, **kwargs):
-    '''Email notification when an event occurs'''
-
 
 signals.pre_save.connect(sync_event_with_svgelements, sender=Event)
 
@@ -895,7 +882,6 @@ class AI(MV, ExcelImportMixin):
     divider = models.FloatField(default=1)
     rel_tv = models.FloatField(db_column="reltv", default=1)
     rel_ti = models.FloatField(db_column="relti", default=1)
-    #rel_33_13 = models.FloatField(db_column="rel33-13", default=1)
     peso_p = models.FloatField(verbose_name="PesoP", default=1)
     q = models.IntegerField(db_column="q", default=0)
     value = models.SmallIntegerField(default=-1)
@@ -951,8 +937,8 @@ class AI(MV, ExcelImportMixin):
                   'peso_p',
                   'escala',
                   'escala_e',
-                  #'q',
-                  #'value',
+                  # 'q',
+                  # 'value',
                   'nroai',
                   'valuemax', 'valuemin',
                   'idtextoevm',
@@ -964,7 +950,7 @@ class AI(MV, ExcelImportMixin):
         for n, (pk, ied_id, offset, channel, trasducer,
                 description, tag, unit, multip_asm, divider,
                 rel_tv, rel_ti, peso_p, escala, escala_e,
-                #q, value,
+                # q, value,
                 nroai, value_max, value_min, idtextoevm,
                 delta_h, delta_l, idtextoev2, pesoaccion_h, pesoaccion_l
                 )\
@@ -999,8 +985,8 @@ class AI(MV, ExcelImportMixin):
             instance.peso_p = peso_p or 1.0
             instance.escala = escala
             instance.escala_e = escala_e or 1.0
-            #instance.q = q
-            #instance.value = value
+            # instance.q = q
+            # instance.value = value
             instance.nroai = nroai
             instance.value_max = value_max or None
             instance.value_min = value_min or None
@@ -1034,7 +1020,7 @@ class Energy(models.Model):
     class Meta:
         verbose_name = _("Energy Measure")
         verbose_name_plural = _("Energy Measures")
-        #unique_together = ('ai', 'timestamp', 'value')
+        # unique_together = ('ai', 'timestamp', 'value')
         permissions = (
             ('can_view_power_plot', _('Can view power plot')),
             ('can_see_month_report', _('Can see month report')),
