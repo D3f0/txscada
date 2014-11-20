@@ -36,7 +36,7 @@ _row_type_registry = {}
 
 def get_nametuple(fields):
     fields = tuple(fields)
-    if not fields in _row_type_registry:
+    if fields not in _row_type_registry:
         _row_type_registry[fields] = namedtuple('Row', fields)
     return _row_type_registry[fields]
 
@@ -75,7 +75,7 @@ def get_col_names(sheet, field_labels_row=FIELD_LABELS_ROW):
     names = OrderedDict()
     for new_name in sheet.row_values(field_labels_row):
         new_name = sanitize_row_name(new_name)
-        if not new_name in names:
+        if new_name not in names:
             names[new_name] = 0
         else:
             names[new_name] += 1
