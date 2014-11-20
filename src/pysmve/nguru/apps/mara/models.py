@@ -1,5 +1,4 @@
-# encoding: utf-8
-
+# -*- coding: utf-8 -*-
 from datetime import datetime, time
 import logging
 import operator
@@ -17,7 +16,7 @@ from django.utils.translation import ugettext as _
 from protocols import constants
 from protocols.constructs.structs import container_to_datetime
 from protocols.utils.bitfield import iterbits
-from utils import ExcelImportMixin, counted
+from utils import ExcelImportMixin, counted, import_class, get_setting
 
 
 # Dettached email handler
@@ -81,17 +80,15 @@ class Profile(models.Model):
         return self.__tags
 
     @classmethod
-    def get_profile(cls, name, clear=False):
-        """Returns a profile"""
-
-        profile, created = cls.objects.get_or_create(
-            name=name)
-
-        if not created and clear:
-            for manager in get_relation_managers(profile):
-                manager.all().count()
-                manager.all().delete()
-        return profile
+    def get_by_name(cls, name):
+        '''Get the profile'''
+        if name is None:
+            return Profile.objects.get(default=True)
+        else:
+            try:
+                return Profile.objects.get(name__iexact=name)
+            except Profile.DoesNotExist:
+                return None
 
 signals.pre_save.connect(Profile.ensure_default, sender=Profile)
 
@@ -384,7 +381,30 @@ class COMaster(models.Model, ExcelImportMixin):
                 workbook, profile=models.profile, comaster=comaster)
 
     def get_protocol_factory(self):
-        pass
+        '''Creates the instance of the protocol factory for a given COMaster'''
+
+        # This method is called from commands, so we use the appropiate
+        # logger
+        logger = logging.getLogger('commands')
+
+        prtocol_factory = get_setting('POLL_PROTOCOL_FACTORY',
+                                      'protocols.mara.client.MaraClientProtocolFactory')
+        pf_class = import_class(prtocol_factory)
+
+        # Create frame handler instances based on settings
+        frame_handlers = []
+        configured_handlers = get_setting('POLL_FRAME_HANDLERS', [])
+        if not configured_handlers:
+            logger.warn("No frame handlers. Porbably no frame will be saved on DB!!!")
+
+        for handler_class_name in configured_handlers:
+            handler_class = import_class(handler_class_name)
+            instance = handler_class(self, settings=settings)
+            frame_handlers.append(instance)
+
+        instance = pf_class(self, handlers=frame_handlers)
+        return instance
+
 
 class IED(models.Model, ExcelImportMixin):
 
