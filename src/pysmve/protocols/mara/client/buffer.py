@@ -117,5 +117,3 @@ def test_buffer():
     b += data
     assert b.has_package()
     assert b.state == MFRS.WAIT_SOF
-
-
