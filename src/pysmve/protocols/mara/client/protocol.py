@@ -40,6 +40,14 @@ class MaraPorotocolFactory(ReconnectingClientFactory):
         instance.factory = self
         return instance
 
+    def connectTCP(self, reactor):
+        return reactor.connectTCP(
+            host=self.comaster.ip_address,
+            port=self.comaster.port,
+            factory=self,
+            timeout=self.comaster.poll_interval,
+        )
+
 
 class MaraClientProtocol(Protocol, TimeoutMixin):
     defered = None
