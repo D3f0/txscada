@@ -315,6 +315,6 @@ MARA_CONSTRUCT = 'protocols.constructs.MaraFrame'
 POLL_PROTOCOL_FACTORY = 'protocols.mara.client.protocols.MaraPorotocolFactory'
 
 POLL_FRAME_HANDLERS = (
-    'nguru.apps.mara.handlers.DjangoORMMaraFrameHandler',
-    'nguru.apps.mara.handlers.AMQPPublishHandler',
+    'apps.mara.handlers.DjangoORMMaraFrameHandler',
+    'apps.mara.handlers.AMQPPublishHandler',
 )
