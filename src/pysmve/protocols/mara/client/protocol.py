@@ -19,18 +19,27 @@ import datetime
 class MaraPorotocolFactory(ReconnectingClientFactory):
 
     def __init__(self, comaster, **options):
+        '''
+        This class should be instantiated by a Django management command but since
+        we don't want it to have hard dependencies on Django code, we leave some
+        attributes to be handled by
+        '''
         self.comaster = comaster
         self.retrys = 0
+        self.handlers = []
 
     def get_configured_construct(self):
-        construct_class = import_class(get_setting('MARA_CONSTRUCT'))
-        return construct_class
+        class_ = import_class(get_setting('MARA_CONSTRUCT'))
+        return class_
 
     def get_configured_protocol(self):
-        class_name = get_setting('MARA_CLIENT_PROTOCOL',
-                                 'protocols.mara.client.protocol.MaraClientProtocol')
-        construct_class = import_class(class_name)
-        return construct_class
+        try:
+            class_name = get_setting('MARA_CLIENT_PROTOCOL',
+                                     'protocols.mara.client.protocol.MaraClientProtocol')
+            class_ = import_class(class_name)
+        except ImportError:
+            class_ = MaraClientProtocol
+        return class_
 
     def buildProtocol(self, addr):
         '''Constructs protocol based on configuration'''
