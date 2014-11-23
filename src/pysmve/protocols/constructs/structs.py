@@ -5,7 +5,7 @@
 from construct import *
 from datetime import datetime
 from ..utils.checksum import make_cs_bigendian
-from .. import constants
+from ..constants import frame, sequence
 from operator import add
 from struct import pack
 
@@ -275,7 +275,7 @@ class BaseMaraStruct(Struct):
     def _build(self, obj, stream, context):
         '''Builds frame'''
         # This code ain't no pythonic, shall make it better some time...
-        obj.setdefault('sof', constants.SOF)
+        obj.setdefault('sof', frame.SOF.value)
         obj.setdefault('length', 0)  # Don't care right now
         obj.setdefault('bcc', 0)    # Don't care right now
         #=================================================================================
@@ -301,27 +301,29 @@ class BaseMaraStruct(Struct):
     @classmethod
     def pretty_print(cls, container, show_header=True, show_bcc=True):
         '''Pretty printing'''
-        format_frame(container, as_hex_string=False, show_header=show_header, show_bcc=show_bcc)
+        format_frame(container, as_hex_string=False, show_header=show_header,
+                     show_bcc=show_bcc)
 
 
-MaraFrame = BaseMaraStruct('Mara',
-            ULInt8('sof'),
-            ULInt8('length'),
-            ULInt8('dest'),
-            ULInt8('source'),
-            ULInt8('sequence'),
-            ULInt8('command'),
-            #Probe(),
+MaraFrame = BaseMaraStruct(
+    'Mara',
+    ULInt8('sof'),
+    ULInt8('length'),
+    ULInt8('dest'),
+    ULInt8('source'),
+    ULInt8('sequence'),
+    ULInt8('command'),
+    # Probe(),
 
-            If(lambda ctx: ctx.command == 0x10,
-               #Probe(),
-               Optional(Payload_10),
+    If(lambda ctx: ctx.command == 0x10,
+       # Probe(),
+       Optional(Payload_10),
+    ),
 
-            ),
-            If(lambda ctx: ctx.command == 0x12,
-               PEHAdapter(Payload_PEH),
-            ),
-            ULInt16('bcc')
+    If(lambda ctx: ctx.command == 0x12,
+       PEHAdapter(Payload_PEH),
+    ),
+    ULInt16('bcc')
 )
 
 
