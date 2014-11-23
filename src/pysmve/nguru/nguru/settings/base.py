@@ -247,22 +247,6 @@ DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': show_toolbar,
 }
 
-# ========================================================================================
-# Testing Config
-# ========================================================================================
-
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
-NOSE_ARGS = [
-    # '--nologcapture', '--nocapture',
-    '--with-id', '--logging-clear-handlers',
-    '--with-progressive', '--progressive-function-color=1', '--progressive-bar-filled=2',
-    # '--with-noseprofhooks',
-    # '--cprofile-stats-erase',
-    # '--cprofile-stats-file=stats.stats',
-    # '--processes=8'
-]
-
 
 LOCALE_PATHS = (
     join(PROJECT_ROOT, 'conf/locale'),
@@ -330,4 +314,4 @@ POLL_FRAME_HANDLERS = (
 )
 
 
-MARA_CONSTRUCT = 'constructs.MaraFrame'
+MARA_CONSTRUCT = 'protocols.constructs.MaraFrame'
