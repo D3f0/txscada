@@ -186,11 +186,10 @@ class MaraClientProtocol(Protocol, TimeoutMixin):
         yield defer.returnValue(None)
 
     def dataReceived(self, data):
-        # print("Received", data)
         if self.defered:
             self.defered.callback(data)
         else:
-            print("Unexpected data", data)
+            self.logger.warning("Unexpected data received in %s %s", self.state, data)
 
     def timeoutConnection(self):
         if self.defered:
