@@ -18,6 +18,7 @@ from websockets import *
 from qbe import *
 # Redis
 from redis import *
+from testing import *
 
 try:
     from local_settings import *
