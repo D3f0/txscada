@@ -3,8 +3,11 @@ from django.core.management.base import NoArgsCommand, CommandError
 from apps.mara.models import Profile
 from twisted.internet import reactor
 from optparse import make_option
-from protocols.mara import client
+from apps.mara.utils import get_setting, import_class
+from django.conf import settings
 import logging
+
+logger = logging.getLogger('commands')
 
 
 class Command(NoArgsCommand):
@@ -19,8 +22,18 @@ class Command(NoArgsCommand):
                     dest='run',
                     default=True,
                     action='store_false')
-
     )
+
+    def get_handler_classes(self):
+        '''Returns a list of handler classess based on configuration'''
+        configured_handlers = get_setting('POLL_FRAME_HANDLERS', [])
+        if not configured_handlers:
+            logger.warn("No frame handlers. Porbably no frame will be saved on DB!!!")
+        classes = []
+        for handler_class_name in configured_handlers:
+            handler_class = import_class(handler_class_name)
+            classes.append(handler_class)
+        return classes
 
     def handle_noargs(self, **options):
         self.options = options
@@ -31,8 +44,16 @@ class Command(NoArgsCommand):
         if not profile:
             raise CommandError("Profile does not exist")
 
+        handlers = self.get_handler_classes()
+
         for comaster in profile.comasters.filter(enabled=True):
             protocol_factory = comaster.get_protocol_factory()
+            # Create frame handler instances based on settings
+
+            for handler in handlers:
+                instance = handler(comaster, settings=settings)
+                protocol_factory.handlers.append(instance)
+
             protocol_factory.connectTCP(reactor=reactor)
 
         if self.options['run']:
