@@ -18,6 +18,10 @@ import datetime
 
 class MaraPorotocolFactory(ReconnectingClientFactory):
 
+    def __init__(self, comaster, **options):
+        self.comaster = comaster
+        self.retrys = 0
+
     def get_configured_construct(self):
         construct_class = import_class(get_setting('MARA_CONSTRUCT'))
         return construct_class
@@ -28,16 +32,13 @@ class MaraPorotocolFactory(ReconnectingClientFactory):
         construct_class = import_class(class_name)
         return construct_class
 
-    def __init__(self, co_master, settings, auto_connect=True):
-        self.co_master = co_master
-        self.settings = settings
-        self.retrys = 0
-
-    def buildProtocol(self):
+    def buildProtocol(self, addr):
         '''Constructs protocol based on configuration'''
-        protocol = self.get_configured_protocol()
-        protocol.construct = self.get_configured_construct()
-        return protocol
+        protocol_class = self.get_configured_protocol()
+        instance = protocol_class()
+        instance.construct = self.get_configured_construct()
+        instance.factory = self
+        return instance
 
 
 class MaraClientProtocol(Protocol, TimeoutMixin):
