@@ -3,6 +3,7 @@ import logging
 from twisted.internet import protocol, reactor
 from twisted.internet.task import LoopingCall
 from twisted.internet.threads import deferToThread
+from twisted.internet.defer import inlineCallbacks, Deferred
 from twisted.internet.protocol import ClientFactory
 
 from construct import Container
@@ -10,7 +11,7 @@ from construct.core import FieldError, Struct
 from ...constructs import (MaraFrame,
                            upperhexstr)
 from ...constructs.structs import container_to_datetime
-from protocols.constants import MAX_SEQ, MIN_SEQ
+from protocols.constants import sequence
 from datetime import datetime
 from protocols.utils import format_buffer
 from protocols.utils.bitfield import iterbits
