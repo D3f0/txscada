@@ -312,9 +312,9 @@ CONSTANCE_CONFIG = {
 # =======================================================================================
 
 MARA_CONSTRUCT = 'protocols.constructs.MaraFrame'
-POLL_PROTOCOL_FACTORY = 'protocols.mara.client.protocols.MaraPorotocolFactory'
+POLL_PROTOCOL_FACTORY = 'protocols.mara.client.protocol.MaraPorotocolFactory'
 
 POLL_FRAME_HANDLERS = (
     'apps.mara.handlers.DjangoORMMaraFrameHandler',
-    'apps.mara.handlers.AMQPPublishHandler',
+    # 'apps.mara.handlers.AMQPPublishHandler',
 )
