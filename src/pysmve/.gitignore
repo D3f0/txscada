@@ -1,3 +1,4 @@
 nguru/static-content
 # Redis tests
 redis_*.py
+*.xml
