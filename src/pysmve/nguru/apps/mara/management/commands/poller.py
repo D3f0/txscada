@@ -36,6 +36,7 @@ class Command(NoArgsCommand):
         return classes
 
     def handle_noargs(self, **options):
+
         self.options = options
 
         self.logger = logging.getLogger('commands')
@@ -45,8 +46,13 @@ class Command(NoArgsCommand):
             raise CommandError("Profile does not exist")
 
         handlers = self.get_handler_classes()
+        comasters = profile.comasters.filter(enabled=True)
+        if not comasters.count():
+            self.logger.warn("No comaster enabled.")
+            return
 
-        for comaster in profile.comasters.filter(enabled=True):
+        for comaster in comasters:
+            logger.debug("Creating ClientFactory for %s" % comaster)
             protocol_factory = comaster.get_protocol_factory()
             # Create frame handler instances based on settings
 
