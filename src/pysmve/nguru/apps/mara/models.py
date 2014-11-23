@@ -107,8 +107,10 @@ class COMaster(models.Model, ExcelImportMixin):
     # ------------------------------------------------------------------------
     # Timing values
     # ------------------------------------------------------------------------
-    poll_interval = models.FloatField(verbose_name="Poll interval in seconds",
-                                      default=5)
+    poll_interval = models.FloatField(
+        verbose_name="Poll interval in seconds",
+        default=5
+    )
     exponential_backoff = models.BooleanField(default=False,
                                               help_text="Make queries")
 
@@ -132,6 +134,12 @@ class COMaster(models.Model, ExcelImportMixin):
     peh_time = models.TimeField(default=time(1, 0, 0),
                                 help_text="Tiempo entre puesta en hora")
 
+    last_peh = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text=_("Last PEH sent to this COMaster"),
+    )
+
     custom_payload = models.TextField(null=True,
                                       blank=True,
                                       help_text=_('Custom payload without SOF SEQ SRC DST'
@@ -142,6 +150,28 @@ class COMaster(models.Model, ExcelImportMixin):
     description = models.CharField(max_length=100,
                                    null=True,
                                    blank=True)
+
+    def needs_peh(self):
+        '''Checks if last peh was made'''
+
+        should_sync = False
+        if self.last_peh is None:
+            should_sync = True
+        else:
+            delta = (datetime.now() - self.last_peh).seconds
+
+            seconds = self.peh_time.second
+            seconds += self.peh_time.minute * 60
+            seconds += self.peh_time.hour * 60 * 60
+
+            if abs(delta) > seconds:
+                should_sync = True
+        return should_sync
+
+    def update_peh_timestamp(self, timestamp):
+        '''Updates last PEH timestamp in database'''
+        # To avoid using an UPDATE on all field, we filter and the update
+        COMaster.objects.filter(pk=self.pk).update(last_peh=timestamp)
 
     @property
     def dis(self):
