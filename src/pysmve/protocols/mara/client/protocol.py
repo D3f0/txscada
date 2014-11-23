@@ -14,6 +14,10 @@ from nguru.apps.mara.utils import get_setting, import_class
 from protocols.constants import frame, sequence
 from construct import Container
 import datetime
+import logging
+from .log_adapter import COMasterLogAdapter
+
+LOGGER_NAME = 'commands'
 
 
 class MaraPorotocolFactory(ReconnectingClientFactory):
@@ -27,6 +31,8 @@ class MaraPorotocolFactory(ReconnectingClientFactory):
         self.comaster = comaster
         self.retrys = 0
         self.handlers = []
+        logger = logging.getLogger(LOGGER_NAME)
+        self.logger = COMasterLogAdapter(logger, {'comaster': self.comaster})
 
     def get_configured_construct(self):
         class_ = import_class(get_setting('MARA_CONSTRUCT'))
@@ -47,6 +53,7 @@ class MaraPorotocolFactory(ReconnectingClientFactory):
         instance = protocol_class()
         instance.construct = self.get_configured_construct()
         instance.factory = self
+        instance.logger = self.logger  # Share the same logger (associates with comaster)
         return instance
 
     def connectTCP(self, reactor):
@@ -56,6 +63,19 @@ class MaraPorotocolFactory(ReconnectingClientFactory):
             factory=self,
             timeout=self.comaster.poll_interval,
         )
+
+    def startedConnecting(self, connector):
+        ReconnectingClientFactory.startedConnecting(self, connector)
+        self.logger.info("Connecting with %s", connector)
+
+    def clientConnectionFailed(self, connector, reason):
+        ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
+        self.logger.warning("Connection failed: %s Max Retry: %s",
+                            reason, self.maxRetries)
+
+    def clientConnectionLost(self, connector, unused_reason):
+        ReconnectingClientFactory.clientConnectionLost(self, connector, unused_reason)
+        self.logger.warning("Connection lost %s %s", self.comaster, connector)
 
 
 class MaraClientProtocol(Protocol, TimeoutMixin):
