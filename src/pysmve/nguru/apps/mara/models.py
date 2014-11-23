@@ -415,18 +415,7 @@ class COMaster(models.Model, ExcelImportMixin):
                                       'protocols.mara.client.MaraClientProtocolFactory')
         pf_class = import_class(prtocol_factory)
 
-        # Create frame handler instances based on settings
-        frame_handlers = []
-        configured_handlers = get_setting('POLL_FRAME_HANDLERS', [])
-        if not configured_handlers:
-            logger.warn("No frame handlers. Porbably no frame will be saved on DB!!!")
-
-        for handler_class_name in configured_handlers:
-            handler_class = import_class(handler_class_name)
-            instance = handler_class(self, settings=settings)
-            frame_handlers.append(instance)
-
-        instance = pf_class(self, handlers=frame_handlers)
+        instance = pf_class(self)
         return instance
 
 
