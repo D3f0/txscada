@@ -6,7 +6,7 @@ from mock import MagicMock, patch, Mock
 from protocols.constructs import MaraFrame
 from twisted.trial import unittest
 from .mocks import COMasterMock
-from ..protocol import MaraClientProtocol
+from ..protocol import MaraClientProtocol, MaraPorotocolFactory
 
 
 class BaseTestProtocol(unittest.TestCase):
@@ -52,3 +52,18 @@ class TestProtocolPeh(BaseTestProtocol):
             self.assertEqual(self.comaster.update_peh_timestamp.call_count, 1)
             self.assertEqual(self.comaster.update_peh_timestamp.call_args[0][0],
                              fixed_date)
+
+
+class TestPrtocolFactory(unittest.TestCase):
+    def setUp(self):
+        self.comaster = COMasterMock()
+        self.factory = MaraPorotocolFactory(self.comaster)
+
+    def test_protocol_holds_reference_to_factory(self):
+        protocol = self.factory.buildProtocol(('127.0.0.1', 0))
+        self.assertEqual(protocol.factory, self.factory)
+
+    def test_protocol_holds_reference_to_comaster(self):
+        protocol = self.factory.buildProtocol(('127.0.0.1', 0))
+        self.assertEqual(protocol.comaster, self.comaster)
+
