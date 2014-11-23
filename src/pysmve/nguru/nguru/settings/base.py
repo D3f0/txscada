@@ -328,3 +328,6 @@ POLL_FRAME_HANDLERS = (
     'nguru.apps.mara.handlers.DjangoORMMaraFrameHandler',
     'nguru.apps.mara.handlers.AMQPPublishHandler',
 )
+
+
+MARA_CONSTRUCT = 'constructs.MaraFrame'
