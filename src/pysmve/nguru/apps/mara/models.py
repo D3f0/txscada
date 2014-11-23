@@ -120,10 +120,13 @@ class COMaster(models.Model, ExcelImportMixin):
                                    default=0)
 
     rs485_source = models.SmallIntegerField(
-        default=0,
+        default=64,
         help_text='RS485 source address'
     )
-    rs485_destination = models.SmallIntegerField(default=0)
+    rs485_destination = models.SmallIntegerField(
+        default=1,
+        help_text='Mara protocol DEST field in poll'
+    )
 
     process_pid = models.IntegerField(blank=True, null=True,
                                       default=None,
@@ -406,10 +409,6 @@ class COMaster(models.Model, ExcelImportMixin):
 
     def get_protocol_factory(self):
         '''Creates the instance of the protocol factory for a given COMaster'''
-
-        # This method is called from commands, so we use the appropiate
-        # logger
-        logger = logging.getLogger('commands')
 
         prtocol_factory = get_setting('POLL_PROTOCOL_FACTORY',
                                       'protocols.mara.client.MaraClientProtocolFactory')
