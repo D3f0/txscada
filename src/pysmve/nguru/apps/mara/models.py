@@ -240,7 +240,7 @@ class COMaster(models.Model, ExcelImportMixin):
 
         if update_di:
             for value, di in zip(iterbits(payload.dis, length=16), self.dis):
-                # Poener en 0 en
+                # Update value takes care of maskinv
                 di.update_value(value, q=0, last_update=timestamp)
                 di_count += 1
         else:
@@ -271,7 +271,7 @@ class COMaster(models.Model, ExcelImportMixin):
                     ev = di.events.create(
                         timestamp=container_to_datetime(event),
                         q=event.q,
-                        value=event.status
+                        value=event.status ^ di.maskinv
                     )
                     logger.info(_("Digital event created %s") % ev)
                 except DI.DoesNotExist:
@@ -693,6 +693,9 @@ class DI(MV, ExcelImportMixin):
             instance.save()
             logger.info("DI %s %s", instance, action)
 
+    def update_value(self, value, **kwargs):
+        value = value ^ self.maskinv
+        return super(DI, self).update_value(value, **kwargs)
 
 signals.pre_save.connect(DI.check_value_change, sender=DI)
 
