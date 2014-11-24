@@ -12,7 +12,7 @@ from twisted.internet.threads import deferToThread
 from twisted.protocols.policies import TimeoutMixin
 from nguru.apps.mara.utils import get_setting, import_class
 from protocols.constants import frame, sequence, commands
-from construct import Container
+from construct import Container, FieldError
 import datetime
 import logging
 from protocols.constructs.structs import upperhexstr
@@ -227,8 +227,10 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
 
             self.sendCotainer(self.buildPollContainer())
             try:
-                data = yield self.incomingDefered
+                raw, parsed = yield self.incomingDefered
 
+            except FieldError, e:
+                self.logger.warning("Construct error: %s", e)
             except Timeout:
                 tries += 1
                 if tries > max_tries:
@@ -249,7 +251,7 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
                 else:
                     self.logger.info("Calling frame handlers")
                     for h in self.factory.handlers:
-                        h.handle_frame(data)
+                        h.handle_frame(parsed)
 
                 defer.returnValue(True)
                 break
@@ -273,7 +275,13 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
         self.input_buffer += data
         if self.input_buffer.has_package():
             if self.incomingDefered:
-                return self.incomingDefered.callback(self.input_buffer.get_package())
+                raw_package_data = self.input_buffer.get_package()
+                try:
+                    parsed = self.construct.parse(raw_package_data)
+                except FieldError:
+                    self.incomingDefered.errback(FieldError(raw_package_data))
+                else:
+                    self.incomingDefered.callback((raw_package_data, parsed))
             else:
                 package = self.input_buffer.get_package()
                 self.logger.info("Unexpected package %s", upperhexstr(package))
