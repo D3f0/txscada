@@ -234,7 +234,7 @@ class COMaster(models.Model, ExcelImportMixin):
             payload = mara_frame.payload_10
         except AttributeError as e:
             raise AttributeError(
-                _("Mara payload not present. %s does not look like a frame") %
+                "Mara payload not present. %s does not look like a frame" %
                 mara_frame
             )
         # Some counters
