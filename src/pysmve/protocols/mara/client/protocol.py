@@ -11,7 +11,7 @@ from twisted.python.constants import Names, NamedConstant
 from twisted.internet.threads import deferToThread
 from twisted.protocols.policies import TimeoutMixin
 from nguru.apps.mara.utils import get_setting, import_class
-from protocols.constants import frame, sequence, commands
+from protocols.constants import sequence, commands
 from construct import Container, FieldError
 import datetime
 import logging
@@ -138,15 +138,6 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
 
         self.input_buffer = MaraFrameReassembler()
 
-        self.output = Container(
-            source=self.comaster.rs485_source,
-            dest=self.comaster.rs485_destination,
-            sequence=s,
-            command=frame.SOF.value,
-            payload_10=None,  # No payload,
-            # peh=None,
-        )
-
     @property
     def active(self):
         return self.state not in (self.States.CONNECTION_LOST, self.States.GAVE_UP)
@@ -172,9 +163,6 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
     def connectionMade(self):
         self.setUp()
         reactor.callLater(0, self.mainLoop)
-
-    def stop(self):
-        self._running = False
 
     def buildPollContainer(self):
         return Container(
@@ -272,7 +260,10 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
 
     def dataReceived(self, data):
         self.logger.info("%s << %s", self.state, upperhexstr(data))
+        # Add data that could be chunked to the buffer
         self.input_buffer += data
+        # If a package is ready (has SOF, QTY, ...) then it must be
+        # parsed with self.construct reference.
         if self.input_buffer.has_package():
             if self.incomingDefered:
                 raw_package_data = self.input_buffer.get_package()
