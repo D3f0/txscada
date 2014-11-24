@@ -54,8 +54,10 @@ class Command(NoArgsCommand):
     def handle_noargs(self, **options):
 
         self.options = options
-
         self.logger = logging.getLogger('commands')
+
+        if settings.DEBUG:
+            self.logger.warning("DEBUG is ON in Django settings. Will leak memory!")
 
         profile = Profile.get_by_name(self.options['profile'])
         if not profile:
