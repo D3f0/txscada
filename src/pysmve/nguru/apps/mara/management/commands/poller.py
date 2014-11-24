@@ -16,12 +16,28 @@ class Command(NoArgsCommand):
     '''
     option_list = NoArgsCommand.option_list + (
         make_option('-p', '--profile', default=None),
-        make_option('-r', '--reconnect', default=False,
-                    action='store_true'),
         make_option('-n', '--no-run',
                     dest='run',
                     default=True,
-                    action='store_false')
+                    action='store_false'),
+        make_option('-o', '--override-ip',
+                    default=None,
+                    dest='override_ip',
+                    type=str,
+                    help="For testing purpuses it allows to override configured ip in "
+                         "database. This comand can be used with\t\t"
+                         "$ netcat -l -p 9761 | cat -e\t\t"
+                         "or with \t\t\tmanage.py server (if available).\t\t\t"
+                         "Note that in this examples the port is set to the default mara"
+                         "port: 9761 (comes from Microchip examples and inital code by"
+                         "Ricardo A. Lopez)."),
+        make_option('-m', '--max-retry',
+                    dest='maxRetries',
+                    type=int,
+                    default=0,
+                    help="Specify an amount of retries when  connection fail.\t\t"
+                         "0 makes the command to retry indefenetly. In production "
+                         "this value should always be 0.")
     )
 
     def get_handler_classes(self):
@@ -55,12 +71,16 @@ class Command(NoArgsCommand):
             logger.debug("Creating ClientFactory for %s" % comaster)
             protocol_factory = comaster.get_protocol_factory()
             # Create frame handler instances based on settings
+            maxRetries = self.options['maxRetries']
+            if maxRetries > 0:
+                protocol_factory.maxRetries = maxRetries
 
             for handler in handlers:
                 instance = handler(comaster, settings=settings)
                 protocol_factory.handlers.append(instance)
 
-            protocol_factory.connectTCP(reactor=reactor)
+            protocol_factory.connectTCP(reactor=reactor,
+                                        override_ip=self.options['override_ip'])
 
         if self.options['run']:
             reactor.run()
