@@ -1,4 +1,3 @@
-from __future__ import print_function
 from twisted.python.constants import Names, NamedConstant
 from ...constants import frame, quantity
 from Queue import Queue
@@ -34,7 +33,7 @@ class MaraFrameReassembler(object):
     @state.setter
     def state(self, value):
         assert value in self.states.iterconstants(), "Invalid state"
-        print(self.state, '->', value)
+        # print(self.state, '->', value)
         self._state = value
 
     def __init__(self):
