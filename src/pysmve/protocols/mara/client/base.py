@@ -188,7 +188,6 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
                 continue  # Still online?
 
             whatNext = yield self.waitForNextPollOrUserCommands()
-            print(whatNext)
 
         self.transport.loseConnection()
 
@@ -275,7 +274,19 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
 
             self.sendCotainer(self.buildPollContainer())
             try:
-                raw, parsed = yield self.incomingDefered
+                raw, frame = yield self.incomingDefered
+                self.setTimeout(None)
+
+                if frame.dest != self.comaster.rs485_source:
+                    self.logger.warning("Wrong adddress: %s instead of %s",
+                                        frame.dest,
+                                        self.comaster.rs485_source)
+
+                    defer.returnValue(True)
+
+                if frame.payload_10 is None:
+                    self.logger.warning("Payload missing.")
+                    defer.returnValue(True)
 
             except FieldError, e:
                 self.logger.warning("Construct error: %s", e)
@@ -283,7 +294,7 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
                 tries += 1
                 if tries > max_tries:
                     self.state = self.States.GAVE_UP
-                    self.logger.warning("Giving up POLL response. Retry exceeded!")
+                    self.logger.critical("Giving up POLL response. Retry exceeded!")
                     defer.returnValue(False)
 
             except ConnectionLost:
@@ -292,10 +303,12 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
                 defer.returnValue(False)
 
             else:
-                # We've got the data
-                self.setTimeout(None)
 
-                yield threads.deferToThread(self.comaster.process_frame, parsed)
+                try:
+                    yield threads.deferToThread(self.comaster.process_frame, frame)
+                except (AttributeError, AssertionError) as e:
+                    defer.returnValue(True)
+
                 yield threads.deferToThread(self.comaster.next_sequence)
                 defer.returnValue(True)
 
