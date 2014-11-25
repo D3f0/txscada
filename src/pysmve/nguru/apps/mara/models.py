@@ -134,8 +134,11 @@ class COMaster(models.Model, ExcelImportMixin):
                                       help_text="PID del proceso que se encuentra utiliza"
                                       "ndo el proceso")
 
-    peh_time = models.TimeField(default=time(1, 0, 0),
-                                help_text="Tiempo entre puesta en hora")
+    peh_time = models.TimeField(
+        default=time(1, 0, 0),
+        verbose_name=_("PEH Interval"),
+        help_text="Tiempo entre puesta en hora",
+    )
 
     last_peh = models.DateTimeField(
         null=True,

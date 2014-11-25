@@ -51,7 +51,9 @@ class COMasterAdmin(admin.ModelAdmin):
                     'poll_interval',
                     'rs485_source',
                     'rs485_destination',
+                    'sequence',
                     'peh_time',
+                    'get_last_peh',
                     'description'
                     )
 
@@ -81,11 +83,16 @@ class COMasterAdmin(admin.ModelAdmin):
             })
 
     )
-    list_display_links = ('ip_address',)
 
-    #inlines = [
-    #    IEDInline,
-    #]
+    list_display_links = ('ip_address',)
+    list_filter = ('enabled', )
+
+    def get_last_peh(self, obj):
+        if obj.last_peh:
+            return obj.last_peh.strftime('%Y/%m/%d %H:%M:%S')
+        return ''
+    get_last_peh.short_description = _("Last PEH")
+    get_last_peh.admin_order_field = 'last_peh'
 
 site.register(COMaster, COMasterAdmin)
 
