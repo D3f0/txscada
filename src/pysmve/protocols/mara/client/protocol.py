@@ -8,7 +8,7 @@ from __future__ import print_function
 from twisted.internet import protocol
 from twisted.internet import defer, reactor
 from twisted.python.constants import Names, NamedConstant
-from twisted.internet.threads import deferToThread
+from twisted.internet import threads
 from twisted.protocols.policies import TimeoutMixin
 from nguru.apps.mara.utils import get_setting, import_class
 from protocols.constants import sequence, commands
@@ -139,7 +139,7 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
     @state.setter
     def state(self, new_state):
         assert new_state in self.States.iterconstants(), "Invalid state %s" % new_state
-        self.logger.info("State change %s -> %s", self._state, new_state)
+        # self.logger.info("State change %s -> %s", self._state, new_state)
         self._state = new_state
 
     def sendCotainer(self, container):
@@ -267,7 +267,6 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
             except ConnectionLost:
                 self.setTimeout(None)
                 defer.returnValue(False)
-                break
 
             # If it's not the first try, log it
             if tries:
@@ -285,24 +284,19 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
                     self.state = self.States.GAVE_UP
                     self.logger.warning("Giving up POLL response. Retry exceeded!")
                     defer.returnValue(False)
-                    break
+
             except ConnectionLost:
                 # Connection lost is set in handler since it's use is more general
                 # self.state = self.States.CONNECTION_LOST
                 defer.returnValue(False)
-                break
+
             else:
                 # We've got the data
                 self.setTimeout(None)
-                if not self.factory.handlers:
-                    self.logger.warning("No handlers. Data may be lost")
-                else:
-                    self.logger.info("Calling frame handlers")
-                    for h in self.factory.handlers:
-                        h.handle_frame(parsed)
 
+                yield threads.deferToThread(self.comaster.process_frame, parsed)
+                yield threads.deferToThread(self.comaster.next_sequence)
                 defer.returnValue(True)
-                break
 
     @defer.inlineCallbacks
     def doUserCommands(self):
@@ -322,7 +316,7 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
             self.state = self.States.SEND_PEH
             timestamp = datetime.datetime.now()
             self.sendCotainer(self.buildPeHContainer(timestamp))
-            yield deferToThread(self.comaster.update_peh_timestamp, timestamp)
+            yield threads.deferToThread(self.comaster.update_last_peh, timestamp)
         yield defer.returnValue(None)
 
     def dataReceived(self, data):
