@@ -3,16 +3,14 @@
 from __future__ import print_function
 
 from copy import copy
-import datetime
 import logging
 import random
 
-from ..constructs import upperhexstr, dtime2dict
+from ..constructs import upperhexstr
 from protocols.constants import commands
-from .common import MaraFrameBasedProtocol
 from construct import Container
 from construct.core import FieldError
-from protocols.constructs import Event, MaraFrame
+from protocols.constructs import MaraFrame  # Event
 from twisted.internet import protocol
 
 
