@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 import logging
 import operator
 import re  # For text frame procsessing
@@ -16,6 +16,7 @@ from protocols import constants
 from protocols.constructs.structs import container_to_datetime
 from protocols.utils.bitfield import iterbits
 from utils import ExcelImportMixin, counted, import_class, get_setting
+from timedelta.fields import TimedeltaField
 
 
 # Dettached email handler
@@ -134,8 +135,8 @@ class COMaster(models.Model, ExcelImportMixin):
                                       help_text="PID del proceso que se encuentra utiliza"
                                       "ndo el proceso")
 
-    peh_time = models.TimeField(
-        default=time(1, 0, 0),
+    peh_time = TimedeltaField(
+        default=timedelta(hours=1),
         verbose_name=_("PEH Interval"),
         help_text="Tiempo entre puesta en hora",
     )
@@ -164,20 +165,16 @@ class COMaster(models.Model, ExcelImportMixin):
         if self.last_peh is None:
             should_sync = True
         else:
-            delta = (datetime.now() - self.last_peh).seconds
-
-            seconds = self.peh_time.second
-            seconds += self.peh_time.minute * 60
-            seconds += self.peh_time.hour * 60 * 60
-
-            if abs(delta) > seconds:
+            delta = (datetime.now() - self.last_peh)
+            if abs(delta) > self.peh_time:
                 should_sync = True
         return should_sync
 
-    def update_peh_timestamp(self, timestamp):
+    def update_last_peh(self, timestamp):
         '''Updates last PEH timestamp in database'''
-        # To avoid using an UPDATE on all field, we filter and the update
-        COMaster.objects.filter(pk=self.pk).update(last_peh=timestamp)
+        # On newer django versions, save could specify exaclty which field
+        self.last_peh = timestamp
+        return self.save()
 
     @property
     def dis(self):
@@ -330,6 +327,20 @@ class COMaster(models.Model, ExcelImportMixin):
                 logger.error(unicode(e), exc_info=True)
 
         return di_count, ai_count, sv_count, event_count
+
+    def next_sequence(self):
+        """
+        Goes to the next sequence and save it.
+        If using from twisted should be used with deferToThread.
+        """
+        if self.sequence < constants.sequence.MIN.value:
+            self.sequence = constants.sequence.MIN.value
+        else:
+            self.sequence += 1
+            if self.sequence > constants.sequence.MAX.value:
+                self.sequence = constants.sequence.MIN.value
+        self.save()
+        return self.sequence
 
     def _process_str_frame(self, a_text_frame, **flags):
         '''
