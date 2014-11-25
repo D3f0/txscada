@@ -3,11 +3,12 @@
 from __future__ import print_function
 
 from copy import copy
-from datetime import datetime
+import datetime
 import logging
 import random
 
 from ..constructs import upperhexstr, dtime2dict
+from protocols.constants import commands
 from .common import MaraFrameBasedProtocol
 from construct import Container
 from construct.core import FieldError
@@ -16,35 +17,38 @@ from twisted.internet import protocol
 
 
 def random_bytes(count):
-    '''
+    """
     Mara aware value generator. Creates the Mara offset and values
     :returns (offset, data)
-    '''
+    """
     return (count+1, [random.randrange(0, 0xFF) for x in xrange(count)])
 
 
 def random_words(count):
-    '''
+    """
     Mara aware value generator. Creates the Mara offset and values
     :returns (offset, data)
-    '''
+    """
     return ((count*2)+1, [random.randrange(0, 0xFFFF) for x in range(count)])
 
 
 class MaraServer(MaraFrameBasedProtocol):
-    '''
+    """
     Works as COMaster development board
     It replies commands 0x10 based on the definition
     in the comaster instance (a DB table).
-    '''
+    """
 
     def connectionMade(self,):
         self.logger.debug("Conection made to %s:%s" % self.transport.client)
         self.input = Container()
         self.output = None
+        self.last_seq = None
+        self.last_peh = None
+        self.peh_count = 0
 
     def sendCotainer(self, container):
-        '''Convenience method for publishing when data is sent'''
+        """Convenience method for publishing when data is sent"""
         assert isinstance(container, Container)
         data = self.construct.build(container)
         self.logger.info("Reponding -> %s", upperhexstr(data))
@@ -64,13 +68,20 @@ class MaraServer(MaraFrameBasedProtocol):
         if self.input.command == 0x10:
             # Response for command 0x10
             self.logger.info("Responding Mara Frame from: %s", self.transport)
+            if self.input.sequence == self.last_seq and self.output:
+                self.logger.debug("Sending same package!")
+            else:
+                self.last_seq = self.input.sequence
+                self.output = self.buildPollResponse()
+            self.sendCotainer(self.output)
+        elif self.input.command == commands.PEH.value:
 
-            self.sendCotainer(self.buildPollResponse())
+            self.logger.info("PEH: %s", self.input.peh)
         else:
             self.logger.warning("Not responding to package %x", self.input.command)
 
     def buildPollResponse(self):
-        '''It should reassemble what the COMaster does'''
+        """It should reassemble what the COMaster does"""
 
         output = copy(self.input)
         # exchange input
