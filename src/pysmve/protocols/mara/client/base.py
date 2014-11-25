@@ -19,6 +19,7 @@ from protocols.constructs.structs import upperhexstr
 from .log_adapter import COMasterLogAdapter
 from buffer import MaraFrameReassembler
 
+__all__ = ('MaraPorotocolFactory', 'MaraClientProtocol')
 
 LOGGER_NAME = 'commands'
 
