@@ -30,7 +30,7 @@ def random_words(count):
     return ((count*2)+1, [random.randrange(0, 0xFFFF) for x in range(count)])
 
 
-class MaraServer(MaraFrameBasedProtocol):
+class MaraServer(protocol.Protocol):
     """
     Works as COMaster development board
     It replies commands 0x10 based on the definition
