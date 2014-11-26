@@ -5,6 +5,7 @@ from __future__ import print_function
 from copy import copy
 import logging
 import random
+import os
 
 from ..constructs import upperhexstr
 from protocols.constants import commands
@@ -12,6 +13,10 @@ from construct import Container
 from construct.core import FieldError
 from protocols.constructs import MaraFrame  # Event
 from twisted.internet import protocol
+from protocols.constructs.structs import hexstr2buffer
+import logging
+
+random.seed(os.getpid())
 
 
 def random_bytes(count):
@@ -100,15 +105,42 @@ class MaraServer(protocol.Protocol):
             event=[],
             canevs=1,
         )
+
+        #if random.choice((True, False)):
+        #    output.dest = random.randrange(1, 254)
         return output
 
+    def sendFixedRespose(self):
+
+        bad_data = (
+            'FE 08 0A 01 06 10 F1 E6 19 16 2D 2A 00 40 01 A4 50 00 00 00 00 00 00 00 00'
+            '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+            '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+            '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+            '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+            '00 00 00 00 00 00 00 00 00 00 00 00 00 00 00'
+        )
+
+        self.transport.write(hexstr2buffer(bad_data))
+
+
+class ServerLogAdapter(logging.LoggerAdapter):
+    def process(self, msg, kwargs):
+        return  '[%s] %s' % ("SERVER", msg), kwargs
 
 
 class MaraServerFactory(protocol.Factory):
     protocol = MaraServer
 
+    def __init__(self, logger=None):
+        if not logger:
+            logger = logging.getLogger('')
+        self.logger = ServerLogAdapter(logger, {})
+        self.logger.info("Server Factory created.")
+
     def buildProtocol(self, addr):
-        instance = protocol.Factory.buildProtocol(self, addr)
-        instance.construct = MaraFrame
-        instance.logger = logging.getLogger('commands')
-        return instance
+        self.logger.info("Building protocol for %s", addr)
+        proto = protocol.Factory.buildProtocol(self, addr)
+        proto.construct = MaraFrame
+        proto.logger = self.logger
+        return proto

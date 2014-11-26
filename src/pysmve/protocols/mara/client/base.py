@@ -274,17 +274,17 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
 
             self.sendCotainer(self.buildPollContainer())
             try:
-                raw, frame = yield self.incomingDefered
+                _str, package = yield self.incomingDefered
                 self.setTimeout(None)
 
-                if frame.dest != self.comaster.rs485_source:
+                if package.dest != self.comaster.rs485_source:
                     self.logger.warning("Wrong adddress: %s instead of %s",
-                                        frame.dest,
+                                        package.dest,
                                         self.comaster.rs485_source)
 
                     defer.returnValue(True)
 
-                if frame.payload_10 is None:
+                if package.payload_10 is None:
                     self.logger.warning("Payload missing.")
                     defer.returnValue(True)
 
@@ -305,12 +305,22 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
             else:
 
                 try:
-                    yield threads.deferToThread(self.comaster.process_frame, frame)
-                except (AttributeError, AssertionError) as e:
+                    result = yield threads.deferToThread(self.packageReceived, package)
+                    defer.returnValue(result)
+                except Exception as e:
+                    self.logger.exception("Processing frame. Should not change SEQ!")
                     defer.returnValue(True)
 
-                yield threads.deferToThread(self.comaster.next_sequence)
-                defer.returnValue(True)
+    def packageReceived(self, pkg):
+        """
+        Called when a package is recevied
+
+        :param pkg: Container parsed by self.construct
+        :returns: True if the package is accepted. False otherwise, failures are logged.
+        """
+        self.comaster.process_frame(pkg, logger=self.logger)
+        self.comaster.next_sequence()
+        return True
 
     @defer.inlineCallbacks
     def doUserCommands(self):
