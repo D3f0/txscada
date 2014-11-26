@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 import logging
 import operator
 import re  # For text frame procsessing
@@ -213,14 +213,17 @@ class COMaster(models.Model, ExcelImportMixin):
                       create_ev_digital=True,
                       create_ev_energy=True,
                       create_ev_comsys=True,
-                      calculate=True):
+                      calculate=True,
+                      logger=None):
         '''Takes a Mara frame (from construct) and saves its components
         in related COMaster models (DI, AI, SV) and Events.
         It accepts flags for processing. There are two general flags called
         update_states and create_events, that when false disable processing
         of states and events acordingly.
         There are 3 fine grained flags for states and 3 for event types'''
-        logger = logging.getLogger('commands')
+        if not logger:
+            logger = logging.getLogger('commands')
+
         # Flags for states
         update_di = update_di and update_states
         update_ai = update_ai and update_states
@@ -627,18 +630,19 @@ class DI(MV, ExcelImportMixin):
         verbose_name = _("Digital Input")
         verbose_name_plural = _("Digital Inputs")
 
-    @classmethod
-    def check_value_change(cls, instance=None, **kwargs):
-        try:
-            if instance.pk:
-                old_value = DI.objects.get(pk=instance.pk).value
-                if old_value != instance.value:
-                    print("%s change from %s -> %s at %s" % (instance,
-                                                             old_value,
-                                                             instance.value,
-                                                             instance.last_update))
-        except Exception as e:
-            print(e)
+    # DEBUG CODE. Likely to be removed
+    # @classmethod
+    # def check_value_change(cls, instance=None, **kwargs):
+    #     try:
+    #         if instance.pk:
+    #             old_value = DI.objects.get(pk=instance.pk).value
+    #             if old_value != instance.value:
+    #                 print("%s change from %s -> %s at %s" % (instance,
+    #                                                          old_value,
+    #                                                          instance.value,
+    #                                                          instance.last_update))
+    #     except Exception as e:
+    #         print(e)
 
     @classmethod
     def do_import_excel(cls, workbook, models, logger):
@@ -699,7 +703,7 @@ class DI(MV, ExcelImportMixin):
         value = value ^ self.maskinv
         return super(DI, self).update_value(value, **kwargs)
 
-signals.pre_save.connect(DI.check_value_change, sender=DI)
+# signals.pre_save.connect(DI.check_value_change, sender=DI)
 
 
 class GenericEvent(models.Model):
