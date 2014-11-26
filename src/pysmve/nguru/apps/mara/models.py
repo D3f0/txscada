@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 import logging
 import operator
 import re  # For text frame procsessing
@@ -17,7 +17,7 @@ from protocols.constructs.structs import container_to_datetime
 from protocols.utils.bitfield import iterbits
 from utils import ExcelImportMixin, counted, import_class, get_setting
 from timedelta.fields import TimedeltaField
-
+import collections
 
 # Dettached email handler
 if "mailer" in settings.INSTALLED_APPS:
@@ -1039,11 +1039,38 @@ class AI(MV, ExcelImportMixin):
                 instance.save()
             except Exception as e:
                 raise e
-            logger.info(
-                "AI %s %s", instance, 'created' if created else 'updated')
+            logger.info("AI %s %s", instance, 'created' if created else 'updated')
 
-    def check_event_sequence(self):
-        pass
+    EnergyMesasuresReport = collections.namedtuple('EnergyMesasuresReport',
+                                                   'total missing ok')
+
+    def check_event_sequence(self, when, now=None, interval=timedelta(minutes=15)):
+        """
+        Checks if all the measures have been saved in *when* date.
+        If *now* is given or if *
+        :returns (ok, missing) If ok is True, no measures are lost, if False, missing is
+            a list
+        """
+        if isinstance(when, datetime):
+            when = when.date()
+        start = datetime.combine(when, time(0, 0, 0))
+        if now:
+            end = now
+        else:
+            end = datetime.combine(when, time(23, 59, 59, 9999))
+
+        qs = self.energy_set.filter(timestamp__gte=start, timestamp__lte=end)
+        qs = qs.order_by('timestamp')
+
+        measured = set(map(lambda x: x.time(), qs.values_list('timestamp', flat=True)))
+        expected = set()
+        t0 = start + interval
+        while t0 <= end:
+            expected.add(t0.time())
+            t0 += interval
+        diff = expected.difference(measured)
+        return self.EnergyMesasuresReport(qs.count(), diff, not diff)
+
 
 class Energy(models.Model):
     """
