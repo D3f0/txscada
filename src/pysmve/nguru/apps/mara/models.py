@@ -331,15 +331,16 @@ class COMaster(models.Model, ExcelImportMixin):
 
         return di_count, ai_count, sv_count, event_count
 
-    def next_sequence(self):
+    def next_sequence(self, prev=None):
         """
         Goes to the next sequence and save it.
         If using from twisted should be used with deferToThread.
         """
-        if self.sequence < constants.sequence.MIN.value:
+        prev = prev or constants.sequence.MIN.value
+        if prev < constants.sequence.MIN.value:
             self.sequence = constants.sequence.MIN.value
         else:
-            self.sequence += 1
+            self.sequence = prev + 1
             if self.sequence > constants.sequence.MAX.value:
                 self.sequence = constants.sequence.MIN.value
         self.save()
