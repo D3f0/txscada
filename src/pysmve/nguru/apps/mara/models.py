@@ -35,7 +35,7 @@ class Profile(models.Model):
         return "'%s' v.%s" % (self.name, self.version)
 
     def clone(self):
-        '''Clone profile'''
+        """Clone profile"""
         raise NotImplementedError("Not implemented yet")
 
     class Meta:
@@ -45,7 +45,7 @@ class Profile(models.Model):
 
     @classmethod
     def ensure_default(cls, instance, **kwargs):
-        '''Signal handler to ensure default profile'''
+        """Signal handler to ensure default profile"""
         if not instance.pk:
             if instance.default:
                 # New instance wants to be default
@@ -56,7 +56,7 @@ class Profile(models.Model):
                     instance.default = True
 
     def load_tags(self, *largs, **kwargs):
-        '''Can be hooked'''
+        """Can be hooked"""
         tags = {}
         dis = DI.objects.filter(ied__co_master__profile=self)
         ais = AI.objects.filter(ied__co_master__profile=self)
@@ -81,7 +81,7 @@ class Profile(models.Model):
 
     @classmethod
     def get_by_name(cls, name):
-        '''Get the profile'''
+        """Get the profile"""
         if name is None:
             return Profile.objects.get(default=True)
         else:
@@ -95,10 +95,10 @@ signals.pre_save.connect(Profile.ensure_default, sender=Profile)
 
 class COMaster(models.Model, ExcelImportMixin):
 
-    '''
+    """
     A gateway with mara IEDs that also performs other
     tasks such time synchronization with slaves.
-    '''
+    """
     profile = models.ForeignKey(Profile,
                                 related_name='comasters')
     ip_address = models.IPAddressField()
@@ -159,7 +159,7 @@ class COMaster(models.Model, ExcelImportMixin):
                                    blank=True)
 
     def needs_peh(self):
-        '''Checks if last peh was made'''
+        """Checks if last peh was made"""
 
         should_sync = False
         if self.last_peh is None:
@@ -171,7 +171,7 @@ class COMaster(models.Model, ExcelImportMixin):
         return should_sync
 
     def update_last_peh(self, timestamp):
-        '''Updates last PEH timestamp in database'''
+        """Updates last PEH timestamp in database"""
         # On newer django versions, save could specify exaclty which field
         self.last_peh = timestamp
         return self.save()
@@ -215,12 +215,12 @@ class COMaster(models.Model, ExcelImportMixin):
                       create_ev_comsys=True,
                       calculate=True,
                       logger=None):
-        '''Takes a Mara frame (from construct) and saves its components
+        """Takes a Mara frame (from construct) and saves its components
         in related COMaster models (DI, AI, SV) and Events.
         It accepts flags for processing. There are two general flags called
         update_states and create_events, that when false disable processing
         of states and events acordingly.
-        There are 3 fine grained flags for states and 3 for event types'''
+        There are 3 fine grained flags for states and 3 for event types"""
         if not logger:
             logger = logging.getLogger('commands')
 
@@ -346,13 +346,13 @@ class COMaster(models.Model, ExcelImportMixin):
         return self.sequence
 
     def _process_str_frame(self, a_text_frame, **flags):
-        '''
+        """
         Creates crecords from frame into a COMaster entity tree.
         This **should** not be used in poll function. It's a helper for
         commandline for easy recovery of not saved frames.
         Accepts a frame per line.
         @return True on success, False otherwise
-        '''
+        """
         from protocols.constructs.structs import hexstr2buffer
         from protocols.constructs import MaraFrame
 
@@ -368,8 +368,8 @@ class COMaster(models.Model, ExcelImportMixin):
     _frame_regex = re.compile(r'(FE ([0-9A-F]{2}\s?){2,512})', re.IGNORECASE)
 
     def _process_text_frames(self, text, **flags):
-        '''Process many frames. Looks insde text, and can accept file object.
-        @returns (frames_found, frames_processed)'''
+        """Process many frames. Looks insde text, and can accept file object.
+        @returns (frames_found, frames_processed)"""
         if hasattr(text, 'read'):
             text = text.read()
         found, processed = 0, 0
@@ -400,7 +400,7 @@ class COMaster(models.Model, ExcelImportMixin):
         return n, ok
 
     def set_ai_qualifier(self, value, last_update=None):
-        '''Propagates q for all AI belonging to an COMaster (through IED)'''
+        """Propagates q for all AI belonging to an COMaster (through IED)"""
         if not last_update:
             last_update = datetime.now()
         return self.ais.update(q=value, last_update=last_update)
@@ -425,7 +425,7 @@ class COMaster(models.Model, ExcelImportMixin):
                 workbook, profile=models.profile, comaster=comaster)
 
     def get_protocol_factory(self):
-        '''Creates the instance of the protocol factory for a given COMaster'''
+        """Creates the instance of the protocol factory for a given COMaster"""
 
         prtocol_factory = get_setting('POLL_PROTOCOL_FACTORY',
                                       'protocols.mara.client.MaraClientProtocolFactory')
@@ -437,9 +437,9 @@ class COMaster(models.Model, ExcelImportMixin):
 
 class IED(models.Model, ExcelImportMixin):
 
-    '''
+    """
     Inteligent Electronic Device.
-    '''
+    """
     co_master = models.ForeignKey(COMaster, related_name='ieds')
     offset = models.SmallIntegerField(default=0)
     rs485_address = models.SmallIntegerField(default=0)
@@ -461,12 +461,12 @@ class IED(models.Model, ExcelImportMixin):
 
     @classmethod
     def do_import_excel(cls, workbook, models, logger):
-        '''Import IED from XLS "ied" sheet. Filters IEDs belonging to comaster
-        passed in models bunch'''
+        """Import IED from XLS "ied" sheet. Filters IEDs belonging to comaster
+        passed in models bunch"""
         fields = ('comaster_id', 'id', 'offset', 'rs485_address',)
 
         def ied_belongs_to_comaster(row):
-            '''Row is a named tuple'''
+            """Row is a named tuple"""
             try:
                 if int(row.comaster_id) != models.comaster.pk:
                     return False
@@ -518,7 +518,7 @@ class MV(models.Model):
         abstract = True
 
     def update_value(self, value, **kwargs):
-        '''Actualiza el valor'''
+        """Actualiza el valor"""
         self.value = value
 
         self.last_update = kwargs.pop('last_update', datetime.now())
@@ -530,9 +530,9 @@ class MV(models.Model):
 
 class SV(MV, ExcelImportMixin):
 
-    '''
+    """
     System variable
-    '''
+    """
     WATCHED_FIELDS = ('value',)
 
     BIT_CHOICES = [(None, 'Palabra Completa'), ] + [(n, 'Bit %d' % n)
@@ -599,10 +599,10 @@ class SV(MV, ExcelImportMixin):
 
 class DI(MV, ExcelImportMixin):
 
-    '''
+    """
     Digital input, each row represents a bit in a port
     Every port is virtualized in mara device
-    '''
+    """
     WATCHED_FIELDS = ('value',)
 
     port = models.IntegerField(default=0)
@@ -715,7 +715,7 @@ class GenericEvent(models.Model):
     user = models.ForeignKey(User, null=True, blank=True, editable=False)
 
     def descripcion(self):
-        '''Retorna la descripción'''
+        """Retorna la descripción"""
         return None
 
     class Meta:
@@ -724,9 +724,9 @@ class GenericEvent(models.Model):
 
 class Event(models.Model):
 
-    '''
+    """
     Digital Event, it's always related with a bit and a port.
-    '''
+    """
     di = models.ForeignKey(DI, related_name='events')
     timestamp = models.DateTimeField()
     timestamp_ack = models.DateTimeField(null=True, blank=True,)
@@ -741,7 +741,7 @@ class Event(models.Model):
     _descriptions = {}
 
     def get_current_descriptions(self):
-        '''Returns a dictionary of descriptions for current profile'''
+        """Returns a dictionary of descriptions for current profile"""
         profile = self.di.ied.co_master.profile
         if profile.pk not in Event._descriptions:
             desc_dict = Event._descriptions.setdefault(profile.pk, {})
@@ -814,7 +814,7 @@ signals.pre_save.connect(sync_event_with_svgelements, sender=Event)
 
 class EventText(models.Model, ExcelImportMixin):
 
-    '''Abstracción de textoev2'''
+    """Abstracción de textoev2"""
     profile = models.ForeignKey(Profile, related_name='event_kinds')
     description = models.CharField(max_length=50, blank=True, null=True)
     value = models.IntegerField(blank=True, null=True)
@@ -872,7 +872,7 @@ class EventDescription(models.Model, ExcelImportMixin):
 
 class ComEventKind(models.Model, ExcelImportMixin):
 
-    '''Gives a type to communication event'''
+    """Gives a type to communication event"""
     code = models.IntegerField()
     texto_2 = models.IntegerField()
     pesoaccion = models.IntegerField()
@@ -910,9 +910,9 @@ class ComEvent(GenericEvent):
 
 class AI(MV, ExcelImportMixin):
 
-    '''
+    """
     Analog Input
-    '''
+    """
     WATCHED_FIELDS = ('value',)
 
     channel = models.IntegerField(default=0)
@@ -1042,12 +1042,13 @@ class AI(MV, ExcelImportMixin):
             logger.info(
                 "AI %s %s", instance, 'created' if created else 'updated')
 
+    def check_event_sequence(self):
+        pass
 
 class Energy(models.Model):
-
-    '''
+    """
     Energy Measure. Every day has 96 energy values taken from the energy meter
-    '''
+    """
     ai = models.ForeignKey(AI)
 
     timestamp = models.DateTimeField()
