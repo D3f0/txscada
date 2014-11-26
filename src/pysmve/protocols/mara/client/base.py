@@ -19,6 +19,8 @@ from protocols.constructs.structs import upperhexstr
 from .log_adapter import COMasterLogAdapter
 from buffer import MaraFrameReassembler
 
+i2hex = lambda i: ('%.2x' % i).upper()
+
 __all__ = ('MaraPorotocolFactory', 'MaraClientProtocol')
 
 LOGGER_NAME = 'commands'
@@ -276,17 +278,14 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
             try:
                 _str, package = yield self.incomingDefered
                 self.setTimeout(None)
+                try:
+                    yield threads.deferToThread(self.packageReceived, package)
+                    self.logger.info("Saved, next poll SEQ: %s",
+                                     i2hex(self.comaster.sequence))
+                except Exception:
+                    self.logger.exception("Package may be lost por partially saved:")
 
-                if package.dest != self.comaster.rs485_source:
-                    self.logger.warning("Wrong adddress: %s instead of %s",
-                                        package.dest,
-                                        self.comaster.rs485_source)
-
-                    defer.returnValue(True)
-
-                if package.payload_10 is None:
-                    self.logger.warning("Payload missing.")
-                    defer.returnValue(True)
+                defer.returnValue(True)  # Return True so sleep is performed
 
             except FieldError, e:
                 self.logger.warning("Construct error: %s", e)
@@ -302,24 +301,30 @@ class MaraClientProtocol(object, protocol.Protocol, TimeoutMixin):
                 # self.state = self.States.CONNECTION_LOST
                 defer.returnValue(False)
 
-            else:
-
-                try:
-                    result = yield threads.deferToThread(self.packageReceived, package)
-                    defer.returnValue(result)
-                except Exception as e:
-                    self.logger.exception("Processing frame. Should not change SEQ!")
-                    defer.returnValue(True)
-
-    def packageReceived(self, pkg):
+    def packageReceived(self, package):
         """
-        Called when a package is recevied
+        Called when a package is recevied. May be called from thread. Should not work
+        as Deferred.
 
-        :param pkg: Container parsed by self.construct
+        :param package: Container parsed by self.construct
         :returns: True if the package is accepted. False otherwise, failures are logged.
         """
-        self.comaster.process_frame(pkg, logger=self.logger)
-        self.comaster.next_sequence()
+        if self.comaster.sequence != package.sequence:
+            self.logger.warning("Expected sequence %s received %s",
+                                i2hex(self.comaster.sequence),
+                                i2hex(package.sequence))
+        if package.dest != self.comaster.rs485_source:
+            self.logger.warning("Wrong adddress: %s instead of %s",
+                                package.dest,
+                                self.comaster.rs485_source)
+            return False
+
+        if package.payload_10 is None:
+            self.logger.warning("Payload missing.")
+            return False
+
+        self.comaster.process_frame(package, logger=self.logger)
+        self.comaster.next_sequence(package.sequence)
         return True
 
     @defer.inlineCallbacks
