@@ -6,6 +6,8 @@ from optparse import make_option
 from apps.mara.utils import get_setting, import_class
 from django.conf import settings
 import logging
+from dealer.git import git
+
 
 logger = logging.getLogger('commands')
 
@@ -55,6 +57,8 @@ class Command(NoArgsCommand):
 
         self.options = options
         self.logger = logging.getLogger('commands')
+
+        self.logger.info("Starting poll %s(%s)", git.tag, git.revision)
 
         if settings.DEBUG:
             self.logger.warning("DEBUG is ON in Django settings. Will leak memory!")
