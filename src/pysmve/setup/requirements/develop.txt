@@ -19,7 +19,6 @@ bunch==1.0.1
 colorama==0.2.5
 -e git+https://github.com/construct/construct.git@63b966c871e608350f0d2733076e25f46b68412f#egg=construct-master
 cssselect==0.7.1
-cyclone==1.0-rc15
 dealer==1.0.0
 django-admin-tools==0.5.1
 django-colorful==0.1.3
@@ -31,13 +30,9 @@ django-js-reverse==0.2.1
 django-jsonfield==0.8.12
 django-nose==1.1
 django-picklefield==0.3.0
-django-qbe==0.2.0
 django-tastypie==0.9.12
 factory-boy==2.2.1
 fancycompleter==0.4
-gevent==0.13.7
-gevent-websocket==0.3.6
-gunicorn
 ipython[all]
 lxml
 mimeparse==0.1.3
@@ -46,11 +41,8 @@ nose-progressive==1.3
 pathtools==0.1.2
 psutil==1.2.1
 psycopg2==2.4.5
-pyExcelerator==0.6.4.1
 pyasn1==0.1.7
-# pycante==1.0
 pycrypto==2.6
-pygraphviz==1.2
 pyparsing==1.5.6
 pyquery==1.2.4
 pyrepl==0.8.4
@@ -63,8 +55,6 @@ pyzmq
 rbco.msexcel==0.0.1
 six
 termcolor==1.1.0
-twilio==3.6.4
--e git+https://github.com/D3f0/txZMQ.git@54391e5f6685913c8f2b8219f1ad784a187b89c3#egg=txZMQ-master
 # watchdog==0.6.0
 xlrd==0.9.2
 django-constance
