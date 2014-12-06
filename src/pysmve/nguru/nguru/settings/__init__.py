@@ -10,14 +10,6 @@ sys.path.append(join(_path, 'nguru/nguru'))
 
 # Basic settings
 from base import *
-#if DEBUG:
-#    sys.path.append(join(PROJECT_ROOT, '..', '..', '..'))
-from zmq import *
-from websockets import *
-# Django query by example
-from qbe import *
-# Redis
-from redis import *
 from testing import *
 
 try:
