@@ -63,6 +63,7 @@ app_urls = patterns('',
     (r'^object-tools/', include(object_tools.tools.urls)),
     # FIXME: i18n in JS
     # (r'^jsi18n/(?P<packages>\S+?)/$', 'django.views.i18n.javascript_catalog'),
+    (r'^adminactions/', include('adminactions.urls')),
 )
 
 

@@ -25,10 +25,14 @@ from django.forms.util import flatatt
 from apps.hmi.forms import UserForm, GroupForm
 from mailer.models import Message, MessageLog
 from constance.admin import Config, ConstanceAdmin
+from django.contrib.admin import site
+import adminactions.actions as actions
 
+# register all adminactions
 logger = logging.getLogger(__name__)
 
 site = admin.AdminSite('mara')
+actions.add_to_site(site)
 
 
 class COMasterTabularInline(admin.TabularInline):

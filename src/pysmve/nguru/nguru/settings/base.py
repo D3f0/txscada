@@ -120,6 +120,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'adminactions',
     'crispy_forms',
     'django.contrib.auth',
     'django.contrib.contenttypes',

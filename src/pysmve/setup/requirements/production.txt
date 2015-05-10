@@ -67,3 +67,4 @@ xlrd==0.9.2
 django-constance
 six
 django-timedeltafield
+django-adminactions
