@@ -28,6 +28,7 @@ def prepeare_hosts(config_dict, local_base):
         else:
             h.proxy_settings = ''
         h.local_base = os.path.abspath(local_base)
+        h.setdefault('proxy_command', '')
         hosts[name] = h
 
     env._hosts = hosts

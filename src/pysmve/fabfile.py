@@ -204,26 +204,42 @@ def get_release(release):
         run('git checkout {}'.format(release))
         run('git checout -- .')  # Reset repo
 
+
+@task
+def restart_webserver(host=''):
+    """Restart webserver"""
+    h = get_host_settings(host)
+    with settings(**h):
+        sudo('supervisorctl restart gunicorn_production')
+
+
 @task
 def update(host='', release=''):
-    """Updates deployment to upstream git version"""
+    """Updates deployment to upstream git version or tag.
+    Recommended use for release:
+
+    $ git tag <version>
+    $ fab update:<server_from_fabsettings_HOST>,<version>
+
+    """
 
     h = get_host_settings(host)
 
     available_tags = get_tags()
     if release:
         if release not in available_tags:
-            abort(("Release {} is not a valid tag (Latest tags were: {})."
-                  " Run fab tag first").format(
-                        colors.red(release, True),
-                        colors.green('; '.join(available_tags[-3:]))
-                    )
+            abort((
+                "Release {} is not a valid tag (Latest tags were: {})."
+                " Run fab tag first").format(
+                    colors.red(release, True),
+                    colors.green('; '.join(available_tags[-3:]))
+                )
             )
     else:
         if confirm('Create tag from current code?'):
             release = tag()
 
-    local('git push --tags')
+    local('git push origin --tags')
     local('git push origin master')
     # update local repo (needed?)
     local('git fetch')
@@ -236,8 +252,9 @@ def update(host='', release=''):
             migrate()
             update_static_media()
             update_permissions()
+            restart_webserver(host)
         # Gunicorn refuses to restart, so killing it will force supervisor to restart it
-        run('killall -KILL gunicorn')
+        # run('killall -KILL gunicorn')
 
 
 @task
@@ -306,6 +323,7 @@ def restore_database(path=SMVE_DEFAULT_BACKUP_PATH, dbsettings=None, no_confirm=
         local('pg_restore -d {database} {path}'.format(path=path, **dbsettings))
         print("Running migrations")
         local('python manage.py migrate')
+
 
 @task
 def copy_database(host='', no_confirm=False):
@@ -409,6 +427,7 @@ def enusre_pip_package(name, with_sudo=False):
             sudo('pip install '+name)
         else:
             run('pip install '+name)
+
 
 @task
 def install_server(host=''):
