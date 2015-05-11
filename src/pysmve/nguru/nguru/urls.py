@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf import settings
-from django.views.i18n import javascript_catalog
+# from django.views.i18n import javascript_catalog
 from apps.mara.admin import site
 from apps.api.resources import api
 import object_tools
@@ -15,13 +15,15 @@ js_info_dict = {
     'packages': ('apps.mara', 'apps.hmi', 'apps.api', ),
 }
 
-app_urls = patterns('',
+app_urls = patterns(
+    '',
     url(
         '^$', 'django.views.generic.simple.direct_to_template',
         {'template': 'base.html'},
         name='index'),
 
-    url('^login/$',
+    url(
+        '^login/$',
         'django.contrib.auth.views.login',
         {
             'template_name': 'hmi/login.html'
@@ -67,7 +69,8 @@ app_urls = patterns('',
 )
 
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     # Only for local purpouses
     (
         r'^$',
