@@ -1,32 +1,41 @@
 # encoding: utf-8
 # encoding: utf-8
-import re
-import logging
-from django.contrib import admin
-from django.conf import settings
-from django.core.urlresolvers import reverse
-from django.conf.urls import url, patterns
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from datetime import datetime
 from json import dumps
+import logging
+import re
+
+import adminactions.actions as actions
+from apps.hmi.forms import SVGElementForm, FormuluaInlineForm, SVGScreenAdminForm
+from apps.hmi.forms import UserForm, GroupForm
+from apps.hmi.models import (
+    SVGScreen,
+    Color,
+    SVGPropertyChangeSet,
+    Formula,
+    SVGElement,
+    UserProfile,
+)
+from constance.admin import Config, ConstanceAdmin
+from django.conf import settings
+from django.conf.urls import url, patterns
+from django.contrib import admin
+from django.contrib.admin import site
+from django.contrib.admin.models import LogEntry
+from django.contrib.auth.models import User, Group, Permission
+from django.core.urlresolvers import reverse
+from django.forms.util import flatatt
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext as _
+from mailer.models import Message, MessageLog
 from models import (
     Profile,
     COMaster, IED, SV, DI, AI, Event, Energy,
     EventText, ComEvent, Action, ComEventKind,
     EventDescription,
 )
-from apps.hmi.models import SVGScreen, Color, SVGPropertyChangeSet, Formula, SVGElement
-from apps.hmi.forms import SVGElementForm, FormuluaInlineForm, SVGScreenAdminForm
-from django.contrib.admin.models import LogEntry
-from django.contrib.auth.models import User, Group, Permission
-from django.utils.translation import ugettext as _
-from django.forms.util import flatatt
-from apps.hmi.forms import UserForm, GroupForm
-from mailer.models import Message, MessageLog
-from constance.admin import Config, ConstanceAdmin
-from django.contrib.admin import site
-import adminactions.actions as actions
+
 
 # register all adminactions
 logger = logging.getLogger(__name__)
@@ -214,8 +223,6 @@ class DIAdmin(admin.ModelAdmin):
                    pk=created_event.pk,
                    value=value)
         return HttpResponse(resp)
-
-
 
 
 site.register(DI, DIAdmin)
@@ -576,11 +583,19 @@ site.register(Action, ActionAdmin)
 site.register(Profile)
 
 
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    max_num = 1
+    can_delete = False
+
+
 class UserAdmin(admin.ModelAdmin):
     model = User
+    inlines = [UserProfileInline]
     form = UserForm
     list_display = ('username', 'get_name', 'is_active',
-                    'last_login', 'email', 'is_staff', 'get_groups', )
+                    'last_login', 'email', 'is_staff', 'get_groups',
+                    'get_cellphone')
 
     def get_name(self, obj):
         if not obj.last_name and not obj.first_name:
@@ -589,6 +604,7 @@ class UserAdmin(admin.ModelAdmin):
 
     get_name.short_description = _('name').title()
     get_name.admin_order_field = 'last_name'
+
 
     def get_groups(self, obj):
         groups = [u'%s' % g for g in obj.groups.all()]
@@ -600,6 +616,15 @@ class UserAdmin(admin.ModelAdmin):
 
     get_groups.short_description = _("profile")
     get_groups.allow_tags = True
+
+    def get_cellphone(self, obj):
+        try:
+            return obj.get_profile().cellphone or "--"
+        except Exception:
+            return "--"
+    get_cellphone.short_description = "Número Celular"
+    get_cellphone.allow_tags = True
+    get_cellphone.admin_order_field = 'userprofile__cellphone'
 
     ## Static overriding
     fieldsets = (
