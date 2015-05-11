@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'apps.mara',
     'apps.hmi',
     'apps.api',
+    'apps.notifications',
 
     # Query by example
     'django_qbe',

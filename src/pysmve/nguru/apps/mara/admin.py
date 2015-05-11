@@ -1,13 +1,17 @@
 # encoding: utf-8
-# encoding: utf-8
 from datetime import datetime
 from json import dumps
 import logging
 import re
 
 import adminactions.actions as actions
-from apps.hmi.forms import SVGElementForm, FormuluaInlineForm, SVGScreenAdminForm
-from apps.hmi.forms import UserForm, GroupForm
+from apps.hmi.forms import (
+    SVGElementForm,
+    FormuluaInlineForm,
+    SVGScreenAdminForm,
+    UserForm,
+    GroupForm,
+)
 from apps.hmi.models import (
     SVGScreen,
     Color,
@@ -16,25 +20,30 @@ from apps.hmi.models import (
     SVGElement,
     UserProfile,
 )
+
+from apps.notifications.models import NotificationAssociation, NotificationRequest
+
 from constance.admin import Config, ConstanceAdmin
 from django.conf import settings
 from django.conf.urls import url, patterns
 from django.contrib import admin
 from django.contrib.admin import site
 from django.contrib.admin.models import LogEntry
-from django.contrib.auth.models import User, Group, Permission
+from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.forms.util import flatatt
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from mailer.models import Message, MessageLog
-from models import (
+from apps.mara.models import (
     Profile,
     COMaster, IED, SV, DI, AI, Event, Energy,
     EventText, ComEvent, Action, ComEventKind,
     EventDescription,
 )
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.db import models
 
 
 # register all adminactions
@@ -682,6 +691,41 @@ site.register(Message, MessageAdmin)
 class MessageLogAdmin(admin.ModelAdmin):
     list_display = ('when_added', 'when_attempted', 'to_address', 'when_attempted', 'result', )
     list_filter = ('result', 'when_added')
+
+# =======================================================================================
+# Notifications
+# =======================================================================================
+
+
+class NotificationAssociationAdmin(admin.ModelAdmin):
+    model = NotificationAssociation
+
+    filter_horizontal = (
+        'targets',
+        'source_di',
+    )
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == "targets":
+            logger.info(db_field.name)
+            lookup = dict(userprofile__cellphone__isnull=False)
+            qs =User.objects.filter(**lookup)
+            logger.debug("Modifying User queryset to %d", qs.count())
+            kwargs["queryset"] = qs
+
+        return super(NotificationAssociationAdmin, self).formfield_for_dbfield(
+            db_field,
+            **kwargs
+        )
+
+
+site.register(NotificationAssociation, NotificationAssociationAdmin)
+
+
+class NotificationRequestAdmin(admin.ModelAdmin):
+    model = NotificationRequest
+
+site.register(NotificationRequest, NotificationRequestAdmin)
 
 site.register(MessageLog, MessageLogAdmin)
 site.register([Config], ConstanceAdmin)
