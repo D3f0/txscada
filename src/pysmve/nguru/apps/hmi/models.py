@@ -707,13 +707,17 @@ class UserProfile(models.Model):
 
     user = models.ForeignKey(User, )
 
-
     cellphone = models.CharField(max_length=20,
                                  verbose_name=_('Cell pone'),
-                                 help_text=_('Cell phone'))
+                                 help_text=_('Cell phone'),
+                                 blank=True, null=True)
 
     def __unicode__(self):
         return unicode(_(u"%s profile" % self.user.username))
+
+    class Meta:
+        verbose_name = _("User Profile")
+        verbose_name_plural = _("User Profiles")
 
 
 def create_user_profile(sender, instance, created, **kwargs):
