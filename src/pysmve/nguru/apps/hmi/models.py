@@ -19,6 +19,10 @@ from django.core import validators
 from utils import generate_tag_context, IF, OR, FILTRAR, FLOAT
 from traceback import format_exc  # To be removed once eval is removed
 from django.contrib.auth.models import User
+from django.core.validators import RegexValidator
+
+cell_number_validator = RegexValidator('^(\\+?)\d{3,3}-?\d{2,2}-?\d{2,2}-?\d{3,3}$')
+
 # Formulas
 # Internationalization
 
@@ -709,8 +713,9 @@ class UserProfile(models.Model):
 
     cellphone = models.CharField(max_length=20,
                                  verbose_name=_('Cell pone'),
-                                 help_text=_('Cell phone'),
-                                 blank=True, null=True)
+                                 help_text='Ej: 2804334455 para el celular 154334455',
+                                 blank=True, null=True,
+                                 validators=[cell_number_validator,])
 
     def __unicode__(self):
         return unicode(_(u"%s profile" % self.user.username))
