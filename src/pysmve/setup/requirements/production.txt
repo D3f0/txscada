@@ -64,7 +64,8 @@ termcolor==1.1.0
 -e git+https://github.com/D3f0/txZMQ.git@54391e5f6685913c8f2b8219f1ad784a187b89c3#egg=txZMQ-master
 unittest2==0.5.1
 xlrd==0.9.2
-django-constance
+# Django constance 1.0 and 1.0.1 use Django migrations and fail on migrate
+django-constance==0.6
 six
 django-timedeltafield
 django-adminactions
