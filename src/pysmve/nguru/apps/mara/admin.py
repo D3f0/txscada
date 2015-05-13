@@ -709,7 +709,7 @@ class NotificationAssociationAdmin(admin.ModelAdmin):
         if db_field.name == "targets":
             logger.info(db_field.name)
             lookup = dict(userprofile__cellphone__isnull=False)
-            qs =User.objects.filter(**lookup)
+            qs = User.objects.filter(**lookup)
             logger.debug("Modifying User queryset to %d", qs.count())
             kwargs["queryset"] = qs
 
