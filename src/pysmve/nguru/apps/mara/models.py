@@ -623,7 +623,12 @@ class DI(MV, ExcelImportMixin):
     tipo = models.IntegerField(default=0, choices=TIPO_CHOICES)
 
     def __unicode__(self):
-        return u"DI %2d:%2d (%s)" % (self.port, self.bit, (self.tag or "Sin Tag"))
+        return u"DI %2d:%2d (%s) - %s" % (
+            self.port,
+            self.bit,
+            (self.tag or u"Sin Tag"),
+            self.description or u'Sin Descirpción'
+        )
 
     class Meta:
         unique_together = ('offset', 'ied', 'port', 'bit')
@@ -1159,44 +1164,7 @@ def send_emails(created, instance, **kwargs):
                       from_email=settings.SERVER_EMAIL,
                       recipient_list=[user.email])
 
-TAG_SUBSTRINGS = ['81', '51', '52B',]
-
-def get_sms_recipents_for_event(event):
-    if not isinstance(event, Event):
-        return []
-    try:
-        di_tag = event.di.tag
-        if not di_tag:
-            return []
-        for subtag in TAG_SUBSTRINGS:
-            if subtag in di_tag:
-                return
-
-
-    except AttributeError:
-        return []
-
-
-def send_sms(created, instance, **kwargs):
-    from apps.notifications.models import NotificationRequest
-
-    if created:
-        if isinstance(instance, Event):
-            users = comma_sep_to_users(config.EVENT_0_EMAIL)
-        elif isinstance(instance, ComEvent):
-            users = comma_sep_to_users(config.EVENT_3_EMAIL)
-        else:
-            users = []
-
-        template = Template(config.TEMPLATE_SMS)
-
-        NotificationRequest.objects.create(
-            source=instance,
-            destination=None,
-            body='%s %s' % (instance, instance.timestamp)
-
-        )
-
 signals.post_save.connect(send_emails, sender=Event)
 signals.post_save.connect(send_emails, sender=ComEvent)
-signals.post_save.connect(send_sms, sender=Event)
+
+# SMS is created in apps.notifications.models
