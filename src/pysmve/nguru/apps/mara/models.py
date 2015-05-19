@@ -1140,12 +1140,22 @@ def send_emails(created, instance, **kwargs):
     from constance import context_processors
     extra_context = context_processors.config(request=None)
 
+    logger = logging.getLogger('commands')
+
     def comma_sep_to_users(comma_sep_str):
         users = [
             u for u in map(lambda s: s.strip(), comma_sep_str.split(',')) if u]
         return [user for user in User.objects.filter(username__in=users)]
 
     if created:
+        try:
+            tag = instance.di.tag
+            if not tag[0].lower() == 'E':
+                logger.info("Skipping email")
+                return 1
+        except (AttributeError, ValueError):
+            logger.exception()
+
         if isinstance(instance, Event):
             users = comma_sep_to_users(config.EVENT_0_EMAIL)
         elif isinstance(instance, ComEvent):
