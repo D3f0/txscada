@@ -1148,14 +1148,6 @@ def send_emails(created, instance, **kwargs):
         return [user for user in User.objects.filter(username__in=users)]
 
     if created:
-        try:
-            tag = instance.di.tag
-            if not tag[0].lower() == 'E':
-                logger.info("Skipping email")
-                return 1
-        except (AttributeError, ValueError):
-            logger.exception()
-
         if isinstance(instance, Event):
             users = comma_sep_to_users(config.EVENT_0_EMAIL)
         elif isinstance(instance, ComEvent):
