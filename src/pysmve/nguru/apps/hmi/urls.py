@@ -24,4 +24,7 @@ urlpatterns = patterns(
     url(r'^month_report/$',
         'month_energy_report',
         name='month_energy_report'),
+    url('^test_sentry/$',
+        'test_sentry',
+        name='test_sentry',),
 )

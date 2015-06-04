@@ -227,3 +227,8 @@ def month_energy_report(request, year=None, month=None):
     }
     return render_to_response('hmi/month_energy_report.html',
                               context_instance=RequestContext(request, data))
+
+
+@login_required
+def test_sentry(request):
+    return 1/0
