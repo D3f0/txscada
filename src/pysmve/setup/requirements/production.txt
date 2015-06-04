@@ -69,3 +69,4 @@ django-constance==0.6
 six
 django-timedeltafield
 django-adminactions
+raven

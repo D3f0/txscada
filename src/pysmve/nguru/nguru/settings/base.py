@@ -162,6 +162,9 @@ INSTALLED_APPS = (
     # Admin editable configration
     'constance',
     'constance.backends.database',
+
+    # Error reporting
+    'raven.contrib.django.raven_compat',
 )
 
 
@@ -236,6 +239,7 @@ LOGGING = {
 # ========================================================================================
 
 def show_toolbar(request):
+    return True
     from constance import config
     debug_users = set(map(lambda x: x.strip(), config.DEBUG_USERS.split(',')))
     if request.user.is_authenticated():
@@ -320,3 +324,17 @@ POLL_FRAME_HANDLERS = (
     'apps.mara.handlers.DjangoORMMaraFrameHandler',
     # 'apps.mara.handlers.AMQPPublishHandler',
 )
+
+import raven
+RAVEN_CONFIG = {
+    'dsn': 'http://bed6cd5d7ca5493dbfdf3cc28ee0ba20:b965369cd19a4e79bb32bf9309c3478e@200.41.229.37/smve/sentry/1',
+    'release': raven.fetch_git_sha(
+        os.path.dirname(
+            os.path.abspath(
+                os.path.join(
+                    PROJECT_ROOT, '..', '..'
+                )
+            )
+        )
+    ),
+}
