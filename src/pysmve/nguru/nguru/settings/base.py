@@ -324,17 +324,3 @@ POLL_FRAME_HANDLERS = (
     'apps.mara.handlers.DjangoORMMaraFrameHandler',
     # 'apps.mara.handlers.AMQPPublishHandler',
 )
-
-import raven
-RAVEN_CONFIG = {
-    'dsn': 'http://bed6cd5d7ca5493dbfdf3cc28ee0ba20:b965369cd19a4e79bb32bf9309c3478e@200.41.229.37/smve/sentry/1',
-    'release': raven.fetch_git_sha(
-        os.path.dirname(
-            os.path.abspath(
-                os.path.join(
-                    PROJECT_ROOT, '..', '..'
-                )
-            )
-        )
-    ),
-}
