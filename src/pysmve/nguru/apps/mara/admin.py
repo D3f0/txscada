@@ -5,14 +5,14 @@ import logging
 import re
 
 import adminactions.actions as actions
-from apps.hmi.forms import (
+from nguru.apps.hmi.forms import (
     SVGElementForm,
     FormuluaInlineForm,
     SVGScreenAdminForm,
     UserForm,
     GroupForm,
 )
-from apps.hmi.models import (
+from nguru.apps.hmi.models import (
     SVGScreen,
     Color,
     SVGPropertyChangeSet,
@@ -21,7 +21,11 @@ from apps.hmi.models import (
     UserProfile,
 )
 
-from apps.notifications.models import NotificationAssociation, NotificationRequest
+from nguru.apps.notifications.models import (
+    SMSNotificationAssociation,
+    EmailNotificationAssociation,
+    NotificationRequest,
+)
 
 from constance.admin import Config, ConstanceAdmin
 from django.conf import settings
@@ -36,7 +40,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from mailer.models import Message, MessageLog
-from apps.mara.models import (
+
+from nguru.apps.mara.models import (
     Profile,
     COMaster, IED, SV, DI, AI, Event, Energy,
     EventText, ComEvent, Action, ComEventKind,
@@ -242,13 +247,20 @@ class EventAdmin(admin.ModelAdmin):
                     'get_timestamp', 'get_timestamp_ack', 'operations',
                     'username',)
 
+    ordering = ('-timestamp', )
+    list_filter = ('timestamp', 'timestamp_ack', 'username')
+
     def get_timestamp(self, obj):
         if obj.timestamp:
             return obj.timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')
+    get_timestamp.short_description = "Estampa temporal"
+    get_timestamp.admin_order_field = 'timestamp'
 
     def get_timestamp_ack(self, obj):
         if obj.timestamp:
             return obj.timestamp_ack.strftime('%Y-%m-%d %H:%M:%S.%f')
+    get_timestamp_ack.short_description = u"Estampa temporal atención"
+    get_timestamp_ack.admin_order_field = 'timestamp_ack'
 
     def operations(self, obj):
         if not obj.timestamp_ack:
@@ -697,8 +709,8 @@ class MessageLogAdmin(admin.ModelAdmin):
 # =======================================================================================
 
 
-class NotificationAssociationAdmin(admin.ModelAdmin):
-    model = NotificationAssociation
+class SMSNotificationAssociationAdmin(admin.ModelAdmin):
+    model = SMSNotificationAssociation
 
     filter_horizontal = (
         'targets',
@@ -713,17 +725,86 @@ class NotificationAssociationAdmin(admin.ModelAdmin):
             logger.debug("Modifying User queryset to %d", qs.count())
             kwargs["queryset"] = qs
 
-        return super(NotificationAssociationAdmin, self).formfield_for_dbfield(
+        return super(SMSNotificationAssociationAdmin, self).formfield_for_dbfield(
+            db_field,
+            **kwargs
+        )
+
+site.register(SMSNotificationAssociation, SMSNotificationAssociationAdmin)
+
+class EmailNotificationAssociationAdmin(admin.ModelAdmin):
+    model = EmailNotificationAssociation
+
+    filter_horizontal = ('targets', 'source_di', )
+
+    list_display = ('name', 'get_targets', 'get_source_di', )
+
+
+    def get_targets(self, obj):
+        return ','.join(obj.targets.values_list('email', flat=True))
+
+    get_targets.short_description = "Direcciones"
+
+    def get_source_di(self, obj):
+        from itertools import chain
+        try:
+            dis = obj.source_di.all()
+            if dis.count() > 5:
+                dis = dis[:5]
+                tail = '...'
+            else:
+                tail = ''
+            return ','.join(chain(map(unicode, dis.values_list('tag', flat=True)), [tail, ]))
+        except Exception as e:
+            return unicode(e)
+
+    get_source_di.short_description = "DIs"
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == "targets":
+            logger.info(db_field.name)
+            lookup = dict(email__isnull=False)
+            qs = User.objects.filter(**lookup)
+            logger.debug("Modifying User queryset to %d", qs.count())
+            kwargs["queryset"] = qs
+
+        return super(EmailNotificationAssociationAdmin, self).formfield_for_dbfield(
             db_field,
             **kwargs
         )
 
 
-site.register(NotificationAssociation, NotificationAssociationAdmin)
+
+site.register(EmailNotificationAssociation, EmailNotificationAssociationAdmin)
 
 
 class NotificationRequestAdmin(admin.ModelAdmin):
     model = NotificationRequest
+    list_display = (
+        'pk',
+        'destination',
+        'body',
+        'status',
+        'creation_time',
+        'last_status_change_time',
+        'get_source_di',
+    )
+    list_filter = ('destination', 'status', 'creation_time', 'last_status_change_time',)
+
+    def get_source_di(self, notification):
+        try:
+            return '<a target="_target" href="{url}">{tag}</a>'.format(
+                tag=notification.source.di.tag,
+                url=reverse('admin:mara_di_change', args=(notification.source.di.pk,)),
+            )
+
+        except Exception, e:
+            return unicode(e)
+
+    get_source_di.short_description = "Tag origen"
+    get_source_di.allow_tags = True
+    # Not possible
+    # get_source_di.admin_order_field = 'source__di__tag'
 
 site.register(NotificationRequest, NotificationRequestAdmin)
 
