@@ -19,12 +19,6 @@ from utils import ExcelImportMixin, counted, import_class, get_setting
 from timedelta.fields import TimedeltaField
 import collections
 
-# Dettached email handler
-if "mailer" in settings.INSTALLED_APPS:
-    from mailer import send_mail
-else:
-    from django.core.mail import send_mail
-
 
 class Profile(models.Model):
     name = models.CharField(max_length=80)
@@ -1133,40 +1127,3 @@ class Action(models.Model, ExcelImportMixin):
         unique_together = ('bit',)
         verbose_name = _("Action")
         verbose_name_plural = _("Actions")
-
-
-def send_emails(created, instance, **kwargs):
-
-    from constance import context_processors
-    extra_context = context_processors.config(request=None)
-
-    logger = logging.getLogger('commands')
-
-    def comma_sep_to_users(comma_sep_str):
-        users = [
-            u for u in map(lambda s: s.strip(), comma_sep_str.split(',')) if u]
-        return [user for user in User.objects.filter(username__in=users)]
-
-    if created:
-        if isinstance(instance, Event):
-            users = comma_sep_to_users(config.EVENT_0_EMAIL)
-        elif isinstance(instance, ComEvent):
-            users = comma_sep_to_users(config.EVENT_3_EMAIL)
-        else:
-            users = []
-        template = Template(config.TEMPLATE_EMAIL)
-        for user in users:
-
-            context = Context({'event': instance, 'user': user})
-            context.update(extra_context)
-
-            message = template.render(context)
-            send_mail(subject='Alerta SMVE',
-                      message=message,
-                      from_email=settings.SERVER_EMAIL,
-                      recipient_list=[user.email])
-
-signals.post_save.connect(send_emails, sender=Event)
-signals.post_save.connect(send_emails, sender=ComEvent)
-
-# SMS is created in apps.notifications.models
