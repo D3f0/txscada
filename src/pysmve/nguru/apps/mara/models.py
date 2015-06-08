@@ -4,7 +4,6 @@ import logging
 import operator
 import re  # For text frame procsessing
 
-from constance import config
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
