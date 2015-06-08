@@ -8,104 +8,23 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'SMSNotificationAssociation'
-        db.create_table('notifications_smsnotificationassociation', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=100)),
-            ('template', self.gf('django.db.models.fields.TextField')(default='{{ event }} {{ timestamp }}')),
-        ))
-        db.send_create_signal('notifications', ['SMSNotificationAssociation'])
+        # Adding field 'EmailNotificationAssociation.cc'
+        db.add_column('notifications_emailnotificationassociation', 'cc',
+                      self.gf('apps.notifications.fields.CommaSeparatedEmailField')(null=True, blank=True),
+                      keep_default=False)
 
-        # Adding M2M table for field targets on 'SMSNotificationAssociation'
-        m2m_table_name = db.shorten_name('notifications_smsnotificationassociation_targets')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('smsnotificationassociation', models.ForeignKey(orm['notifications.smsnotificationassociation'], null=False)),
-            ('user', models.ForeignKey(orm['auth.user'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['smsnotificationassociation_id', 'user_id'])
-
-        # Adding M2M table for field source_di on 'SMSNotificationAssociation'
-        m2m_table_name = db.shorten_name('notifications_smsnotificationassociation_source_di')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('smsnotificationassociation', models.ForeignKey(orm['notifications.smsnotificationassociation'], null=False)),
-            ('di', models.ForeignKey(orm['mara.di'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['smsnotificationassociation_id', 'di_id'])
-
-        # Adding model 'EmailNotificationAssociation'
-        db.create_table('notifications_emailnotificationassociation', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(unique=True, max_length=100)),
-            ('template', self.gf('django.db.models.fields.TextField')(default='{{ event }} {{ timestamp }}')),
-        ))
-        db.send_create_signal('notifications', ['EmailNotificationAssociation'])
-
-        # Adding M2M table for field targets on 'EmailNotificationAssociation'
-        m2m_table_name = db.shorten_name('notifications_emailnotificationassociation_targets')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('emailnotificationassociation', models.ForeignKey(orm['notifications.emailnotificationassociation'], null=False)),
-            ('user', models.ForeignKey(orm['auth.user'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['emailnotificationassociation_id', 'user_id'])
-
-        # Adding M2M table for field source_di on 'EmailNotificationAssociation'
-        m2m_table_name = db.shorten_name('notifications_emailnotificationassociation_source_di')
-        db.create_table(m2m_table_name, (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('emailnotificationassociation', models.ForeignKey(orm['notifications.emailnotificationassociation'], null=False)),
-            ('di', models.ForeignKey(orm['mara.di'], null=False))
-        ))
-        db.create_unique(m2m_table_name, ['emailnotificationassociation_id', 'di_id'])
-
-        # Adding model 'NotificationRequest'
-        db.create_table('notifications_notificationrequest', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
-            ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('creation_time', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('last_status_change_time', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='c', max_length=2)),
-            ('destination', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('body', self.gf('django.db.models.fields.CharField')(max_length=200)),
-        ))
-        db.send_create_signal('notifications', ['NotificationRequest'])
-
-        # Adding model 'MessageLogEventRelation'
-        db.create_table('notifications_messagelogeventrelation', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('event', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['mara.Event'])),
-            ('message', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['mailer.Message'])),
-        ))
-        db.send_create_signal('notifications', ['MessageLogEventRelation'])
+        # Adding field 'EmailNotificationAssociation.bcc'
+        db.add_column('notifications_emailnotificationassociation', 'bcc',
+                      self.gf('apps.notifications.fields.CommaSeparatedEmailField')(null=True, blank=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting model 'SMSNotificationAssociation'
-        db.delete_table('notifications_smsnotificationassociation')
+        # Deleting field 'EmailNotificationAssociation.cc'
+        db.delete_column('notifications_emailnotificationassociation', 'cc')
 
-        # Removing M2M table for field targets on 'SMSNotificationAssociation'
-        db.delete_table(db.shorten_name('notifications_smsnotificationassociation_targets'))
-
-        # Removing M2M table for field source_di on 'SMSNotificationAssociation'
-        db.delete_table(db.shorten_name('notifications_smsnotificationassociation_source_di'))
-
-        # Deleting model 'EmailNotificationAssociation'
-        db.delete_table('notifications_emailnotificationassociation')
-
-        # Removing M2M table for field targets on 'EmailNotificationAssociation'
-        db.delete_table(db.shorten_name('notifications_emailnotificationassociation_targets'))
-
-        # Removing M2M table for field source_di on 'EmailNotificationAssociation'
-        db.delete_table(db.shorten_name('notifications_emailnotificationassociation_source_di'))
-
-        # Deleting model 'NotificationRequest'
-        db.delete_table('notifications_notificationrequest')
-
-        # Deleting model 'MessageLogEventRelation'
-        db.delete_table('notifications_messagelogeventrelation')
+        # Deleting field 'EmailNotificationAssociation.bcc'
+        db.delete_column('notifications_emailnotificationassociation', 'bcc')
 
 
     models = {
@@ -223,6 +142,8 @@ class Migration(SchemaMigration):
         },
         'notifications.emailnotificationassociation': {
             'Meta': {'object_name': 'EmailNotificationAssociation'},
+            'bcc': ('apps.notifications.fields.CommaSeparatedEmailField', [], {'null': 'True', 'blank': 'True'}),
+            'cc': ('apps.notifications.fields.CommaSeparatedEmailField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '100'}),
             'source_di': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'email_associations'", 'symmetrical': 'False', 'to': "orm['mara.DI']"}),
