@@ -11,6 +11,7 @@ from django.template import Context, Template
 from mailer.models import Message
 from .fields import  CommaSeparatedEmailField
 from django.conf import settings
+import constance
 
 
 if VERSION <= (1, 7):
@@ -34,19 +35,12 @@ class BaseNotificationAssociation(models.Model):
         help_text="Solo se muestran los usuarios que tengan un nro. de celular cargado."
     )
 
-    template = models.TextField(
-        verbose_name="Plantilla",
-        validators=[validate_template_format, ],
-        default="{{ event }} {{ timestamp }}",
-        help_text="Ver referencia en <a href='https://docs.djangoproject.com"
-        "/en/1.8/ref/templates/builtins/' target='_blank'>Documentación Django</a>"
-    )
-
     def render_template(self, event):
         template = Template(self.template)
         context = Context({
             'event': event,
             'association': self,
+            'config': constance.config
         }, use_l10n=True)
 
         text = template.render(context)
@@ -76,6 +70,14 @@ class SMSNotificationAssociation(BaseNotificationAssociation):
         DI,
         verbose_name=u"Fuentes de notificación",
         related_name='sms_associations'
+    )
+
+    template = models.TextField(
+        verbose_name="Plantilla",
+        validators=[validate_template_format, ],
+        default="{{ event }} {{ timestamp|date:config.EVENT_DATE_FORMAT }}",
+        help_text="Ver referencia en <a href='https://docs.djangoproject.com"
+        "/en/1.8/ref/templates/builtins/' target='_blank'>Documentación Django</a>"
     )
 
     class Meta:
@@ -131,6 +133,13 @@ class EmailNotificationAssociation(BaseNotificationAssociation):
         blank=True,
         null=True,
         verbose_name='Copia Carbónica Oculta'
+    )
+
+    template = models.TextField(
+        validators=[validate_template_format,],
+        default="Estimado\n"
+                "Se ha producido un evento {{ event }} en {{ event.di.ied.co_master.description }}"
+                " a las {{ event.timestamp|date:config.EVENT_DATE_FORMAT }}"
     )
 
     @classmethod
