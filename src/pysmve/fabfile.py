@@ -244,7 +244,7 @@ def update(host='', release=''):
     # update local repo (needed?)
     local('git fetch')
     with settings(**h):
-        procs = ('poll_mara')
+        procs = ('poll_mara', 'send_sms')
         with hold(procs):
             update_git(tag=release)
             install_pip_requirements()

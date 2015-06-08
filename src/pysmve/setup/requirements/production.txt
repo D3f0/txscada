@@ -1,4 +1,4 @@
-Django==1.4.15
+Django==1.4.20
 Pygments==1.6
 South==0.8.4
 Twisted
