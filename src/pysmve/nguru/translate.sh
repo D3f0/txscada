@@ -3,5 +3,9 @@
 
 # Search for all string
 python manage.py makemessages -a 
-xdg-open conf/locale/es/LC_MESSAGES/django.po
+if [ $(uname) = "Darwin" ]; then
+    open conf/locale/es/LC_MESSAGES/django.po
+else    
+    xdg-open conf/locale/es/LC_MESSAGES/django.po
+fi
 python manage.py compilemessages

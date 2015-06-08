@@ -2,7 +2,7 @@
 
 from django_fasttest import TestCase
 
-from nguru.apps.mara.models import Profile, Event, Energy, DI, Action, ComEventKind
+from apps.mara.models import Profile, Event, Energy, DI, Action, ComEventKind
 from pysmve.protocols.constructs import MaraFrame
 from construct import Container
 from copy import copy

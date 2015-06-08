@@ -5,14 +5,14 @@ import logging
 import re
 
 import adminactions.actions as actions
-from nguru.apps.hmi.forms import (
+from apps.hmi.forms import (
     SVGElementForm,
     FormuluaInlineForm,
     SVGScreenAdminForm,
     UserForm,
     GroupForm,
 )
-from nguru.apps.hmi.models import (
+from apps.hmi.models import (
     SVGScreen,
     Color,
     SVGPropertyChangeSet,
@@ -21,7 +21,7 @@ from nguru.apps.hmi.models import (
     UserProfile,
 )
 
-from nguru.apps.notifications.models import (
+from apps.notifications.models import (
     SMSNotificationAssociation,
     EmailNotificationAssociation,
     NotificationRequest,
@@ -41,7 +41,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from mailer.models import Message, MessageLog
 
-from nguru.apps.mara.models import (
+from apps.mara.models import (
     Profile,
     COMaster, IED, SV, DI, AI, Event, Energy,
     EventText, ComEvent, Action, ComEventKind,

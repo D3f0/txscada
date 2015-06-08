@@ -1,7 +1,7 @@
 from django.test import TestCase
 from datetime import datetime
 
-from nguru.apps.mara.tests.factories import (
+from apps.mara.tests.factories import (
     SMVETreeCOMaseterFactory,
     EventDescriptionFactory,
 

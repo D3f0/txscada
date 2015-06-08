@@ -10,7 +10,7 @@ from twisted.internet import defer, reactor
 from twisted.python.constants import Names, NamedConstant
 from twisted.internet import threads
 from twisted.protocols.policies import TimeoutMixin
-from nguru.apps.mara.utils import get_setting, import_class
+from apps.mara.utils import get_setting, import_class
 from protocols.constants import sequence, commands
 from construct import Container, FieldError
 import datetime
