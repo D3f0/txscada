@@ -203,6 +203,11 @@ LOGGING = {
             'formatter': 'simple',
             'stream': sys.stdout
         },
+        'notification_handler': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'stream': sys.stderr,
+        }
     },
     'loggers': {
         'django.request': {
@@ -229,6 +234,12 @@ LOGGING = {
             'handlers': ['console', ],
             'level': 'DEBUG',
             'propagate': True
+        },
+        'apps.notifications.utils': {
+            'handlers': ['notification_handler', ]
+        },
+        'apps.notifications.management.commands.send_sms_notifications': {
+            'handlers': ['notification_handler', ]
         }
     }
 }
