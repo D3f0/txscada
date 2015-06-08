@@ -1,8 +1,10 @@
 import factory
 from factory.django import DjangoModelFactory as ORMFactory
 from django.contrib.contenttypes.models import ContentType
-from apps.mara.models import (Profile, COMaster, IED, AI, DI, SV
+from apps.mara.models import (
+    Profile, COMaster, IED, AI, DI, SV,
                               #, Energy, Event, ComEvent)
+                              EventDescription
                               )
 
 import logging
@@ -142,6 +144,10 @@ class DIFactory(ORMFactory):
             ied = kwargs['ied']
             kwargs['offset'] = ied.di_set.count()
         return kwargs
+
+
+class EventDescriptionFactory(ORMFactory):
+    FACTORY_FOR = EventDescription
 
 
 class SVFactory(ORMFactory):

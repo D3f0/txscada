@@ -1,7 +1,6 @@
 # coding: utf-8
-
 from django.conf.urls import patterns, url
-#from .updates import register
+
 
 urlpatterns = patterns(
     'apps.mara.views',
@@ -12,6 +11,3 @@ urlpatterns = patterns(
         'mara_model_tree',
         name='mara_model_tree'),
 )
-
-
-#egister()
