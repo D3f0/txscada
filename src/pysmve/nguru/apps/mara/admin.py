@@ -763,7 +763,7 @@ class EmailNotificationAssociationAdmin(admin.ModelAdmin):
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name == "targets":
             logger.info(db_field.name)
-            lookup = dict(email__isnull=False)
+            lookup = dict(email__icontains='@')
             qs = User.objects.filter(**lookup)
             logger.debug("Modifying User queryset to %d", qs.count())
             kwargs["queryset"] = qs
