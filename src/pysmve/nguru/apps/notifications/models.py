@@ -214,9 +214,13 @@ class NotificationRequest(models.Model):
     content_type = models.ForeignKey(
         ContentType,
         editable=False,
+        blank=True,
+        null=True,
     )
     object_id = models.PositiveIntegerField(
         editable=False,
+        blank=True,
+        null=True,
     )
     source = generic.GenericForeignKey(
         'content_type', 'object_id',
