@@ -20,18 +20,22 @@ from apps.hmi.models import (
     SVGElement,
     UserProfile,
 )
-
+from apps.mara.models import (
+    Profile,
+    COMaster, IED, SV, DI, AI, Event, Energy,
+    EventText, ComEvent, Action, ComEventKind,
+    EventDescription,
+)
 from apps.notifications.models import (
     SMSNotificationAssociation,
     EmailNotificationAssociation,
     NotificationRequest,
 )
-
+from constance import config
 from constance.admin import Config, ConstanceAdmin
 from django.conf import settings
 from django.conf.urls import url, patterns
 from django.contrib import admin
-from django.contrib.admin import site
 from django.contrib.admin.models import LogEntry
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
@@ -40,15 +44,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from mailer.models import Message, MessageLog
-
-from apps.mara.models import (
-    Profile,
-    COMaster, IED, SV, DI, AI, Event, Energy,
-    EventText, ComEvent, Action, ComEventKind,
-    EventDescription,
-)
-from django.contrib.admin.widgets import FilteredSelectMultiple
-from django.db import models
 
 
 # register all adminactions
@@ -62,13 +57,14 @@ class COMasterTabularInline(admin.TabularInline):
     model = COMaster
     extra = 0
 
+
 class IEDInline(admin.TabularInline):
     model = IED
     fields = ('rs485_address', 'offset')
 
-#=========================================================================================
+# ========================================================================================
 # Administración de COMaster
-#=========================================================================================
+# ========================================================================================
 
 
 class COMasterAdmin(admin.ModelAdmin):
@@ -724,6 +720,14 @@ class SMSNotificationAssociationAdmin(admin.ModelAdmin):
             qs = User.objects.filter(**lookup)
             logger.debug("Modifying User queryset to %d", qs.count())
             kwargs["queryset"] = qs
+        elif db_field.name == "template":
+            kwargs['initial'] = config.TEMPLATE_SMS
+            help_text = (u'Puede modificar la plantilla por defecto '
+                         u'en <a href="{}" target="blank">ésta configuración'
+                         u'</a> en el campo TEMPLATE_SMS').format(
+                reverse('admin:constance_config_changelist')
+            )
+            kwargs['help_text'] = help_text
 
         return super(SMSNotificationAssociationAdmin, self).formfield_for_dbfield(
             db_field,
@@ -767,6 +771,13 @@ class EmailNotificationAssociationAdmin(admin.ModelAdmin):
             qs = User.objects.filter(**lookup)
             logger.debug("Modifying User queryset to %d", qs.count())
             kwargs["queryset"] = qs
+        elif db_field.name == "template":
+            kwargs['initial'] = config.TEMPLATE_EMAIL
+            kwargs['help_text'] = (u'Puede modificar la plantilla por defecto '
+                                   u'en <a href="{}" target="blank">ésta configuración'
+                                   u'</a> en el campo TEMPLATE_EMAIL').format(
+                                        reverse('admin:constance_config_changelist')
+                                   )
 
         return super(EmailNotificationAssociationAdmin, self).formfield_for_dbfield(
             db_field,
