@@ -112,7 +112,6 @@ class SMSNotificationAssociation(BaseNotificationAssociation):
             qs |= cls.create_for_event(event)
 
 
-
 class EmailNotificationAssociation(BaseNotificationAssociation):
 
     source_di = models.ManyToManyField(
