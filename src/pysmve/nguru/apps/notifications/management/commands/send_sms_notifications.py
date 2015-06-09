@@ -46,7 +46,6 @@ class Command(BaseCommand):
     def send_messages(self, modem):
         statuses = (
             NotificationRequest.STATUS_CREATED,
-            NotificationRequest.STATUS_ERROR,
         )
         qs = NotificationRequest.objects.filter(status__in=statuses)
         to_send = qs.count()
