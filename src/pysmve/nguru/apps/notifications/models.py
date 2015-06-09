@@ -149,11 +149,11 @@ class EmailNotificationAssociation(BaseNotificationAssociation):
         between models
         """
         for email_assoc in event.di.email_associations.all():
-            message = email_assoc.render_template(event=event)
+            message_body = email_assoc.render_template(event=event)
             for user in email_assoc.targets.all():
                 message = EmailNotificationAssociation.send_mail(
                     subject=email_assoc.subject,
-                    message=message,
+                    message=message_body,
                     from_email=settings.SERVER_EMAIL,
                     recipient_list=[user.email]
                 )
