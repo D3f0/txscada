@@ -59,8 +59,14 @@ class Command(BaseCommand):
                 notification.status = NotificationRequest.STATUS_PROCESSING
                 notification.last_status_change_time = datetime.now()
                 notification.save()
+                try:
+                    result = modem.send_sms(notification.destination, notification.body)
+                except Exception as e:
+                    notification.status = NotificationRequest.STATUS_ERROR
+                    notification.last_status_change_time = datetime.now()
+                    notification.save()
+                    raise e
 
-                result = modem.send_sms(notification.destination, notification.body)
                 if result:
                     notification.status = NotificationRequest.STATUS_SUCCESS
                 else:
