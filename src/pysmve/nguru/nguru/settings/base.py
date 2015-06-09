@@ -310,14 +310,6 @@ Se ha producido un evento {{ event }} a las
 '''
 
 CONSTANCE_CONFIG = {
-    'EVENT_0_EMAIL': ('admin', _('Users to be notified of a Event type 0 by email. '
-                                 'Comma separated.')),
-    'EVENT_3_EMAIL': ('admin', _('Users to be notified of a Event type 3 by email. '
-                                 'Comma separated.')),
-    'EVENT_0_SMS': ('admin', _('Users to be notified of a Event type 0 by SMS. '
-                               'Comma separated')),
-    'EVENT_3_SMS': ('admin', _('Users to be notified of a Event type 3 by SMS. '
-                               'Comma separated')),
     'DEBUG_USERS': ('nahuel', _('Users that have debug toolbar enabled')),
     'TEMPLATE_EMAIL': (email_template, _('Email template.')),
     'TEMPLATE_SMS': (sms_template, _('SMS template.')),
