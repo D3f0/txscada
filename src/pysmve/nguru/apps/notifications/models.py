@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from django import VERSION
 from django.db import models
 from apps.mara.models import DI, Event
@@ -12,6 +13,7 @@ from mailer.models import Message
 from .fields import  CommaSeparatedEmailField
 from django.conf import settings
 import constance
+from django.core.urlresolvers import reverse
 
 
 if VERSION <= (1, 7):
@@ -49,7 +51,6 @@ class BaseNotificationAssociation(models.Model):
     def __unicode__(self):
         return self.name
 
-
     class Meta:
         abstract = True
 
@@ -59,6 +60,9 @@ class BaseNotificationAssociation(models.Model):
 
     def create_for_event(self, event):
         raise NotImplementedError("Not implemented for base class")
+
+#constance_config_url = reverse('admin:constance_config_changelist')
+#help_text = ''
 
 
 class SMSNotificationAssociation(BaseNotificationAssociation):
@@ -71,13 +75,11 @@ class SMSNotificationAssociation(BaseNotificationAssociation):
         verbose_name=u"Fuentes de notificación",
         related_name='sms_associations'
     )
-
     template = models.TextField(
         verbose_name="Plantilla",
         validators=[validate_template_format, ],
-        default="{{ event }} {{ timestamp|date:config.EVENT_DATE_FORMAT }}",
-        help_text="Ver referencia en <a href='https://docs.djangoproject.com"
-        "/en/1.8/ref/templates/builtins/' target='_blank'>Documentación Django</a>"
+        #default=constance.config.TEMPLATE_SMS,
+        #help_text=help_text,
     )
 
     class Meta:
@@ -110,6 +112,7 @@ class SMSNotificationAssociation(BaseNotificationAssociation):
             qs |= cls.create_for_event(event)
 
 
+
 class EmailNotificationAssociation(BaseNotificationAssociation):
 
     source_di = models.ManyToManyField(
@@ -136,10 +139,8 @@ class EmailNotificationAssociation(BaseNotificationAssociation):
     )
 
     template = models.TextField(
-        validators=[validate_template_format,],
-        default="Estimado\n"
-                "Se ha producido un evento {{ event }} en {{ event.di.ied.co_master.description }}"
-                " a las {{ event.timestamp|date:config.EVENT_DATE_FORMAT }}"
+        validators=[validate_template_format, ],
+        default=constance.config.TEMPLATE_EMAIL
     )
 
     @classmethod
@@ -279,6 +280,5 @@ def create_request(instance, created, **kwargs):
     a management command will use to send notifications by SMS.
     """
     if created:
-        print "FOOO", instance
         SMSNotificationAssociation.create_for_event(event=instance)
         EmailNotificationAssociation.create_for_event(event=instance)
