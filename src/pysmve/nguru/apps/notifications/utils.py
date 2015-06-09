@@ -34,9 +34,9 @@ class RealModem(Modem):
     def send_sms(self, to, message):
         self.modem.write('AT+CMGF=1\r')
         resp = self.modem.read(100)  # Wait
-        self.modem.write('AT+CMGS="%s"\r' % to)
+        self.modem.write(map(ord, 'AT+CMGS="%s"\r' % to))
         resp = self.modem.read(100)  # Wait
-        self.modem.write(message.encode('ascii', 'replace')+chr(26))
+        self.modem.write(map(ord, message.encode('ascii', 'replace')+chr(26)))
         resp = self.modem.read(100)
         return 'OK' in resp.strip()
 
