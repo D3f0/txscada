@@ -6,7 +6,6 @@ nohup*
 *.db
 *.log
 *.part
-_*
 src/pysmve/nguru/nguru/settings/local_settings.py
 src/pysmve/salida.pdf
 src/pysmve/salida.py
