@@ -1,6 +1,11 @@
 language: python
 python:
     - "2.7"
+services: postgresql
+
+before_script:
+      - psql -c "CREATE DATABASE travisdb;" -U postgres
+
 install:
     - pip install -r src/pysmve/setup/requirements/production.txt
-script: src/pysmve/nguru/manage.py test    
+script: src/pysmve/nguru/manage.py test
