@@ -4,6 +4,8 @@ import sys
 from django.core.management.base import NoArgsCommand, CommandError
 from optparse import make_option
 from apps.mara.models import Profile
+from logging import getLogger, LoggerAdapter
+
 
 class Command(NoArgsCommand):
 
@@ -38,9 +40,9 @@ class Command(NoArgsCommand):
         else:
             port = options.get('port')
             from twisted.internet import reactor
-            from protocols import mara
-            print "Iniciando el emulador de CoMaster en el puerto %s" % port
-            reactor.listenTCP(port, mara.server.MaraServerFactory())
+            from protocols.mara import server
+            server_factory = server.MaraServerFactory(logger=getLogger('commands'))
+            reactor.listenTCP(port, server_factory)
             reactor.run()
 
     def runQtGui(self):

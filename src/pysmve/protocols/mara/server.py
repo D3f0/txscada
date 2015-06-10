@@ -106,8 +106,10 @@ class MaraServer(protocol.Protocol):
             canevs=1,
         )
 
-        #if random.choice((True, False)):
-        #    output.dest = random.randrange(1, 254)
+        if random.choice((True, False)):
+            new_seq = random.randrange(50, 150)
+            self.logger.info("Mangling seuqnce to: %d", new_seq)
+            output.sequence = new_seq
         return output
 
     def sendFixedRespose(self):

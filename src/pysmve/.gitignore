@@ -4,3 +4,6 @@ redis_*.py
 *.xml
 # Notebooks
 *.ipynb 
+# On D3f0 dev machine this is a symlink but it should be installed though pypi
+telegraphy
+nguru/static_files
