@@ -7,6 +7,3 @@
 [submodule "src/pysmve/nguru/static/jquery-migrate"]
 	path = src/pysmve/nguru/static/jquery-migrate
 	url = https://github.com/jquery/jquery-migrate.git
-[submodule "src/pysmve/nguru/static/jquery.svg"]
-	path = src/pysmve/nguru/static/jquery.svg
-	url = https://github.com/doedje/jquery.svg.git
