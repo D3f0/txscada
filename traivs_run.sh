@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# Break on first error
 set -e
 
 cd ./src/pysmve/nguru/
