@@ -9,7 +9,7 @@ before_script:
 cache:
   directories:
     - .pip_download_cache
-    - "$HOME/virtualenv/python2.7.9"
+    - "$HOME/virtualenv"
 
 install:
     - pip install -r src/pysmve/setup/requirements/production.txt
