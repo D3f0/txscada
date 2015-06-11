@@ -8,4 +8,4 @@ before_script:
 
 install:
     - pip install -r src/pysmve/setup/requirements/production.txt
-script: python src/pysmve/nguru/manage.py test
+script: travis_run.sh
