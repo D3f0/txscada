@@ -139,7 +139,7 @@ class EmailNotificationAssociation(BaseNotificationAssociation):
 
     template = models.TextField(
         validators=[validate_template_format, ],
-        default=constance.config.TEMPLATE_EMAIL
+        # Template determined in admin
     )
 
     @classmethod
