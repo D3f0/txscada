@@ -71,3 +71,4 @@ django-timedeltafield
 django-adminactions
 raven
 django-object-tools==1.0.1
+django-mailer==0.1.0
