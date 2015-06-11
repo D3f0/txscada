@@ -8,4 +8,4 @@ before_script:
 
 install:
     - pip install -r src/pysmve/setup/requirements/production.txt
-script: travis_run.sh
+script: ./travis_run.sh
