@@ -70,3 +70,4 @@ six
 django-timedeltafield
 django-adminactions
 raven
+django-object-tools==1.0.1
