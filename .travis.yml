@@ -6,6 +6,11 @@ services: postgresql
 before_script:
       - psql -c "CREATE DATABASE travisdb;" -U postgres
 
+cache:
+  directories:
+    - .pip_download_cache
+    - "$HOME/virtualenv/python2.7.9"
+
 install:
     - pip install -r src/pysmve/setup/requirements/production.txt
 script: ./travis_run.sh
