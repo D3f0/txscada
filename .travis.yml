@@ -10,6 +10,7 @@ cache:
   directories:
     - .pip_download_cache
     - "$HOME/virtualenv"
+    - "$HOME/.cache"
 
 before_install:
     - pip install -U pip setuptools
