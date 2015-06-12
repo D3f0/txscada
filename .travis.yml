@@ -13,4 +13,8 @@ cache:
 
 install:
     - pip install -r src/pysmve/setup/requirements/production.txt
+
 script: ./travis_run.sh
+
+after_success:
+    - coveralls

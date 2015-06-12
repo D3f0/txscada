@@ -1,5 +1,7 @@
 # Requirements for Testing and QA
 pytest-django
+pytest-cov
+coveralls
 django-webtest
 factory-boy==2.2.1
 mock
