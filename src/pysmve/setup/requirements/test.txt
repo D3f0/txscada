@@ -1,0 +1,6 @@
+# Requirements for Testing and QA
+pytest-django
+django-webtest
+factory-boy==2.2.1
+mock
+-r develop.txt
