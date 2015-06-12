@@ -7,15 +7,10 @@ Pympler==0.3.1
 Sphinx
 
 Werkzeug
-argh
 bugjar==0.1.0
-bunch==1.0.1
-colorama==0.2.5
--e git+https://github.com/construct/construct.git@63b966c871e608350f0d2733076e25f46b68412f#egg=construct-master
+
 # Notebook
 ipython[all]
-
-pathtools==0.1.2
 
 -e git+https://github.com/ghtdak/qtreactor.git@82ec1802f04fbe54527884a55dafc859cd997c49#egg=qt4reactor-master
 
