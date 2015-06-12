@@ -4,6 +4,8 @@ from django.core.urlresolvers import reverse
 from tastypie.test import ResourceTestCase, TestApiClient
 from apps.mara.tests.factories import SMVETreeCOMaseterFactory, UserFactory
 from datetime import datetime
+from django_webtest import WebTest
+import unittest
 
 
 def show_response(response):
@@ -15,24 +17,17 @@ def show_response(response):
     subprocess.call(['firefox', temp_file_name])
     os.unlink(temp_file_name)
 
-# TODO: Move into utils
-def logged_client(testcase,
-                  permissions=None, groups=None,
-                  is_superuser=False):
-    '''
-    Creates a user, assigns it as user property of testcase
-    and logs him into a Django test client which is returned
-    '''
-    user = 'user%d' % User.objects.count() + 1
-    testcase.user = UserFactory(user=user, password=user)
-    client = Client()
 
-    return client
-
-
-class UnauthenitcatedUserHaveNoAccesToApiTest(TestCase):
+class UnauthenitcatedUserHaveNoAccesToApiTest(WebTest, unittest.TestCase):
     def setUp(self):
-        pass
+        self.url = reverse('api_v1_top_level', kwargs={'api_name': 'v1'})
+
+    def test_endpoints_are_protected(self):
+        response = self.app.get(self.url)
+        for resource, data in response.json.iteritems():
+            url = data['list_endpoint']
+            with self.assertRaises(Exception):
+                response = self.app.get(url)
 
 
 class AttendEventsTest(ResourceTestCase):

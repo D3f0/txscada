@@ -6,7 +6,7 @@ from mock import MagicMock, patch, Mock
 from protocols.constructs import MaraFrame
 from twisted.trial import unittest
 from .mocks import COMasterMock
-from ..protocol import MaraClientProtocol, MaraPorotocolFactory
+from protocols.mara.client import MaraClientProtocol, MaraPorotocolFactory
 
 
 class BaseTestProtocol(unittest.TestCase):

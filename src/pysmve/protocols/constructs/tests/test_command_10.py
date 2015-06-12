@@ -3,7 +3,7 @@
 from unittest import TestCase
 from ..structs import MaraFrame, TCD, any2buffer, Payload_10
 from construct import Container
-from ...constants import SOF
+from protocols.constants import frame
 from copy import copy
 from datetime import datetime
 
@@ -21,7 +21,7 @@ class ConstructTestCase(TestCase):
 
         buffer = 'FE    08    01    40    80    10    80    A7'
         contents = MaraFrame.parse(any2buffer(buffer))
-        self.assertEqual(contents.sof, SOF)
+        self.assertEqual(contents.sof, frame.SOF.value)
         self.assertEqual(contents.source, 64)
         self.assertEqual(contents.dest, 1)
         self.assertEqual(contents.command, 0x10)
