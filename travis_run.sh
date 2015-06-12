@@ -8,4 +8,5 @@ set -e
 cd ./src/pysmve/nguru/
 python manage.py syncdb --migrate --noinput
 python manage.py migrate --noinput
+python manage.py collectstatic --noinput
 py.test

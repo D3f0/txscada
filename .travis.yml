@@ -11,8 +11,11 @@ cache:
     - .pip_download_cache
     - "$HOME/virtualenv"
 
+before_install:
+    - pip install -U pip setuptools
+
 install:
-    - pip install -r src/pysmve/setup/requirements/production.txt
+    - pip install -r src/pysmve/setup/requirements/test.txt
 
 script: ./travis_run.sh
 
