@@ -451,3 +451,8 @@ def install_server(host=''):
 @task
 def migrate_database(host_origin='coop', host_destination='server_propio'):
     pass
+
+
+@task
+def install_reqs(name='develop'):
+    local('pip install -r setup/requirements/{name}.txt'.format(**locals()))
