@@ -17,9 +17,7 @@ from datetime import datetime
 
 # API Entry Point
 api = Api(api_name='v1')
-authentication = MultiAuthentication(
-                                     #BasicAuthentication(),
-                                     SessionAuthentication())
+authentication = MultiAuthentication(SessionAuthentication())
 authorization = DjangoAuthorization()
 
 
