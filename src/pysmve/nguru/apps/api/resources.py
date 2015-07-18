@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-
-from django.contrib.auth.models import User
 from apps.hmi.models import Formula, SVGElement, SVGScreen
 from apps.mara.models import AI, COMaster, DI, Energy, Event, IED, Profile, SV
 from tastypie import fields
 from tastypie.api import Api
-from tastypie.authorization import (DjangoAuthorization, Authorization, )
-from tastypie.authentication import (BasicAuthentication, ApiKeyAuthentication,
-                                     SessionAuthentication, MultiAuthentication,
+from tastypie.authorization import (DjangoAuthorization, )
+from tastypie.authentication import (SessionAuthentication, MultiAuthentication,
                                      )
 
 
@@ -43,6 +40,8 @@ class COMasterResource(ModelResource):
         queryset = COMaster.objects.all()
         allowed_methods = ['get', ]
         ordering = COMaster._meta.get_all_field_names()
+        authorization = authorization
+        authentication = authentication
 
 api.register(COMasterResource())
 
@@ -55,6 +54,9 @@ class IEDResource(ModelResource):
         queryset = IED.objects.all()
         allowed_methods = ['get', ]
         ordering = IED._meta.get_all_field_names()
+        authorization = authorization
+        authentication = authentication
+
 api.register(IEDResource())
 
 
@@ -66,6 +68,9 @@ class SVResource(ModelResource):
         queryset = SV.objects.all()
         allowed_methods = ['get', ]
         ordering = SV._meta.get_all_field_names()
+        authorization = authorization
+        authentication = authentication
+
 api.register(SVResource())
 
 
@@ -80,6 +85,9 @@ class DIResource(ModelResource):
         filtering = {
             'tag': ALL,
         }
+        authorization = authorization
+        authentication = authentication
+
 api.register(DIResource())
 
 
@@ -90,7 +98,9 @@ class EventResource(ModelResource):
 
     class Meta:
         resource_name = 'event'
-        queryset = Event.objects.filter(show=True).select_related('di__ied__co_master__profile')
+        queryset = Event.objects.filter(show=True).select_related(
+            'di__ied__co_master__profile'
+        )
         allowed_methods = ['get', 'put']
         filtering = {
             'timestamp': ALL,
@@ -125,7 +135,8 @@ class EventResource(ModelResource):
             try:
                 bundle.obj = self.obj_get(bundle=bundle, **lookup_kwargs)
             except Event.ObjectDoesNotExist:
-                raise NotFound("A model instance matching the provided arguments could not be found.")
+                raise NotFound("A model instance matching the provided "
+                               "arguments could not be found.")
 
         self.authorized_update_detail(self.get_object_list(bundle.request), bundle)
 
@@ -174,15 +185,10 @@ class AIResource(ModelResource):
         filtering = {
             'id': ALL,
         }
+        authorization = authorization
+        authentication = authentication
+
 api.register(AIResource())
-
-
-# class EnergyPointResource(ModelResource):
-#     """REST resource for EnergyPoint"""
-#     class Meta:
-#         resource_name = 'energypoint'
-#         queryset = EnergyPoint.objects.all()
-#         allowed_methods = ['get', ]
 
 
 class EnergyResource(ModelResource):
@@ -201,6 +207,8 @@ class EnergyResource(ModelResource):
             'ai': ALL_WITH_RELATIONS,
             'code': ALL,
         }
+        authorization = authorization
+        authentication = authentication
 
     def alter_list_data_to_serialize(self, request, data):
         '''Add unit for plotting energy'''
@@ -210,8 +218,6 @@ class EnergyResource(ModelResource):
             channel = ai.channel
             data['meta'].update(unit=('MW' if channel == 0 else 'MVAR'),
                                 escala_e=ai.escala_e)
-
-
         return data
 
     def dehydrate(self, bundle):
@@ -242,6 +248,9 @@ class SVGScreenResource(ModelResource):
             'profile': ALL,
         }
         ordering = SVGElement._meta.get_all_field_names()
+        authorization = authorization
+        authentication = authentication
+
 api.register(SVGScreenResource())
 
 
@@ -252,6 +261,8 @@ class FormulaResource(ModelResource):
         queryset = Formula.objects.select_related('svg_element')
         allowed_methods = ['get', ]
         ordering = Formula._meta.get_all_field_names()
+        authorization = authorization
+        authentication = authentication
 
     def dehydrate(self, bundle):
         bundle.data['tag'] = bundle.obj.target.tag
@@ -278,11 +289,7 @@ class SVGElementResource(ModelResource):
         ordering = SVGElement._meta.get_all_field_names()
         order_by = 'last_update'
         authorization = authorization
-
-    def _obj_update(self, *args, **kwargs):
-
-        import ipdb; ipdb.set_trace()
-        return super(SVGElementResource, self).obj_update(*args, **kwargs)
+        authentication = authentication
 
     def dehydrate(self, bundle):
         bundle.data['style'] = bundle.obj.style
@@ -304,7 +311,6 @@ class SVGElementDetailResource(ModelResource):
     formulas = fields.ToManyField(FormulaResource, 'formula_set', full=True)
 
     def dehydrate(self, bundle):
-        #bundle.data['formulas'] = bundle.obj.formulas
         bundle.data['linked_text_change'] = bundle.obj.linked_text_change_dict
         return bundle
 
@@ -321,9 +327,7 @@ class SVGElementDetailResource(ModelResource):
         }
         ordering = SVGElement._meta.get_all_field_names()
         order_by = 'last_update'
+        authorization = authorization
+        authentication = authentication
 
 api.register(SVGElementDetailResource())
-
-
-
-# api.register(EnergyPointResource())
