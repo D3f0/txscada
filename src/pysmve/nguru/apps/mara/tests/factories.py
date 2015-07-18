@@ -2,10 +2,15 @@ import factory
 from factory.django import DjangoModelFactory as ORMFactory
 from django.contrib.contenttypes.models import ContentType
 from apps.mara.models import (
-    Profile, COMaster, IED, AI, DI, SV,
-                              #, Energy, Event, ComEvent)
-                              EventDescription
-                              )
+    Profile,
+    COMaster,
+    IED,
+    AI,
+    DI,
+    SV,
+    EventDescription
+)
+from apps.hmi.models import (SVGElement, SVGScreen, Formula, SVGPropertyChangeSet, Color)
 
 import logging
 logging.getLogger("factory").setLevel(logging.WARN)
@@ -25,9 +30,6 @@ class UserFactory(ORMFactory):
         return user
 
 
-from apps.hmi.models import (SVGElement, SVGScreen, Formula, SVGPropertyChangeSet, Color)
-
-
 class ContentTypeSequencer(object):
     def __init__(self):
         self.sequences = {}
@@ -35,7 +37,7 @@ class ContentTypeSequencer(object):
     def __call__(self, instance, start=0):
         ct_pk = ContentType.objects.get_for_model(instance).pk
         key = (ct_pk, instance.pk)
-        if not key in self.sequences:
+        if key not in self.sequences:
             self.sequences[key] = start
         else:
             self.sequences[key] += 1
@@ -55,7 +57,6 @@ class COMasterFactory(ORMFactory):
     ip_address = factory.Sequence(lambda n: '192.168.1.%d' % (n + 1))
     enabled = True
     description = factory.LazyAttribute(lambda s: 'Description for %s' % s.ip_address)
-
 
 
 def SMVETreeCOMaseterFactory(can_ieds=3, can_dis=48, *args, **kwargs):
@@ -86,7 +87,6 @@ def SMVETreeCOMaseterFactory(can_ieds=3, can_dis=48, *args, **kwargs):
             AIFactory(ied=ied, channel=0)
             AIFactory(ied=ied, channel=1)
 
-
         SVFactory(ied=ied, param='ComErrorL', description='MOTIV -CoMaster')
         SVFactory(ied=ied, param='ComErrorH', description='No Implementado')
         SVFactory(ied=ied, param='Sesgo', description='L Sesgo (Entero)')
@@ -96,16 +96,17 @@ def SMVETreeCOMaseterFactory(can_ieds=3, can_dis=48, *args, **kwargs):
 
     return co_master
 
+
 class IEDFactory(ORMFactory):
     FACTORY_FOR = IED
     co_master = factory.SubFactory(COMasterFactory)
     rs485_address = factory.Sequence(lambda n: n+1)
-    #offset = factory.LazyAttribute(lambda s: insance_sequence(s.co_master))
+    # offset = factory.LazyAttribute(lambda s: insance_sequence(s.co_master))
 
     @classmethod
     def _adjust_kwargs(cls, **kwargs):
         """Ensure sequential offset for every IED related to a COMaster"""
-        if not 'offset' in kwargs and 'co_master' in kwargs:
+        if 'offset' not in kwargs and 'co_master' in kwargs:
             co_master = kwargs['co_master']
             kwargs['offset'] = co_master.ieds.count()
         return kwargs
@@ -128,7 +129,7 @@ class AIFactory(ORMFactory):
     @classmethod
     def _adjust_kwargs(cls, **kwargs):
         """Ensure sequential offset for every AI related to a IED"""
-        if not 'offset' in kwargs and 'ied' in kwargs:
+        if 'offset' not in kwargs and 'ied' in kwargs:
             ied = kwargs['ied']
             kwargs['offset'] = ied.ai_set.count()
         return kwargs
@@ -140,7 +141,7 @@ class DIFactory(ORMFactory):
     @classmethod
     def _adjust_kwargs(cls, **kwargs):
         """Ensure sequential offset for every DI related to a IED"""
-        if not 'offset' in kwargs and 'ied' in kwargs:
+        if 'offset' not in kwargs and 'ied' in kwargs:
             ied = kwargs['ied']
             kwargs['offset'] = ied.di_set.count()
         return kwargs
@@ -156,7 +157,7 @@ class SVFactory(ORMFactory):
     @classmethod
     def _adjust_kwargs(cls, **kwargs):
         """Ensure sequential offset for every SV related to a IED"""
-        if not 'offset' in kwargs and 'ied' in kwargs:
+        if 'offset' not in kwargs and 'ied' in kwargs:
             ied = kwargs['ied']
             kwargs['offset'] = ied.sv_set.count()
         return kwargs
@@ -176,6 +177,7 @@ class SVGPropertyChangeSet(ORMFactory):
 
 class FormulaFactory(ORMFactory):
     FACTORY_FOR = Formula
+
 
 class ColorFactory(ORMFactory):
     FACTORY_FOR = Color
