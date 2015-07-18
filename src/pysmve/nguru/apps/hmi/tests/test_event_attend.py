@@ -1,5 +1,3 @@
-from django.test import Client
-
 from django.core.urlresolvers import reverse
 from tastypie.test import ResourceTestCase, TestApiClient
 from apps.mara.tests.factories import SMVETreeCOMaseterFactory, UserFactory
@@ -8,22 +6,13 @@ from django_webtest import WebTest
 import unittest
 
 
-def show_response(response):
-    '''Shows response on web browser'''
-    import subprocess, tempfile, os
-    temp_file_name = tempfile.mktemp(suffix='html')
-    with open(temp_file_name, 'w') as fp:
-        fp.write(response.content)
-    subprocess.call(['firefox', temp_file_name])
-    os.unlink(temp_file_name)
-
-
 class UnauthenitcatedUserHaveNoAccesToApiTest(WebTest, unittest.TestCase):
     def setUp(self):
         self.url = reverse('api_v1_top_level', kwargs={'api_name': 'v1'})
 
     def test_endpoints_are_protected(self):
         response = self.app.get(self.url)
+        # Every endpoint of the exposed API should be protected
         for resource, data in response.json.iteritems():
             url = data['list_endpoint']
             with self.assertRaises(Exception):
@@ -61,16 +50,3 @@ class AttendEventsTest(ResourceTestCase):
         result = self.api_client.client.login(username=self.username,
                                               password=self.password)
         return result
-
-    # def test_get_list_unauthorzied(self):
-    #     '''Access without login should not be allowed'''
-    #     self.assertHttpUnauthorized(self.api_client.get(self.list_url,
-    #                                 format='json'))
-
-    def test_get_detail_json(self):
-
-        resp = self.api_client.get(self.list_url,
-                                   format='json')
-        self.assertValidJSONResponse(resp)
-
-
