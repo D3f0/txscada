@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import datetime
 from twisted.internet.protocol import ClientFactory
 from twisted.test import proto_helpers
@@ -66,4 +67,3 @@ class TestPrtocolFactory(unittest.TestCase):
     def test_protocol_holds_reference_to_comaster(self):
         protocol = self.factory.buildProtocol(('127.0.0.1', 0))
         self.assertEqual(protocol.comaster, self.comaster)
-
