@@ -4,3 +4,4 @@ redis_*.py
 *.xml
 # Notebooks
 *.ipynb 
+*,cover
