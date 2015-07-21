@@ -10,17 +10,16 @@ from datetime import datetime
 from .validators import validate_template_format
 from django.template import Context, Template
 from mailer.models import Message
-from .fields import  CommaSeparatedEmailField
+from .fields import CommaSeparatedEmailField
 from django.conf import settings
 import constance
-from django.core.urlresolvers import reverse
 
 
 if VERSION <= (1, 7):
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.contenttypes import generic
 else:
-    from django.contrib.contenttypes.fields import GenericForeignKey
+    # from django.contrib.contenttypes.fields import GenericForeignKey
     from django.contrib.contenttypes.models import ContentType
 
 
@@ -61,9 +60,6 @@ class BaseNotificationAssociation(models.Model):
     def create_for_event(self, event):
         raise NotImplementedError("Not implemented for base class")
 
-#constance_config_url = reverse('admin:constance_config_changelist')
-#help_text = ''
-
 
 class SMSNotificationAssociation(BaseNotificationAssociation):
     """
@@ -78,8 +74,8 @@ class SMSNotificationAssociation(BaseNotificationAssociation):
     template = models.TextField(
         verbose_name="Plantilla",
         validators=[validate_template_format, ],
-        #default=constance.config.TEMPLATE_SMS,
-        #help_text=help_text,
+        # default=constance.config.TEMPLATE_SMS,
+        # help_text=help_text,
     )
 
     class Meta:
@@ -159,11 +155,10 @@ class EmailNotificationAssociation(BaseNotificationAssociation):
                 )
                 MessageLogEventRelation.objects.create(event=event, message=message)
 
-
-
     @staticmethod
     def send_mail(subject, message, from_email, recipient_list,
-                  priority="medium", fail_silently=False, auth_user=None, auth_password=None):
+                  priority="medium", fail_silently=False, auth_user=None,
+                  auth_password=None):
         from django.utils.encoding import force_unicode
         from mailer.models import Message
         from mailer import PRIORITY_MAPPING
@@ -179,11 +174,11 @@ class EmailNotificationAssociation(BaseNotificationAssociation):
 
         for to_address in recipient_list:
             message = Message(
-                    to_address=to_address,
-                    from_address=from_email,
-                    subject=subject,
-                    message_body=message,
-                    priority=priority
+                to_address=to_address,
+                from_address=from_email,
+                subject=subject,
+                message_body=message,
+                priority=priority
             )
             message.save()
             return message
@@ -273,7 +268,9 @@ class MessageLogEventRelation(models.Model):
         related_name='related_events',
     )
 
-@receiver(signals.post_save, sender=Event, dispatch_uid="event.sms_and_email_notifications")
+
+@receiver(signals.post_save, sender=Event,
+          dispatch_uid="event.sms_and_email_notifications")
 def create_request(instance, created, **kwargs):
     """Event hook on Event creation. Creates notification requests that later
     a management command will use to send notifications by SMS.
