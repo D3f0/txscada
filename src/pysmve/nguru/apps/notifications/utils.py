@@ -3,6 +3,8 @@ import serial
 from logging import getLogger
 from time import sleep
 from datetime import datetime
+from django.conf import settings
+import importlib
 
 
 logger = getLogger(__name__)
@@ -97,7 +99,22 @@ class SMSServerToolsModem(Modem):
 
 
 def get_available_modem():
-    """Protected variations"""
+    """Returns an instance of the available or configured modem.
+
+    Evaluations follows this order:
+        * Using settings.SMS_MODEM_CLASS class path
+        * Useing AT command based modem
+        * Using NullModem (useful for some tests)
+    """
+    modem_class = getattr(settings, 'SMS_MODEM_CLASS', None)
+
+    if modem_class:
+        mod_name, cls = modem_class.rsplit('.', 1)
+
+        mod = importlib.import_module(mod_name)
+        class_ = getattr(mod, cls)
+        return class_()
+
     if not os.path.exists(PORT):
         logger.info("Getting null modem")
         return NullModem()
