@@ -726,7 +726,9 @@ class UserProfile(models.Model):
 
 
 def create_user_profile(sender, instance, created, **kwargs):
+    """Automatically created a UserProfile for every new user"""
     if created:
+        logger.info("Creating profile for %s" % instance)
         UserProfile.objects.create(user=instance)
 
 signals.post_save.connect(create_user_profile, sender=User)
