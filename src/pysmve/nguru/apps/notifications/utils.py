@@ -86,8 +86,11 @@ class SMSServerToolsModem(Modem):
 
         assert not os.path.exists(destination), "%s exists" % destination
 
+        # This is how SMS Server tools expects the file to be created
+        body = 'To:  {to}\n\n{message}'.format(**locals())
+
         with open(destination, 'w') as fp:
-            fp.write(message)
+            fp.write(body)
 
     @staticmethod
     def get_current_time_formated():
