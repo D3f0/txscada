@@ -21,7 +21,7 @@ from traceback import format_exc  # To be removed once eval is removed
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
-cell_number_validator = RegexValidator('^(\\+?)\d{3,3}-?\d{2,2}-?\d{2,2}-?\d{3,3}$')
+cell_number_validator = RegexValidator('^549\d{3,4}4\d{6,8}$')
 
 # Formulas
 # Internationalization
