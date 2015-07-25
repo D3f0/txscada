@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from tastypie.test import ResourceTestCase, TestApiClient
-from apps.mara.tests.factories import SMVETreeCOMaseterFactory, UserFactory
+from apps.mara.tests.factories import SMVETreeCOMaseterFactory
+from apps.hmi.tests.factories import UserFactory
 from datetime import datetime
 from django_webtest import WebTest
 import unittest
