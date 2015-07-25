@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 
 
 class UserFactory(ORMFactory):
-    FACTORY_FOR = User
+    class Meta:
+        model = User
 
     @classmethod
     def _generate(cls, create, attrs):

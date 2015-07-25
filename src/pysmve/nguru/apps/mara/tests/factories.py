@@ -18,18 +18,6 @@ logging.getLogger("factory").setLevel(logging.WARN)
 from django.contrib.auth.models import User
 
 
-class UserFactory(ORMFactory):
-    FACTORY_FOR = User
-
-    @classmethod
-    def _generate(cls, create, attrs):
-        password = attrs.pop('password', attrs['username'])
-        user = super(UserFactory, cls)._generate(create, attrs)
-        user.set_password(password)
-        user.save()
-        return user
-
-
 class ContentTypeSequencer(object):
     def __init__(self):
         self.sequences = {}
@@ -48,11 +36,13 @@ insance_sequence = ContentTypeSequencer()
 
 
 class ProfileFactory(ORMFactory):
-    FACTORY_FOR = Profile
+    class Meta:
+        model = Profile
 
 
 class COMasterFactory(ORMFactory):
-    FACTORY_FOR = COMaster
+    class Meta:
+        model = COMaster
     profile = factory.SubFactory(ProfileFactory, name='default')
     ip_address = factory.Sequence(lambda n: '192.168.1.%d' % (n + 1))
     enabled = True
@@ -98,7 +88,8 @@ def SMVETreeCOMaseterFactory(can_ieds=3, can_dis=48, *args, **kwargs):
 
 
 class IEDFactory(ORMFactory):
-    FACTORY_FOR = IED
+    class Meta:
+        model = IED
     co_master = factory.SubFactory(COMasterFactory)
     rs485_address = factory.Sequence(lambda n: n+1)
     # offset = factory.LazyAttribute(lambda s: insance_sequence(s.co_master))
@@ -113,7 +104,8 @@ class IEDFactory(ORMFactory):
 
 
 class AIFactory(ORMFactory):
-    FACTORY_FOR = AI
+    class Meta:
+        model = AI
     ied = factory.SubFactory(IEDFactory)
     offset = factory.LazyAttribute(lambda s: insance_sequence(s.ied))
     value = 0
@@ -136,7 +128,8 @@ class AIFactory(ORMFactory):
 
 
 class DIFactory(ORMFactory):
-    FACTORY_FOR = DI
+    class Meta:
+        model = DI
 
     @classmethod
     def _adjust_kwargs(cls, **kwargs):
@@ -148,11 +141,13 @@ class DIFactory(ORMFactory):
 
 
 class EventDescriptionFactory(ORMFactory):
-    FACTORY_FOR = EventDescription
+    class Meta:
+        model = EventDescription
 
 
 class SVFactory(ORMFactory):
-    FACTORY_FOR = SV
+    class Meta:
+        model = SV
 
     @classmethod
     def _adjust_kwargs(cls, **kwargs):
@@ -164,20 +159,25 @@ class SVFactory(ORMFactory):
 
 
 class SVGScreenFactory(ORMFactory):
-    FACTORY_FOR = SVGScreen
+    class Meta:
+        model = SVGScreen
 
 
 class SVGElementFactory(ORMFactory):
-    FACTORY_FOR = SVGElement
+    class Meta:
+        model = SVGElement
 
 
 class SVGPropertyChangeSet(ORMFactory):
-    FACTORY_FOR = SVGPropertyChangeSet
+    class Meta:
+        model = SVGPropertyChangeSet
 
 
 class FormulaFactory(ORMFactory):
-    FACTORY_FOR = Formula
+    class Meta:
+        model = Formula
 
 
 class ColorFactory(ORMFactory):
-    FACTORY_FOR = Color
+    class Meta:
+        model = Color
