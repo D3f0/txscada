@@ -76,5 +76,18 @@ Ejemplo paquete de comando `0x10`, con destino `01` y origen `40`.
 Comandos de Mara
 ----------------
 
-* 0x10 Pedido de estados y eventos
-* 0x
+* Puesta en Hora
+  * `COM=0x12` y `SEC=0xBB`
+  * No tiene respuesta
+* Pedido de estados y eventos
+  * `COM=0x10`
+  * La respuesta responde 4 arreglos
+    * Estados
+      - SV (varsys)
+      - DI
+      - AI
+    * Eventos
+      - Digitales
+      - Analógicos
+
+
