@@ -18,18 +18,19 @@ Esquema
 
 ![Jeraquía de comunicaciones](mara.png)
 
-Mara sobre TCP
---------------
-* El maestro es el cliente (`socket connect`) y el esclavo
- es el servidor (`socket accept`).
+Mara encapsulado en TCP
+-----------------------
+
+* Desde el punto de vista de sockets:
+  * El maestro es el cliente (`connect`)
+  * El esclavo es el servidor (`accept`).
 * El servidor (a.k.a. **concentrador**) escucha conexión en puerto 9761. Responde comandos Mara que envía el cliente. *Atiende un solo cliente.*
 
-* El servidor tiene *aguas abajo* una red de placas:
+* El servidor tiene *aguas abajo* una red de IEDs:
 
-  * Estas placas se comunican en Mara con el concentrador en modo multi-punto (no PtP) mediante [RS485](https://es.wikipedia.org/wiki/RS-485).
-  * Estas placas realizan la función de adqusisción de datos.
-  * El concentrador respalda los datos y luego envía al cliente.
-a
+  * Los IEDs se comunican en Mara con el concentrador en modo multi-punto (no PtP) mediante [RS485](https://es.wikipedia.org/wiki/RS-485).
+  * Los IEDs realizan la función de adquisición de estados y eventos.
+  * El concentrador guarda una tabla global de estados de todos los IEDs (el concentrador también es un IED) y una pila de eventos.
 
 * El cliente es un software SCADA/HMI bautizado [nguru](https://github.com/D3f0/txscada) ya que es el depredador patagónico natural de la Mara.
 
@@ -105,17 +106,7 @@ Estructura de estados
   de un puerto de 16 bits. Cada DI corresponde a un IED.
 
   <table>
-    <tr>
-      <td>
-        #
-      </td>
-      <td colspan="2">
-        IED 1
-      </td>
-      <td colspan="2">
-        IED 2
-      </td>
-    </tr>
+    <tr><td>#</td><td colspan="2">IED 1</td><td colspan="2">IED 2</td></tr>
     <tr>
         <td>0x05
         </td>
@@ -127,5 +118,18 @@ Estructura de estados
   </table>
 
 
-Mapeo en Base de Datos
-----------------------
+Pruebas con ArquiCom.exe
+------------------------
+* Para utilizar un servidor de debug, podemos usar `netcat`.
+
+```bash
+nc -l 9761 | xdd -u
+```
+
+![netcat](netcat.png)
+
+-----
+
+* En Linux y OSX es necesario tener instalado wine.
+
+    ![ArquiCom](arquicom.png)
