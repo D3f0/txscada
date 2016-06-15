@@ -585,6 +585,47 @@
             }
         };
 
+        /**
+         * [setAlarmSound sets the alamr sound if it's enabled in Constance config.
+         * @param {[bool]} state [description]
+         */
+        function setAlarmSound(state) {
+            if (state) {
+                haveAlarms = true;
+                console.warn("Setting alarm sound");
+                var url = Urls.api_dispatch_detail('v1', 'settings', 1);
+                var xhr = $.ajax({
+                    url: url,
+                    method: 'GET',
+                    processData: false,
+                    contentType: 'application/json'
+                });
+                // Enable repeating sound
+                xhr.then(function (data){
+                    if (alarmBeep.volume != data.ALARM_BEEP_VOLUME) {
+                        console.log("Setting volume from ", alarmBeep.volume, "to",
+                                    data.ALARM_BEEP_VOLUME);
+                        alarmBeep.volume = data.ALARM_BEEP_VOLUME;
+                    }
+                    if (data.ALARM_BEEP) {
+                        console.log("PLAY!")
+                        alarmBeep.play(); // will repeat while haveAlarm is set
+                    } else {
+                        alarmBeep.pause();
+                        alarmBeep.currentTime = 0;
+
+                    }
+                }, function (error) {
+                    console.warn("Error getting config");
+                });
+            } else {
+                haveAlarms = false;
+                console.info("Unsettings alarm sound");
+            }
+
+        }
+
+
         function createMiniAlarmGrid(){
             miniAlarmGird = $('#mini-alarm');
             //$alarmCountSelect.c
@@ -616,24 +657,21 @@
                             console.log(arguments);
                         },
                         loadComplete: function () {
-
+                            // Disable last auto-refresh
                             if (this.timeoutID > 0) {
                                 window.clearTimeout(this.timeoutID);
                                 this.timeoutID = 0;
                             }
 
-                            var table = this;
-                            var records = $(table).getGridParam("records");
+                            var records = $(this).getGridParam("records");
                             if (records > 0) {
-                                if (!haveAlarms) {
-                                    haveAlarms = true;
-                                    alarmBeep.play();
-                                }
+                                setAlarmSound(true);
                             } else {
                                 console.warn("Todas las alarmas atendidas");
-                                haveAlarms = false;
+                                setAlarmSound(false);
                             }
-
+                            // Auto-refresh
+                            var table = this;
                             this.timeoutID = window.setTimeout(function () {
                                 $(table).trigger('reloadGrid');
                             }, 5000);
@@ -904,18 +942,8 @@
             });
         }
 
-        function init() {
-            createTabs();
-            $.when(
-                loadTagResource(),
-                loadScreenResource()
-            ).done(
-                findInitialScreenAndFireLoad
-
-            );
-            setupExtraWidgets();
-            createMiniAlarmGrid();
-
+        function createAudioElement() {
+            // Create audio resource
             alarmBeep = new Audio('/smve/static/audio/beep.mp3');
             alarmBeep.addEventListener('ended', function () {
                 if (haveAlarms) {
@@ -928,8 +956,20 @@
                 }
 
             }, false);
+        }
+        function init() {
+            createAudioElement();
+            createTabs();
+            $.when(
+                loadTagResource(),
+                loadScreenResource()
+            ).done(
+                findInitialScreenAndFireLoad
 
-            //update();
+            );
+            setupExtraWidgets();
+            createMiniAlarmGrid();
+
         }
         // API
         $.extend(SMVE, {
