@@ -8,9 +8,10 @@ from tastypie.authentication import (SessionAuthentication, MultiAuthentication,
                                      )
 
 
-from tastypie.resources import ALL, ALL_WITH_RELATIONS, ModelResource
+from tastypie.resources import ALL, ALL_WITH_RELATIONS, ModelResource, Resource
 from tastypie.exceptions import NotFound, BadRequest
 from datetime import datetime
+from constance import config
 
 # API Entry Point
 api = Api(api_name='v1')
@@ -331,3 +332,42 @@ class SVGElementDetailResource(ModelResource):
         authentication = authentication
 
 api.register(SVGElementDetailResource())
+
+
+class ConstanceWrapper(object):
+    def __init__(self, initial=None):
+        # self._data = config
+        pass
+
+    def __getattr__(self, name):
+        print name
+        return getattr(config, name)
+
+    def __setattr__(self, name, value):
+        pass
+
+    def to_dict(self):
+        return {k: getattr(config, k) for k in dir(config)}
+
+
+class SettingsResource(Resource):
+    ALARM_BEEP = fields.BooleanField(attribute='ALARM_BEEP')
+    ALARM_BEEP_VOLUME = fields.FloatField(attribute='ALARM_BEEP_VOLUME')
+
+    class Meta:
+        resource_name = 'settings'
+        authorization = authorization
+        authentication = authentication
+        object_class = ConstanceWrapper
+
+    def get_object_list(self, request):
+        obj = ConstanceWrapper()
+        return [obj, ]
+
+    def obj_get_list(self, bundle, **kwargs):
+        return [ConstanceWrapper(), ]
+
+    def obj_get(self, bundle, **kwargs):
+        return ConstanceWrapper()
+
+api.register(SettingsResource())
