@@ -21,7 +21,9 @@
             // Extra widgets
             btnJumpToUpperScreen = null,
             btnChangeSVGBackground = null,
-            svgNode;
+            svgNode,
+            haveAlarms=false,
+            alarmBeep=null;
 
         function fatalError(msg, description) {
             return alert(msg);
@@ -485,6 +487,7 @@
 
                                 reloadAlarmGrids();
 
+
                                 $dlg.dialog('close');
 
                             }, function (xhr, error, status) {
@@ -611,6 +614,30 @@
                         },
                         onSortCol: function (){
                             console.log(arguments);
+                        },
+                        loadComplete: function () {
+
+                            if (this.timeoutID > 0) {
+                                window.clearTimeout(this.timeoutID);
+                                this.timeoutID = 0;
+                            }
+
+                            var table = this;
+                            var records = $(table).getGridParam("records");
+                            if (records > 0) {
+                                if (!haveAlarms) {
+                                    haveAlarms = true;
+                                    alarmBeep.play();
+                                }
+                            } else {
+                                console.warn("Todas las alarmas atendidas");
+                                haveAlarms = false;
+                            }
+
+                            this.timeoutID = window.setTimeout(function () {
+                                $(table).trigger('reloadGrid');
+                            }, 5000);
+
                         }
                     })
             );
@@ -888,6 +915,19 @@
             );
             setupExtraWidgets();
             createMiniAlarmGrid();
+
+            alarmBeep = new Audio('/smve/static/audio/beep.mp3');
+            alarmBeep.addEventListener('ended', function () {
+                if (haveAlarms) {
+                    var that = this;
+                    window.setTimeout(function () {
+                        that.play();
+                    }, 300);
+                } else {
+                    console.log("Fin de reproducción");
+                }
+
+            }, false);
 
             //update();
         }
