@@ -308,11 +308,14 @@ Se ha producido un evento {{ event }} a las
 {{ event.timestamp|date:config.EVENT_DATE_FORMAT }}
 '''
 
+
 CONSTANCE_CONFIG = {
     'DEBUG_USERS': ('nahuel', _('Users that have debug toolbar enabled')),
     'TEMPLATE_EMAIL': (email_template, _('Email template.')),
     'TEMPLATE_SMS': (sms_template, _('SMS template.')),
-    'EVENT_DATE_FORMAT': ('G:i:s.u d/m/Y', _('Format for date in SMS and email.'))
+    'EVENT_DATE_FORMAT': ('G:i:s.u d/m/Y', _('Format for date in SMS and email.')),
+    'ALARM_BEEP': (True, _('Beep on alarms')),
+    'ALARM_BEEP_VOLUME': (1.0, _('Beep volume. Float from 0.0 to 1.0.')),
 }
 
 # =======================================================================================
