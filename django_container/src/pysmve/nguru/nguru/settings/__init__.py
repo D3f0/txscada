@@ -1,38 +1,22 @@
 # Monkey patch local path
 import sys
-from os.path import abspath, join, dirname
-
-# This is made so Django project is able to be used from upper immediate directory
-# structure
-_path = abspath(join(dirname(__file__), '../../..'))
-sys.path.append(join(_path, 'nguru'))
-sys.path.append(join(_path, 'nguru/nguru'))
+import os
+from base import *
+# This is made so Django project is able to be used from upper immediate 
+# directory structure
+# TODO: Chek if this hack is still necessary
+_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
+sys.path.append(os.path.join(_path, 'nguru'))
+sys.path.append(os.path.join(_path, 'nguru/nguru'))
 
 # Basic settings
-from base import *
-#if DEBUG:
-#    sys.path.append(join(PROJECT_ROOT, '..', '..', '..'))
-from zmq import *
-from websockets import *
-# Django query by example
-from qbe import *
-# Redis
-from redis import *
-from testing import *
-
-try:
-    from local_settings import *
-except ImportError:
-    pass
-
-if 'TRAVIS' in os.environ:
-    DATABASES = {
-        'default': {
-            'ENGINE':   'django.db.backends.postgresql_psycopg2',
-            'NAME':     'travisdb',
-            'USER':     'postgres',
-            'PASSWORD': '',
-            'HOST':     'localhost',
-            'PORT':     '',
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.postgresql_psycopg2'),
+        'NAME': os.environ.get('DB_NAME', 'travisdb'),
+        'USER': os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', ''),
     }
+}

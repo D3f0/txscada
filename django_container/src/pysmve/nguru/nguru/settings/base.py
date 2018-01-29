@@ -1,6 +1,7 @@
 # Django settings for nguru project.
 import sys
 import os
+from django.utils.translation import ugettext_lazy as _
 from os.path import abspath, dirname, join
 
 
@@ -10,7 +11,6 @@ PROJECT_ROOT = abspath(join(SETTINGS_PATH, '../..'))
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-from django.utils.translation import ugettext_lazy as _
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -52,7 +52,7 @@ MEDIA_ROOT = join(PROJECT_ROOT, 'static', 'media')
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = join(PROJECT_ROOT, 'static-content')
+STATIC_ROOT = os.environ.get('STATIC_ROOT', '/src/static')
 
 BASE_URL = 'smve/'
 
@@ -105,7 +105,7 @@ MIDDLEWARE_CLASSES = (
 MIDDLEWARE_CLASSES += 'dealer.contrib.django.staff.Middleware',
 
 
-ROOT_URLCONF = 'nguru.urls'
+ROOT_URLCONF = 'nguru.nguru.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'nguru.wsgi.application'
@@ -145,10 +145,6 @@ INSTALLED_APPS = (
     'apps.hmi',
     'apps.api',
     'apps.notifications',
-
-    # Query by example
-    'django_qbe',
-    'django_qbe.savedqueries',
 
     # Admin actions
     'object_tools',

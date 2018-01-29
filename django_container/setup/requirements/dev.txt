@@ -1,0 +1,33 @@
+# All production requirements
+# -r production.txt
+
+# Memory Profiling
+# Pympler==0.3.1
+# Documentation building
+# Sphinx
+setuptools_scm
+
+Werkzeug
+bugjar==0.1.0
+
+# Notebook
+# scandir (forced in Dockerfile)
+jupyter
+
+# -e git+https://github.com/ghtdak/qtreactor.git@82ec1802f04fbe54527884a55dafc859cd997c49#egg=qt4reactor-master
+
+# -e git+https://github.com/D3f0/txZMQ.git@54391e5f6685913c8f2b8219f1ad784a187b89c3#egg=txZMQ-master
+# watchdog==0.6.0
+
+# flake8
+# ipdb
+# pdbpp
+
+# Testing requirements
+pytest-django
+pytest-cov
+pytest-twisted
+coveralls
+django-webtest
+factory-boy==2.2.1
+mock

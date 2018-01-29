@@ -1,8 +1,0 @@
-\beamer@endinputifotherversion {3.07pt}
-\select@language {spanish}
-\beamer@sectionintoc {1}{Avrak}{2}{0}{1}
-\beamer@sectionintoc {2}{Presente}{3}{0}{2}
-\beamer@subsectionintoc {2}{1}{Introducci\IeC {\'o}n}{3}{0}{2}
-\beamer@subsectionintoc {2}{2}{Motor SCADA}{7}{0}{2}
-\beamer@subsectionintoc {2}{3}{GUI}{34}{0}{2}
-\beamer@sectionintoc {3}{Futuro}{38}{0}{3}

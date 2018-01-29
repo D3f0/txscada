@@ -1,0 +1,31 @@
+version: '2'
+services:
+  django:
+    build: ./django_container
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    # Development mode
+    command: python manage.py runserver 0:8000
+    environment:
+      - PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/src/.local/bin
+      - PYTHONPATH=/src/.local/lib/python2.7/site-packages/
+      - DB_HOST=postgres
+      - DB_USER=nguru
+      - DB_PASSWORD=p4ssword
+      - DB_NAME=nguru
+    volumes:
+      # Editable
+      - ./django_container/src/pysmve/:/src/pysmve/
+
+  postgres:
+      image: postgres:9.5
+      expose:
+        - "5432"
+      ports:
+        - "5432:5432"
+      environment:
+        - POSTGRES_PASSWORD=p4ssword
+        - POSTGRES_USER=nguru
+

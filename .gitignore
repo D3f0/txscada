@@ -86,3 +86,11 @@ src/pysmve/nguru/static/media/
 
 # Scripts (deployment dirs)
 scripts
+data/**.*
+# Ignore secrets
+**/fabsettings.py
+data/**.*
+data/*
+doc/*
+**/*.whl
+
