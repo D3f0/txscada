@@ -26,4 +26,8 @@ if [ -z "${NO_STATIC}" ]; then
     python manage.py collectstatic --noinput
 fi
 
+if [ -z "${NO_UPDATEPERMISSIONS}" ]; then
+    python manage.py update_permissions
+fi
+
 exec $cmd
