@@ -13,7 +13,7 @@ services:
       - PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/src/.local/bin
       - PYTHONPATH=/src/.local/lib/python2.7/site-packages/
     env_file:
-      - django_container/setup/env
+      - django_container/setup/env.dev
     volumes:
       # Editable
       - ./django_container/src/pysmve/:/src/pysmve/
@@ -30,4 +30,4 @@ services:
       ports:
         - "5432:5432"
       env_file:
-        - django_container/setup/env
+        - django_container/setup/env.dev
