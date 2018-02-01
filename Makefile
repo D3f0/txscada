@@ -35,71 +35,93 @@ print("""
 endef
 export PRINT_HELP_PYSCRIPT
 
+# Verbosity switch
+ifeq ($(V),1)
+Q =
+else
+Q = @
+endif
+
 all: up
 
 help:
-	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST) | less
+	$(Q)python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST) | less
 
 up:  ## Turn on all containers, builds if necessary
-	docker-compose up --build -d
+	$(Q)docker-compose up --build -d
+
+down:  ## Bing containers down
+	$(Q)docker-compose down $(SERVICE)
 
 up_no_build:  ## Starts containers skiping build
-	docker-compose up -d
+	$(Q)docker-compose up -d
+
+re:  ## Rebuild the image
+	$(Q)$(MAKE) down
+	$(Q)docker-compose up --build -d 
+	
 
 build:  ## Builds containers
-	docker-compose build
+	$(Q)docker-compose build
 
 build_no_cache:  ## Builds containers without using cache
-	docker-compose build --no-cache
+	$(Q)docker-compose build --no-cache
+
+exec:  SERVICE = django
+exec:  ## Executes command CMD in runnning container SERVICE
+	$(Q)docker-compose exec $(ENV) $(SERVICE) $(CMD) || \
+		echo "Cannot start $(CMD) in $(SERVICE), run: make up first. If fails try make tail_log"
+
+wait:
+	$(Q)echo "Wating for server to be running"
+	$(MAKE) CMD="python wait.py localhost 8000" exec
+	$(Q)echo "Wating for server to be running"
 
 shell:   ## Creates a shell on existing container
-	docker-compose exec $(ENV) django bash 
+	$(Q)$(MAKE) exec CMD=bash SERVICE=django
+		
+# if [ docker inspect -f '{{.State.Running}}' $$(docker-compose ps -q django)` == "false" ]; then \
+# 	echo "Django container seems down. Try make up" \
+# fi
 
-shell_new: ## Creates a new container running a shell
-	docker-compose run --rm $(ENV) django bash
+shell_new_cont: ## Creates a new diposable container running a shell 
+	$(Q)docker-compose run --rm $(ENV) django bash
 
-shell_no_install:  ## Creates a container with a shell, without installing dev tools
-	$(eval ENV := -e $(ENV) NO_INSTALL=1)
-	docker-compose run --rm $(ENV) django bash
+shell_new_cont_quick: ## Creates a new container running a shell
+	docker-compose run --rm $(ENV) -e NO_django bash
 
 shell_root:   ## Runs a shell as root in django container
-	@docker-compose exec $(ENV) -u 0 django bash
+	$(Q)docker-compose exec $(ENV) -u 0 django bash
 
 quick_run:  CMD = bash
 quick_run:  ## Run command
-	@docker-compose run --rm -e NO_INSTALL=1 django $(CMD)
+	$(Q)docker-compose run --rm -e NO_INSTALL=1 django $(CMD)
 
 manage.py: CMD = help
 manage.py:
-	@docker-compose exec django python $(MODULES) manage.py $(CMD)
+	$(Q)docker-compose exec django python $(MODULES) manage.py $(CMD)
 
 diffsettings:  ## Shows active settings
-	@$(MAKE) manage.py CMD='diffsettings'
+	$(Q)$(MAKE) manage.py CMD='diffsettings'
 
 syncdb:  ## Old Django command for syncing DBs
-	@$(MAKE) manage.py CMD='syncdb --noinput --migrate'
+	$(Q)$(MAKE) manage.py CMD='syncdb --noinput --migrate'
 
 collectstatic:  ## Collect static files
-	@$(MAKE) manage.py CMD='collectstatic --noinput'
-
+	$(Q)$(MAKE) manage.py CMD='collectstatic --noinput'
 
 logs:  ## Show logs
-	@docker-compose logs $(SERVICE)
+	$(Q)docker-compose logs $(SERVICE)
 
-log_tail:
-	@docker-compose logs -f $(SERVICE)
+tail_log:
+	$(Q)docker-compose logs -f $(SERVICE)
 
 ps:  ## Show current 
-	@docker-compose ps
-
-re:  ## Rebuilds
-	@docker-compose down
-	@docker-compose up --build -d 
-	@$(MAKE) log_tail SERVICE=django
+	$(Q)docker-compose ps
 
 runserver_pdb: PORT = 8000
 runserver_pdb:
-	docker-compose run \
+	$(Q)docker-compose run \
 		-p 8000:$(PORT) \
 		-e NO_INSTALL=1 \
 		django python -m pdb \
