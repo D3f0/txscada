@@ -94,3 +94,5 @@ data/*
 doc/*
 **/*.whl
 
+# Volume
+django_container/static/
