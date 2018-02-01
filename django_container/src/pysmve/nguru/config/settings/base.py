@@ -67,8 +67,10 @@ MEDIA_URL = STATIC_URL + 'media/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    'static',
-    join(PROJECT_ROOT, 'static'),
+    #'static',
+    #'/src/pysmve/nguru/static', 
+    #'/src/pysmve/nguru', 
+    #join(PROJECT_ROOT, 'static'),
 )
 
 # List of finder classes that know how to find static files in
@@ -105,17 +107,12 @@ MIDDLEWARE_CLASSES = (
 MIDDLEWARE_CLASSES += 'dealer.contrib.django.staff.Middleware',
 
 
-ROOT_URLCONF = 'nguru.nguru.urls'
+ROOT_URLCONF = 'nguru.config.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'nguru.wsgi.application'
-if os.environ['DJANGO_SETTINGS_MODULE'].startswith('nguru.nguru'):
-    WSGI_APPLICATION = 'nguru.%s' % WSGI_APPLICATION
+WSGI_APPLICATION = 'nguru.config.wsgi.application'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
     join(PROJECT_ROOT, 'templates'),
 )
 
