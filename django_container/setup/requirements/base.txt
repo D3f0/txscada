@@ -38,7 +38,7 @@ psutil==1.2.1
 psycopg2
 pyExcelerator==0.6.4.1
 pyOpenSSL
-pyasn1==0.1.7
+pyasn1
 pyparsing
 pyquery==1.2.4
 pyrepl==0.8.4
@@ -62,3 +62,4 @@ django-adminactions==0.8.1
 raven
 django-object-tools==1.0.1
 django-mailer==0.1.0
+service_identity
