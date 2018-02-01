@@ -2,6 +2,7 @@ version: '2'
 services:
   django:
     build: ./django_container
+    restart: unless-stopped
     expose:
       - "8000"
     ports:
@@ -11,21 +12,22 @@ services:
     environment:
       - PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/src/.local/bin
       - PYTHONPATH=/src/.local/lib/python2.7/site-packages/
-      - DB_HOST=postgres
-      - DB_USER=nguru
-      - DB_PASSWORD=p4ssword
-      - DB_NAME=nguru
+    env_file:
+      - django_container/setup/env
     volumes:
       # Editable
       - ./django_container/src/pysmve/:/src/pysmve/
+      # Preserve static files on restarts
+      - ./django_container/static/:/src/static/
+    depends_on:
+      - postgres
 
   postgres:
       image: postgres:9.5
+      restart: unless-stopped
       expose:
         - "5432"
       ports:
         - "5432:5432"
-      environment:
-        - POSTGRES_PASSWORD=p4ssword
-        - POSTGRES_USER=nguru
-
+      env_file:
+        - django_container/setup/env
