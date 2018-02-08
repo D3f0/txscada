@@ -31,3 +31,20 @@ services:
         - "5432:5432"
       env_file:
         - django_container/setup/env.dev
+      volumes:
+        - ./postgres_container/shared:/shared
+        
+  nginx:
+    image: nginx
+    restart: unless-stopped
+    expose:
+      - "80"
+    ports:
+      - "80:80"
+    volumes:
+      # Configuration
+      - ./nginx_container/etc/nginx/conf.d/:/etc/nginx/conf.d/
+      # Media shares with django
+      - ./django_container/static/:/static
+      - ./django_container/static/media:/static/media
+

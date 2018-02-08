@@ -79,6 +79,15 @@ wait:
 
 shell:   ## Creates a shell on existing container
 	$(Q)$(MAKE) exec CMD=bash SERVICE=django
+
+restart: SERVICE = django
+restart:  ## Restarts container
+	$(Q)echo "Restarting $(SERVICE)"
+	$(Q)docker-compose restart $(ENV) $(SERVICE)
+
+restart_nginx:
+	$(Q)$(MAKE) restart SERVICE=nginx
+
 		
 # if [ docker inspect -f '{{.State.Running}}' $$(docker-compose ps -q django)` == "false" ]; then \
 # 	echo "Django container seems down. Try make up" \
@@ -109,6 +118,9 @@ syncdb:  ## Old Django command for syncing DBs
 
 collectstatic:  ## Collect static files
 	$(Q)$(MAKE) manage.py CMD='collectstatic --noinput'
+
+createsuperuser:  ## Create a sueperuser
+	$(Q)$(MAKE) manage.py CMD=createsuperuser
 
 logs:  ## Show logs
 	$(Q)docker-compose logs $(SERVICE)
