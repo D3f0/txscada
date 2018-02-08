@@ -44,10 +44,14 @@ COPY --from=pip_download_dev /pip_download/dev /pip_download/dev
 RUN groupadd -g ${UID} -r ${USER} \
     && useradd -u ${UID} -r -g ${USER} ${USER} -d /src
 
-ADD --chown=django:django /src/pysmve /src/pysmve
+
+#ADD --chown=django:django /src/pysmve /src/pysmve
+ADD /src/pysmve /src/pysmve
+RUN chown -R django:django /src/pysmve
 
 RUN chown ${USER}:${USER} /src
-COPY --chown=django:django entrypoint.sh /entrypoint.sh
+COPY entrypoint.sh /entrypoint.sh
+RUN chown django:django /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # ADD  https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage /bin/vim
